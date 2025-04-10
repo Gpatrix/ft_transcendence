@@ -1,0 +1,3 @@
+option for ts:
+	noImplicitAny
+	strictNullChecks
