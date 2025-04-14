@@ -1,0 +1,15 @@
+services:
+  r_proxy:
+    container_name: r_proxy
+    restart: on-failure
+    build:
+        context: ./reverse_proxy
+        dockerfile: Dockerfile
+    ports:
+        - 443:443
+  api_gateway:
+    container_name: api_gateway
+    restart: on-failure
+    build:
+        context: ./back/api_gateway
+        dockerfile: Dockerfile
