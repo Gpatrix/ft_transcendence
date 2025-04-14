@@ -7,7 +7,7 @@ RUN apk update --no-cache && \
     npm install fastify && \
     npm i -D typescript @types/node
 
-COPY ./asset/test.ts .
+COPY ./asset/* .
 
 RUN npm run build
 
