@@ -1,9 +1,11 @@
+name: ft_transcendence
+
 services:
   r_proxy:
     container_name: r_proxy
     restart: on-failure
     build:
-        context: ./reverse_proxy
+        context: ./back/reverse_proxy
         dockerfile: Dockerfile
     ports:
         - 443:443
@@ -13,3 +15,5 @@ services:
     build:
         context: ./back/api_gateway
         dockerfile: Dockerfile
+    expose:
+      - 5000

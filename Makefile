@@ -1,4 +1,4 @@
-compos_file = ./docker-compose.yml
+compos_file = ./srcs/docker-compose.yml
 
 all: build up
 
