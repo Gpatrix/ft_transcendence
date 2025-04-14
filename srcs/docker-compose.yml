@@ -9,6 +9,8 @@ services:
         dockerfile: Dockerfile
     ports:
         - 443:443
+    networks:
+      - router
   api_gateway:
     container_name: api_gateway
     restart: on-failure
@@ -16,4 +18,13 @@ services:
         context: ./back/api_gateway
         dockerfile: Dockerfile
     expose:
-      - 5000
+      - 3000
+    networks:
+      - router
+      - services
+
+networks:
+  services:
+    driver: bridge
+  router:
+    driver: bridge
