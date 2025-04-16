@@ -52,3 +52,8 @@
 
 ◦ Major module: Enabling Pong gameplay via CLI against web users with
 API integration.
+
+# Instalation
+
+```The .env```
+
