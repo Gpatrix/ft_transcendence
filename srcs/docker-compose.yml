@@ -22,8 +22,28 @@ services:
     networks:
       - router
       - services
+  front_dev:
+    container_name: front_dev
+    restart: on-failure
+    build:
+        context: ./front/
+        dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - data-front:/var/www/html
+    networks:
+      - services
+volumes:
+  data-front:
+    name: data-front
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./front/vitejs
 networks:
   services:
     driver: bridge
   router:
-    driver: bridge
+    driver: bridgename: ft_transcendence
