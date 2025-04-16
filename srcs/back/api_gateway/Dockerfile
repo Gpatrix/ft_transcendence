@@ -4,10 +4,13 @@ WORKDIR /usr/src/api_gateway
 
 RUN apk update --no-cache && \
     apk add nodejs npm --no-cache && \
-    npm install fastify
+    npm install fastify && \
+    npm i -D typescript @types/node
 
-COPY ./asset/test.js .
+COPY ./asset/* .
+
+RUN npm run build
 
 EXPOSE 3000
 
-ENTRYPOINT ["node", "test.js"]
+ENTRYPOINT ["npm",  "run", "start"]
