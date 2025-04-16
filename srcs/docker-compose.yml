@@ -1,0 +1,29 @@
+name: ft_transcendence
+
+services:
+  r_proxy:
+    container_name: r_proxy
+    restart: on-failure
+    build:
+        context: ./back/reverse_proxy
+        dockerfile: Dockerfile
+    ports:
+        - 443:443
+    networks:
+      - router
+  api_gateway:
+    container_name: api_gateway
+    restart: on-failure
+    build:
+        context: ./back/api_gateway
+        dockerfile: Dockerfile
+    expose:
+      - 3000
+    networks:
+      - router
+      - services
+networks:
+  services:
+    driver: bridge
+  router:
+    driver: bridge
