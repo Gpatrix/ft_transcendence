@@ -8,4 +8,6 @@ WORKDIR /var/www/html
 COPY ./tools/vite.sh /tmp
 RUN chmod +x /tmp/vite.sh
 
+EXPOSE 5173
+
 ENTRYPOINT ["sh", "/tmp/vite.sh"]
