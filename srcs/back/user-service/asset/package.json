@@ -6,8 +6,8 @@
     "scripts": {
         "build": "tsc -p tsconfig.json",
         "start": "node index.js",
-        "db:migrate": "npx prisma migrate dev --name init && npx prisma generate",
-        "db:deploy": "npx prisma migrate deploy && npx prisma generate"
+        "db:migrate": "npx prisma migrate dev --name init && npx prisma generate --env-file=.env",
+        "db:deploy": "npx prisma migrate deploy && npx prisma generate --env-file=.env"
     },
     "keywords": [],
     "author": "",

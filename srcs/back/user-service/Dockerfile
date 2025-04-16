@@ -1,6 +1,6 @@
 FROM alpine:3.21.3
 
-WORKDIR /usr/src/api_gateway
+WORKDIR /usr/src/user-service
 
 RUN apk update --no-cache && \
     apk add nodejs npm --no-cache && \

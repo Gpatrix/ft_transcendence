@@ -26,6 +26,8 @@ services:
   user-service:
     container_name: user-service
     restart: on-failure
+    volumes:
+      - ./.env:/usr/src/user-service/.env
     build:
         context: ./back/user-service
         dockerfile: Dockerfile
