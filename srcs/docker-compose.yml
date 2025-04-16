@@ -15,11 +15,15 @@ services:
   api_gateway:
     container_name: api_gateway
     restart: on-failure
+    volumes:
+      - api-gateway:/usr/src/api_gateway/db
     environment:
       - DATABASE_URL=${DATABASE_URL:?}
     build:
         context: ./back/api_gateway
         dockerfile: Dockerfile
+    ports:
+      - 5555:5555
     expose:
       - 3000
     networks:
@@ -40,6 +44,13 @@ services:
       - router
 
 volumes:
+  api-gateway:
+    name: api-gateway
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./back/api_gateway/asset/db
   data-front:
     name: data-front
     driver: local
