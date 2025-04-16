@@ -22,19 +22,6 @@ services:
     networks:
       - router
       - services
-  
-  user-service:
-    container_name: user-service
-    restart: on-failure
-    build:
-        context: ./back/user-service
-        dockerfile: Dockerfile
-    expose:
-      - 3001
-    networks:
-      - router
-      - services
-
 networks:
   services:
     driver: bridge
