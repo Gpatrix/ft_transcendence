@@ -5,12 +5,13 @@ services:
     container_name: r_proxy
     restart: on-failure
     build:
-        context: ./back/reverse_proxy
+        context: ./reverse_proxy
         dockerfile: Dockerfile
     ports:
         - 443:443
     networks:
       - router
+
   api_gateway:
     container_name: api_gateway
     restart: on-failure
@@ -22,18 +23,20 @@ services:
     networks:
       - router
       - services
+
   front_dev:
     container_name: front_dev
     restart: on-failure
     build:
         context: ./front/
         dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
+    expose:
+      - 5173
     volumes:
       - data-front:/var/www/html
     networks:
-      - services
+      - router
+
 volumes:
   data-front:
     name: data-front
@@ -42,8 +45,9 @@ volumes:
       type: none
       o: bind
       device: ./front/vitejs
+
 networks:
   services:
     driver: bridge
   router:
-    driver: bridgename: ft_transcendence
+    driver: bridge
