@@ -4,28 +4,46 @@ import jwt from 'jsonwebtoken'
 const server = fastify();
 const authServiceAddress = "http://auth-service:3001";
 
-// server.post<{ Body: { name: string } }>('/api/ping', async (request, reply) => {
-//   console.log(request.body);
-//   reply.send(request.body.name)
-//   return request.body; 
-// })
+server.post('/api/user/login', async (req, res) => {
+  const response = await fetch(`${authServiceAddress}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req.body),
+  });
+  const data = await response.json();
+  res.status(response.status).send(data);
+});
 
-server.get<{ Params: { userId: string } }>('/api/ping/:userId', async (request, reply) => {
-  const userId = request.params.userId;
-  const response = await fetch(`${authServiceAddress}/${userId}`);
-  if (!response)
-    reply.status(503).send("auth service unavailable");
-  const content = await response.json();
-  if (!content || !content.email || !content.name)
-      reply.status(404).send();
-  const token = await jwt.sign({
-    data: {
-      email: content.email,
-      name: content.name
-    }
-  }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
-  reply.send(token); 
-})
+server.post('/api/user/signin', async (req, res) => {
+  const response = await fetch(`${authServiceAddress}/signin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req.body),
+  });
+  const data = await response.json();
+  res.status(response.status).send(data);
+});
+
+server.delete('/api/user/logout', async (req, res) => {
+  const response = await fetch(`${authServiceAddress}/logout`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req.body),
+  });
+  const data = await response.json();
+  res.status(response.status).send(data);
+});
+
+interface getUserParams {
+  id: string
+}
+
+server.delete<{ Params: getUserParams }>('/api/user/search/:id', async (req, res) => {
+  const response = await fetch(`${authServiceAddress}/search/${req.params.id}`, { method: 'GET' });
+  const data = await response.json();
+  res.status(response.status).send(data);
+});
+
 
 async function main() {
   let _address;

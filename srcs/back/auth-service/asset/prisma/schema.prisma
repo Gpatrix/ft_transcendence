@@ -25,6 +25,8 @@ model User {
   bio String?
   lang String?
   blockedUsers BlockedUser[]
+  isAdmin Boolean @default(false)
+  jwt String?
 }
 // not supported with sqlite
 // enum Role {
