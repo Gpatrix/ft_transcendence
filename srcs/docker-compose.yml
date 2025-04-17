@@ -17,7 +17,7 @@ services:
     container_name: api_gateway
     restart: on-failure
     volumes:
-      - ./back/api_gateway/asset:/usr/src/api_gateway/
+      - ./back/api_gateway/asset:/usr/src/api_gateway/asset
     environment:
       DATABASE_URL: ${DATABASE_URL:?}
       NODE_ENV: ${NODE_ENV:-production}
