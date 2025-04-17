@@ -1,5 +1,5 @@
-// import React from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { clsx } from 'clsx'
 
 const variants = tv({
     base: 'px-16 py-1 rounded-lg',
@@ -21,6 +21,6 @@ type ButtonProps = {
 
 export default function Button({text, type, className} : ButtonProps) {
     return (
-        <button className={variants({ type }) + " " + className}>{text}</button>
+        <button className={clsx(variants({ type }), className)}>{text}</button>
     );
 }
