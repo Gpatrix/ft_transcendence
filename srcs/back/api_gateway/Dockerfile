@@ -1,16 +1,19 @@
-FROM alpine:3.21.3
+FROM node:20-alpine
 
-WORKDIR /usr/src/api_gateway
+WORKDIR  /usr/src/api_gateway
 
 RUN apk update --no-cache && \
-    apk add nodejs npm --no-cache && \
-    npm install fastify && \
-    npm i -D typescript @types/node
+    apk add sqlite openssl --no-cache
 
-COPY ./asset/* .
+# RUN mkdir -p /usr/src/api_gateway/prisma/db
 
-RUN npm run build
+# COPY ./asset/ .
+
+COPY ./entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+# RUN npm install --omit=dev && npm run build
 
 EXPOSE 3000
 
-ENTRYPOINT ["npm",  "run", "start"]
+ENTRYPOINT ["./entrypoint.sh"]
