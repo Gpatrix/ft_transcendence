@@ -34,6 +34,24 @@ services:
       - router
       - services
 
+  chat-service:
+    container_name: chat-service
+    restart: on-failure
+    volumes:
+      - ./back/chat-service/asset/srcs:/usr/src/chat-service/asset/srcs
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+    build:
+        context: ./back/chat-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:-production}
+    expose:
+      - 3000
+    networks:
+      - services
+
+
   front_dev:
     container_name: front_dev
     restart: on-failure
