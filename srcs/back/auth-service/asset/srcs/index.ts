@@ -12,7 +12,6 @@ const server = fastify();
 
 server.get<{ Params: { userId: string } }>('/:userId', async (request, reply) => {
   const userId = Number(request.params.userId);
-  console.log("auth received fetch");
   const user = await prisma.user.findUnique({
     where: { 
       id: userId 

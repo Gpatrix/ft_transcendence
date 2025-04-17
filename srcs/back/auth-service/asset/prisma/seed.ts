@@ -1,41 +1,34 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 async function main() {
-  const alice = await prisma.user.upsert({
-    where: { email: 'alice@prisma.io' },
+  const louis = await prisma.user.upsert({
+    where: { email: 'louis@prisma.io' },
     update: {},
     create: {
-      email: 'alice@prisma.io',
-      name: 'Alice',
-      posts: {
-        create: {
-          title: 'Check out Prisma with Next.js',
-          published: true,
-        },
-      },
+      email: 'louis@prisma.io',
+      name: 'Louis',
+      password: "none"
     },
   })
-  const bob = await prisma.user.upsert({
-    where: { email: 'bob@prisma.io' },
+  const charlis = await prisma.user.upsert({
+    where: { email: 'charlis@prisma.io' },
     update: {},
     create: {
-      email: 'bob@prisma.io',
-      name: 'Bob',
-      posts: {
-        create: [
-          {
-            title: 'Follow Prisma on Twitter',
-            published: true,
-          },
-          {
-            title: 'Follow Nexus on Twitter',
-            published: true,
-          },
-        ],
-      },
+      email: 'charlis@prisma.io',
+      name: 'charlis',
+      password: "none"
     },
   })
-  console.log({ alice, bob })
+  const mael = await prisma.user.upsert({
+    where: { email: 'mael@prisma.io' },
+    update: {},
+    create: {
+      email: 'mael@prisma.io',
+      name: 'mael',
+      password: "none"
+    },
+  })
+  console.log(louis);
 }
 main()
   .then(async () => {

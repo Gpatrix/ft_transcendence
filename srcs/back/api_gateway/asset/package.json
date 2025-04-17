@@ -14,7 +14,7 @@
         "build": "tsc -p tsconfig.json",
         "start": "node ./srcs/index.js",
         "db:deploy": "npx prisma generate && npx prisma migrate deploy && npx prisma db seed",
-        "db:dev": "npx prisma generate && npx prisma migrate dev --skip-seed --name init&& npx prisma db seed"
+        "db:dev": "npx prisma migrate reset --force && npx prisma generate && npx prisma migrate dev --skip-seed --name init&& npx prisma db seed"
     },
     "keywords": [],
     "author": "",
