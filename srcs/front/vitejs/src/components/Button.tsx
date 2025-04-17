@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 import { clsx } from 'clsx'
 
 const variants = tv({
-    base: 'px-16 py-1 rounded-lg',
+    base: 'px-16 rounded-lg py-2 text-24',
     variants: {
       type: {
         full: 'bg-yellow text-grey',
@@ -15,12 +15,13 @@ const variants = tv({
 });
 
 type ButtonProps = {
-    text: string;
+    children: string;
     className?: string;
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
 } & VariantProps<typeof variants>;
 
-export default function Button({text, type, className} : ButtonProps) {
+export default function Button({children, type, className, onClick} : ButtonProps) {
     return (
-        <button className={clsx(variants({ type }), className)}>{text}</button>
+        <button onClick={onClick} className={clsx(variants({ type }), className)}>{children}</button>
     );
 }
