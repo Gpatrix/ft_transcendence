@@ -1,5 +1,6 @@
 name: ft_transcendence
 
+
 services:
   r_proxy:
     container_name: r_proxy
@@ -16,12 +17,15 @@ services:
     container_name: api_gateway
     restart: on-failure
     volumes:
-      - api-gateway:/usr/src/api_gateway/db
+      - ./back/api_gateway/asset:/usr/src/api_gateway/
     environment:
-      - DATABASE_URL=${DATABASE_URL:?}
+      DATABASE_URL: ${DATABASE_URL:?}
+      NODE_ENV: ${NODE_ENV:-production}
     build:
         context: ./back/api_gateway
         dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:-production}
     ports:
       - 5555:5555
     expose:
@@ -44,13 +48,6 @@ services:
       - router
 
 volumes:
-  api-gateway:
-    name: api-gateway
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./back/api_gateway/asset/db
   data-front:
     name: data-front
     driver: local
