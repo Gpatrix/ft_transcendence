@@ -20,6 +20,7 @@ services:
       - ./back/api_gateway/asset/srcs:/usr/src/api_gateway/asset/srcs
     environment:
       DATABASE_URL: ${DATABASE_URL:?}
+      JWT_SECRET: ${JWT_SECRET:?}
       NODE_ENV: ${NODE_ENV:-production}
     build:
         context: ./back/api_gateway
@@ -33,6 +34,28 @@ services:
     networks:
       - router
       - services
+
+  auth-service:
+    container_name: auth-service
+    restart: on-failure
+    volumes:
+      - ./back/auth-service/asset/srcs:/usr/src/auth-service/asset/srcs
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?}
+      NODE_ENV: ${NODE_ENV:-production}
+    build:
+        context: ./back/auth-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - 5556:5556
+    expose:
+      - 3001
+    networks:
+      - router
+      - services
+
 
   front_dev:
     container_name: front_dev
