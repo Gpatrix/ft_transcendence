@@ -8,6 +8,7 @@ import Input from './components/Input.tsx'
 import ProfilePic from './components/ProfilePic.tsx'
 import BgShadow from './components/BgShadow.tsx'
 import InputWithLabel from './components/InputWithLabel.tsx'
+import MonTest from './components/MonTest.tsx'
 
 function App()
 {
@@ -29,7 +30,8 @@ function App()
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
-          </BgShadow>
+            <MonTest states="Victoire" users={['user1', 'user2']} ></MonTest>
+          </BgShadow>'user2'
       </div>
     </div>
   

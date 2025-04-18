@@ -22,11 +22,14 @@ type ProfilePicProps = {
     image?: string;
     profileLink: string
     status?: VariantProps<typeof statusVariants>['status'];
+    size?: number;
 }
 
-export default function ProfilePic({ image, className, profileLink, status='none' } : ProfilePicProps) {
+export default function ProfilePic({ image, className, profileLink, status='none', size=30 } : ProfilePicProps) {
+    console.log("test" + size);
+    
     return (
-        <Link to={profileLink} className={clsx('relative w-30 h-30', className)}>
+        <Link to={profileLink} className={clsx('relative' + (size>0?(" w-" + size + " h-" + size):""), className)}>
             { status != 'none' &&
             <span className="flex absolute right-[-10%] bottom-[10%] justify-center items-center rounded-full w-2/5 h-2/5 bg-grey">
                 <div className={statusVariants( {status} )}/>
