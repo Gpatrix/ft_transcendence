@@ -1,23 +1,29 @@
 import fastify from 'fastify'
 import websocketPlugin from '@fastify/websocket'
 import WebSocket from 'ws';
+import { SocketAddress } from 'net';
 
 const server = fastify();
 server.register(websocketPlugin);
 server.register(wstest);
 
+interface structID 
+{
+    id: bigint;
+}
+
 async function wstest()
 {
-   server.get('/*', { websocket: true }, (socket: WebSocket, req) => {
-      try {
+   server.get<{Params: structID}>('/:id', { websocket: true }, (socket: WebSocket, req) => {
+    try {
          socket.on('message', (message: WebSocket.RawData) => {
             console.log('Received:', message.toString());
-            socket.send('Hello Fastify WebSockets');
-         });
-      } catch (error) {
+            socket.send(`WebSockets id ${req.params.id}`);
+        });
+      } catch (error)
+      {
          console.log(error);
       }
-
    });
 }
 
