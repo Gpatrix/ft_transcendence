@@ -14,7 +14,8 @@
     --color-purple: #BE0082;        /* Match results, some shadows */
     --color-grey : #011627;         /* Main Backgrounds */
     --color-dark : #000E1A;         /* Pure black, for header / layout contrast */
-
+    --color-offline : #A2A2A2;      /* Grey offline */
+    --color-green : #33FB68;
     --font-display: "Inter", sans-serif; 
     --font-title: "Press Start 2P", sans-serif;
 }   
