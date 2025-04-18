@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-WORKDIR  /usr/src/api_gateway
+WORKDIR  /usr/src/user-service
 
 RUN apk update --no-cache && \
     apk add sqlite openssl --no-cache

@@ -10,6 +10,6 @@ RUN chmod +x entrypoint.sh
 
 COPY ./asset ./asset
 
-EXPOSE 3001
+EXPOSE 3000
 
 ENTRYPOINT ["./entrypoint.sh"]

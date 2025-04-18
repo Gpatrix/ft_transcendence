@@ -5,36 +5,8 @@ import { OAuth2Namespace } from '@fastify/oauth2';
 
 const server = fastify();
 
-declare module 'fastify' {
-  interface FastifyInstance {
-    googleOAuth2: OAuth2Namespace;
-  }
-}
-
 server.register(cookiesPlugin, {});
-server.register(require("./routes/auth"));
-
-const areCookiesSecure = process.env.NODE_ENV != 'dev';
-
-server.register(oauthPlugin, {
-  name: 'googleOAuth2',
-  scope: ['profile', 'email'],
-  credentials: {
-    client: {
-      id: process.env.GOOGLE_CLIENT_ID,
-      secret: process.env.GOOGLE_CLIENT_SECRET
-    },
-  },
-  cookie: {
-    secure: areCookiesSecure,
-    sameSite: 'none'
-  },
-  startRedirectPath: '/api/user/login/google',
-  callbackUri: 'https://localhost/api/user/login/google/callback',
-  discovery: {
-    issuer: 'https://accounts.google.com'
-  }
-})
+server.register(require("./routes/user"));
 
 async function main() {
   let _address;

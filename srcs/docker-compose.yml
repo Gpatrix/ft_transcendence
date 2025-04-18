@@ -13,20 +13,20 @@ services:
     networks:
       - router
 
-  api_gateway:
-    container_name: api_gateway
+  auth-service:
+    container_name: auth-service
     restart: on-failure
     volumes:
-      - ./back/api_gateway/asset/srcs:/usr/src/api_gateway/asset/srcs
+      - ./back/auth-service/asset/srcs:/usr/src/auth-service/asset/srcs
     environment:
       DATABASE_URL: ${DATABASE_URL:?}
-      AUTH_SERVICE: ${AUTH_SERVICE:?}
+      JWT_SECRET: ${JWT_SECRET:?}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:?}
       NODE_ENV: ${NODE_ENV:-production}
     build:
-        context: ./back/api_gateway
+        context: ./back/auth-service
         dockerfile: Dockerfile
         args:
           NODE_ENV: ${NODE_ENV:-production}
@@ -38,24 +38,24 @@ services:
       - router
       - services
 
-  auth-service:
-    container_name: auth-service
+  user-service:
+    container_name: user-service
     restart: on-failure
     volumes:
-      - ./back/auth-service/asset/srcs:/usr/src/auth-service/asset/srcs
+      - ./back/user-service/asset/srcs:/usr/src/user-service/asset/srcs
     environment:
       DATABASE_URL: ${DATABASE_URL:?}
       JWT_SECRET: ${JWT_SECRET:?}
       NODE_ENV: ${NODE_ENV:-production}
     build:
-        context: ./back/auth-service
+        context: ./back/user-service
         dockerfile: Dockerfile
         args:
           NODE_ENV: ${NODE_ENV:-production}
     ports:
       - 5555:5555
     expose:
-      - 3001
+      - 3000
     networks:
       - router
       - services
