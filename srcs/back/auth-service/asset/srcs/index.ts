@@ -1,17 +1,49 @@
 import fastify from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 const server = fastify();
-let jwtBlackList: Array<string> = [];
 
 // server.post<{ Body: { name: string } }>('/api/ping', async (request, reply) => {
 //   console.log(request.body);
 //   reply.send(request.body.name)
 //   return request.body;
 // })
+
+interface loginGoogle {
+  userinfo: any;
+}
+
+server.post<{ Body: loginGoogle }>('/login/google', async (request, reply) => {
+  const userinfo = request.body.userinfo;
+  let user: User | null;
+  user = await prisma.user.findUnique({
+    where: { 
+      email: userinfo.email 
+    }
+  })
+  if (!user)
+  {
+    user = await prisma.user.create({
+      data: {
+        email: userinfo.email,
+        name: userinfo.email,
+        prof_picture: userinfo.picture
+      }
+    })
+  }
+  const token = await jwt.sign({
+    data: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isAdmin: user.isAdmin
+    }
+  }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+  reply.send({ response: token });
+})
 
 interface signInBody {
   email: string,
@@ -22,11 +54,11 @@ interface signInBody {
 server.post<{ Body: signInBody }>('/signin', async (request, reply) => {
   const { email, name, password } = request.body;
   if (!email)
-    return (reply.status(400).send({ error: "no email" }));
+    return (reply.status(400).send({ error: "no_email" }));
   if (!name)
-    return (reply.status(400).send({ error: "no name" }));
+    return (reply.status(400).send({ error: "no_name" }));
   if (!password)
-    return (reply.status(400).send({ error: "no password" }));
+    return (reply.status(400).send({ error: "no_password" }));
   try {
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await prisma.user.upsert({
@@ -39,7 +71,7 @@ server.post<{ Body: signInBody }>('/signin', async (request, reply) => {
       },
     })
     if (!user)
-      return (reply.status(500).send({ error: "server error"}));
+      throw(new Error("cannot upsert user in prisma"));
     const token = await jwt.sign({
       data: {
         id: user.id,
@@ -48,10 +80,11 @@ server.post<{ Body: signInBody }>('/signin', async (request, reply) => {
         isAdmin: false
       }
     }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+    if (!token)
+      throw(new Error("cannot generate user token"));
     return (reply.status(200).send({ response: token }));
   } catch (error) {
-    console.log(process.env.JWT_SECRET)
-    return (reply.status(500).send({ error: "server error"}));
+    return (reply.status(500).send({ error: "server_error"}));
   }
 })
 
@@ -69,12 +102,10 @@ server.post<{ Body: loginBody }>('/login', async (request, reply) => {
     }
   })
   if (!user)
-    return reply.status(404).send({ error: "user not found" });
-  console.log(password);
-  console.log(user.password);
-  const isCorrect = await bcrypt.compare(password, user.password);
+    return reply.status(404).send({ error: "user_not_found" });
+  const isCorrect = await bcrypt.compare(password as string, user.password);
   if (!isCorrect)
-    return reply.status(401).send({ error: "invalid password "});
+    return reply.status(401).send({ error: "invalid_password "});
   const token = await jwt.sign({
     data: {
       id: user.id,
@@ -93,19 +124,14 @@ interface logoutParams {
 server.delete<{ Body: logoutParams }>('/logout', async (request, reply) => {
   const token = request.body.token;
   if (!token)
-      return (reply.status(401).send({ error: "no token provided" }));
+      return (reply.status(401).send({ error: "no_token_provided" }));
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
   const id = decoded.data?.id
   if (!id)
-    return (reply.status(401).send({ error: "invalid token provided" }));
-  const user = await prisma.user.findUnique({
-    where: { 
-      id: Number(id) 
-    }
-  })
+    return (reply.status(401).send({ error: "invalid_token_provided" }));
   if (!user)
-    return reply.status(404).send({ error: "user not found" });
-  reply.send({ response: "logout success" });
+    return reply.status(404).send({ error: "user_not_found" });
+  reply.send({ response: "logout_success" });
 })
 
 interface getUserParams {
@@ -120,7 +146,7 @@ server.get<{ Params: getUserParams }>('/search/:userId', async (request, reply) 
     }
   })
   if (!user)
-    return reply.status(404).send({ error: "user not found" });
+    return reply.status(404).send({ error: "user_not_found" });
   reply.send(user);
 }) 
 

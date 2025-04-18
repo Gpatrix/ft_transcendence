@@ -20,13 +20,12 @@ model User {
   id Int @id @unique @default(autoincrement())
   name String @unique
   email String @unique
-  password String
+  password String?
   prof_picture String?
   bio String?
   lang String?
   blockedUsers BlockedUser[]
   isAdmin Boolean @default(false)
-  jwt String?
 }
 // not supported with sqlite
 // enum Role {

@@ -1,49 +1,69 @@
 import fastify from 'fastify'
-import jwt from 'jsonwebtoken'
+const oauthPlugin = require('@fastify/oauth2')
+const cookiesPlugin = require('@fastify/cookie');
+import { OAuth2Namespace } from '@fastify/oauth2';
 
 const server = fastify();
-const authServiceAddress = "http://auth-service:3001";
 
-server.post('/api/user/login', async (req, res) => {
-  const response = await fetch(`${authServiceAddress}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req.body),
-  });
-  const data = await response.json();
-  res.status(response.status).send(data);
-});
-
-server.post('/api/user/signin', async (req, res) => {
-  const response = await fetch(`${authServiceAddress}/signin`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req.body),
-  });
-  const data = await response.json();
-  res.status(response.status).send(data);
-});
-
-server.delete('/api/user/logout', async (req, res) => {
-  const response = await fetch(`${authServiceAddress}/logout`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req.body),
-  });
-  const data = await response.json();
-  res.status(response.status).send(data);
-});
-
-interface getUserParams {
-  id: string
+declare module 'fastify' {
+  interface FastifyInstance {
+    googleOAuth2: OAuth2Namespace;
+  }
 }
+server.register(require("./routes/user"));
+server.register(cookiesPlugin, {});
 
-server.delete<{ Params: getUserParams }>('/api/user/search/:id', async (req, res) => {
-  const response = await fetch(`${authServiceAddress}/search/${req.params.id}`, { method: 'GET' });
-  const data = await response.json();
-  res.status(response.status).send(data);
-});
+const areCookiesSecure = process.env.NODE_ENV != 'dev';
 
+server.register(oauthPlugin, {
+  name: 'googleOAuth2',
+  scope: ['profile', 'email'],
+  credentials: {
+    client: {
+      id: process.env.GOOGLE_CLIENT_ID,
+      secret: process.env.GOOGLE_CLIENT_SECRET
+    },
+  },
+  cookie: {
+    secure: areCookiesSecure,
+    sameSite: 'none'
+  },
+  startRedirectPath: '/api/login/google',
+  callbackUri: 'https://localhost/api/login/google/callback',
+  discovery: {
+    issuer: 'https://accounts.google.com'
+  }
+})
+
+server.get('/api/login/google/callback', async function (request, reply) {
+  try {
+    const { token } = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
+    if (!token)
+        throw (Error ("no_google_token_generated"));
+    const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
+    if (!userinfo)
+      throw (Error ("cannot_get_user_infos"));
+    const response = await fetch(`${process.env.AUTH_SERVICE}/login/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userinfo
+      }),
+    });
+    const data = await response.json();
+    if (response.ok)
+      return (reply.cookie("ft_transcendence_jw_token", data.response).send({ response: "successfully logged with google" }));
+    else
+      return (reply.status(response.status).send(data));
+  } catch (error) {
+    reply.status(500).send({ error: "server_error" })
+  }
+
+
+  // if later need to refresh the token this can be used
+  // const { token: newToken } = await this.getNewAccessTokenUsingRefreshToken(token)
+
+})
 
 async function main() {
   let _address;

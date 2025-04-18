@@ -20,6 +20,10 @@ services:
       - ./back/api_gateway/asset/srcs:/usr/src/api_gateway/asset/srcs
     environment:
       DATABASE_URL: ${DATABASE_URL:?}
+      AUTH_SERVICE: ${AUTH_SERVICE:?}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:?}
       NODE_ENV: ${NODE_ENV:-production}
     build:
         context: ./back/api_gateway
