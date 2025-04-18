@@ -1,0 +1,37 @@
+{
+    "name": "asset",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "prisma": {
+        "seed": "ts-node --transpile-only ./prisma/seed.ts"
+    },
+    "watch": {
+        "dev": "./srcs/*.ts"
+    },
+    "scripts": {
+        "dev": "ts-node-dev --respawn --transpile-only ./srcs/index.ts",
+        "build": "tsc -p tsconfig.json",
+        "start": "node ./srcs/index.js",
+        "db:deploy": "npx prisma generate && npx prisma migrate deploy && npx prisma db seed",
+        "db:dev": "npx prisma generate && npx prisma migrate dev --skip-seed --name init&& npx prisma db seed"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@fastify/oauth2": "^8.1.2",
+        "@prisma/client": "^6.6.0",
+        "@types/node": "^22.14.1",
+        "bcrypt": "^5.1.1",
+        "fastify": "^5.3.0",
+        "jsonwebtoken": "^9.0.2",
+        "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0"
+    },
+    "devDependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "prisma": "^6.6.0",
+        "typescript": "^5.8.3"
+    }
+}
