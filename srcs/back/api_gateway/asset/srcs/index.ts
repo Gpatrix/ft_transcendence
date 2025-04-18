@@ -4,8 +4,8 @@ const APIchat = 'http://chat-service:3000'
 
 const server = fastify();
 
-interface IQueryromm {
-    room: bigint;
+interface IChatInfo {
+    target: bigint;
 }
 
 interface IHeaders {
@@ -19,12 +19,12 @@ interface IReply {
 }
 
 server.get<{
-    Querystring: IQueryromm,
+    Querystring: IChatInfo,
     Headers: IHeaders,
     Reply: IReply
-}>('/api/chat/', async (request, reply) => {
+}>('/api/chat', async (request, reply) => {
     try {
-        const response = await fetch(`${APIchat}/?room=${request.query.room}`);
+        const response = await fetch(`${APIchat}/?target=${request.query.target}`);
         const result = await response.json();
         return (result);
     } catch (error) {

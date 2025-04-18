@@ -2,31 +2,17 @@ import fastify from 'fastify'
 
 const server = fastify();
 
-interface IQueryromm {
-    room: bigint;
+interface IChatInfo {
+    target: bigint;
 }
 
-interface IHeaders {
-    'h-Custom': string;
-}
-
-interface IReply {
-    200: { success: boolean };
-    302: { url: string };
-    '4xx': { error: string };
-}
-
-server.get<{
-    Querystring:    IQueryromm,
-    Headers:        IHeaders,
-    Reply:          IReply
-}>('/', async (request, reply) => {
+server.get<{Querystring: IChatInfo,}>('/', async (request, reply) => {
     let message: string;
 
-    if (request.query.room == undefined)
+    if (request.query.target == undefined)
         message = 'no room found';
     else
-        message = `recv room ${request.query.room}`;
+        message = `recv room ${request.query.target}`;
     return {message};
 })
 
