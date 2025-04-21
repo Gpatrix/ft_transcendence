@@ -29,8 +29,8 @@ server.register(oauthPlugin, {
     secure: areCookiesSecure,
     sameSite: 'none'
   },
-  startRedirectPath: '/api/user/login/google',
-  callbackUri: 'https://localhost/api/user/login/google/callback',
+  startRedirectPath: '/api/auth/login/google',
+  callbackUri: 'https://localhost/api/auth/login/google/callback',
   discovery: {
     issuer: 'https://accounts.google.com'
   }
@@ -38,7 +38,7 @@ server.register(oauthPlugin, {
 
 async function main() {
   let _address;
-  await server.listen({ host: '0.0.0.0', port: 3001 }, (err, address) => {
+  await server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) => {
     if (err) {
       console.error(err);
       process.exit(1);

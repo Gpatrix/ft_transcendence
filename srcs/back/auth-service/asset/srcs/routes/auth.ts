@@ -1,9 +1,6 @@
 import { FastifyInstance } from "fastify";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { PrismaClient, User } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -14,7 +11,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         password: string,
     }
     
-    server.post<{ Body: signInBody }>('/api/user/signin', async (req, res) => {
+    server.post<{ Body: signInBody }>('/api/auth/signin', async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
             return (res.status(400).send({ error: "no_email" }));
@@ -24,17 +21,23 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             return (res.status(400).send({ error: "no_password" }));
         try {
             const hashedPassword = await bcrypt.hash(password, 12);
-            const user = await prisma.user.upsert({
-            where: { email: email },
-            update: {},
-            create: {
-                email: email,
-                name: name,
-                password: hashedPassword
-            },
-            })
+            const response = await fetch(`http://user-service:3000/api/user/create`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    name: name,
+                    password: hashedPassword,
+                    credential: process.env.API_CREDENTIAL
+                }),
+            });
+            const data = await response.json();
+            if (!response.ok)
+                res.status(response.status).send({ error: data.error})
+            const user = data;
             if (!user)
-            throw(new Error("cannot upsert user in prisma"));
+                throw(new Error("cannot upsert user in prisma"));
             const token = await jwt.sign({
             data: {
                 id: user.id,
@@ -47,6 +50,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 throw(new Error("cannot generate user token"));
             return (res.cookie("ft_transcendence_jw_token", token).status(200).send({ response: "successfully signed in" }));
         } catch (error) {
+            console.log(error);
             return (res.status(500).send({ error: "server_error"}));
         }
     });
@@ -56,35 +60,49 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
       password: string
     }
     
-    server.post<{ Body: loginBody }>('/api/user/login', async (request, reply) => {
-        const email = request.body.email;
-        const password = request.body.password;
-        const user = await prisma.user.findUnique({
-            where: { 
-            email: email 
-            }
-        })
-        if (!user)
-            return reply.status(404).send({ error: "user_not_found" });
-        const isCorrect = await bcrypt.compare(password as string, user.password);
-        if (!isCorrect)
-            return reply.status(401).send({ error: "invalid_password "});
-        const token = await jwt.sign({
-            data: {
-            id: user.id,
-            email: email,
-            name: user.name,
-            isAdmin: user.isAdmin
-            }
-        }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
-        reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in" });
+    server.post<{ Body: loginBody }>('/api/auth/login', async (request: any, reply: any) => {
+        try {
+            const email = request.body.email;
+            const password = request.body.password;
+            const response = await fetch(`http://user-service:3000/api/user/lookup/${email}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    credential: process.env.API_CREDENTIAL
+                }),
+            });
+            const data = await response.json();
+            if (!response.ok)
+                reply.status(response.status).send({ error: data.error})
+            const user = data;
+            if (!user)
+                return reply.status(404).send({ error: "user_not_found" });
+            const isCorrect = await bcrypt.compare(password as string, user.password);
+            if (!isCorrect)
+                return reply.status(401).send({ error: "invalid_password "});
+            const token = await jwt.sign({
+                data: {
+                id: user.id,
+                email: email,
+                name: user.name,
+                isAdmin: user.isAdmin
+                }
+            }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+            reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in" });         
+        } catch (error) {
+            reply.status(500).send({ error:"server_error" });
+        }
+
     })
 
     interface logoutParams {
         token: string
       }
       
-    server.delete<{ Body: logoutParams }>('api/user/logout', async (request, reply) => {
+    server.delete<{ Body: logoutParams }>('/api/auth/logout', async (request, reply) => {
         const token = request.body.token;
         if (!token)
             return (reply.status(401).send({ error: "no_token_provided" }));
@@ -115,11 +133,10 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: userinfo.email,
-                        prof_picture = userinfo.picture,
+                        prof_picture: userinfo.picture,
                         name: userinfo.name
                     }),
                 });
-
             }
             const jsonwebtoken = await jwt.sign({
             data: {
