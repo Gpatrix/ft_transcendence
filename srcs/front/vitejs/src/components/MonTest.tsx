@@ -25,8 +25,8 @@ export default function MonTest({ states, className } : MonTestProps) {
             {/* <aside className='border-2 border-solid border-yellow rounded-sm mr-px'>date</aside> */}
             {/* <div className=' transform rotate-10 bg-yellow w-30 h-30'></div> */}
             <div className=' flex shadow-2xs border-2 p-[10px]
-            border-solid border-yellow rounded-sm w-full p'>
-                <span className='p-[20px] states text-2xl '>
+            border-solid border-yellow rounded-sm w-full'>
+                <span className='p-[20px] states text-2xl'>
                     {states}
                 </span>
                 <span className='scores flex justify-center items-center'>

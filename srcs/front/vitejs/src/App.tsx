@@ -26,12 +26,16 @@ function App()
         <ProfilePic status='online' profileLink='https://www.google.com' />
         <ProfilePic status='offline' profileLink='https://www.google.com' className='opacity-30'/>
       </div>
+
+      <div className=''>
+        <ProfilePic status='offline' profileLink='https://www.google.com' image='https://localhost/test.jpeg' size={0}/>
+      </div>
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <MonTest states="Victoire" users={['user1', 'user2']} ></MonTest>
-          </BgShadow>'user2'
+          </BgShadow>
       </div>
     </div>
   
