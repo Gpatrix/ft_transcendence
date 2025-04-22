@@ -46,6 +46,60 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         reply.send(user);
     })
 
+    interface dfaUpdateBody
+    {
+        credential?: string,
+        twoFactorSecretTemp?: string,
+        twoFactorSecret?: string,
+        isTwoFactorEnabled?: boolean
+    }
+
+    interface dfaUpdateParams
+    {
+        id: string,
+    }
+
+    server.put<{ Body: dfaUpdateBody, Params: dfaUpdateParams }>('/api/user/2fa/update:id', async (request, reply) => {
+        try {
+            const credential = request.body?.credential;
+            if (!credential || credential != process.env.API_CREDENTIAL)
+                reply.status(401).send({ error: "private_route" });
+            const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
+            const twoFactorSecret = request.body?.twoFactorSecret;
+            let put: dfaUpdateBody = {};
+            if (twoFactorSecret)
+            {
+                put.isTwoFactorEnabled = true;
+                put.twoFactorSecret = twoFactorSecret;
+            }
+            if (twoFactorSecretTemp)
+                put.twoFactorSecretTemp = twoFactorSecret;
+            let user = await prisma.user.update({
+                where: { 
+                    id: Number(request.params.id)
+                },
+                data : put
+            });
+            reply.send(user);
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError)
+                {
+                    switch (error.code) {
+                        case 'P2003':
+                            reply.status(403).send({ error: "missing_arg"});
+                          break
+                        case 'P2000':
+                            reply.status(403).send({ error: "too_long_arg"});
+                          break
+                        default:
+                            reply.status(403).send({ error: error.message});
+                    }
+                }
+            else
+                reply.status(500).send({ error: "server_error" });
+        }
+    })
+
     interface getUserParams 
     {
         email: string
