@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import validatePassword  from "../validators/password";
 
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -11,7 +12,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         password: string,
     }
     
-    server.post<{ Body: signInBody }>('/api/auth/signin', async (req, res) => {
+    server.post<{ Body: signInBody }>('/api/auth/signin', { preHandler:[validatePassword] }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
             return (res.status(400).send({ error: "no_email" }));
@@ -50,7 +51,22 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 throw(new Error("cannot generate user token"));
             return (res.cookie("ft_transcendence_jw_token", token).status(200).send({ response: "successfully signed in" }));
         } catch (error) {
-            console.log(error);
+            if (error instanceof Prisma.PrismaClientKnownRequestError)
+                {
+                    switch (error.code) {
+                        case 'P2002':
+                            reply.status(403).send({ error: "this name is already used"});
+                            break
+                        case 'P2003':
+                            reply.status(403).send({ error: "missing_arg"});
+                          break
+                        case 'P2000':
+                            reply.status(403).send({ error: "too_long_arg"});
+                          break
+                        default:
+                            reply.status(403).send({ error: error.message});
+                    }
+            }
             return (res.status(500).send({ error: "server_error"}));
         }
     });
@@ -70,7 +86,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: email,
-                    password: password,
                     credential: process.env.API_CREDENTIAL
                 }),
             });
@@ -80,6 +95,8 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             const user = data;
             if (!user)
                 return reply.status(404).send({ error: "user_not_found" });
+            if (!user.password)
+                return reply.status(401).send({ error: "account_created_with_provider" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
             if (!isCorrect)
                 return reply.status(401).send({ error: "invalid_password "});
@@ -122,9 +139,13 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             if (!userinfo)
                 throw (Error ("cannot_get_user_infos"));
             let user: User;
-            const response = await fetch(`http://user-service:3000/search/${userinfo.email}`, {
-                method: "GET"
-            })
+            const response = await fetch(`http://user-service:3000/loopkup/${userinfo.email}`,  {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    credential: process.env.API_CREDENTIAL
+                })
+                });
             user = await response?.json();
             if (!user)
             {
@@ -137,6 +158,10 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                         name: userinfo.name
                     }),
                 });
+                const data = await response?.json();
+                if (!response.ok)
+                    return (reply.status(response.status).send({ error: data.error }));
+                user = data;
             }
             const jsonwebtoken = await jwt.sign({
             data: {
@@ -151,6 +176,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             else
                 throw new Error("no token generated");
         } catch (error) {
+            console.log(error);
             reply.status(500).send({ error: "server_error" })
         }
         

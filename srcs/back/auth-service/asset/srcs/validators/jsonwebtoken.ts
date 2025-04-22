@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-export function validatePassword(request, reply, done) {
+export function isConnected(request, reply, done) {
     const token = request.cookies.ft_transcendence_jw_token;
     if (!token)
         return (reply.status(401).send({ error: "user_not_logged_in" }));
@@ -11,5 +11,5 @@ export function validatePassword(request, reply, done) {
     done();
 }
 
-module.exports = validatePassword;
+module.exports = isConnected;
 

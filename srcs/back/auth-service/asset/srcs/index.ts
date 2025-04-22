@@ -27,7 +27,7 @@ server.register(oauthPlugin, {
   },
   cookie: {
     secure: areCookiesSecure,
-    sameSite: 'none'
+    sameSite: 'lax'
   },
   startRedirectPath: '/api/auth/login/google',
   callbackUri: 'https://localhost/api/auth/login/google/callback',

@@ -1,4 +1,4 @@
-export function validatePassword(request, reply, done) {
+function validatePassword(request, reply, done) {
     let { password } = request.body;
     password = (password as string);
     if (!password || password.length < 8)
