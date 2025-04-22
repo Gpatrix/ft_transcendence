@@ -1,26 +1,50 @@
-import fastify from 'fastify'
-import websocketPlugin from '@fastify/websocket'
+import fastify from 'fastify';
+import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
-import { SocketAddress } from 'net';
+import jwt from 'jsonwebtoken';
 
 const server = fastify();
 server.register(websocketPlugin);
 server.register(wstest);
 
-interface structID 
+interface structID
 {
-    id: bigint;
+    target: string;
+    token: string;
 }
+
+server.addHook('preValidation'
+   , (request, reply) => {
+   const token = request.headers['jwt'];
+      try
+      {
+         if (!token || token === undefined)
+            return (reply.status(401).send({ error: "user_not_logged_in" }));
+         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+         console.log("debug");
+         const id = decoded.data?.id;
+         if (!id || id === undefined)
+            return (reply.status(401).send({ error: "invalid_token_provided" }));
+      }
+      catch (error) {
+         console.log(error);
+         return (reply.status(401).send({ error: "invalid_token_provided" }));
+      }
+})
 
 async function wstest()
 {
-   server.get<{Params: structID}>('/:id', { websocket: true }, (socket: WebSocket, req) => {
-    try {
+   server.get<{Params: structID}>('/api/chat/:target', { websocket: true }, (socket: WebSocket, req) => {
+      socket.send(`WebSockets target ${req.params.target}`);
+
+      try
+      {
          socket.on('message', (message: WebSocket.RawData) => {
             console.log('Received:', message.toString());
-            socket.send(`WebSockets id ${req.params.id}`);
-        });
-      } catch (error)
+            socket.send(`bonce ${message}`);
+         });
+      }
+      catch (error)
       {
          console.log(error);
       }
