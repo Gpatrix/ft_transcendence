@@ -9,8 +9,7 @@ type ClickableIcoProps = {
 
 export default function ClickableIco({image, onClick} : ClickableIcoProps) {
     return (
-
-        <button onClick={onClick} className='h-full'>
+        <button onClick={onClick} className='h-full cursor-pointer'>
             <img  src={image}/>
         </button>
     );

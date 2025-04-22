@@ -11,6 +11,7 @@ import InputWithLabel from './components/InputWithLabel.tsx'
 import MonTest from './components/MonTest.tsx'
 import UserContact from './components/UserContact.tsx'
 import ClickableIco from './components/ClickableIco.tsx'
+import ChatMessage from './components/ChatMessage.tsx'
 
 function App()
 {
@@ -67,6 +68,28 @@ function App()
             <MonTest states="Victoire" users={['user1', 'user2']} ></MonTest>
           </BgShadow>
       </div>
+
+
+      <BgShadow className='flex flex-col w-[50vw] ml-auto mr-auto space-y-[32px]'>
+
+        <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet gravida lacinia. Vivamus convallis sit amet nunc sit amet sodales. In molestie ipsum est, id gravida lorem elementum et. Maecenas
+        </ChatMessage>
+
+        <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
+        Quisque lorem felis, dictum eu condimentum eget, aliquet at eros. 
+        </ChatMessage>
+
+        <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
+        Morbi a erat a ipsum posuere consectetur. Maecenas fermentum euismod lectus sed rhoncus. Praesent placerat sem vehicula sapien pretium facilisis. Aliquam aliquam lacus et faucibus consequat. 
+        </ChatMessage>
+        <ChatMessage profileIco='/test.jpeg' username='Lichar1337' profileLink='google.com' hour='13:12' >
+        Duis aliquet gravida lacinia. sit amet nunc sit amet sodales. 
+        </ChatMessage>
+        <ChatMessage profileIco='/test.jpeg' username='PepitoDeLaVega35' profileLink='google.com' hour='13:12' >
+        Issou
+        </ChatMessage>
+      </BgShadow>
     </div>
   
   )
