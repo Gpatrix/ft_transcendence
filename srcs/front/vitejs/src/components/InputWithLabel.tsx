@@ -23,7 +23,7 @@ type InputWithLabelProps = {
 
 export default function InputWithLabel({placeholder, label, type, className} : InputWithLabelProps) {
     return (
-        <div className='flex flex-col w-full'>
+        <div className={clsx('flex flex-col w-full', className)}>
             <label className={variants({ type })}>{label}</label>
             <Input type={type}>{placeholder}</Input>
         </div>

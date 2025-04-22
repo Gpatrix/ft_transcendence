@@ -10,6 +10,7 @@ import BgShadow from './components/BgShadow.tsx'
 import InputWithLabel from './components/InputWithLabel.tsx'
 import MonTest from './components/MonTest.tsx'
 import UserContact from './components/UserContact.tsx'
+import ClickableIco from './components/ClickableIco.tsx'
 
 function App()
 {
@@ -18,8 +19,8 @@ function App()
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 align-center'>
         <Button type='full' className='px-10'>Test</Button>
         <Button type='stroke' className='px-10'>Test</Button>
-        <Input>Entrez votre nom d'utilisateur</Input>
-        <Input type='error'>Entrez votre nom d'utilisateur</Input>
+        <Input value="" placeholder="Entrez votre nom d'utilisateur"/>
+        <Input value="" type='error' placeholder="Entrez votre nom d'utilisateur" />
       </div>
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
         <ProfilePic status='online' profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
@@ -28,10 +29,37 @@ function App()
         <ProfilePic status='offline' profileLink='https://www.google.com' className='opacity-30'/>
       </div>
 
+
+
+
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
-        <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-        <UserContact status='online' userName='Titi42' image='/test.jpeg' />
+        <UserContact className='w-[50px]' status='offline' userName='Titi42' image='/test.jpeg' />
+        <UserContact className='w-[50px]' status='online'  userName='Titi42' image='/test.jpeg' />
       </div>
+
+      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
+        <UserContact status='offline' userName='Titi42' image='/test.jpeg' notifs={1} />
+        <UserContact status='online'  userName='Titi42' image='/test.jpeg' notifs={9}/>
+      </div>
+
+      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
+        <UserContact status='offline' type='active' userName='Titi42' image='/test.jpeg' notifs={1} />
+        <UserContact status='online'  type='active' userName='Titi42' image='/test.jpeg' notifs={9}/>
+      </div>
+
+      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
+        <UserContact status='online'  userName='Titi42' image='/test.jpeg' >
+          <ClickableIco image='/icons/icon_chat.svg' onClick={()=>alert('test')}/>
+          <ClickableIco image='/icons/icon_chat.svg' onClick={()=>alert('test')}/>
+        </UserContact> 
+
+        <UserContact status='offline'  userName='Titi42' image='/test.jpeg' >
+          <ClickableIco image='/icons/icon_chat.svg' onClick={()=>alert('test')}/>
+        </UserContact> 
+      </div>
+
+
+
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>

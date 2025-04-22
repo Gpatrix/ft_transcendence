@@ -7,6 +7,7 @@ const variants = tv({
       type: {
         ok: 'text-yellow border border-yellow',
         error: 'text-light-red border border-light-red',
+        noborder: 'text-yellow',
       }
     },
     defaultVariants: {
@@ -15,12 +16,13 @@ const variants = tv({
 });
 
 type InputProps = {
-    children: string;
     className?: string;
+    value: string;
+    placeholder: string;
 } & VariantProps<typeof variants>;
 
-export default function Input({children, type, className} : InputProps) {
+export default function Input({type, className, placeholder} : InputProps) {
     return (
-        <input className={clsx(variants({ type }), className)} placeholder={children}></input>
+        <input className={clsx(variants({ type }), className)} placeholder={placeholder}></input>
     );
 }

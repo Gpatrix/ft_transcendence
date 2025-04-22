@@ -8,6 +8,7 @@ const variants = tv({
       type: {
         ok: 'text-yellow border border-yellow',
         error: 'text-light-red border border-light-red',
+        noborder : 'text-yellow '
       }
     },
     defaultVariants: {
@@ -20,7 +21,7 @@ type InputWithIcoProps = {
     placeholder: string;
     className?: string;
     iconSrc: string;
-    value?: string;
+    value: string;
   } & VariantProps<typeof variants> & React.FormHTMLAttributes<HTMLFormElement>;
   
 export default function InputWithIco({
