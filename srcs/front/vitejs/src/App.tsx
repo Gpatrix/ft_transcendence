@@ -9,6 +9,7 @@ import ProfilePic from './components/ProfilePic.tsx'
 import BgShadow from './components/BgShadow.tsx'
 import InputWithLabel from './components/InputWithLabel.tsx'
 import MonTest from './components/MonTest.tsx'
+import UserContact from './components/UserContact.tsx'
 
 function App()
 {
@@ -27,8 +28,9 @@ function App()
         <ProfilePic status='offline' profileLink='https://www.google.com' className='opacity-30'/>
       </div>
 
-      <div className=''>
-        <ProfilePic status='offline' profileLink='https://www.google.com' image='https://localhost/test.jpeg' size={0}/>
+      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
+        <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
+        <UserContact status='online' userName='Titi42' image='/test.jpeg' />
       </div>
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
           <BgShadow className='flex flex-col'>
