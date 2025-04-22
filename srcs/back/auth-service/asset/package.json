@@ -23,9 +23,11 @@
         "@fastify/oauth2": "^8.1.2",
         "@prisma/client": "^6.6.0",
         "@types/node": "^22.14.1",
+        "@types/nodemailer": "^6.4.17",
         "bcrypt": "^5.1.1",
         "fastify": "^5.3.0",
         "jsonwebtoken": "^9.0.2",
+        "nodemailer": "^6.10.1",
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0"
     },
