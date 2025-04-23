@@ -15,12 +15,13 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@fastify/websocket": "^11.0.2",
+        "@fastify/cookie": "^11.0.2",
         "@types/node": "^22.14.1",
         "fastify": "^5.3.0",
         "jsonwebtoken": "^9.0.2",
         "ts-node": "^10.9.2",
-        "ts-node-dev": "^2.0.0"
+        "ts-node-dev": "^2.0.0",
+        "ws": "^8.18.1"
     },
     "devDependencies": {
         "@types/ws": "^8.18.1",
