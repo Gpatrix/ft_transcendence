@@ -46,6 +46,102 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         reply.send(user);
     })
 
+    interface passwordUpdateBody
+    {
+        password: string,
+        credential: string,
+    }
+
+    interface passwordUpdateParams
+    {
+        email: string,
+    }
+
+    server.put<{ Body: passwordUpdateBody, Params: passwordUpdateParams }>('/api/user/password/:email', async (request, reply) => {
+        try {
+            const credential = request.body?.credential;
+            const password = request.body?.password;
+            if (!credential || credential != process.env.API_CREDENTIAL)
+                reply.status(401).send({ error: "private_route" });
+            let user = await prisma.user.update({
+                where: { 
+                    email: request.params.email
+                },
+                data : {
+                    password: password
+                }
+            });
+            console.log(user);
+            if (!user)
+                reply.status(404).send({ error: "user_not_found" });
+            reply.status(200).send({ message: "user_password_updated" });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError)
+                {
+                    switch (error.code) {
+                        case 'P2003':
+                            reply.status(403).send({ error: "missing_arg"});
+                          break
+                        case 'P2000':
+                            reply.status(403).send({ error: "too_long_arg"});
+                          break
+                        default:
+                            reply.status(403).send({ error: error.message});
+                    }
+                }
+            else
+                reply.status(500).send({ error: "server_error" });
+        }
+    })
+
+    interface dfaUpdateParams
+    {
+        id: string,
+    }
+
+    server.put<{ Body: dfaUpdateBody, Params: dfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
+        try {
+            const credential = request.body?.credential;
+            if (!credential || credential != process.env.API_CREDENTIAL)
+                reply.status(401).send({ error: "private_route" });
+            const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
+            const twoFactorSecret = request.body?.twoFactorSecret;
+            let put: dfaUpdateBody = {};
+            if (twoFactorSecret)
+            {
+                put.isTwoFactorEnabled = true;
+                put.twoFactorSecret = twoFactorSecret;
+            }
+            if (twoFactorSecretTemp)
+                put.twoFactorSecretTemp = twoFactorSecretTemp;
+            let user = await prisma.user.update({
+                where: { 
+                    id: Number(request.params.id)
+                },
+                data : put
+            });
+            if (!user)
+                reply.status(404).send({ error: "user_not_found" });
+            reply.status(200).send({ message: "user_2fa_secret_updated" });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError)
+                {
+                    switch (error.code) {
+                        case 'P2003':
+                            reply.status(403).send({ error: "missing_arg"});
+                          break
+                        case 'P2000':
+                            reply.status(403).send({ error: "too_long_arg"});
+                          break
+                        default:
+                            reply.status(403).send({ error: error.message});
+                    }
+                }
+            else
+                reply.status(500).send({ error: "server_error" });
+        }
+    })
+
     interface getUserParams 
     {
         email: string
@@ -110,7 +206,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 throw (new Error())
             reply.send(user);
         } catch (error) {
-            console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {
@@ -147,7 +242,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.status(401).send({ error: "not_logged_in"});
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
-        console.log(JSON.stringify(tokenPayload));
         if (tokenPayload?.isAdmin && body.id)
             tokenPayload.id = body.id;
         try {
@@ -172,7 +266,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 throw (new Error());
             reply.send(user);
         } catch (error) {
-            console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {
@@ -204,8 +297,12 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (!token)
             return (reply.status(401).send({ error: "not_logged_in"}));
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (!decoded || ((decoded?.email != request.params.email) && (!decoded.isAdmin)))
-            return (reply.status(401).send({ error: "not_authorized"}));
+        const tokenPayload = decoded.data;
+        if (!tokenPayload?.isAdmin && !tokenPayload?.id)
+            return (reply.status(401).send({ error: "not_logged_in"}));
+        const dfa = tokenPayload?.dfa;
+        if (!dfa)
+            return (reply.status(403).send({ error: "user_not_logged_in_with_2fa" }));
         const user = await prisma.user.delete({
         where: { 
             email: request.params.email 

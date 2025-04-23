@@ -26,6 +26,9 @@ model User {
   lang String?
   blockedUsers BlockedUser[]
   isAdmin Boolean @default(false)
+  twoFactorSecretTemp String?
+  twoFactorSecret String?
+  isTwoFactorEnabled Boolean @default(false)
 }
 // not supported with sqlite
 // enum Role {

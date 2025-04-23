@@ -26,6 +26,12 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:?}
       NODE_ENV: ${NODE_ENV:-production}
+      MAIL_ADRESS: ${MAIL_ADRESS}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_SECURE: ${MAIL_SECURE}
+      MAIL_SERVICE: ${MAIL_SERVICE}
     build:
         context: ./back/auth-service
         dockerfile: Dockerfile

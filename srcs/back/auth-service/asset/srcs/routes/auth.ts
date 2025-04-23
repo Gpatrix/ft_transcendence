@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import validatePassword  from "../validators/password";
+import { Prisma } from "@prisma/client";
 
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -44,7 +45,9 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 id: user.id,
                 email: email,
                 name: name,
-                isAdmin: false
+                isAdmin: false,
+                twoFactorSecret: user.twoFactorSecret,
+                dfa: true
             }
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
             if (!token)
@@ -100,15 +103,38 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             const isCorrect = await bcrypt.compare(password as string, user.password);
             if (!isCorrect)
                 return reply.status(401).send({ error: "invalid_password "});
-            const token = await jwt.sign({
-                data: {
-                id: user.id,
-                email: email,
-                name: user.name,
-                isAdmin: user.isAdmin
-                }
-            }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
-            reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in" });         
+            if (user.isBanned)
+                return reply.status(403).send({ error: "user_banned" });
+            if (user.isTwoFactorEnabled) {
+                const token = await jwt.sign({
+                    data: {
+                    id: user.id,
+                    email: email,
+                    name: user.name,
+                    isAdmin: user.isAdmin,
+                    twoFactorSecret: user.twoFactorSecret,
+                    dfa: false
+                    }
+                }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+                if (!token)
+                    throw (new Error("cannot generate user token"));
+                reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: true });
+            }
+            else {
+                const token = await jwt.sign({
+                    data: {
+                    id: user.id,
+                    email: email,
+                    name: user.name,
+                    isAdmin: user.isAdmin,
+                    twoFactorSecret: user.twoFactorSecret,
+                    dfa: true
+                    }
+                }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+                if (!token)
+                    throw (new Error("cannot generate user token"));
+                reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: false });
+            }
         } catch (error) {
             reply.status(500).send({ error:"server_error" });
         }
@@ -168,7 +194,9 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                twoFactorSecret: user.twoFactorSecret,
+                dfa: true
             }
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
             if (jsonwebtoken)
@@ -176,7 +204,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             else
                 throw new Error("no token generated");
         } catch (error) {
-            console.log(error);
             reply.status(500).send({ error: "server_error" })
         }
         
