@@ -46,13 +46,53 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         reply.send(user);
     })
 
-    interface dfaUpdateBody
+    interface passwordUpdateBody
     {
-        credential?: string,
-        twoFactorSecretTemp?: string,
-        twoFactorSecret?: string,
-        isTwoFactorEnabled?: boolean
+        password: string,
+        credential: string,
     }
+
+    interface passwordUpdateParams
+    {
+        email: string,
+    }
+
+    server.put<{ Body: passwordUpdateBody, Params: passwordUpdateParams }>('/api/user/password/:email', async (request, reply) => {
+        try {
+            const credential = request.body?.credential;
+            const password = request.body?.password;
+            if (!credential || credential != process.env.API_CREDENTIAL)
+                reply.status(401).send({ error: "private_route" });
+            let user = await prisma.user.update({
+                where: { 
+                    email: request.params.email
+                },
+                data : {
+                    password: password
+                }
+            });
+            console.log(user);
+            if (!user)
+                reply.status(404).send({ error: "user_not_found" });
+            reply.status(200).send({ message: "user_password_updated" });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError)
+                {
+                    switch (error.code) {
+                        case 'P2003':
+                            reply.status(403).send({ error: "missing_arg"});
+                          break
+                        case 'P2000':
+                            reply.status(403).send({ error: "too_long_arg"});
+                          break
+                        default:
+                            reply.status(403).send({ error: error.message});
+                    }
+                }
+            else
+                reply.status(500).send({ error: "server_error" });
+        }
+    })
 
     interface dfaUpdateParams
     {

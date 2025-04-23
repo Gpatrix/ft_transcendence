@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 
 async function sendMail(to: string, subject: string, text: string) {
     const mailOptions = {
-        from: process.env.MAIL_ADRESS,
+        from: `ft_transcendence`,
         to,
         subject,
         text,
@@ -21,7 +21,7 @@ async function sendMail(to: string, subject: string, text: string) {
     try {
         await transporter.sendMail(mailOptions);
     } catch (error) {
-        // lohg error
+        console.log(error)
     }
 };
 
