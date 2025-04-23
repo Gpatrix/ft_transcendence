@@ -1,18 +1,26 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
-import { WebSocketServer } from 'ws';
 import cookiesPlugin from '@fastify/cookie'
+import websocketPlugin from '@fastify/websocket';
+import WebSocket from 'ws';
 
 
 const server = fastify();
 server.register(cookiesPlugin);
+server.register(websocketPlugin);
 server.register(wstest);
-
-const wss = new WebSocketServer({ noServer: true });
 
 interface structTarget
 {
     target: string;
+}
+
+interface tokenStruct
+{
+    id: bigint,
+    email: string,
+    name: string,
+    isAdmin: boolean
 }
 
 server.addHook('preValidation'
@@ -35,25 +43,38 @@ server.addHook('preValidation'
       }
 })
 
+var activeConn: Map<bigint, WebSocket> = new Map();
+var nbConn: bigint = BigInt(0);
+
 async function wstest()
 {
-   server.get<{Params: structTarget}>('/api/chat/:target', function (request, reply)
+   server.get<{Params: structTarget}>('/api/chat/:target', {websocket: true}, (socket: WebSocket, request) => 
    {
-      console.log(`target: ${request.params.target}`);
-      reply.status(200).send({ response: "good" });
-      // socket.send(`WebSockets target ${req.params.target}`);
+      try
+      {
+         activeConn.set(nbConn, socket);
+         nbConn++;
+         const token = request.cookies.ft_transcendence_jw_token
+         const decodedToken: tokenStruct = jwt.verify(token, process.env.JWT_SECRET).data;
+         // console.log(
+         //    `\ttarget: ${request.params.target}
+         //    id: ${decodedToken.id}
+         //    name: ${decodedToken.name}`);
 
-      // try
-      // {
-      //    socket.on('message', (message: WebSocket.RawData) => {
-      //       console.log('Received:', message.toString());
-      //       socket.send(`bonce ${message}`);
-      //    });
-      // }
-      // catch (error)
-      // {
-      //    console.log(error);
-      // }
+        
+         socket.on('message', (message: WebSocket.RawData) =>
+         {
+            console.log('Received:', message.toString());
+            activeConn.forEach((target: WebSocket, id: BigInt) =>
+            {
+               target.send(`rcs: ${message}`);
+            })
+         });
+      }
+      catch (error)
+      {
+         console.log(error);
+      }
    });
 }
 
