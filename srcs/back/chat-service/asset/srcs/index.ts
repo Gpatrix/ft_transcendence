@@ -43,8 +43,7 @@ server.addHook('preValidation'
       }
 })
 
-var activeConn: Map<bigint, WebSocket> = new Map();
-var nbConn: bigint = BigInt(0);
+var activeConn: Map<string, WebSocket> = new Map();
 
 async function wstest()
 {
@@ -52,22 +51,16 @@ async function wstest()
    {
       try
       {
-         activeConn.set(nbConn, socket);
-         nbConn++;
          const token = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token, process.env.JWT_SECRET).data;
-         // console.log(
-         //    `\ttarget: ${request.params.target}
-         //    id: ${decodedToken.id}
-         //    name: ${decodedToken.name}`);
-
-        
+         activeConn.set(decodedToken.name, socket);
+         
          socket.on('message', (message: WebSocket.RawData) =>
          {
             console.log('Received:', message.toString());
-            activeConn.forEach((target: WebSocket, id: BigInt) =>
+            activeConn.forEach((target: WebSocket, name: string) =>
             {
-               target.send(`rcs: ${message}`);
+               target.send(`rsc ${decodedToken.name} : ${message}`);
             })
          });
       }
