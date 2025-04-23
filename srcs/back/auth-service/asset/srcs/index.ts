@@ -13,7 +13,7 @@ declare module 'fastify' {
 
 server.register(cookiesPlugin, {});
 server.register(require("./routes/auth"));
-server.register(require("./routes/2fa"));
+server.register(require("./routes/dfa"));
 
 const areCookiesSecure = process.env.NODE_ENV != 'dev';
 

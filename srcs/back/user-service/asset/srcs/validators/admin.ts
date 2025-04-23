@@ -11,6 +11,9 @@ export function isAdmin(request, reply, done) {
       return (reply.status(401).send({ error: "invalid_token_provided" }));
     if (!isAdmin)
       return (reply.status(401).send({ error: "user_not_an_admin" }));
+    const dfa = decoded.data?.dfa;
+    if (!dfa)
+        return (reply.status(403).send({ error: "user_not_logged_in_with_2fa" }));
     done();
 }
 
