@@ -4,6 +4,7 @@ import { Prisma, PrismaClient, User } from '@prisma/client';
 import isConnected from "../validators/jsonwebtoken";
 // import jwtValidator from "./validators/jsonwebtoken";
 import isAdmin from "../validators/admin";
+import validateUserData from "../validators/userData";
 import FormData from 'form-data';
 import axios from 'axios';
 const prisma = new PrismaClient();
@@ -184,7 +185,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         credential: string
     }
 
-    server.post<{ Body: postUserBody }>('/api/user/create', async (request, reply) => {
+    server.post<{ Body: postUserBody }>('/api/user/create', { preHandler:[validateUserData] }, async (request, reply) => {
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
@@ -237,7 +238,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         profPicture?: string
     }
 
-    server.put<{ Body: editUserBody }>('/api/user/edit', { preHandler: [isConnected] }, async (request, reply) => {
+    server.put<{ Body: editUserBody }>('/api/user/edit', { preHandler: [isConnected, validateUserData] }, async (request, reply) => {
         let put: editUserBody = {};
         let file;
         let fields: { [key: string]: any } = {};
@@ -298,9 +299,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 const result = res.data;
                 put.profPicture = result.fileName;
             }
-            put.name = fields['name'];
+            put.name = fields['name'].splice(0, 20).join('');
             put.bio = fields['bio'];
-            put.lang = fields['lang'];
+            put.lang = fields['lang'].splice(0, 2).join('');
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
