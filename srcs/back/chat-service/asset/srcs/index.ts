@@ -79,9 +79,6 @@ async function wstest()
          });
 
          socket.on('close', () => closing_conn(socket, decodedToken, request.params.target));
-         // socket.on('close', (TEST: WebSocket) => {
-         //    console.log(`is open ${TEST.OPEN}`);
-         //  });
       }
       catch (error)
       {
