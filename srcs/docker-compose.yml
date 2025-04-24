@@ -1,6 +1,5 @@
 name: ft_transcendence
 
-
 services:
   r_proxy:
     container_name: r_proxy
@@ -37,13 +36,10 @@ services:
         dockerfile: Dockerfile
         args:
           NODE_ENV: ${NODE_ENV:-production}
-    # ports:
-    #   - 5555:5555
     expose:
       - 3000
     networks:
       - router
-      - services
 
   user-service:
     container_name: user-service
@@ -66,7 +62,23 @@ services:
       - 3000
     networks:
       - router
-      - services
+
+
+  chat-service:
+    container_name: chat-service
+    restart: on-failure
+    volumes:
+      - ./back/chat-service/asset/srcs:/usr/src/chat-service/asset/srcs
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      JWT_SECRET: ${JWT_SECRET:?}
+    build:
+        context: ./back/chat-service
+        dockerfile: Dockerfile
+    expose:
+      - 3000
+    networks:
+      - router
 
 
   front_dev:
@@ -92,7 +104,5 @@ volumes:
       device: ./front/vitejs
 
 networks:
-  services:
-    driver: bridge
   router:
     driver: bridge
