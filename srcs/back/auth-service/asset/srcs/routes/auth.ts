@@ -180,7 +180,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: userinfo.email,
-                        prof_picture: userinfo.picture,
+                        profPicture: userinfo.picture,
                         name: userinfo.name
                     }),
                 });
