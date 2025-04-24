@@ -43,7 +43,16 @@ server.addHook('preValidation'
       }
 })
 
-var activeConn: Map<string, WebSocket> = new Map();
+var activeConn: Map<string, WebSocket[]> = new Map();
+
+function closing_conn(socket: WebSocket, token: tokenStruct, target: string): void
+{
+   const index = activeConn.get(target)?.indexOf(socket);
+   if (index !== undefined)
+      activeConn.get(target)?.splice(index, 1);
+   console.log(`closing ${token.name} socket`);
+   console.log(`array size: ${activeConn.get(target)?.length}`);
+}
 
 async function wstest()
 {
@@ -53,16 +62,26 @@ async function wstest()
       {
          const token = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token, process.env.JWT_SECRET).data;
-         activeConn.set(decodedToken.name, socket);
-         
+         if (!activeConn.has(request.params.target))
+            activeConn.set(request.params.target, [socket]);
+         else
+            activeConn.get(request.params.target)?.push(socket);
+
          socket.on('message', (message: WebSocket.RawData) =>
          {
             console.log('Received:', message.toString());
-            activeConn.forEach((target: WebSocket, name: string) =>
+            activeConn.get(request.params.target)?.forEach((target: WebSocket) =>
             {
+               if (socket === target)
+                  return;
                target.send(`rsc ${decodedToken.name} : ${message}`);
             })
          });
+
+         socket.on('close', () => closing_conn(socket, decodedToken, request.params.target));
+         // socket.on('close', (TEST: WebSocket) => {
+         //    console.log(`is open ${TEST.OPEN}`);
+         //  });
       }
       catch (error)
       {
