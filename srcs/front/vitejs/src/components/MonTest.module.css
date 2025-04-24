@@ -1,0 +1,52 @@
+
+
+.expended {}
+
+.expended .scores {
+  height: min-content;
+}
+
+.expended .users {
+  /* background-color: rgb(255, 0, 0); */
+}
+
+.user {
+  pointer-events: none;
+  z-index: 1;
+  margin-top: -60px;
+  opacity: 0;
+  transition: all 1000ms;
+}
+
+.expended .user {
+  pointer-events: all;
+  margin-top: 10px;
+  opacity: 1;
+  transition: all 1000ms;
+}
+
+.matchRecap
+{
+  opacity: 1;
+  z-index: 5;
+  margin-bottom: 0px;
+  transition: all 1000ms;
+}
+
+.expended .matchRecap {
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  margin-bottom: -60px;
+  transition: all 1000ms;
+}
+
+.more {
+  transform: rotateZ(0deg);
+  transition: all 1000ms;
+}
+
+.expended .more {
+  transform: rotateZ(180deg);
+  transition: all 1000ms;
+}

@@ -65,7 +65,7 @@ function App()
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
-            <MonTest states="Victoire" users={['user1', 'user2']} ></MonTest>
+            <MonTest states="Victoire" users={['user1', 'user2', 'user3', 'user4']} ></MonTest>
           </BgShadow>
       </div>
 
