@@ -21,7 +21,7 @@ model User {
   name String @unique
   email String @unique
   password String?
-  prof_picture String?
+  profPicture String?
   bio String?
   lang String?
   blockedUsers BlockedUser[]

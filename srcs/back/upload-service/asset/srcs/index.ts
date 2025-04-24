@@ -1,7 +1,18 @@
 import fastify from 'fastify'
-const cookiesPlugin = require('@fastify/cookie');
 
 const server = fastify();
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    googleOAuth2: OAuth2Namespace;
+  }
+}
+
+console.log(process.cwd() + '/../uploads')
+server.register(require('@fastify/static'), {
+  root: '/usr/src/upload-service/uploads',
+  prefix: '/api/upload/'
+})
 
 server.register(require('@fastify/multipart'), {
   limits: {
@@ -14,8 +25,8 @@ server.register(require('@fastify/multipart'), {
     parts: 1000         // For multipart forms, the max number of parts (fields + files)
   }
 });
-server.register(cookiesPlugin, {});
-server.register(require("./routes/user"));
+
+server.register(require("./routes/upload"));
 
 async function main() {
   let _address;
