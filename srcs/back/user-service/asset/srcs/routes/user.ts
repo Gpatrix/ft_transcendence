@@ -364,6 +364,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     id: body.targetId
                 }
             })
+            if (body.targetId == tokenPayload.id)
+                return (reply.status(403).send({ error: "user_is_yourself" }));
             if (!targetUser)
                 return (reply.status(404).send({ error: "not_existing_user" }));
             if (targetUser.isAdmin)
