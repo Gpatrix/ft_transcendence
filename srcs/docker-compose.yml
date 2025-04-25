@@ -97,7 +97,6 @@ services:
       - 3000
     networks:
       - router
-      - services
 
   front_dev:
     container_name: front_dev
