@@ -3,7 +3,7 @@
 cd ./asset
 
 
-if [ ! -d ./prisma/db]; then
+if [ ! -d ./prisma/prisma_client]; then
     if [ "$NODE_ENV" = "dev" ]; then
         npx prisma generate && npx prisma migrate dev --name init
     else
@@ -12,8 +12,6 @@ if [ ! -d ./prisma/db]; then
 fi
 
 npm run build;
-
-exec sleep infinity
 
 if [ "$NODE_ENV" = "dev" ]; then
     exec npm run dev

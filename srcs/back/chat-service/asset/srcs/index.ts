@@ -3,10 +3,9 @@ import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
-import { PrismaClient } from "./prisma_client";
+import { PrismaClient } from "../prisma/prisma_client";
 import crypto from 'crypto';
 import { isConstructorDeclaration } from 'typescript';
-
 
 const prisma = new PrismaClient();
 
@@ -57,7 +56,7 @@ function closing_conn(socket: WebSocket, token: tokenStruct): void
    console.log(`TODO handle closing ${token.name} socket`);
 }
 
-function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket): void
+async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.action == 'msg' && payload.msg === undefined)
    {
@@ -65,14 +64,15 @@ function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocke
       return;
    }
 
-   //TODO verif user and block
+   //TODO verif user existance and block
    try
    {
       const channel_hash: string = getPrivChannelHash(token.name, payload.target);
-      // const channel = await prisma.channel.findFirst({
-      //      where: { hash: channel_hash },
-      // })
-      // console.log(channel);
+      const channel = await prisma.channel.findFirst({
+           where: { hash: channel_hash },
+      })
+      if(channel)
+         console.log(channel);
    }
    catch (error)
    {
@@ -135,11 +135,10 @@ async function wstest()
          const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
 
 
-         // console.log(channel);
          socket.on('message', (RawData: WebSocket.RawData) =>
             data_handler(RawData, socket, decodedToken));
 
-         // socket.on('close', () => closing_conn(socket, decodedToken));
+         socket.on('close', () => closing_conn(socket, decodedToken));
       }
       catch (error)
       {

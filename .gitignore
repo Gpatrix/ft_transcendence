@@ -4,3 +4,4 @@
 **/migrations
 **/db
 *.js
+**/prisma_client
