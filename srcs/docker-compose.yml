@@ -86,6 +86,7 @@ services:
     volumes:
       - ./back/upload-service/asset/srcs:/usr/src/upload-service/asset/srcs
     environment:
+      DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:-production}
     build:

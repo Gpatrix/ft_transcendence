@@ -149,7 +149,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         const token = request.body.token;
         if (!token)
             return (reply.status(401).send({ error: "no_token_provided" }));
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = verify(token, process.env.JWT_SECRET);
         const id = decoded.data?.id
         if (!id)
           return (reply.status(401).send({ error: "invalid_token_provided" }));
