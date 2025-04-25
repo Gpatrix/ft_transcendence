@@ -299,9 +299,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 const result = res.data;
                 put.profPicture = result.fileName;
             }
-            put.name = fields['name'].splice(0, 20).join('');
+            put.name = fields['name']
             put.bio = fields['bio'];
-            put.lang = fields['lang'].splice(0, 2).join('');
+            put.lang = fields['lang']
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
