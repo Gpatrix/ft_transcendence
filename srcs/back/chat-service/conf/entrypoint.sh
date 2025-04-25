@@ -2,12 +2,12 @@
 
 cd ./asset
 
-
-if [ ! -d ./prisma/prisma_client]; then
+if [ ! -d ./prisma/prisma_client ]; then
+    npx prisma generate
     if [ "$NODE_ENV" = "dev" ]; then
-        npx prisma generate && npx prisma migrate dev --name init
+        npx prisma migrate dev --name init
     else
-        npx prisma generate && npx prisma migrate deploy
+        npx prisma migrate deploy
     fi
 fi
 

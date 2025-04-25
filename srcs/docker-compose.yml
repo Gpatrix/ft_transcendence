@@ -3,11 +3,6 @@ name: ft_transcendence
 services:
   r_proxy:
     container_name: r_proxy
-    depends_on:
-      - auth-service
-      - user-service
-      - chat-service
-      - front_dev
     restart: on-failure
     build:
         context: ./reverse_proxy

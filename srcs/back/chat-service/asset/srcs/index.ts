@@ -71,8 +71,11 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       const channel = await prisma.channel.findFirst({
            where: { hash: channel_hash },
       })
+
       if(channel)
          console.log(channel);
+      else 
+         console.log("no channel corresponding")
    }
    catch (error)
    {
