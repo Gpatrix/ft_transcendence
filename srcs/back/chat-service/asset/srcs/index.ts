@@ -5,15 +5,18 @@ import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import Prisma from "@prisma/client";
 import crypto from 'crypto';
+import { isConstructorDeclaration } from 'typescript';
 
 const server = fastify();
 server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(wstest);
 
-interface structTarget
+interface payloadstruct
 {
+   action: string;
    target: string;
+   msg?: string;
 }
 
 interface tokenStruct
@@ -46,33 +49,49 @@ server.addHook('preValidation'
 
 var activeConn: Map<string, WebSocket[]> = new Map();
 
-function closing_conn(socket: WebSocket, token: tokenStruct, target: string): void
+function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
-   const index = activeConn.get(target)?.indexOf(socket);
-   if (index !== undefined)
-      activeConn.get(target)?.splice(index, 1);
-   console.log(`closing ${token.name} socket`);
-   console.log(`array size: ${activeConn.get(target)?.length}`);
+   console.log(`TODO handle closing ${token.name} socket`);
 }
 
-function msg_handler(
-   message: WebSocket.RawData, socket: WebSocket, token: tokenStruct, channel: string): void
+function message_handler(
+   RawData: WebSocket.RawData, socket: WebSocket, token: tokenStruct): void
 {
-   console.log('Received:', message.toString());
-   activeConn.get(channel)?.forEach((target: WebSocket) =>
+   try
    {
-      if (socket === target)
+      console.log('Received:\n', RawData.toString());
+      const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
+      if (payload.action === undefined || payload.target === undefined)
+      {
+         socket.send("wrong-payload");
          return;
-      target.send(`rsc ${token.name} : ${message}`);
-   })
+      }
+      if (payload.action == 'msg' && payload.msg === undefined)
+      {
+         socket.send("no-msg-rcs");
+         return;
+      }
+
+      
+
+   }
+   catch (error)
+   {
+      console.log(error);
+   }
 }
 
-function get_unique_hash(username: string, target_name: string): string
+function getPrivChannelHash(username: string, target_name: string): string
 {
-   username = username.padEnd(20, ' ');
-   target_name = target_name.padEnd(20, ' ');
+   const new_username = username.padEnd(20, ' ');
+   const new_target_name = target_name.padEnd(20, ' ');
 
-   const combinedString = username + target_name;
+   let combinedString: string;
+   if (username > target_name)
+      combinedString = new_username + new_target_name;
+   else
+      combinedString = new_target_name + new_username;
+
    const hash = crypto.createHash('sha256');
    hash.update(combinedString);
    return (hash.digest('hex'));
@@ -80,24 +99,21 @@ function get_unique_hash(username: string, target_name: string): string
 
 async function wstest()
 {
-   server.get<{Params: structTarget}>('/api/chat/private/:target', {websocket: true}, (socket: WebSocket, request) => 
+   server.get('/api/chat/connect', {websocket: true}, (socket: WebSocket, request) => 
    {
       try
       {
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
-         if (!activeConn.has(request.params.target))
-            activeConn.set(request.params.target, [socket]);
-         else
-            activeConn.get(request.params.target)?.push(socket);
 
          // TODO verifier si la target exist et si elle n'est pas blocker
-         const channel: string = get_unique_hash(decodedToken.name, request.params.target);
+         // const channel: string = get_unique_hash(decodedToken.name, request.params.target);
 
-         socket.on('message', (message: WebSocket.RawData) =>
-            msg_handler(message, socket, decodedToken, channel));
+         // console.log(channel);
+         socket.on('message', (RawData: WebSocket.RawData) =>
+            message_handler(RawData, socket, decodedToken));
 
-         socket.on('close', () => closing_conn(socket, decodedToken, channel));
+         // socket.on('close', () => closing_conn(socket, decodedToken));
       }
       catch (error)
       {
