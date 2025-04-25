@@ -47,6 +47,41 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         reply.send(user);
     })
 
+    interface isBlockedByParams 
+    {
+        target: string,
+        by: string
+    }
+
+    interface isBlockedByBody 
+    {
+        credential: string,
+    }
+
+    server.post<{ Params: isBlockedByParams, Body: isBlockedByBody }>('/api/user/isBlockedBy/:target/:by', async (request, reply) => {
+        const credential = request.body?.credential;
+        console.log(request.body)
+        if (!credential || credential != process.env.API_CREDENTIAL)
+            reply.status(401).send({ error: "private_route" });
+        const target = Number(request.params.target);
+        const by = Number(request.params.by);
+        const user = await prisma.user.findFirst({
+            where: {
+              id: by
+            },
+            include: {
+              blockedUsers: true
+            }
+        });
+        let isBlocked: boolean = false;
+        if (user)
+            isBlocked = user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => blockedUser.blockedUserId == target)
+        if (isBlocked)
+            reply.status(200).send({ value: true });
+        else
+            reply.status(200).send({ value: false });
+    })
+
     interface passwordUpdateBody
     {
         password: string,
@@ -369,6 +404,65 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (!user)
           return reply.status(404).send({ error: "user_not_found" });
         reply.send({ response: "user deleted" });
+    })
+
+    interface blockUserBody 
+    {
+        targetId?: number,
+    }
+
+    server.post<{ Body: blockUserBody }>('/api/user/blockUser', { preHandler: [isConnected] }, async (request, reply) => {
+        const token = request.cookies['ft_transcendence_jw_token'];
+        const body = request.body;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenPayload = decoded.data;
+        try {
+            let targetUser = await prisma.user.findFirst({
+                where: {
+                    id: body.targetId
+                }
+            })
+            if (body.targetId == tokenPayload.id)
+                return (reply.status(403).send({ error: "user_is_yourself" }));
+            if (!targetUser)
+                return (reply.status(404).send({ error: "not_existing_user" }));
+            if (targetUser.isAdmin)
+                return (reply.status(403).send({ error: "user_is_admin" }));
+            await prisma.blockedUser.create({
+                data: {
+                  userId: tokenPayload.id,
+                  blockedUserId: body.targetId
+                }
+            });
+            reply.status(200).send({ message: "user_successfully_blocked" });
+        } catch (error) {
+            reply.status(500).send({ error: "server_error"});
+        }
+    })
+
+    interface unblockUserBody 
+    {
+        targetId?: number,
+    }
+
+    server.post<{ Body: unblockUserBody }>('/api/user/unblockUser', { preHandler: [isConnected] }, async (request, reply) => {
+        const token = request.cookies['ft_transcendence_jw_token'];
+        const body = request.body;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenPayload = decoded.data;
+        try {
+            let targetUser = await prisma.blockedUser.deleteMany({
+                where: {
+                    blockedUserId: body.targetId,
+                    userId: tokenPayload.id
+                }
+            })
+            if (!targetUser)
+                return (reply.status(404).send({ error: "user_not_blocked" }));
+            reply.status(200).send({ message: "user_successfully_unblocked" });
+        } catch (error) {
+            reply.status(500).send({ error: "server_error"});
+        }
     })
 
     done()

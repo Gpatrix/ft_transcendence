@@ -9,11 +9,11 @@ generator client {
 }
 
 model BlockedUser {
-  id Int @unique
-  userId Int @id
-  blockedUser   User   @relation(fields: [blockedUserId], references: [id])
-  blockedUserId Int    @unique
+  id Int @id @unique @default(autoincrement())
+  blockedUserId Int
 
+  userId Int
+  user User @relation("BlockedBy", fields: [userId], references: [id])
 }
 
 model User {
@@ -24,11 +24,12 @@ model User {
   profPicture String?
   bio String?
   lang String?
-  blockedUsers BlockedUser[]
   isAdmin Boolean @default(false)
   twoFactorSecretTemp String?
   twoFactorSecret String?
   isTwoFactorEnabled Boolean @default(false)
+
+  blockedUsers BlockedUser[] @relation("BlockedBy")
 }
 // not supported with sqlite
 // enum Role {
