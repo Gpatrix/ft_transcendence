@@ -2,21 +2,23 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
-import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import { AnyCnameRecord } from "dns";
 
+const prisma = new PrismaClient();
+
 class MatchmakingUser {
-    constructor (id: number, rank: number)
+    constructor (id: number, rank: number, websocket: WebSocket)
     {
         this.id = id;
         this.rank = rank;
         this.waitFrom = new Date(Date.now());
+        this.websocket = websocket
     }
     id: number;
     rank: number;
     waitFrom: Date;
+    websocket: WebSocket
 }
 
 class matchMakingMap extends Array<MatchmakingUser>
@@ -47,87 +49,133 @@ class matchMakingMap extends Array<MatchmakingUser>
 }
 
 var users: matchMakingMap;
-var activeConn: Map<string, WebSocket[]> = new Map();
+var activeConn: Map<number, WebSocket> = new Map();
 
-function closeSocket(socket: WebSocket, token: any): void
-{
-   console.log(`TODO handle closing ${token.id} socket`);
+interface gameConnectParams {
+    tournamentId: string,
+    gameId: string
 }
-
-function handleMessage(
-    RawData: WebSocket.RawData, socket: WebSocket, token: AnyCnameRecord): void
- {
-    try
-    {
-       console.log('Received:\n', RawData.toString());
-       const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
-       if (payload.action === undefined || payload.target === undefined)
-       {
-          socket.send("wrong-payload");
-          return;
-       }
-       if (payload.action == 'msg' && payload.msg === undefined)
-       {
-          socket.send("no-msg-rcs");
-          return;
-       }
- 
-       switch (payload.action)
-       {
-          case 'msg':
-             handle_msg(payload, token, socket);
-             break;
-       
-          default:
-             return;
-       }
-    }
-    catch (error)
-    {
-       console.log(error);
-    }
- }
 
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
-    server.get('/api/game/connect', {websocket: true}, (socket: WebSocket, request) => 
+    server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
     {
+
+        
+        let websockets: Array<WebSocket> = [];
         try
         {
-            const token: string | undefined = request.cookies.ft_transcendence_jw_token
-            const decoded = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
+            const token = request.tokens['ft_transcendence_jw_token'];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const tokenPayload = decoded.data;
+            const gameId = request.params.gameId;
+            const tournamentId = request.params.tournamentId;
+
+            socket.on('message', (RawData: WebSocket.RawData) => {
+                console.log(RawData.message)
+            })
+
+            socket.on('close', () => {
+                activeConn.delete(tokenPayload.id);
+            });
+
+            const tournament = await prisma.tournament.findFirst({
+                where: {
+                    id: tournamentId,
+                },
+                include: {
+                    players: true,
+                    games: {
+                        include: {
+                            players: true
+                        }
+                    }
+                }
+            })
+            if (!tournament)
+                throw (new Error('cannot_find_tournament_in_db'));
+
+            const game = await prisma.game.findFirst({
+                where: {
+                    id: gameId,
+                },
+                include: {
+                    players: true,
+                }
+            })
+            if (!game)
+                throw (new Error('cannot_find_game_in_db'));
     
-            socket.on('message', (RawData: WebSocket.RawData) =>
-                handleMessage(RawData, socket, decoded));
-    
-            socket.on('close', () => closeSocket(socket, decoded));
+            game.players.forEach(user => {
+                activeConn.get(user.id).send({ message: `playerJoin`, playerId: tokenPayload.id});
+            })
+            activeConn.set(tokenPayload.id, socket);
         }
         catch (error)
         {
             console.log(error);
+            socket.close();
         }
     });
 
-    interface gamePostBody {
-        file: any,
-        credential: string
-    }
-    
-    server.post<{ Body: gamePostBody }>('/api/game/', async (req: any, res: any) => {
-        try {
-            const token = req.tokens['ft_transcendence_jw_token'];
+    server.get('/api/game/matchmaking', {websocket: true}, async (socket: WebSocket, request: any ) => 
+    {
+        try
+        {
+            const token = request.tokens['ft_transcendence_jw_token'];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const tokenPayload = decoded.data;
-            const response = await axios.get(`http://user-service:3000/api/user/lookup/${tokenPayload.id}`);
+            const res = await axios.post(`http://user-service:3000/api/user/lookup/${tokenPayload.id}`, {
+                credential: process.env.API_CREDENTIAL
+            });
+            socket.on('message', (RawData: WebSocket.RawData) => {
+                console.log(RawData.message);
+            })
+    
+            socket.on('close', () => {
+                activeConn.delete(tokenPayload.id);
+            });
             if (res.status != 200)
                 throw(new Error("cannot_get_user_infos"));
-            const result = users.addUserToMatchmaking(new MatchmakingUser(response.data.id, response.data.rank));
-            if (result == undefined)
-                res.status(200).send({ message: 'in_queue' });
-            else
-                res.status(200).send({ message: 'in_game' });
-        } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            const result = users.addUserToMatchmaking(new MatchmakingUser((await res).data.id, (await res).data.rank, socket));
+
+            // when a game can be created
+            if (result != undefined)
+            {
+                const gameId = 1 
+                const tournament = await prisma.tournament.create({
+                    data: {
+                        players : {
+                            create: result.map(user => {
+                                return ({ userId: user.id, score: 0 })
+                            })
+                        },
+                        games : {
+                            create: [
+                                {
+                                    tournamentStage: 0,
+                                    players: {
+                                        create: result.map(user => {
+                                            return ({ userId: user.id })
+                                        })
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                })
+                if (!tournament)
+                    throw (new Error('cannot_insert_tournament_in_db'));
+                result.forEach(user => {
+                    user.websocket.send({ message: 'gameLaunched', gameId: tournament.id});
+                    user.websocket.close();
+                })
+                activeConn.set(tokenPayload.id, socket);
+            }
+        }
+        catch (error)
+        {
+            console.log(error);
         }
     });
 
