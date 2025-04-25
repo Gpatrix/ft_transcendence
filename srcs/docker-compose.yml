@@ -69,6 +69,7 @@ services:
     restart: on-failure
     volumes:
       - ./back/chat-service/asset/srcs:/usr/src/chat-service/asset/srcs
+      - ./back/chat-service/asset/db:/usr/src/chat-service/asset/db
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       JWT_SECRET: ${JWT_SECRET:?}

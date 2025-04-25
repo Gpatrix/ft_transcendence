@@ -18,6 +18,5 @@ model msg {
 
 model channel {
   id Int @id @unique @default(autoincrement())
-  user1 String?
-  user2 String?
+  hash String
 }

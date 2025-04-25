@@ -54,6 +54,19 @@ function closing_conn(socket: WebSocket, token: tokenStruct): void
    console.log(`TODO handle closing ${token.name} socket`);
 }
 
+function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket): void
+{
+   if (payload.action == 'msg' && payload.msg === undefined)
+   {
+      socket.send("no-msg-rcs");
+      return;
+   }
+
+   //  const channel = Prisma.channel.findUnique({
+   //       where: { Hash: true },
+   //    })
+}
+
 function message_handler(
    RawData: WebSocket.RawData, socket: WebSocket, token: tokenStruct): void
 {
@@ -72,8 +85,15 @@ function message_handler(
          return;
       }
 
+      switch (payload.action)
+      {
+         case 'msg':
+            handle_msg(payload, token, socket);
+            break;
       
-
+         default:
+            return;
+      }
    }
    catch (error)
    {
