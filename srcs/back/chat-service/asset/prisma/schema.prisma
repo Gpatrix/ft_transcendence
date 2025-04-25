@@ -5,7 +5,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  // output = "../generated/prisma_client"
+  output = "./prisma_client"
 }
 
 model msg {
@@ -18,5 +18,5 @@ model msg {
 
 model channel {
   id Int @id @unique @default(autoincrement())
-  hash String
+  hash String @unique
 }

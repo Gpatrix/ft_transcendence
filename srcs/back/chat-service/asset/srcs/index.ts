@@ -3,9 +3,12 @@ import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
-import Prisma from "@prisma/client";
+import { PrismaClient } from "./prisma_client";
 import crypto from 'crypto';
 import { isConstructorDeclaration } from 'typescript';
+
+
+const prisma = new PrismaClient();
 
 const server = fastify();
 server.register(cookiesPlugin);
@@ -62,12 +65,22 @@ function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocke
       return;
    }
 
-   //  const channel = Prisma.channel.findUnique({
-   //       where: { Hash: true },
-   //    })
+   //TODO verif user and block
+   try
+   {
+      const channel_hash: string = getPrivChannelHash(token.name, payload.target);
+      // const channel = await prisma.channel.findFirst({
+      //      where: { hash: channel_hash },
+      // })
+      // console.log(channel);
+   }
+   catch (error)
+   {
+      console.log(error);
+   }
 }
 
-function message_handler(
+function data_handler(
    RawData: WebSocket.RawData, socket: WebSocket, token: tokenStruct): void
 {
    try
@@ -79,15 +92,10 @@ function message_handler(
          socket.send("wrong-payload");
          return;
       }
-      if (payload.action == 'msg' && payload.msg === undefined)
-      {
-         socket.send("no-msg-rcs");
-         return;
-      }
 
       switch (payload.action)
       {
-         case 'msg':
+         case "msg":
             handle_msg(payload, token, socket);
             break;
       
@@ -126,12 +134,10 @@ async function wstest()
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
 
-         // TODO verifier si la target exist et si elle n'est pas blocker
-         // const channel: string = get_unique_hash(decodedToken.name, request.params.target);
 
          // console.log(channel);
          socket.on('message', (RawData: WebSocket.RawData) =>
-            message_handler(RawData, socket, decodedToken));
+            data_handler(RawData, socket, decodedToken));
 
          // socket.on('close', () => closing_conn(socket, decodedToken));
       }

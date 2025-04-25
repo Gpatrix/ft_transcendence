@@ -3,6 +3,11 @@ name: ft_transcendence
 services:
   r_proxy:
     container_name: r_proxy
+    depends_on:
+      - auth-service
+      - user-service
+      - chat-service
+      - front_dev
     restart: on-failure
     build:
         context: ./reverse_proxy
@@ -69,13 +74,16 @@ services:
     restart: on-failure
     volumes:
       - ./back/chat-service/asset/srcs:/usr/src/chat-service/asset/srcs
-      - ./back/chat-service/asset/db:/usr/src/chat-service/asset/db
+      - db-chat:/usr/src/chat-service/asset/prisma/db
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       JWT_SECRET: ${JWT_SECRET:?}
+      DATABASE_URL: ${DATABASE_URL:?}
     build:
         context: ./back/chat-service
         dockerfile: Dockerfile
+        args:
+          DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
     networks:
@@ -103,7 +111,13 @@ volumes:
       type: none
       o: bind
       device: ./front/vitejs
-
+  db-chat:
+    name: db-chat
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./back/chat-service/volume
 networks:
   router:
     driver: bridge
