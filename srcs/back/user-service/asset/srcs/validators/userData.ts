@@ -7,7 +7,7 @@ export function validateUserData(request, reply, done) {
 
     if (email && email.length > 50)
         return (reply.status(400).send({ error: "email_too_long" }));
-    if (name && name.length > 50)
+    if (name && name.length > 20)
         return (reply.status(400).send({ error: "name_too_long" }));
     if (bio && bio.length > 200)
         return (reply.status(400).send({ error: "bio_too_long" }));
