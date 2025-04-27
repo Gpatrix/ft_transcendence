@@ -48,6 +48,39 @@ class matchMakingMap extends Array<MatchmakingUser>
     }
 }
 
+interface pos {
+    x: number,
+    y: number
+}
+class PongGame {
+    constructor (playerIds: Array<number>) {
+        this.ballPos = { x: 0, y: 0};
+        this.playersPos = new Map<number, pos>()
+        if (playerIds.length == 2)
+        {
+            this.playersPos.set(playerIds[0], { x: (this.width / 2 ) * -1, y: 0})
+            this.playersPos.set(playerIds[1], { x: this.width / 2 , y: 0})
+        }
+    }
+    playerMove(playerId: number, move: number)
+    {
+        const playerPos = this.playersPos.get(playerId)
+        const playerPosY = playerPos?.y;
+        if (!playerPosY)
+            throw new Error('not_existing_player_pos');
+        if (playerPosY + this.playerHeight / 2 >= this.height / 2)
+            return ;
+        else
+            this.playersPos.set(playerId, {x: playerPos.x, y: playerPosY});
+    }
+    width: number = 200
+    height: number = 200
+    playerHeight: number = 50
+    playerWidth: number = 20
+    ballPos: pos
+    playersPos: Map<number, pos>
+}
+
 var users: matchMakingMap;
 var activeConn: Map<number, WebSocket> = new Map();
 
@@ -59,10 +92,7 @@ interface gameConnectParams {
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
     server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
-    {
-
-        
-        let websockets: Array<WebSocket> = [];
+    {        
         try
         {
             const token = request.tokens['ft_transcendence_jw_token'];
@@ -71,13 +101,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             const gameId = request.params.gameId;
             const tournamentId = request.params.tournamentId;
 
-            socket.on('message', (RawData: WebSocket.RawData) => {
-                console.log(RawData.message)
-            })
 
-            socket.on('close', () => {
-                activeConn.delete(tokenPayload.id);
-            });
 
             const tournament = await prisma.tournament.findFirst({
                 where: {
@@ -105,6 +129,17 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
             if (!game)
                 throw (new Error('cannot_find_game_in_db'));
+
+            socket.on('message', (RawData: WebSocket.RawData) => {
+                console.log(RawData.message)
+            })
+
+            socket.on('close', () => {
+                game.players.forEach(user => {
+                    activeConn.get(user.id).send({ message: `playerLeft`, playerId: tokenPayload.id});
+                })
+                activeConn.delete(tokenPayload.id);
+            });
     
             game.players.forEach(user => {
                 activeConn.get(user.id).send({ message: `playerJoin`, playerId: tokenPayload.id});
