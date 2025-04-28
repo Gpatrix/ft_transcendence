@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 import { clsx } from 'clsx'
 
 const variants = tv({
-    base: 'px-4 rounded-lg py-2 text-2 bg-grey placeholder-opacity-0',
+    base: 'px-4 rounded-lg py-2 text-2 bg-grey placeholder-opacity-0 outline-none',
     variants: {
       type: {
         ok: 'text-yellow border border-yellow',
