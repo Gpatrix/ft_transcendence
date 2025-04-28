@@ -2,8 +2,8 @@
 
 cd ./asset
 
-if [ "$NODE_ENV" = "dev" ]; then
-    npm install;
-else
+# if [ "$NODE_ENV" = "dev" ]; then
+#     npm install;
+# else
     npm install --omit=dev;
-fi
+# fi

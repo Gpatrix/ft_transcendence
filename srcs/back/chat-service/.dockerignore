@@ -22,5 +22,6 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/prisma_client
+/asset/prisma/prisma_client/
 LICENSE
 README.md

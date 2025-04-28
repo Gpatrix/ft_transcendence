@@ -63,7 +63,6 @@ services:
     networks:
       - router
 
-
   chat-service:
     container_name: chat-service
     restart: on-failure
@@ -83,7 +82,6 @@ services:
       - 3000
     networks:
       - router
-
 
   front_dev:
     container_name: front_dev

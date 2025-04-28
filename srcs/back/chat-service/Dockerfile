@@ -7,6 +7,7 @@ RUN apk update --no-cache && \
 
 COPY ./asset ./asset
 
+ENTRYPOINT ["./entrypoint.sh"]
 
 ARG DATABASE_URL
 COPY ./conf/install.sh .
@@ -17,4 +18,3 @@ COPY ./conf/entrypoint.sh .
 RUN chmod +x entrypoint.sh 
 
 EXPOSE 3000
-ENTRYPOINT ["./entrypoint.sh"]
