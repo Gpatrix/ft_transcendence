@@ -105,8 +105,10 @@ services:
     volumes:
       - ./back/game-service/asset/srcs:/usr/src/game-service/asset/srcs
     environment:
+      DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:-production}
+      JWT_SECRET: ${JWT_SECRET:?}
     build:
         context: ./back/game-service
         dockerfile: Dockerfile

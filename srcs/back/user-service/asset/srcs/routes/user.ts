@@ -7,6 +7,8 @@ import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
 import FormData from 'form-data';
 import axios from 'axios';
+
+axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 const prisma = new PrismaClient();
 
 function userRoutes (server: FastifyInstance, options: any, done: any)

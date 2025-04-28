@@ -4,84 +4,13 @@ import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import WebSocket from 'ws';
 import { AnyCnameRecord } from "dns";
+import PongGame from '../classes/PongGame';
+import { MatchMakingUser, MatchMakingMap } from '../classes/MatchMaking';
 
+axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 const prisma = new PrismaClient();
 
-class MatchmakingUser {
-    constructor (id: number, rank: number, websocket: WebSocket)
-    {
-        this.id = id;
-        this.rank = rank;
-        this.waitFrom = new Date(Date.now());
-        this.websocket = websocket
-    }
-    id: number;
-    rank: number;
-    waitFrom: Date;
-    websocket: WebSocket
-}
-
-class matchMakingMap extends Array<MatchmakingUser>
-{
-    private playerCount: number = 2;
-
-    private extractUsers(): MatchmakingUser[] {
-        const firstUser: MatchmakingUser = this[0];
-        let result = this
-        result
-            .map(p => ({ ...p, diff: Math.abs(p.rank - firstUser.rank) }))
-            .sort((a, b) => a.diff - b.diff)
-            .slice(0, this.playerCount)
-            .map(entry => entry as MatchmakingUser)
-            .concat(firstUser);
-        this.slice(this.playerCount, this.length);
-        return (result);
-    }
-
-    addUserToMatchmaking(user: MatchmakingUser): MatchmakingUser[] | undefined
-    {
-        this.push(user);
-        if (this.length >= this.playerCount)
-            return (this.extractUsers());
-        else
-            return (undefined);
-    }
-}
-
-interface pos {
-    x: number,
-    y: number
-}
-class PongGame {
-    constructor (playerIds: Array<number>) {
-        this.ballPos = { x: 0, y: 0};
-        this.playersPos = new Map<number, pos>()
-        if (playerIds.length == 2)
-        {
-            this.playersPos.set(playerIds[0], { x: (this.width / 2 ) * -1, y: 0})
-            this.playersPos.set(playerIds[1], { x: this.width / 2 , y: 0})
-        }
-    }
-    playerMove(playerId: number, move: number)
-    {
-        const playerPos = this.playersPos.get(playerId)
-        const playerPosY = playerPos?.y;
-        if (!playerPosY)
-            throw new Error('not_existing_player_pos');
-        if (playerPosY + this.playerHeight / 2 >= this.height / 2)
-            return ;
-        else
-            this.playersPos.set(playerId, {x: playerPos.x, y: playerPosY});
-    }
-    width: number = 200
-    height: number = 200
-    playerHeight: number = 50
-    playerWidth: number = 20
-    ballPos: pos
-    playersPos: Map<number, pos>
-}
-
-var users: matchMakingMap;
+var users: MatchMakingMap = new MatchMakingMap();
 var activeConn: Map<number, WebSocket> = new Map();
 
 interface gameConnectParams {
@@ -95,11 +24,11 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
     {        
         try
         {
-            const token = request.tokens['ft_transcendence_jw_token'];
+            const token = request.cookies['ft_transcendence_jw_token'];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const tokenPayload = decoded.data;
-            const gameId = request.params.gameId;
-            const tournamentId = request.params.tournamentId;
+            const gameId = Number(request.params.gameId);
+            const tournamentId = Number(request.params.tournamentId);
 
 
 
@@ -131,18 +60,18 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 throw (new Error('cannot_find_game_in_db'));
 
             socket.on('message', (RawData: WebSocket.RawData) => {
-                console.log(RawData.message)
+                console.log(JSON.parse(RawData.toString('utf8')));
             })
 
             socket.on('close', () => {
                 game.players.forEach(user => {
-                    activeConn.get(user.id).send({ message: `playerLeft`, playerId: tokenPayload.id});
+                    activeConn.get(user.id)?.send(JSON.stringify({ message: `playerLeft`, playerId: tokenPayload.id}));
                 })
                 activeConn.delete(tokenPayload.id);
             });
     
             game.players.forEach(user => {
-                activeConn.get(user.id).send({ message: `playerJoin`, playerId: tokenPayload.id});
+                activeConn?.get(user.id)?.send(JSON.stringify({ message: `playerJoin`, playerId: tokenPayload.id }));
             })
             activeConn.set(tokenPayload.id, socket);
         }
@@ -157,12 +86,18 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
     {
         try
         {
-            const token = request.tokens['ft_transcendence_jw_token'];
+            const token = request.cookies['ft_transcendence_jw_token'];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const tokenPayload = decoded.data;
             const res = await axios.post(`http://user-service:3000/api/user/lookup/${tokenPayload.id}`, {
                 credential: process.env.API_CREDENTIAL
             });
+            if (res.status != 200)
+                return (socket.close(res.status, res.data.error || 'server_error' ))
+
+            if (!(res.data?.id))
+                return (socket.close('user_not_found', 404));
+
             socket.on('message', (RawData: WebSocket.RawData) => {
                 console.log(RawData.message);
             })
@@ -170,11 +105,8 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             socket.on('close', () => {
                 activeConn.delete(tokenPayload.id);
             });
-            if (res.status != 200)
-                throw(new Error("cannot_get_user_infos"));
-            const result = users.addUserToMatchmaking(new MatchmakingUser((await res).data.id, (await res).data.rank, socket));
+            const result: MatchMakingUser[] = users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
 
-            // when a game can be created
             if (result != undefined)
             {
                 const gameId = 1 
@@ -191,18 +123,21 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                                     tournamentStage: 0,
                                     players: {
                                         create: result.map(user => {
-                                            return ({ userId: user.id })
+                                            return ({ userId: user.id, score: 0 })
                                         })
                                     }
                                 }
                             ]
                         }
+                    },
+                    include: {
+                        games: true
                     }
                 })
                 if (!tournament)
                     throw (new Error('cannot_insert_tournament_in_db'));
                 result.forEach(user => {
-                    user.websocket.send({ message: 'gameLaunched', gameId: tournament.id});
+                    user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
                     user.websocket.close();
                 })
                 activeConn.set(tokenPayload.id, socket);
@@ -210,7 +145,8 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         }
         catch (error)
         {
-            console.log(error);
+            console.log(error)
+            socket.close()
         }
     });
 

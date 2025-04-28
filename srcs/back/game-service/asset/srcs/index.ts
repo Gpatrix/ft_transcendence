@@ -11,10 +11,12 @@ server.register(require("./routes/game"));
 
 server.addHook('preValidation'
   , (request, reply, done) => {
-     
-     const token: string | undefined = request.cookies.ft_transcendence_jw_token
      try
      {
+      console.log(`we here`);
+      console.log(`request = ${request.cookies['ft_transcendence_jw_token']}`)
+      console.log(`we after json.string`)
+      const token: string | undefined = request.cookies['ft_transcendence_jw_token'];
         if (!token || token === undefined)
            return (reply.status(401).send({ error: "user_not_logged_in" }));
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
