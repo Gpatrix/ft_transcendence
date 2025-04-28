@@ -22,15 +22,17 @@ type ProfilePicProps = {
     image?: string;
     profileLink: string
     status?: VariantProps<typeof statusVariants>['status'];
+    size?: number;
 }
 
-export default function ProfilePic({ image, className, profileLink, status='none'} : ProfilePicProps) {
+export default function ProfilePic({ image, className, profileLink, status='none', size=30 } : ProfilePicProps) {
+    console.log("test" + size);
+    
     return (
         <Link to={profileLink}
-            className={clsx('relative max-w-fit h-full' //flex flex-col justify-center 
+            className={clsx('relative flex flex-col justify-center max-w-fit h-full'
                 // + (size>0?(" w-10 h-" + size):""), className)}
-                // + (size>0?(" w-" + size + " h-" + size):"")
-                , className)}
+                + (size>0?(" w-" + size + " h-" + size):""), className)}
             // className={clsx('relative' + (size>0?(" w-" + size + " h-" + size):""), className)}
         >
         { status != 'none' &&
@@ -39,7 +41,7 @@ export default function ProfilePic({ image, className, profileLink, status='none
             </span> }
             {
                 // image ? <img src={image} className="w-auto h-full rounded-full" />
-                image ? <img src={image} className="rounded-full h-1/1 inline-block" />
+                image ? <img src={image} className="rounded-full h-1/1" />
                       : <div className="flex justify-center items-center text-[100%] font-bold rounded-full h-1/1 w-1/1 bg-light-yellow text-grey">T</div>
             }
         </Link>
