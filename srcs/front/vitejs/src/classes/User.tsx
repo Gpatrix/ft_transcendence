@@ -17,6 +17,7 @@ class User {
     this.name = name;
     this.email = email;
     this.imageUrl = imageUrl;
+    // ajouter profile link ?
   }
 
   updateName(newName: string) {

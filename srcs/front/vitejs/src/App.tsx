@@ -8,13 +8,22 @@ import Input from './components/Input.tsx'
 import ProfilePic from './components/ProfilePic.tsx'
 import BgShadow from './components/BgShadow.tsx'
 import InputWithLabel from './components/InputWithLabel.tsx'
-import MonTest from './components/MonTest.tsx'
+import MatchResult from './components/MatchResult.tsx'
 import UserContact from './components/UserContact.tsx'
 import ClickableIco from './components/ClickableIco.tsx'
 import ChatMessage from './components/ChatMessage.tsx'
+import Player from './classes/Player.tsx'
+
 
 function App()
 {
+
+  const players: Player[] = [];
+  players.push(new Player(0, "user1", "user1@gmail.com", "https://localhost/test.jpeg", 1200, 0, 1))
+  players.push(new Player(1, "user2", "user2@gmail.com", "https://localhost/test.jpeg", 800, 0, 2))
+  players.push(new Player(2, "user3", "user3@gmail.com", "https://localhost/test.jpeg", 400, 0, 3))
+  players.push(new Player(3, "user4", "user4@gmail.com", "https://localhost/test.jpeg", 100, 0, 4))
+
   return (
     <div className='flex flex-col'>
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 align-center'>
@@ -65,7 +74,7 @@ function App()
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
-            <MonTest states="Victoire" users={['user1', 'user2', 'user3', 'user4']} ></MonTest>
+            <MatchResult states="Victoire" users={players} ></MatchResult>
           </BgShadow>
       </div>
 

@@ -5,21 +5,22 @@ import ProfilePic from './ProfilePic.tsx'
 // import { HomeIcon } from '@heroicons/react/solid'
 import React, { useState } from 'react';
 import arrowDown from './down-arrow-box.svg';
-import styles from './MonTest.module.css';
+import styles from './MatchResult.module.css';
+import Player from '../classes/Player.tsx'
 
   
-type MonTestProps = {
+type MatchResult = {
     className?: string;
     image?: string;
     name?: string;
     states: string;
-    users: string[];
+    users: Player[];
 }
 
 // recuperer toutes les infos de la partie avec l'api
 // depuis le parent ?
 
-export default function MonTest({ states, className, users } : MonTestProps) {
+export default function MatchResult({ states, className, users } : MatchResult) {
 
     const [expendedItem, setExpendedItem] = useState(false); // pour garder l'élément sélectionné
 
@@ -74,14 +75,16 @@ export default function MonTest({ states, className, users } : MonTestProps) {
                         {
                             users.map((x, i) =>
                                 <div key={i} className={clsx('flex md:gap-8 content-between main-cara max-h-1/1 mr-5 mt-3', styles.user)}>
-                                    {/* faire attention a chaque utilisateurs */}
+                                    <span className='h-min self-center text-xl'>
+                                        #{x.place} |
+                                    </span>
                                     <span className='w-[60px]'>
-                                        <ProfilePic profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
+                                        <ProfilePic profileLink='https://www.google.com' image={x.imageUrl}/>
                                     </span>
 
-                                    <span className='separator h-min self-center'>{x}</span>
+                                    <span className='separator h-min self-center'>{x.name}</span>
                                     <span className={clsx('placement h-min self-center ml-2')}>
-                                        pts
+                                        {x.points}pts
                                     </span>
                                 </div>
                             )
@@ -90,7 +93,7 @@ export default function MonTest({ states, className, users } : MonTestProps) {
                     </span>
 
                     
-                    <span className={clsx('h-8 ml-2', styles.more)}>
+                    <span className={clsx('h-8 ml-2 self-end mb-[15px]', styles.more)}>
                         <img className='w-8' onClick={() => toggleMatch()} src={arrowDown} />
                     </span>
                     

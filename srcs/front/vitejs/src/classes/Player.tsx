@@ -12,17 +12,21 @@ class Player extends User {
         this.idGame = idGame;
         this.points = points;
         this.place = place;
-      }
-    
-      addPoints(newPoints: number) {
-        this.points += newPoints;
-      }
-    
-      removePoints(pointsToRemove: number) {
-        this.points = Math.max(0, this.points - pointsToRemove);
-      }
-    
-      getUserInfo() {
-        return `${super.getUserInfo()}, Points: ${this.points}`;
-      }
     }
+    
+    addPoints(newPoints: number) {
+        this.points += newPoints;
+    }
+    
+    removePoints(pointsToRemove: number) {
+        this.points = Math.max(0, this.points - pointsToRemove);
+    }
+    
+    getUserInfo() {
+        return `${super.getUserInfo()}, Points: ${this.points}`;
+    }
+}
+
+
+
+export default Player;
