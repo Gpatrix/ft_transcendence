@@ -12,7 +12,7 @@ model msg {
   id Int @id @unique @default(autoincrement())
   userID Int
   channel Int
-  create_time DateTime
+  createdAt DateTime @default(now())
   text String
 }
 

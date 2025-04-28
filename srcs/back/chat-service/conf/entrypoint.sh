@@ -2,6 +2,8 @@
 
 cd ./asset
 
+sleep infinity
+
 if [ ! -d ./prisma/prisma_client ]; then
     npx prisma generate
     if [ "$NODE_ENV" = "dev" ]; then

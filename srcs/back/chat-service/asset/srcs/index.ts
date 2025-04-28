@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 const server = fastify();
 server.register(cookiesPlugin);
 server.register(websocketPlugin);
-server.register(wstest);
+server.register(chatws);
 
 interface payloadstruct
 {
@@ -23,7 +23,7 @@ interface payloadstruct
 
 interface tokenStruct
 {
-    id: bigint,
+    id: number,
     email: string,
     name: string,
     isAdmin: boolean
@@ -58,24 +58,38 @@ function closing_conn(socket: WebSocket, token: tokenStruct): void
 
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   if (payload.action == 'msg' && payload.msg === undefined)
+   if (payload.msg === undefined)
    {
       socket.send("no-msg-rcs");
       return;
    }
-
    //TODO verif user existance and block
    try
    {
       const channel_hash: string = getPrivChannelHash(token.name, payload.target);
-      const channel = await prisma.channel.findFirst({
-           where: { hash: channel_hash },
+      let channel = await prisma.channel.findFirst({
+         where: { hash: channel_hash },
       })
+      
+      if(!channel)
+      {
+         console.log("creating channel");
+         channel = await prisma.channel.create(
+         {
+            data: {
+               hash: channel_hash
+            }
+         })
+      }
 
-      if(channel)
-         console.log(channel);
-      else 
-         console.log("no channel corresponding")
+      let new_msg = await prisma.msg.create(
+      {
+         data: {
+            userID: token.id,
+            channel: channel.id,
+            text: payload.msg
+         }
+      });
    }
    catch (error)
    {
@@ -128,7 +142,7 @@ function getPrivChannelHash(username: string, target_name: string): string
    return (hash.digest('hex'));
 }
 
-async function wstest()
+async function chatws()
 {
    server.get('/api/chat/connect', {websocket: true}, (socket: WebSocket, request) => 
    {
