@@ -49,11 +49,12 @@ server.addHook('preValidation'
       }
 })
 
-var activeConn: Map<string, WebSocket[]> = new Map();
+var activeConn: Map<string, WebSocket> = new Map();
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
    console.log(`TODO handle closing ${token.name} socket`);
+   activeConn.delete(token.name);
 }
 
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
@@ -63,6 +64,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       socket.send("no-msg-rcs");
       return;
    }
+
    //TODO verif user existance and block
    try
    {
@@ -90,6 +92,14 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
             text: payload.msg
          }
       });
+
+      let target_socket = activeConn.get(payload.target);
+      if (target_socket !== undefined)
+      {
+         target_socket.send(
+            `"target": ${token.name}, "msg": ${new_msg.text}`
+         );
+      }
    }
    catch (error)
    {
@@ -151,6 +161,7 @@ async function chatws()
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
 
+         activeConn.set(decodedToken.name, socket);
 
          socket.on('message', (RawData: WebSocket.RawData) =>
             data_handler(RawData, socket, decodedToken));
