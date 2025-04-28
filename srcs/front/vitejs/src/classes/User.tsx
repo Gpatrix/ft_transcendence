@@ -36,33 +36,19 @@ class User {
     return `ID: ${this.id}, Nom: ${this.name}, Email: ${this.email}, ImageUrl: ${this.imageUrl}`;
   }
 
+
   static findUserById(users: User[], userId: number): User | undefined {
     return users.find(user => user.id === userId);
   }
+
+  static saveUserData = (user: User) => {
+    localStorage.setItem('user', JSON.stringify(user));
+  };
+
+  static getUserData = () => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  };
 }
-
-// Composant React utilisant la classe User
-// const UserComponent: React.FC = () => {
-//   const [user, setUser] = useState(new User(1, 'John Doe', 'john.doe@example.com'));
-
-//   const handleNameChange = () => {
-//     user.updateName('Jane Doe');
-//     setUser(new User(user.id, user.name, user.email)); // Mettre à jour l'état pour re-render
-//   };
-
-//   const handleEmailChange = () => {
-//     user.updateEmail('jane.doe@example.com');
-//     setUser(new User(user.id, user.name, user.email)); // Mettre à jour l'état pour re-render
-//   };
-
-//   return (
-//     <div>
-//       <h1>Informations de l'utilisateur</h1>
-//       <p>{user.getUserInfo()}</p>
-//       <button onClick={handleNameChange}>Changer le nom</button>
-//       <button onClick={handleEmailChange}>Changer l'email</button>
-//     </div>
-//   );
-// };
 
 export default User;
