@@ -22,7 +22,7 @@ function App()
   players.push(new Player(0, "user1", "user1@gmail.com", "https://localhost/test.jpeg", 1200, 0, 1))
   players.push(new Player(1, "user2", "user2@gmail.com", "https://localhost/test.jpeg", 800, 0, 2))
   players.push(new Player(2, "user3", "user3@gmail.com", "https://localhost/test.jpeg", 400, 0, 3))
-  players.push(new Player(3, "user4", "user4@gmail.com", "https://localhost/test.jpeg", 100, 0, 4))
+  players.push(new Player(3, "user4", "user4@gmail.com", "https://famille-de-geek.com/wp-content/uploads/2021/12/pyjama-bebe-bob-eponge.jpg", 100, 0, 4))
 
   return (
     <div className='flex flex-col'>
@@ -74,7 +74,7 @@ function App()
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
-            <MatchResult states="Victoire" users={players} ></MatchResult>
+            <MatchResult states="Victoire" users={players} idMainUser={3} ></MatchResult>
           </BgShadow>
       </div>
 

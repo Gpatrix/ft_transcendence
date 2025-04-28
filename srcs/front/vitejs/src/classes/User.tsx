@@ -35,6 +35,10 @@ class User {
   getUserInfo() {
     return `ID: ${this.id}, Nom: ${this.name}, Email: ${this.email}, ImageUrl: ${this.imageUrl}`;
   }
+
+  static findUserById(users: User[], userId: number): User | undefined {
+    return users.find(user => user.id === userId);
+  }
 }
 
 // Composant React utilisant la classe User

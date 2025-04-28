@@ -15,21 +15,26 @@ type MatchResult = {
     name?: string;
     states: string;
     users: Player[];
+    idMainUser: number;
 }
 
 // recuperer toutes les infos de la partie avec l'api
 // depuis le parent ?
 
-export default function MatchResult({ states, className, users } : MatchResult) {
+export default function MatchResult({ states, className, users, idMainUser } : MatchResult) {
 
     const [expendedItem, setExpendedItem] = useState(false); // pour garder l'élément sélectionné
-
+    
     const toggleMatch = () => {
         console.log(expendedItem);
         setExpendedItem(!expendedItem);
         console.log(styles);
         
     }
+    const mainUser = Player.findUserById(users, idMainUser);
+    let comptUser : number = 0
+    
+    
     return (
         <div  className={clsx('relative w-full text-yellow overflow-hidden border-solid border-yellow rounded-sm', states, className, expendedItem?styles.expended:'')}>
             {/* <aside className='border-2 border-solid border-yellow rounded-sm mr-px'>date</aside> */}
@@ -40,36 +45,26 @@ export default function MatchResult({ states, className, users } : MatchResult) 
                     {states}
                 </span>
                 <span className={clsx('flex justify-center items-baseline  h-min', styles.scores)}>
-                    
-                        {/* liste : */}
-
                     <span className={clsx('flex flex-col', styles.users)}>
-                        {/* absolute top-2 */}
                         <div className={clsx('flex md:gap-8 content-between main-cara max-h-1/1 mr-5 relative', styles.matchRecap)}>
-                            {/* faire attention a chaque utilisateurs */}
                             <span className='w-[60px]'>
-                                <ProfilePic profileLink='https://tailwindcss.com/docs/height' image='https://localhost/test.jpeg'/>
+                                <ProfilePic profileLink='https://tailwindcss.com/docs/height' image={mainUser?mainUser.imageUrl:''}/>
                             </span>
 
                             <span className='separator text-5xl h-min self-center'>/</span>
-                            {/* faire attention : utiliser le tab passe en parametre */}
                             <span className='otherUsers  flex'>
                                 {
                                     users.map((x, i) =>
                                     {
-                                        if (i == 0)
+                                        if (x.id == idMainUser)
                                             return ''
-                                        console.log(i);
-                                        return <ProfilePic key={i} profileLink='https://www.google.com' image='https://localhost/test.jpeg' className={(i == 1?'':'ml-[-20px] ')+'inline-block w-[60px]'}/>
-                                    }
-                                    )
+                                        comptUser++;
+                                        return <ProfilePic key={i} profileLink='https://www.google.com' image={x.imageUrl} className={(comptUser == 1?'':'ml-[-20px] ')+'inline-block w-[60px]'}/>
+                                    })
                                 }
-                                {/* <ProfilePic profileLink='https://www.google.com' image='https://localhost/test.jpeg' className='inline-block w-[60px]'/>
-                                <ProfilePic profileLink='https://www.google.com' image='https://localhost/test.jpeg' className='ml-[-20px] inline-block w-[60px]'/>
-                                <ProfilePic profileLink='https://www.google.com' image='https://localhost/test.jpeg' className='ml-[-20px] inline-block w-[60px]'/> */}
                             </span>
                             <span className={clsx('placement h-min self-center ml-2')}>
-                                1/4
+                                {mainUser?.place}/{users.length}
                             </span>
                         </div>
                         {

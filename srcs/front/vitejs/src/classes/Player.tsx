@@ -25,6 +25,12 @@ class Player extends User {
     getUserInfo() {
         return `${super.getUserInfo()}, Points: ${this.points}`;
     }
+
+    static findUserById(players: Player[], userId: number): Player | undefined {
+        console.log(players);
+        
+        return players.find(user => user.id === userId);
+      }
 }
 
 
