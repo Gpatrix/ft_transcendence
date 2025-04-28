@@ -29,7 +29,6 @@ export default function MonTest({ states, className, users } : MonTestProps) {
         console.log(styles);
         
     }
-
     return (
         <div  className={clsx('relative w-full text-yellow overflow-hidden border-solid border-yellow rounded-sm', states, className, expendedItem?styles.expended:'')}>
             {/* <aside className='border-2 border-solid border-yellow rounded-sm mr-px'>date</aside> */}
@@ -68,7 +67,7 @@ export default function MonTest({ states, className, users } : MonTestProps) {
                                 <ProfilePic profileLink='https://www.google.com' image='https://localhost/test.jpeg' className='ml-[-20px] inline-block w-[60px]'/>
                                 <ProfilePic profileLink='https://www.google.com' image='https://localhost/test.jpeg' className='ml-[-20px] inline-block w-[60px]'/> */}
                             </span>
-                            <span className={clsx('placement h-min self-center ml-2', styles.test)}>
+                            <span className={clsx('placement h-min self-center ml-2')}>
                                 1/4
                             </span>
                         </div>
