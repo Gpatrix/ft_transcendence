@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from "react-router";
-
 import  Chat from "./pages/Auth/Chat.tsx"
 import  App from "./App"
 // import  Header from "./components/Header.tsx"
@@ -37,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
           <Route element={<ProfileBackground/>}>
             <Route path="/profile/:id" element={<MyProfile />}/>
           </Route>
+          <Route path="/chat" element={<Chat />} />
 
         </Routes>
       </AuthProvider>

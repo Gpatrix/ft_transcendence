@@ -1,7 +1,21 @@
-import { clsx } from 'clsx'
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
+import { tv, type VariantProps } from 'tailwind-variants'
+import { clsx } from 'clsx'
 
+const variants = tv({
+    base: 'outline-none',
+    variants: {
+      type: {
+        chat: 'text-yellow ',
+        profil: 'text-light-red',
+        play: 'text-yellow',
+      }
+    },
+    defaultVariants: {
+        type: 'play', 
+    },
+});
 
 type HeaderProps = {
     className?: string;
