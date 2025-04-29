@@ -148,6 +148,7 @@ function data_handler(
             break;
 
          default:
+            socket.send("action-not-found");
             return;
       }
    }
@@ -170,7 +171,7 @@ function getPrivChannelHash(username: string, target_name: string): string
 
    const hash = crypto.createHash('sha256');
    hash.update(combinedString);
-   return (hash.digest('hex'));
+   return (hash.digest('base64'));
 }
 
 async function chatws()
