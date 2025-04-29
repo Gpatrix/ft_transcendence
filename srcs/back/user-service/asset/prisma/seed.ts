@@ -8,7 +8,7 @@ async function main() {
       email: 'louis@prisma.io',
       name: 'Louis',
       password: "none"
-    },
+    }
   })
   const charlis = await prisma.user.upsert({
     where: { email: 'charlis@prisma.io' },
@@ -25,7 +25,13 @@ async function main() {
     create: {
       email: 'mael@prisma.io',
       name: 'mael',
-      password: "none"
+      password: "none",
+      blockedUsers: {
+        create: [
+          { blockedUserId: charlis.id },
+          { blockedUserId: louis.id },
+        ]
+      },
     },
   })
   console.log(louis);

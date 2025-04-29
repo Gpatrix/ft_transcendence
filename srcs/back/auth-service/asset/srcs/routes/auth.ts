@@ -58,16 +58,16 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2002':
-                            reply.status(403).send({ error: "this name is already used"});
+                            res.status(403).send({ error: "this name is already used"});
                             break
                         case 'P2003':
-                            reply.status(403).send({ error: "missing_arg"});
+                            res.status(403).send({ error: "missing_arg"});
                           break
                         case 'P2000':
-                            reply.status(403).send({ error: "too_long_arg"});
+                            res.status(403).send({ error: "too_long_arg"});
                           break
                         default:
-                            reply.status(403).send({ error: error.message});
+                            res.status(403).send({ error: error.message});
                     }
             }
             return (res.status(500).send({ error: "server_error"}));
@@ -180,7 +180,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: userinfo.email,
-                        prof_picture: userinfo.picture,
+                        profPicture: userinfo.picture,
                         name: userinfo.name
                     }),
                 });
