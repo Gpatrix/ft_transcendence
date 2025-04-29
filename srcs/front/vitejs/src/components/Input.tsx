@@ -20,10 +20,11 @@ type InputProps = {
     value?: string;
     placeholder: string;
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    hidechars?: boolean;
 } & VariantProps<typeof variants>;
 
-export default function Input({type, className, placeholder, onChange} : InputProps) {
+export default function Input({type, className, placeholder, onChange, hidechars} : InputProps) {
     return (
-        <input className={clsx(variants({ type }), className)} onChange={onChange} placeholder={placeholder}></input>
+        <input className={clsx(variants({ type }), className)} type={hidechars ? "password" : "text"} onChange={onChange}  placeholder={placeholder}></input>
     );
 }
