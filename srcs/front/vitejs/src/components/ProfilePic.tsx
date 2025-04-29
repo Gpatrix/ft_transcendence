@@ -22,23 +22,20 @@ type ProfilePicProps = {
     image?: string;
     profileLink: string
     status?: VariantProps<typeof statusVariants>['status'];
+    size?: number; // a supprimer ?
 }
 
 export default function ProfilePic({ image, className, profileLink, status='none'} : ProfilePicProps) {
     return (
         <Link to={profileLink}
-            className={clsx('relative max-w-fit h-full' //flex flex-col justify-center 
-                // + (size>0?(" w-10 h-" + size):""), className)}
-                // + (size>0?(" w-" + size + " h-" + size):"")
-                , className)}
-            // className={clsx('relative' + (size>0?(" w-" + size + " h-" + size):""), className)}
+            className={clsx('relative max-w-fit h-full', className)}
         >
         { status != 'none' &&
             <span className="flex absolute right-[-10%] bottom-[10%] justify-center items-center rounded-full w-2/5 h-2/5 bg-grey">
                 <div className={statusVariants( {status} )}/>
             </span> }
             {
-                // image ? <img src={image} className="w-auto h-full rounded-full" />
+                image ? <img src={image} className="rounded-full h-1/1" />
                 image ? <img src={image} className="rounded-full h-1/1 inline-block" />
                       : <div className="flex justify-center items-center text-[100%] font-bold rounded-full h-1/1 w-1/1 bg-light-yellow text-grey">T</div>
             }

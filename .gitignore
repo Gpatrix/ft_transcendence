@@ -1,4 +1,6 @@
 .env
-*/*/nodes_modules
+**/node_modules
 *.log
-/srcs/front/vitejs/node_modules/
+**/migrations
+**/db
+*.js

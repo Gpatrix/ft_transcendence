@@ -1,0 +1,34 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  // output = "../generated/prisma_client"
+}
+
+model BlockedUser {
+  id Int @unique
+  userId Int @id
+  blockedUser   User   @relation(fields: [blockedUserId], references: [id])
+  blockedUserId Int    @unique
+
+}
+
+model User {
+  id Int @id @unique @default(autoincrement())
+  name String @unique
+  email String @unique
+  password String?
+  prof_picture String?
+  bio String?
+  lang String?
+  blockedUsers BlockedUser[]
+  isAdmin Boolean @default(false)
+}
+// not supported with sqlite
+// enum Role {
+//   USER
+//   ADMIN
+// }

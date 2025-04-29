@@ -32,7 +32,7 @@ function App()
         <Input value="" placeholder="Entrez votre nom d'utilisateur"/>
         <Input value="" type='error' placeholder="Entrez votre nom d'utilisateur" />
       </div>
-      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-30 align-center'>
+      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
         <ProfilePic status='online' profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
         <ProfilePic status='offline' profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
         <ProfilePic status='online' profileLink='https://www.google.com' />
@@ -69,7 +69,6 @@ function App()
       </div>
 
 
-
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
@@ -82,21 +81,22 @@ function App()
       <BgShadow className='flex flex-col w-[50vw] ml-auto mr-auto space-y-[32px]'>
 
         <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet gravida lacinia. Vivamus convallis sit amet nunc sit amet sodales. In molestie ipsum est, id gravida lorem elementum et. Maecenas
+
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet gravida lacinia. Vivamus convallis sit amet nunc sit amet sodales. In molestie ipsum est, id gravida lorem elementum et. Maecenas
         </ChatMessage>
 
         <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
-        Quisque lorem felis, dictum eu condimentum eget, aliquet at eros. 
+          Quisque lorem felis, dictum eu condimentum eget, aliquet at eros. 
         </ChatMessage>
 
         <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
-        Morbi a erat a ipsum posuere consectetur. Maecenas fermentum euismod lectus sed rhoncus. Praesent placerat sem vehicula sapien pretium facilisis. Aliquam aliquam lacus et faucibus consequat. 
+          Morbi a erat a ipsum posuere consectetur. Maecenas fermentum euismod lectus sed rhoncus. Praesent placerat sem vehicula sapien pretium facilisis. Aliquam aliquam lacus et faucibus consequat. 
         </ChatMessage>
         <ChatMessage profileIco='/test.jpeg' username='Lichar1337' profileLink='google.com' hour='13:12' >
-        Duis aliquet gravida lacinia. sit amet nunc sit amet sodales. 
+          Duis aliquet gravida lacinia. sit amet nunc sit amet sodales. 
         </ChatMessage>
         <ChatMessage profileIco='/test.jpeg' username='PepitoDeLaVega35' profileLink='google.com' hour='13:12' >
-        Issou
+          Issou
         </ChatMessage>
       </BgShadow>
     </div>
