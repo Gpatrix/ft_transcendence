@@ -19,13 +19,15 @@ type InputWithLabelProps = {
     placeholder: string;
     label: string;
     className?: string;
+    value?: string;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 } & VariantProps<typeof variants>;
 
-export default function InputWithLabel({placeholder, label, type, className} : InputWithLabelProps) {
+export default function InputWithLabel({placeholder, label, type, className, onChange, value} : InputWithLabelProps) {
     return (
         <div className={clsx('flex flex-col w-full', className)}>
             <label className={variants({ type })}>{label}</label>
-            <Input placeholder={placeholder} type={type} />
+            <Input value={value} onChange={onChange} placeholder={placeholder} type={type} />
         </div>
     );
 }
