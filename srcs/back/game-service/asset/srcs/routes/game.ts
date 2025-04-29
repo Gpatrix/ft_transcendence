@@ -1,14 +1,12 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import prisma from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import WebSocket from 'ws';
-import { AnyCnameRecord } from "dns";
 import PongGame from '../classes/PongGame';
 import { MatchMakingUser, MatchMakingMap } from '../classes/MatchMaking';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
-const prisma = new PrismaClient();
 
 var users: MatchMakingMap = new MatchMakingMap();
 var activeConn: Map<number, WebSocket> = new Map();
@@ -21,7 +19,7 @@ interface gameConnectParams {
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
     server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
-    {        
+    {   
         try
         {
             const token = request.cookies['ft_transcendence_jw_token'];
@@ -30,8 +28,8 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             const gameId = Number(request.params.gameId);
             const tournamentId = Number(request.params.tournamentId);
 
-
-
+            if (activeConn.get(tokenPayload.id))
+                socket.close('user_not_registered_in_this_game', 403);
             const tournament = await prisma.tournament.findFirst({
                 where: {
                     id: tournamentId,
@@ -98,6 +96,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             if (!(res.data?.id))
                 return (socket.close('user_not_found', 404));
 
+            if (activeConn.get(tokenPayload.id))
+                socket.close('user_not_registered_in_this_game', 403);
+
             socket.on('message', (RawData: WebSocket.RawData) => {
                 console.log(RawData.message);
             })
@@ -105,35 +106,11 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             socket.on('close', () => {
                 activeConn.delete(tokenPayload.id);
             });
-            const result: MatchMakingUser[] = users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
+            const result: MatchMakingUser[] | undefined = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
 
             if (result != undefined)
             {
-                const gameId = 1 
-                const tournament = await prisma.tournament.create({
-                    data: {
-                        players : {
-                            create: result.map(user => {
-                                return ({ userId: user.id, score: 0 })
-                            })
-                        },
-                        games : {
-                            create: [
-                                {
-                                    tournamentStage: 0,
-                                    players: {
-                                        create: result.map(user => {
-                                            return ({ userId: user.id, score: 0 })
-                                        })
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    include: {
-                        games: true
-                    }
-                })
+                const isGameCreated: boolean = Cla
                 if (!tournament)
                     throw (new Error('cannot_insert_tournament_in_db'));
                 result.forEach(user => {

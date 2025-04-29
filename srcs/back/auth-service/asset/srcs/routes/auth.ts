@@ -58,16 +58,16 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2002':
-                            res.status(403).send({ error: "this name is already used"});
+                            res.status(401).send({ error: "this name is already used"});
                             break
                         case 'P2003':
-                            res.status(403).send({ error: "missing_arg"});
+                            res.status(401).send({ error: "missing_arg"});
                           break
                         case 'P2000':
-                            res.status(403).send({ error: "too_long_arg"});
+                            res.status(401).send({ error: "too_long_arg"});
                           break
                         default:
-                            res.status(403).send({ error: error.message});
+                            res.status(401).send({ error: error.message});
                     }
             }
             return (res.status(500).send({ error: "server_error"}));

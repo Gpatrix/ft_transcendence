@@ -1,3 +1,5 @@
+import { setTimeout } from "timers";
+
 class MatchMakingUser {
     constructor (id: number, rank: number, websocket: WebSocket)
     {
@@ -29,10 +31,15 @@ class MatchMakingMap extends Array<MatchMakingUser>
         return (result);
     }
 
-    addUserToMatchmaking(user: MatchMakingUser): MatchMakingUser[] | undefined
+    async addUserToMatchmaking(user: MatchMakingUser): Promise<MatchMakingUser[] | undefined>
     {
         this.push(user);
-        if (this.length >= this.playerCount)
+        if (this.length == this.playerCount)
+        {
+            await new Promise(resolve => setTimeout(resolve, 10 * 1000));
+            return (this.extractUsers());
+        }
+        else if (this.length > this.playerCount)
             return (this.extractUsers());
         else
             return (undefined);
