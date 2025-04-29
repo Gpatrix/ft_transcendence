@@ -2,3 +2,4 @@
 */*/nodes_modules
 *.log
 /srcs/front/vitejs/node_modules/
+*.js
