@@ -32,7 +32,7 @@ function App()
         <Input value="" placeholder="Entrez votre nom d'utilisateur"/>
         <Input value="" type='error' placeholder="Entrez votre nom d'utilisateur" />
       </div>
-      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
+      <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-[50px] align-center'>
         <ProfilePic status='online' profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
         <ProfilePic status='offline' profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
         <ProfilePic status='online' profileLink='https://www.google.com' />
@@ -71,8 +71,8 @@ function App()
 
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
           <BgShadow className='flex flex-col'>
-            <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
-            <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
+            {/* <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
+            <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel> */}
             <MatchResult states="Victoire" users={players} idMainUser={3} ></MatchResult>
           </BgShadow>
       </div>

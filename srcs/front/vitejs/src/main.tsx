@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from "react-router";
 import  Login from "./pages/Auth/Login.tsx"
 import  Chat from "./pages/Auth/Chat.tsx"
+import  App from "./App"
 // import  Header from "./components/Header.tsx"
 import  AuthLayout from "./pages/Auth/AuthLayout.tsx"
 import './css/global.css'
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/login" element={<Login />} />
       </Route>
       <Route path="/chat" element={<Chat />} />
+      <Route path="/test" element={<App />} />
 
     </Routes>
   </BrowserRouter>
