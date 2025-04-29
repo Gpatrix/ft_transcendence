@@ -11,12 +11,7 @@ generator client {
 model msg {
   id Int @id @unique @default(autoincrement())
   userID Int
-  channel Int
+  channel String
   createdAt DateTime @default(now())
   text String
-}
-
-model channel {
-  id Int @id @unique @default(autoincrement())
-  hash String @unique
 }

@@ -18,6 +18,8 @@ interface payloadstruct
 {
    action: string;
    target: string;
+   skip?: number;
+   take?: number;
    msg?: string;
 }
 
@@ -53,8 +55,8 @@ var activeConn: Map<string, WebSocket> = new Map();
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
-   console.log(`TODO handle closing ${token.name} socket`);
    activeConn.delete(token.name);
+   console.log(`TODO handle closed ${token.name} socket, remaining: ${activeConn.size}`);
 }
 
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
@@ -69,26 +71,12 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    try
    {
       const channel_hash: string = getPrivChannelHash(token.name, payload.target);
-      let channel = await prisma.channel.findFirst({
-         where: { hash: channel_hash },
-      })
       
-      if(!channel)
-      {
-         console.log("creating channel");
-         channel = await prisma.channel.create(
-         {
-            data: {
-               hash: channel_hash
-            }
-         })
-      }
-
-      let new_msg = await prisma.msg.create(
+      await prisma.msg.create(
       {
          data: {
             userID: token.id,
-            channel: channel.id,
+            channel: channel_hash,
             text: payload.msg
          }
       });
@@ -97,7 +85,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       if (target_socket !== undefined)
       {
          target_socket.send(
-            `"target": ${token.name}, "msg": ${new_msg.text}`
+            `"origin": ${token.name}, "msg": ${payload.msg}`
          );
       }
    }
@@ -105,6 +93,34 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    {
       console.log(error);
    }
+}
+
+async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
+{
+   //TODO verif user existance
+   if (payload.skip === undefined || payload.take == undefined)
+   {
+      socket.send("wrong-payload");
+      return;
+   }
+
+   if (payload.skip < 0 || payload.skip > 5000 || payload.take < 1 || payload.take > 20)
+   {
+      socket.send("too many msg requested");
+      return;
+   }
+
+   const channel_hash: string = getPrivChannelHash(token.name, payload.target);
+
+   const requested_msg = await prisma.msg.findMany(
+   {
+      where: {channel: channel_hash},
+      orderBy: {createdAt: 'desc'},
+      skip: payload.skip,
+      take: payload.take
+   });
+
+   socket.send(JSON.stringify(requested_msg));
 }
 
 function data_handler(
@@ -125,7 +141,12 @@ function data_handler(
          case "msg":
             handle_msg(payload, token, socket);
             break;
-      
+
+         case "refresh":
+            handle_refresh(payload, token, socket);
+
+            break;
+
          default:
             return;
       }

@@ -80,6 +80,8 @@ services:
           DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
+    ports:
+      - 9874:5555
     networks:
       - router
 
