@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from "react-router";
 import  Login from "./pages/Auth/Login.tsx"
 import Register from './pages/Auth/Register.tsx';
+
 import  AuthLayout from "./pages/Auth/AuthLayout.tsx"
 import './css/global.css'
 

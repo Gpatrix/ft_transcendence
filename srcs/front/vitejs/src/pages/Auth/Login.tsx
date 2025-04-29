@@ -68,6 +68,7 @@ export default function Login() {
 
             <Link to="/register" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{get_page_translation("register")}</Link>
 
+
         </form>
     )
 }
