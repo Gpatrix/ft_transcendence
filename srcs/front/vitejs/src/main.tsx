@@ -8,7 +8,6 @@ import Register from './pages/Auth/Register.tsx';
 
 import  AuthLayout from "./pages/Auth/AuthLayout.tsx"
 
-
 import './css/global.css'
 
 import  Login from "./pages/Auth/Login.tsx"
