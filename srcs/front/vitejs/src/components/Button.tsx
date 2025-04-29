@@ -4,24 +4,34 @@ import { clsx } from 'clsx'
 const variants = tv({
     base: 'px-16 rounded-lg py-3 text-24 cursor-pointer',
     variants: {
-      type: {
-        full: 'bg-yellow text-grey',
-        stroke: 'text-yellow border border-yellow',
-      }
+        type: {
+            full: 'bg-yellow text-grey',
+            stroke: 'text-yellow border border-yellow',
+        },
+        header: {
+            none:'',
+            other: 'px-[30px] py-[15px] rounded-md m-3 yellow-shadow-btn',
+            selected: 'px-[30px] py-[15px] rounded-md m-3 yellow-shadow-btn border-dark-red text-dark-red',
+            play: 'px-[60px] py-[15px] rounded-md m-3 red-shadow-btn',
+        },
+
     },
     defaultVariants: {
         type: 'stroke',
+        header:'none',
     },
 });
 
 type ButtonProps = {
     children: string;
     className?: string;
+    type?: string;
+    header?: string;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
 } & VariantProps<typeof variants>;
 
-export default function Button({children, type, className, onClick} : ButtonProps) {
+export default function Button({children, type, header, className, onClick} : ButtonProps) {
     return (
-        <button onClick={onClick} className={clsx(variants({ type }), className)}>{children}</button>
+        <button onClick={onClick} className={clsx(variants({ type, header }), className)}>{children}</button>
     );
 }
