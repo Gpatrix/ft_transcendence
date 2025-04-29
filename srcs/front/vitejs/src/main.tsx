@@ -35,7 +35,9 @@ createRoot(document.getElementById('root')!).render(
           <Route element={<ProfileBackground/>}>
             <Route path="/profile/:id" element={<MyProfile />}/>
           </Route>
+          
           <Route path="/chat" element={<Chat />} />
+          <Route path="/test" element={<App />} />
 
         </Routes>
       </AuthProvider>
