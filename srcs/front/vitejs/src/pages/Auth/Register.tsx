@@ -5,6 +5,7 @@ import { useState } from "react";
 import {check_password, confirm_password} from "../../validators/password.tsx";
 import check_email from "../../validators/email.tsx";
 import check_username from "../../validators/username.tsx";
+import { get_page_translation } from "../../translations/pages_reponses.tsx";
 
 import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { ErrorTypes} from "./ErrorClass"
@@ -68,30 +69,30 @@ export default function Register() {
     return (
         <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col max-w-[80%] min-w-[60%]  px-5">
             <InputWithLabel type={errorfield == ErrorTypes.USERNAME ? "error" : "ok"} onChange={(e)=>setName(e.target.value)} 
-            placeholder="Nom d'utilisateur" label="Nom d'utilisateur" />
+            placeholder={get_page_translation("username_placeholder")} label={get_page_translation("username")} />
 
             <InputWithLabel type={errorfield == ErrorTypes.MAIL ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)}
-            placeholder="Addresse mail" label="Addresse mail" />
+            placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
 
             <InputWithLabel type={errorfield == ErrorTypes.PASS ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} 
-            placeholder="Mot de passe" label="Mot de passe" />
+            placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
 
             <InputWithLabel type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} hidechars={true}
-            placeholder="Confirmer mot de passe" label="Confirmer mot de passe" />
+            placeholder={get_page_translation("password_confirm_placeholder")} label={get_page_translation("password_confirm")} />
 
-            <Link className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">Mot de passe oublie?</Link> 
+            <Link className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
 
             { error && 
                 <LoginErrorMsg>{error}</LoginErrorMsg>
             }
 
-            <Button type="full" className="mt-5">S'inscrire</Button>
+            <Button type="full" className="mt-5">{get_page_translation("register")}</Button>
             <span className="flex text-xs text-yellow items-center my-[10px]">
                 <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
-                <span>OU</span>
+                <span>{get_page_translation("or")}</span>
                 <span className="w-full h-[1px] ml-[12px] bg-yellow"/>
             </span>
-            <Link to="/login" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">Se connecter</Link>
+            <Link to="/login" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{get_page_translation("login")}</Link>
         </form>
     )
 }

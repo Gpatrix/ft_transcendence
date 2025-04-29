@@ -1,0 +1,32 @@
+{
+    "1001": [
+        "Password must contain lowercases, uppercases, and digits",
+        "Le mot de passe doit contenir des minuscules, des majuscules et des chiffres",
+        "La password deve contenere lettere minuscole, maiuscole e numeri"
+    ],
+    "1002": [
+        "Password too short",
+        "Mot de passe trop court",
+        "Password troppo corta"
+    ],
+    "1003": [
+        "User already exists",
+        "L'utilisateur existe déjà",
+        "L'utente esiste già"
+    ],
+    "1004": [
+        "Invalid email format",
+        "Format d'adresse e-mail invalide",
+        "Formato email non valido"
+    ],
+    "1005": [
+        "Invalid username format",
+        "Format de nom d'utilisateur invalide",
+        "Formato nome utente non valido"
+    ],
+    "1006": [
+        "Invalid username or password",
+        "Nom d'utilisateur ou mot de passe invalide",
+        "Nome utente o password non validi"
+    ]
+}
