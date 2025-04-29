@@ -8,13 +8,22 @@ import Input from './components/Input.tsx'
 import ProfilePic from './components/ProfilePic.tsx'
 import BgShadow from './components/BgShadow.tsx'
 import InputWithLabel from './components/InputWithLabel.tsx'
-import MonTest from './components/MonTest.tsx'
+import MatchResult from './components/MatchResult.tsx'
 import UserContact from './components/UserContact.tsx'
 import ClickableIco from './components/ClickableIco.tsx'
 import ChatMessage from './components/ChatMessage.tsx'
+import Player from './classes/Player.tsx'
+
 
 function App()
 {
+
+  const players: Player[] = [];
+  players.push(new Player(0, "user1", "user1@gmail.com", "https://localhost/test.jpeg", 1200, 0, 1))
+  players.push(new Player(1, "user2", "user2@gmail.com", "https://localhost/test.jpeg", 800, 0, 2))
+  players.push(new Player(2, "user3", "user3@gmail.com", "https://localhost/test.jpeg", 400, 0, 3))
+  players.push(new Player(3, "user4", "user4@gmail.com", "https://famille-de-geek.com/wp-content/uploads/2021/12/pyjama-bebe-bob-eponge.jpg", 100, 0, 4))
+
   return (
     <div className='flex flex-col'>
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 align-center'>
@@ -60,12 +69,11 @@ function App()
       </div>
 
 
-
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
-            <MonTest states="Victoire" users={['user1', 'user2']} ></MonTest>
+            <MatchResult states="Victoire" users={players} idMainUser={3} ></MatchResult>
           </BgShadow>
       </div>
 
@@ -73,6 +81,7 @@ function App()
       <BgShadow className='flex flex-col w-[50vw] ml-auto mr-auto space-y-[32px]'>
 
         <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
+
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet gravida lacinia. Vivamus convallis sit amet nunc sit amet sodales. In molestie ipsum est, id gravida lorem elementum et. Maecenas
         </ChatMessage>
 
