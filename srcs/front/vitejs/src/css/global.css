@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+    --color-yellow: #FEFE00;        /* Primary light yellow */  
+    --color-dark-yellow: #7B7B43;   /* Dark yellow (placeholders, unavailable buttons) */
+    --color-light-yellow: #FFFFB3;  /* Texts, cta */
+
+    --color-dark-red: #800B14;      /* Backgrounds, shadows, active navbar button*/
+    --color-light-red: #DF2D15;     /* Notifications, errors */
+
+    --color-white: #FDFDFF;         /* Chat messages */ 
+    --color-purple: #BE0082;        /* Match results, some shadows */
+    --color-grey : #011627;         /* Main Backgrounds */
+    --color-grey-2 : #091C2B;         /* Lighter grey, for contrast */
+    --color-dark : #000E1A;         /* Pure black, for header / layout contrast */
+    --color-offline : #A2A2A2;      /* Grey offline */
+    --color-green : #33FB68;
+    --font-display: "Inter", sans-serif; 
+    --font-title: "Press Start 2P", sans-serif;
+}   
+
+
+@layer base {
+    html {
+        @apply bg-grey;
+    }
+    * {
+        @apply font-display ;
+    }
+}
+
+@layer components {
+}

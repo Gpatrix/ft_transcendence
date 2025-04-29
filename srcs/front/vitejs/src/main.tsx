@@ -1,10 +1,17 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { BrowserRouter, Routes, Route } from "react-router";
+import  Login from "./pages/Auth/Login.tsx"
+import  AuthLayout from "./pages/Auth/AuthLayout.tsx"
+import './css/global.css'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+  <BrowserRouter>
+    <Routes>
+
+      <Route element={<AuthLayout />}>
+        <Route path="/login" element={<Login />} />
+      </Route>
+
+    </Routes>
+  </BrowserRouter>
 )
