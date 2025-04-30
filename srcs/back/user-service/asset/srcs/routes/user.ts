@@ -7,6 +7,8 @@ import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
 import FormData from 'form-data';
 import axios from 'axios';
+import { idText } from "typescript";
+import { Param } from "@prisma/client/runtime/library";
 const prisma = new PrismaClient();
 
 function userRoutes (server: FastifyInstance, options: any, done: any)
@@ -61,26 +63,38 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     server.post<{ Params: isBlockedByParams, Body: isBlockedByBody }>('/api/user/isBlockedBy/:target/:by', async (request, reply) => {
         const credential = request.body?.credential;
-        console.log(request.body)
         if (!credential || credential != process.env.API_CREDENTIAL)
             reply.status(401).send({ error: "private_route" });
-        const target = Number(request.params.target);
-        const by = Number(request.params.by);
-        const user = await prisma.user.findFirst({
+        const target = String(request.params.target);
+        const target_user = await prisma.user.findUnique({
             where: {
-              id: by
+                name: target
+                }
+        });
+        if (!target_user || target_user === undefined)
+        {
+            reply.status(404).send({error: "2001"});
+            return;
+        }
+        const by = String(request.params.by);
+        const by_user = await prisma.user.findUnique({
+            where: {
+              name: by
             },
             include: {
               blockedUsers: true
             }
         });
-        let isBlocked: boolean = false;
-        if (user)
-            isBlocked = user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => blockedUser.blockedUserId == target)
-        if (isBlocked)
-            reply.status(200).send({ value: true });
-        else
-            reply.status(200).send({ value: false });
+        if (by_user == null|| by_user === undefined)
+            reply.status(404).send({error: "2002"});
+        else    
+        {
+
+            let isBlocked: boolean 
+            = (by_user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => 
+                blockedUser.blockedUserId == target_user.id) || by_user.isAdmin)
+            reply.status(200).send({ value: isBlocked });
+        }
     })
 
     interface passwordUpdateBody

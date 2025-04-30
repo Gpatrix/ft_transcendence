@@ -16,10 +16,11 @@ up:
 stop:
 	docker compose -f $(compos_file) stop
 
-clean down: 
+clean down:
 	docker compose -f $(compos_file) down
 
-fclean purge: down
+fclean purge:
+	docker compose -f $(compos_file) down --volumes
 	docker system prune --all --force --volumes
 	docker volume prune -a -f
 
