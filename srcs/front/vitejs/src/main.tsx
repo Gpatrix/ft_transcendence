@@ -13,6 +13,7 @@ createRoot(document.getElementById('root')!).render(
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgotten-password" element={<Register />} />
       </Route>
 
     </Routes>
