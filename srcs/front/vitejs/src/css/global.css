@@ -27,7 +27,7 @@
         @apply bg-grey;
     }
     * {
-        @apply font-display;
+        @apply font-display ;
     }
 }
 

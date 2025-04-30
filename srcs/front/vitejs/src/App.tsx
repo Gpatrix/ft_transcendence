@@ -8,12 +8,12 @@ import Input from './components/Input.tsx'
 import ProfilePic from './components/ProfilePic.tsx'
 import BgShadow from './components/BgShadow.tsx'
 import InputWithLabel from './components/InputWithLabel.tsx'
-import MatchResult from './components/MatchResult.tsx'
+import MonTest from './components/MonTest.tsx'
 import UserContact from './components/UserContact.tsx'
 import ClickableIco from './components/ClickableIco.tsx'
 import ChatMessage from './components/ChatMessage.tsx'
+import MatchResult from './components/MatchResult.tsx'
 import Player from './classes/Player.tsx'
-
 
 function App()
 {
@@ -73,6 +73,7 @@ function App()
           <BgShadow className='flex flex-col'>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
             <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
+            <MonTest states="Victoire" users={['user1', 'user2']} ></MonTest>
             <MatchResult states="Victoire" users={players} idMainUser={3} ></MatchResult>
           </BgShadow>
       </div>
@@ -81,7 +82,6 @@ function App()
       <BgShadow className='flex flex-col w-[50vw] ml-auto mr-auto space-y-[32px]'>
 
         <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
-
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet gravida lacinia. Vivamus convallis sit amet nunc sit amet sodales. In molestie ipsum est, id gravida lorem elementum et. Maecenas
         </ChatMessage>
 
