@@ -24,30 +24,44 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     }
 
     server.post<{ Params: lookupParams, Body: lookupBody }>('/api/user/lookup/:email', async (request, reply) => {
-        const credential = request.body?.credential;
-        if (!credential || credential != process.env.API_CREDENTIAL)
-            reply.status(401).send({ error: "private_route" });
-        const value = request.params.email;
-        const isEmail = value.includes('@');
-        let user: User | null = null;
-        if (isEmail) {
-            user = await prisma.user.findUnique({
-                where: { 
-                    email: value
-                }
-            })
+        try {
+            const credential = request.body?.credential;
+            if (!credential || credential != process.env.API_CREDENTIAL)
+                reply.status(401).send({ error: "private_route" });
+            const value = request.params.email;
+            const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
+            const isId = value.match(/^[0-9]$/);
+            let user: User | null = null;
+            if (isEmail) {
+                user = await prisma.user.findUnique({
+                    where: { 
+                        email: value
+                    }
+                })
+            }
+            else if (isId)
+            {
+                user = await prisma.user.findUnique({
+                    where: { 
+                        id: Number(value)
+                    }
+                })
+            }
+            else
+            {
+                user = await prisma.user.findUnique({
+                    where: { 
+                        name: value
+                    }
+                })
+            }
+            if (!user)
+                return reply.status(404).send({ error: "user_not_found" });
+            reply.send(user);
+        } catch (error) {
+            return reply.status(500).send({ error: "server_error" });
         }
-        else
-        {
-            user = await prisma.user.findUnique({
-                where: { 
-                    id: Number(value)
-                }
-            })
-        }
-        if (!user)
-            return reply.status(404).send({ error: "user_not_found" });
-        reply.send(user);
+ 
     })
 
     interface isBlockedByParams 
