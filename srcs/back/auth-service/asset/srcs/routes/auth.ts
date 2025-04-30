@@ -7,13 +7,13 @@ import { Prisma } from "@prisma/client";
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
 
-    interface signInBody {
+    interface signUpBody {
         email: string,
         name: string,
         password: string,
     }
     
-    server.post<{ Body: signInBody }>('/api/auth/signin', { preHandler:[validatePassword] }, async (req, res) => {
+    server.post<{ Body: signUpBody }>('/api/auth/signup', { preHandler:[validatePassword] }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
             return (res.status(400).send({ error: "no_email" }));
