@@ -55,7 +55,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const email = decoded.data?.email;
             if (!email)
-                return res.status(401).send({ error: "invalid_token" });
+                return res.status(401).send({ error: "1016" });
             const newPassword = await bcrypt.hash(password, 12);
             const userPasswordUpdate = await fetch(`http://user-service:3000/api/user/password/${email}`,
             {

@@ -76,11 +76,6 @@
       "Accesso con Google non riuscito"
     ],
     "1016": [
-        "No token provided",
-        "Aucun jeton fourni",
-        "Nessun token fornito"
-    ],
-    "1017": [
         "Invalid token provided",
         "Jeton fourni invalide",
         "Token fornito non valido"

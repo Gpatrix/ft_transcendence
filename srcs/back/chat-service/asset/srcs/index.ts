@@ -30,16 +30,16 @@ server.addHook('preValidation'
       try
       {
          if (!token || token === undefined)
-            return (reply.status(401).send({ error: "user_not_logged_in" }));
+            return (reply.status(401).send({ error: 1019 }));
          const decoded = jwt.verify(token, process.env.JWT_SECRET);
          const id = decoded.data?.id;
          if (!id || id === undefined)
-            return (reply.status(401).send({ error: "invalid_token_provided" }));
+            return (reply.status(401).send({ error: "1016" }));
          done();
       }
       catch (error) {
          console.log(error);
-         return (reply.status(401).send({ error: "invalid_token_provided" }));
+         return (reply.status(401).send({ error: "1016" }));
       }
 })
 

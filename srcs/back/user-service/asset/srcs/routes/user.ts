@@ -117,10 +117,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2003':
-                            reply.status(403).send({ error: "missing_arg"});
+                            reply.status(403).send({ error: "1011"});
                           break
                         case 'P2000':
-                            reply.status(403).send({ error: "too_long_arg"});
+                            reply.status(403).send({ error: "1012"});
                           break
                         default:
                             reply.status(403).send({ error: error.message});
@@ -165,10 +165,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2003':
-                            reply.status(403).send({ error: "missing_arg"});
+                            reply.status(403).send({ error: "1011"});
                           break
                         case 'P2000':
-                            reply.status(403).send({ error: "too_long_arg"});
+                            reply.status(403).send({ error: "1012"});
                           break
                         default:
                             reply.status(403).send({ error: error.message});
@@ -247,19 +247,19 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             {
                 switch (error.code) {
                     case 'P2002':
-                        reply.status(403).send({ error: "this name is already used"});
+                        reply.status(403).send({ error: "1003"});
                         break
                     case 'P2003':
-                        reply.status(403).send({ error: "missing_arg"});
+                        reply.status(403).send({ error: "1011"});
                         break
                     case 'P2000':
-                        reply.status(403).send({ error: "too_long_arg"});
+                        reply.status(403).send({ error: "1012"});
                         break
                     default:
                         reply.status(403).send({ error: error.message});
                 }
             }
-            reply.status(500).send({ error: "cannot create user in db"});
+            reply.status(500).send({ error: "0000"});
         }
     })
 
@@ -291,7 +291,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const bodyId = file?.fields?.id?.value;
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
-            reply.status(401).send({ error: "not_logged_in" });
+            reply.status(401).send({ error: "1019" });
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (tokenPayload?.isAdmin && bodyId)
@@ -330,7 +330,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     headers: form.getHeaders()
                 });
                 if (res.status != 200)
-                    throw(new Error("cannot_upload_prof_pic"));
+                    throw(new Error("0000"));
                 const result = res.data;
                 put.profPicture = result.fileName;
             }
@@ -345,7 +345,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             });
 
             if (!updatedUser)
-                throw (new Error('cannot_update_user_in_db'));
+                throw (new Error('0000'));
             reply.status(200).send(updatedUser);
         } catch (error) {
             if (put.profPicture)
@@ -361,13 +361,13 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             {
                 switch (error.code) {
                     case 'P2002':
-                        reply.status(403).send({ error: "this name is already used"});
+                        reply.status(403).send({ error: "1003"});
                         break
                     case 'P2003':
-                        reply.status(403).send({ error: "missing_arg"});
+                        reply.status(403).send({ error: "1011"});
                       break
                     case 'P2000':
-                        reply.status(403).send({ error: "too_long_arg"});
+                        reply.status(403).send({ error: "1012"});
                       break
                     default:
                         reply.status(403).send({ error: error.message});
@@ -389,14 +389,14 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.delete<{ Params: deleteUserParams }>('/delete/:email', async (request, reply) => {
         const token = request.cookies.ft_transcendence_jw_token;
         if (!token)
-            return (reply.status(401).send({ error: "not_logged_in"}));
+            return (reply.status(401).send({ error: "1019"}));
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (!tokenPayload?.isAdmin && !tokenPayload?.id)
-            return (reply.status(401).send({ error: "not_logged_in"}));
+            return (reply.status(401).send({ error: "1019"}));
         const dfa = tokenPayload?.dfa;
         if (!dfa)
-            return (reply.status(403).send({ error: "user_not_logged_in_with_2fa" }));
+            return (reply.status(403).send({ error: "1020" }));
         const user = await prisma.user.delete({
         where: { 
             email: request.params.email 
@@ -424,11 +424,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
             if (body.targetId == tokenPayload.id)
-                return (reply.status(403).send({ error: "user_is_yourself" }));
+                return (reply.status(403).send({ error: "2003" }));
             if (!targetUser)
-                return (reply.status(404).send({ error: "not_existing_user" }));
+                return (reply.status(404).send({ error: "2004" }));
             if (targetUser.isAdmin)
-                return (reply.status(403).send({ error: "user_is_admin" }));
+                return (reply.status(403).send({ error: "2005" }));
             await prisma.blockedUser.create({
                 data: {
                   userId: tokenPayload.id,
@@ -459,7 +459,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!targetUser)
-                return (reply.status(404).send({ error: "user_not_blocked" }));
+                return (reply.status(404).send({ error: "0000" }));
             reply.status(200).send({ message: "user_successfully_unblocked" });
         } catch (error) {
             reply.status(500).send({ error: "0000"});
