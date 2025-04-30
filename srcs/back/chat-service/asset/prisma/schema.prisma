@@ -8,7 +8,7 @@ generator client {
   output = "./prisma_client"
 }
 
-model msg {
+model Msg {
   id Int @id @unique @default(autoincrement())
   userID Int
   channel String
