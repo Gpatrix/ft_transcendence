@@ -40,16 +40,16 @@ server.addHook('preValidation'
       try
       {
          if (!token || token === undefined)
-            return (reply.status(401).send({ error: "user_not_logged_in" }));
+            return (reply.status(403).send({ error: "403" }));
          const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
          const id = decoded.data?.id;
          if (!id || id === undefined)
-            return (reply.status(401).send({ error: "invalid_token_provided" }));
+            return (reply.status(403).send({ error: "403" }));
          done();
       }
       catch (error) {
          console.log(error);
-         return (reply.status(401).send({ error: "invalid_token_provided" }));
+         return (reply.status(403).send({ error: "403" }));
       }
 })
 
@@ -134,16 +134,10 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.skip === undefined || payload.take == undefined)
-   {
-      socket.send("wrong-payload");
-      return;
-   }
+      return (socket.send("{error: 400}"));
 
-   if (payload.skip < 0 || payload.skip > 5000 || payload.take < 1 || payload.take > 20)
-   {
-      socket.send("too-many-msg-requested");
-      return;
-   }
+   if (payload.take < 1 || payload.take > 20)
+      return (socket.send("{error: 3010}"));
 
    const channel_hash: string = getPrivChannelHash(token.name, payload.target);
 
