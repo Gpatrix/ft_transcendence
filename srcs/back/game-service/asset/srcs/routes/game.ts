@@ -5,6 +5,7 @@ import axios from 'axios'
 import WebSocket from 'ws';
 import PongGame from '../classes/PongGame';
 import { MatchMakingUser, MatchMakingMap } from '../classes/MatchMaking';
+import GamesManager from '../classes/GamesManager';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -58,6 +59,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 throw (new Error('cannot_find_game_in_db'));
 
             socket.on('message', (RawData: WebSocket.RawData) => {
+                // const object = JSON.parse(RawData.toString('utf8'));
+                // if (object?.action && object.action == 'playerMove')
+                    //TODO : call GamesManager
                 console.log(JSON.parse(RawData.toString('utf8')));
             })
 
@@ -107,10 +111,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 activeConn.delete(tokenPayload.id);
             });
             const result: MatchMakingUser[] | undefined = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
-
-            if (result != undefined)
+            if (result != undefined && result != null)
             {
-                const isGameCreated: boolean = Cla
+                const tournament = await GamesManager.createGame(result);
                 if (!tournament)
                     throw (new Error('cannot_insert_tournament_in_db'));
                 result.forEach(user => {
@@ -123,7 +126,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         catch (error)
         {
             console.log(error)
-            socket.close()
+            socket.close(500)
         }
     });
 

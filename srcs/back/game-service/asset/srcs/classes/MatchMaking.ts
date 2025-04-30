@@ -1,6 +1,6 @@
 import { setTimeout } from "timers";
 
-class MatchMakingUser {
+export class MatchMakingUser {
     constructor (id: number, rank: number, websocket: WebSocket)
     {
         this.id = id;
