@@ -67,7 +67,7 @@ export default function Register() {
     }
 
     return (
-        <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col max-w-[80%] min-w-[60%]  px-5">
+        <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1">
             <InputWithLabel type={errorfield == ErrorTypes.USERNAME ? "error" : "ok"} onChange={(e)=>setName(e.target.value)} 
             placeholder={get_page_translation("username_placeholder")} label={get_page_translation("username")} />
 

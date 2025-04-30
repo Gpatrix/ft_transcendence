@@ -49,7 +49,7 @@ export default function Login() {
     }
 
     return (
-        <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col  max-w-[100%] min-w-[60%] px-5">
+        <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1">
             <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
             <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
             <Link className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
@@ -67,8 +67,6 @@ export default function Login() {
             </span>
 
             <Link to="/register" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{get_page_translation("register")}</Link>
-
-
         </form>
     )
 }
