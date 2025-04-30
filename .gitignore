@@ -1,7 +1,6 @@
 .env
 **/node_modules
 *.log
-/srcs/front/vitejs/node_modules/
 **/migrations
 **/db
 *.js
