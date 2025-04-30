@@ -1,8 +1,35 @@
-import fastify from 'fastify'
+import fastify from 'fastify';
+import cookiesPlugin from '@fastify/cookie'
+import websocketPlugin from '@fastify/websocket';
+import jwt from 'jsonwebtoken';
 
 const server = fastify();
 
+server.register(cookiesPlugin);
+server.register(websocketPlugin);
 server.register(require("./routes/game"));
+
+server.addHook('preValidation'
+  , (request, reply, done) => {
+     try
+     {
+      console.log(`we here`);
+      console.log(`request = ${request.cookies['ft_transcendence_jw_token']}`)
+      console.log(`we after json.string`)
+      const token: string | undefined = request.cookies['ft_transcendence_jw_token'];
+        if (!token || token === undefined)
+           return (reply.status(401).send({ error: "user_not_logged_in" }));
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        const id = decoded.data?.id;
+        if (!id || id === undefined)
+           return (reply.status(401).send({ error: "invalid_token_provided" }));
+        done();
+     }
+     catch (error) {
+        console.log(error);
+        return (reply.status(401).send({ error: "invalid_token_provided" }));
+     }
+})
 
 async function main() {
   let _address;
