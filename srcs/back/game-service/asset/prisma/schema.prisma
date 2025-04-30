@@ -1,0 +1,48 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  // output = "../generated/prisma_client"
+}
+
+model Player {
+  id Int @id @unique @default(autoincrement())
+  userId Int
+  score Int
+  
+  gameId Int 
+  game Game @relation("PlayerToGame", fields: [gameId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Game {
+  id Int @id @unique @default(autoincrement()) 
+  tournamentId Int
+  tournament Tournament @relation("GameToTournament", fields: [tournamentId], references: [id])
+  tournamentStage Int @default(-1)
+  players Player[] @relation("PlayerToGame")
+  createdAt DateTime @default(now())
+  closedAt DateTime?
+  playTime Int @default(0)
+}
+
+model TournamentPlayer {
+  id Int @id @unique @default(autoincrement())
+  userId Int
+  score Int
+  
+  tournamentId Int 
+  tournament Tournament @relation("TournamentPlayerToTournament", fields: [tournamentId], references: [id])
+}
+
+model Tournament {
+  id Int @id @unique @default(autoincrement())
+
+  players TournamentPlayer[] @relation("TournamentPlayerToTournament")
+  games Game[] @relation("GameToTournament")
+  createdAt DateTime @default(now())
+  closedAt DateTime?
+}
