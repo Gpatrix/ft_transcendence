@@ -1,7 +1,8 @@
 {
     "Routes": {
             "login" : "Auth",
-            "register" : "Auth"
+            "register" : "Auth",
+            "forgot-password" : "Forgot_password"
     },
     "Pages": {
         "Auth": {
@@ -18,6 +19,33 @@
             "or": ["OR", "OU", "O"],
             "register": ["Sign up for free", "S'inscrire gratuitement", "Iscriviti gratuitamente"],
             "login": ["Already have an account?", "Se connecter", "Hai già un account?"]
+        },
+        "Forgot_password":
+        {
+            "email": ["Email", "Adresse mail", "Email"],
+            "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
+            "continue" : ["Continue", "Continuer", "Continuare"],
+            "confirm": ["Confirm","Confirmer","Conferma"],
+            "reset": [
+            "Password reset",
+            "Réinitialisation du mot de passe",
+            "Reimpostazione della password"
+            ],
+            "description": [
+            "Provide the email address associated with your account to recover your password.",
+            "Fournissez l'adresse e-mail associée à votre compte pour récupérer votre mot de passe.",
+            "Fornisci l'indirizzo email associato al tuo account per recuperare la password."
+            ],
+            "give_code": [
+            "Enter the code received by email",
+            "Entrez le code reçu par e-mail",
+            "Inserisci il codice ricevuto via email"
+            ],
+            "check_spam": [
+            "If you didn’t receive the email, please check your spam folder.",
+            "Si vous n'avez pas reçu l'e-mail, vérifiez votre dossier de courriers indésirables.",
+            "Se non hai ricevuto l'email, controlla la cartella dello spam."
+            ]
         }
     }
 }

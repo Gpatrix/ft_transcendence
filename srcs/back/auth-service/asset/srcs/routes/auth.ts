@@ -159,22 +159,27 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     server.get('/api/auth/login/google/callback', async function (request, reply) {
         try {
             const { token } = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
+            console.log(token);
+    
             if (!token)
-                throw (Error ("no_google_token_generated"));
+                throw (Error("no_google_token_generated"));
+    
             const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
+            console.log(userinfo);
+            
             if (!userinfo)
-                throw (Error ("cannot_get_user_infos"));
+                throw (Error("cannot_get_user_infos"));
+    
             let user: User;
-            const response = await fetch(`http://user-service:3000/loopkup/${userinfo.email}`,  {
+            const response = await fetch(`http://user-service:3000/loopkup/${userinfo.email}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     credential: process.env.API_CREDENTIAL
                 })
-                });
+            });
             user = await response?.json();
-            if (!user)
-            {
+            if (!user) {
                 const response = await fetch(`http://user-service:3000/create`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -189,31 +194,28 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                     return (reply.status(response.status).send({ error: data.error }));
                 user = data;
             }
+    
             const jsonwebtoken = await jwt.sign({
-            data: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                isAdmin: user.isAdmin,
-                twoFactorSecret: user.twoFactorSecret,
-                dfa: true
-            }
+                data: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    isAdmin: user.isAdmin,
+                    twoFactorSecret: user.twoFactorSecret,
+                    dfa: true
+                }
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+    
             if (jsonwebtoken)
                 return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken).send({ response: "successfully logged with google" }));
             else
                 throw new Error("no token generated");
         } catch (error) {
-            reply.status(500).send({ error: "1015" })
+            console.log(error);
+            reply.status(500).send({ error: "1015" });
         }
-        
-        
-        // if later need to refresh the token this can be used
-        // const { token: newToken } = await this.getNewAccessTokenUsingRefreshToken(token)
-    
-    })
-      
-    done()
+    });
+    done();    
 }
 
 module.exports = authRoutes;

@@ -11,6 +11,7 @@ import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { ErrorTypes} from "./ErrorClass"
 import AuthError from "./ErrorClass";
 import { useNavigate } from "react-router-dom";
+import { get_server_translation } from "../../translations/server_responses.tsx";
 
 export default function Register() {
     const [email, setEmail] = useState<string>("");
@@ -47,7 +48,7 @@ export default function Register() {
                 else
                 {
                     return (response.json().then(data => {
-                        setError(data.error)
+                        setError(get_server_translation(data.error))
                     }))
                 }
             })
@@ -61,7 +62,7 @@ export default function Register() {
                 setErrorField(e.code)
             }
             if (e instanceof Error) { // backend error
-                setError(e.message)
+                setError(get_server_translation("0500"))
             }
         }
     }
@@ -80,7 +81,7 @@ export default function Register() {
             <InputWithLabel type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} hidechars={true}
             placeholder={get_page_translation("password_confirm_placeholder")} label={get_page_translation("password_confirm")} />
 
-            <Link className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
+            <Link to="/forgot-password"  className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
 
             { error && 
                 <LoginErrorMsg>{error}</LoginErrorMsg>
