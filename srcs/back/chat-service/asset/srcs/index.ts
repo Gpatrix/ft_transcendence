@@ -5,7 +5,9 @@ import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
 import crypto from 'crypto';
-import { isConstructorDeclaration } from 'typescript';
+import axios, { AxiosError } from 'axios';
+import FormData from 'form-data';
+
 
 const prisma = new PrismaClient();
 
@@ -59,15 +61,49 @@ function closing_conn(socket: WebSocket, token: tokenStruct): void
    console.log(`TODO handle closed ${token.name} socket, remaining: ${activeConn.size}`);
 }
 
+async function is_blocked(by: string, target: string): Promise<string>
+{
+   if (!process.env.API_CREDENTIAL)
+      return ("0500");
+
+   try
+   {
+      const response = await axios.post(
+         `http://user-service:3000/api/user/isBlockedBy/${by}/${target}`,
+         {credential: process.env.API_CREDENTIAL}, 
+         {headers: {'Content-Type': 'application/json'}}
+      )
+      return (String(response.data.value));
+   }
+   catch (error: AxiosError | unknown)
+   {
+      if (axios.isAxiosError(error))
+      {
+         if (error.response?.data.error !== undefined)
+            return (error.response?.data.error);
+      }
+      return ("0500");
+   }
+}
+
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.msg === undefined)
    {
-      socket.send("no-msg-rcs");
+      socket.send("{error: 400}");
       return;
    }
 
-   //TODO verif user existance and block
+
+   let isBlocked = await is_blocked(token.name, payload.target);
+   if (isBlocked !== 'false')
+   {
+      if (isBlocked === 'true')
+         socket.send("3001");
+      else
+         socket.send(isBlocked);
+   }
+
    try
    {
       const channel_hash: string = getPrivChannelHash(token.name, payload.target);
@@ -97,7 +133,6 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
 
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   //TODO verif user existance
    if (payload.skip === undefined || payload.take == undefined)
    {
       socket.send("wrong-payload");
@@ -106,7 +141,7 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
 
    if (payload.skip < 0 || payload.skip > 5000 || payload.take < 1 || payload.take > 20)
    {
-      socket.send("too many msg requested");
+      socket.send("too-many-msg-requested");
       return;
    }
 
@@ -131,10 +166,10 @@ function data_handler(
       console.log('Received:\n', RawData.toString());
       const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
       if (payload.action === undefined || payload.target === undefined)
-      {
-         socket.send("wrong-payload");
-         return;
-      }
+         return (socket.send('{error: 400}'));
+
+      if (payload.target === token.name)
+         return socket.send('{error: 3002}');
 
       switch (payload.action)
       {
@@ -146,9 +181,8 @@ function data_handler(
             handle_refresh(payload, token, socket);
 
             break;
-
          default:
-            socket.send("action-not-found");
+            socket.send("{error: 400}");
             return;
       }
    }

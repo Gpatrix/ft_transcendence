@@ -46,6 +46,7 @@ services:
     restart: on-failure
     volumes:
       - ./back/user-service/asset/srcs:/usr/src/user-service/asset/srcs
+      - db-user:/usr/src/user-service/asset/prisma/db
     environment:
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
@@ -73,6 +74,7 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       JWT_SECRET: ${JWT_SECRET:?}
       DATABASE_URL: ${DATABASE_URL:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
     build:
         context: ./back/chat-service
         dockerfile: Dockerfile
@@ -149,6 +151,13 @@ volumes:
       type: none
       o: bind
       device: ./back/chat-service/volume
+  db-user:
+    name: db-user
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./back/user-service/volume
 networks:
   router:
     driver: bridge
