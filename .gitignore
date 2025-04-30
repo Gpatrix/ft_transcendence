@@ -5,3 +5,4 @@
 **/db*
 *.js
 **/prisma_client
+**/package-lock.json
