@@ -16,11 +16,11 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     server.post<{ Body: signInBody }>('/api/auth/signin', { preHandler:[validatePassword] }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
-            return (res.status(400).send({ error: "no_email" }));
+            return (res.status(400).send({ error: "1007" }));
         if (!name)
-            return (res.status(400).send({ error: "no_name" }));
+            return (res.status(400).send({ error: "1008" }));
         if (!password)
-            return (res.status(400).send({ error: "no_password" }));
+            return (res.status(400).send({ error: "1009" }));
         try {
             const hashedPassword = await bcrypt.hash(password, 12);
             const response = await fetch(`http://user-service:3000/api/user/create`,
@@ -58,19 +58,19 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2002':
-                            res.status(403).send({ error: "this name is already used"});
+                            res.status(403).send({ error: "1003"});
                             break
                         case 'P2003':
-                            res.status(403).send({ error: "missing_arg"});
+                            res.status(403).send({ error: "1011"});
                           break
                         case 'P2000':
-                            res.status(403).send({ error: "too_long_arg"});
+                            res.status(403).send({ error: "1012"});
                           break
                         default:
-                            res.status(403).send({ error: error.message});
+                            res.status(403).send({ error: "0000"});
                     }
             }
-            return (res.status(500).send({ error: "server_error"}));
+            return (res.status(500).send({ error: "0000"}));
         }
     });
 
@@ -97,14 +97,14 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
             if (!user)
-                return reply.status(404).send({ error: "user_not_found" });
+                return reply.status(404).send({ error: "1006" });
             if (!user.password)
-                return reply.status(401).send({ error: "account_created_with_provider" });
+                return reply.status(401).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
             if (!isCorrect)
-                return reply.status(401).send({ error: "invalid_password "});
+                return reply.status(401).send({ error: "1006 "});
             if (user.isBanned)
-                return reply.status(403).send({ error: "user_banned" });
+                return reply.status(403).send({ error: "1013" });
             if (user.isTwoFactorEnabled) {
                 const token = await jwt.sign({
                     data: {
@@ -136,7 +136,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: false });
             }
         } catch (error) {
-            reply.status(500).send({ error:"server_error" });
+            reply.status(500).send({ error:"0000" });
         }
 
     })
@@ -204,7 +204,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             else
                 throw new Error("no token generated");
         } catch (error) {
-            reply.status(500).send({ error: "server_error" })
+            reply.status(500).send({ error: "0000" })
         }
         
         

@@ -30,7 +30,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 return res.status(userLookupResponse.status).send({ error: userLookupData.error})
             const user = userLookupData;
             if (!user)
-                return res.status(404).send({ error: "user_not_found" });
+                return res.status(404).send({ error: "1006" });
             const passwordResetToken = await jwt.sign({
             data: {
                 email
@@ -39,7 +39,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
             await sendMail(email, 'Password reset', `You asked for a password reset, here is you secret token: ${passwordResetToken}\nIt will at ${expireIn} minutes`);
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "0000" });
         }
     });
 
@@ -71,7 +71,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 return res.status(userPasswordUpdate.status).send({ error: data.error})
             res.status(200).send({ message: "user_password_updated" });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "0000" });
         }
     });
     done();

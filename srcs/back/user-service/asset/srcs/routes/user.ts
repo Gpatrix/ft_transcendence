@@ -44,7 +44,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
         }
         if (!user)
-            return reply.status(404).send({ error: "user_not_found" });
+            return reply.status(404).send({ error: "1006" });
         reply.send(user);
     })
 
@@ -110,7 +110,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             });
             console.log(user);
             if (!user)
-                reply.status(404).send({ error: "user_not_found" });
+                reply.status(404).send({ error: "1006" });
             reply.status(200).send({ message: "user_password_updated" });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
@@ -127,7 +127,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     }
                 }
             else
-                reply.status(500).send({ error: "server_error" });
+                reply.status(500).send({ error: "0000" });
         }
     })
 
@@ -158,7 +158,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 data : put
             });
             if (!user)
-                reply.status(404).send({ error: "user_not_found" });
+                reply.status(404).send({ error: "1006" });
             reply.status(200).send({ message: "user_2fa_secret_updated" });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
@@ -175,7 +175,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     }
                 }
             else
-                reply.status(500).send({ error: "server_error" });
+                reply.status(500).send({ error: "0000" });
         }
     })
 
@@ -204,7 +204,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
         }
         if (!user)
-            return reply.status(404).send({ error: "user_not_found" });
+            return reply.status(404).send({ error: "1006" });
         reply.send(user);
     })
 
@@ -303,7 +303,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!foundUser)
-                reply.status(404).send({ error: "user_not_found" });
+                reply.status(404).send({ error: "1006" });
             let form;
             if (file)
             {
@@ -376,7 +376,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             else
             {
                 console.log(error)
-                reply.status(500).send({ error: "server_error"});
+                reply.status(500).send({ error: "0000"});
             }
         }
     })
@@ -403,7 +403,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         }
         })
         if (!user)
-          return reply.status(404).send({ error: "user_not_found" });
+          return reply.status(404).send({ error: "1006" });
         reply.send({ response: "user deleted" });
     })
 
@@ -437,7 +437,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             });
             reply.status(200).send({ message: "user_successfully_blocked" });
         } catch (error) {
-            reply.status(500).send({ error: "server_error"});
+            reply.status(500).send({ error: "0000"});
         }
     })
 
@@ -462,7 +462,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 return (reply.status(404).send({ error: "user_not_blocked" }));
             reply.status(200).send({ message: "user_successfully_unblocked" });
         } catch (error) {
-            reply.status(500).send({ error: "server_error"});
+            reply.status(500).send({ error: "0000"});
         }
     })
 

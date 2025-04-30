@@ -30,7 +30,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 res.status(200).send({ message: "qrcode_generated", data_url: data_url})
             });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "0000" });
         }
     });
 
@@ -58,9 +58,9 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             return res.status(userLookupResponse.status).send({ error: userLookupData.error})
         const user = userLookupData;
         if (!user)
-            return res.status(404).send({ error: "user_not_found" });
+            return res.status(404).send({ error: "1006" });
         if (!user.password)
-            return res.status(401).send({ error: "account_created_with_provider" });
+            return res.status(401).send({ error: "1014" });
 
         // compare the first temp token the user got for example '420420'
         const verified = speakeasy.totp.verify({ secret: user.twoFactorSecretTemp,
@@ -149,7 +149,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 res.status(response.status).send(data);
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_disabled" });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "0000" });
         }
     });
 

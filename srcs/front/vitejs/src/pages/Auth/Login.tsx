@@ -36,14 +36,14 @@ export default function Login() {
                 }
                 else {
                     return (response.json().then(data => {
-                        setError(data.error)
+                        setError(get_server_translation(data.error))
                     }))
                 }
             })
         }
         catch(e) {
             if (e instanceof Error) { // backend error
-                setError("")
+                setError(get_page_translation("Internal server error"))
             }
         }
     }
