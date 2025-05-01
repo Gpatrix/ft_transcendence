@@ -8,16 +8,29 @@ generator client {
   output = "./prisma_client"
 }
 
-model Channel {
-  id Int @id @unique @default(autoincrement())
-  hash String
+model channel {
+  id            Int      @id @default(autoincrement())
+  isGroup       Boolean
+  createdAt     DateTime @default(now())
+  participants  channelParticipant[]
+  messages      Message[]
 }
 
-model Msg {
-  id Int @id @unique @default(autoincrement())
-  userID Int
-  channelID Int
-  channel Channel @relation(fields: [channelID], references: [id])
-  createdAt DateTime @default(now())
-  text String
+model channelParticipant {
+  channelId Int
+  userId    Int
+
+  channel   channel @relation(fields: [channelId], references: [id])
+
+  @@id([channelId, userId])
+}
+
+model Message {
+  id        Int  @id @default(autoincrement())
+  channelId Int
+  senderId  Int
+  content   String
+  sentAt    DateTime @default(now())
+
+  channel    channel @relation(fields: [channelId], references: [id])
 }
