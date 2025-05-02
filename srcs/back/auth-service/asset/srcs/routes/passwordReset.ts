@@ -26,16 +26,23 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 }),
             });
             const userLookupData = await userLookupResponse.json();
+            if (!userLookupResponse.ok)
+                return res.status(userLookupResponse.status).send({ error: userLookupData.error})
+            const user = userLookupData;
+            if (!user)
+                res.status(200).send({ message: "mail sent" });
             const passwordResetToken = await jwt.sign({
             data: {
                 email
             }
             }, process.env.JWT_SECRET as string, { expiresIn: expireIn * 60 * 1000 });
+            const link : string = `https://localhost/forgot-password/new-password?token=${passwordResetToken}`
             if (userLookupData)
-                await sendMail(email, 'Password reset', `You asked for a password reset, here is you secret token: ${passwordResetToken}\nIt will at ${expireIn} minutes`);
+                await sendMail(email, 'Password reset', `You asked for a password reset, here is your link ${link}\nIt will expire at ${expireIn} minutes`);
+            console.log(`Retrieve-link : ${link}`)
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "0500" });
         }
     });
 
@@ -51,7 +58,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const email = decoded.data?.email;
             if (!email)
-                return res.status(401).send({ error: "invalid_token" });
+                return res.status(401).send({ error: "1016" });
             const newPassword = await bcrypt.hash(password, 12);
             const userPasswordUpdate = await fetch(`http://user-service:3000/api/user/password/${email}`,
             {
@@ -61,13 +68,13 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                     credential: process.env.API_CREDENTIAL,
                     password: newPassword,
                 }),
-            });
+            }); 
             const data = await userPasswordUpdate.json();
             if (!userPasswordUpdate.ok)
-                return res.status(userPasswordUpdate.status).send({ error: data.error})
+                return res.status(userPasswordUpdate.status).send({ error: "1016"})
             res.status(200).send({ message: "user_password_updated" });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "1016" });
         }
     });
     done();
