@@ -16,11 +16,11 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     server.post<{ Body: signInBody }>('/api/auth/signin', { preHandler:[validatePassword] }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
-            return (res.status(400).send({ error: "no_email" }));
+            return (res.status(400).send({ error: "1007" }));
         if (!name)
-            return (res.status(400).send({ error: "no_name" }));
+            return (res.status(400).send({ error: "1008" }));
         if (!password)
-            return (res.status(400).send({ error: "no_password" }));
+            return (res.status(400).send({ error: "1009" }));
         try {
             const hashedPassword = await bcrypt.hash(password, 12);
             const response = await fetch(`http://user-service:3000/api/user/create`,
@@ -58,19 +58,19 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2002':
-                            res.status(401).send({ error: "this name is already used"});
+                            res.status(401).send({ error: "1003"});
                             break
                         case 'P2003':
-                            res.status(401).send({ error: "missing_arg"});
+                            res.status(401).send({ error: "1011"});
                           break
                         case 'P2000':
-                            res.status(401).send({ error: "too_long_arg"});
+                            res.status(401).send({ error: "1012"});
                           break
                         default:
-                            res.status(401).send({ error: error.message});
+                            res.status(401).send({ error: "0500"});
                     }
             }
-            return (res.status(500).send({ error: "server_error"}));
+            return (res.status(500).send({ error: "0500"}));
         }
     });
 
@@ -97,14 +97,14 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
             if (!user)
-                return reply.status(404).send({ error: "user_not_found" });
+                return reply.status(404).send({ error: "1006" });
             if (!user.password)
-                return reply.status(401).send({ error: "account_created_with_provider" });
+                return reply.status(401).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
             if (!isCorrect)
-                return reply.status(401).send({ error: "invalid_password "});
+                return reply.status(401).send({ error: "1006 "});
             if (user.isBanned)
-                return reply.status(403).send({ error: "user_banned" });
+                return reply.status(403).send({ error: "1013" });
             if (user.isTwoFactorEnabled) {
                 const token = await jwt.sign({
                     data: {
@@ -136,7 +136,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: false });
             }
         } catch (error) {
-            reply.status(500).send({ error:"server_error" });
+            reply.status(500).send({ error:"0500" });
         }
 
     })
@@ -148,11 +148,11 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     server.delete<{ Body: logoutParams }>('/api/auth/logout', async (request, reply) => {
         const token = request.body.token;
         if (!token)
-            return (reply.status(401).send({ error: "no_token_provided" }));
+            return (reply.status(401).send({ error: "1016" }));
         const decoded = verify(token, process.env.JWT_SECRET);
         const id = decoded.data?.id
         if (!id)
-          return (reply.status(401).send({ error: "invalid_token_provided" }));
+          return (reply.status(401).send({ error: "1016" }));
         reply.clearCookie('ft_transcendence_jw_token', {}).send({ response: "logout_success" });
     })
 
@@ -160,21 +160,23 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const { token } = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
             if (!token)
-                throw (Error ("no_google_token_generated"));
+                throw (Error("no_google_token_generated"));
+    
             const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
             if (!userinfo)
-                throw (Error ("cannot_get_user_infos"));
+                throw (Error("cannot_get_user_infos"));
+    
             let user: User;
-            const response = await fetch(`http://user-service:3000/loopkup/${userinfo.email}`,  {
+            const response = await fetch(`http://user-service:3000/loopkup/${userinfo.email}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     credential: process.env.API_CREDENTIAL
                 })
-                });
+            });
+
             user = await response?.json();
-            if (!user)
-            {
+            if (!user) {
                 const response = await fetch(`http://user-service:3000/create`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -186,34 +188,31 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 });
                 const data = await response?.json();
                 if (!response.ok)
-                    return (reply.status(response.status).send({ error: data.error }));
+                    return (reply.status(response.status).redirect("/register?oauth-error=1015"));
                 user = data;
             }
+    
             const jsonwebtoken = await jwt.sign({
-            data: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                isAdmin: user.isAdmin,
-                twoFactorSecret: user.twoFactorSecret,
-                dfa: true
-            }
+                data: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    isAdmin: user.isAdmin,
+                    twoFactorSecret: user.twoFactorSecret,
+                    dfa: true
+                }
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+    
             if (jsonwebtoken)
-                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken).send({ response: "successfully logged with google" }));
+                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken).redirect("/"));
             else
                 throw new Error("no token generated");
         } catch (error) {
-            reply.status(500).send({ error: "server_error" })
+            console.log(error);
+            return (reply.redirect("/register?oauth-error=1015"));
         }
-        
-        
-        // if later need to refresh the token this can be used
-        // const { token: newToken } = await this.getNewAccessTokenUsingRefreshToken(token)
-    
-    })
-      
-    done()
+    });
+    done();    
 }
 
 module.exports = authRoutes;
