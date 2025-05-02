@@ -26,17 +26,13 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 }),
             });
             const userLookupData = await userLookupResponse.json();
-            if (!userLookupResponse.ok)
-                return res.status(userLookupResponse.status).send({ error: userLookupData.error})
-            const user = userLookupData;
-            if (!user)
-                return res.status(404).send({ error: "user_not_found" });
             const passwordResetToken = await jwt.sign({
             data: {
                 email
             }
             }, process.env.JWT_SECRET as string, { expiresIn: expireIn * 60 * 1000 });
-            await sendMail(email, 'Password reset', `You asked for a password reset, here is you secret token: ${passwordResetToken}\nIt will at ${expireIn} minutes`);
+            if (userLookupData)
+                await sendMail(email, 'Password reset', `You asked for a password reset, here is you secret token: ${passwordResetToken}\nIt will at ${expireIn} minutes`);
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
             res.status(500).send({ error: "server_error" });
