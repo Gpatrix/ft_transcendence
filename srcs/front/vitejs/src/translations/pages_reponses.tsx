@@ -4,7 +4,11 @@ import translations from './translations.json';
 export function get_page_translation(str: string) : string {
     const location : string  = useLocation().pathname.slice(1)
 
-    const pageName = (translations.Routes as Record<string, string>)[location];
+    let normalizedLocation = location.endsWith('/') ? location.slice(0, -1) : location;
+    let pageName = (translations.Routes as Record<string, string>)[normalizedLocation];
+
+    if (pageName && pageName.length > 0 && pageName.slice(-1) == '/')
+        pageName = pageName.slice(0, -1)
     if (!pageName) 
         return (`No route match for "${location}"`);
 

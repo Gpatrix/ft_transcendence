@@ -1,7 +1,9 @@
 {
     "Routes": {
             "login" : "Auth",
-            "register" : "Auth"
+            "register" : "Auth",
+            "forgot-password" : "Forgot_password",
+            "forgot-password/new-password" : "Forgot_password"
     },
     "Pages": {
         "Auth": {
@@ -17,7 +19,39 @@
             "connexion": ["Log in", "Connexion", "Accedi"],
             "or": ["OR", "OU", "O"],
             "register": ["Sign up for free", "S'inscrire gratuitement", "Iscriviti gratuitamente"],
-            "login": ["Already have an account?", "Se connecter", "Hai già un account?"]
+            "login": ["Already have an account?", "Se connecter", "Hai già un account?"],
+            "login_google": [ "Continue with Google", "Continuer avec Google", "Continua con Google"]        
+        },
+        "Forgot_password":
+        {
+            "email": ["Email", "Adresse mail", "Email"],
+            "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
+            "continue" : ["Continue", "Continuer", "Continuare"],
+            "confirm": ["Confirm","Confirmer","Conferma"],
+            "reset": [
+            "Password reset",
+            "Réinitialisation du mot de passe",
+            "Reimpostazione della password"
+            ],
+            "description": [
+            "Provide the email address associated with your account to recover your password.",
+            "Fournissez l'adresse e-mail associée à votre compte pour récupérer votre mot de passe.",
+            "Fornisci l'indirizzo email associato al tuo account per recuperare la password."
+            ],
+            "give_code": [
+              "Email sent! Check it out and follow the instructions.",
+              "Un e-mail a été envoyé ! Consultez-le et suivez les instructions.",
+              "Email inviato! Controllalo e segui le istruzioni."
+            ],
+            "check_spam": [
+              "If you didn’t receive the email, please check your spam folder.",
+              "Si vous n’avez pas reçu l’e-mail, veuillez vérifier votre dossier spam.",
+              "Se non hai ricevuto l’e-mail, controlla la cartella spam."
+            ],
+            "password": ["Password", "Mot de passe", "Password"],
+            "password_placeholder": ["Please enter your password", "Entrez votre mot de passe", "Inserisci la tua password"],
+            "password_confirm": ["Password confirmation", "Confirmation du mot de passe", "Conferma la password"],
+            "password_confirm_placeholder": ["Please confirm your password", "Veuillez confirmer votre mot de passe", "Conferma la tua password"]
         }
     }
 }
