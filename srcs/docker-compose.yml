@@ -126,21 +126,20 @@ services:
     networks:
       - router
 
-  # front_dev:
-  #   container_name: front_dev
-  #   restart: on-failure
-  #   build:
-  #       context: ./front/
-  #       dockerfile: Dockerfile
-  #   expose:
-  #     - 5173
-  #   volumes:
-  #     - data-front:/var/www/html
-  #   networks:
-  #     - router
+  front_dev:
+    container_name: front_dev
+    restart: on-failure
+    build:
+        context: ./front/
+        dockerfile: Dockerfile
+    expose:
+      - 5173
+    volumes:
+      - ./front/vitejs:/var/www/html
+    networks:
+      - router
 
 volumes:
-  data-front:
   db-chat:
   db-user:
 networks:
