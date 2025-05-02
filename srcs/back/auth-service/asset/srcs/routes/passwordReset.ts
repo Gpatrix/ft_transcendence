@@ -36,10 +36,12 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 email
             }
             }, process.env.JWT_SECRET as string, { expiresIn: expireIn * 60 * 1000 });
-            await sendMail(email, 'Password reset', `You asked for a password reset, here is you secret token: ${passwordResetToken}\nIt will at ${expireIn} minutes`);
+            const link : string = `https://localhost/forgot-password/new-password?token=${passwordResetToken}`
+            console.log(`Retrieve-link : ${link}`)
+            await sendMail(email, 'Password reset', `You asked for a password reset, here is your link ${link}\nIt will expire at ${expireIn} minutes`);
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
-            res.status(500).send({ error: "0000" });
+            res.status(500).send({ error: "0500" });
         }
     });
 
@@ -65,13 +67,13 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                     credential: process.env.API_CREDENTIAL,
                     password: newPassword,
                 }),
-            });
+            }); 
             const data = await userPasswordUpdate.json();
             if (!userPasswordUpdate.ok)
-                return res.status(userPasswordUpdate.status).send({ error: data.error})
+                return res.status(userPasswordUpdate.status).send({ error: "1016"})
             res.status(200).send({ message: "user_password_updated" });
         } catch (error) {
-            res.status(500).send({ error: "0000" });
+            res.status(500).send({ error: "1016" });
         }
     });
     done();

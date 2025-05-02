@@ -28,11 +28,11 @@ export default function ForgottenPassword() {
             }
             fetch('/api/auth/passwordReset/ask', requestData)
             .then(response => {
-                if (response && response.ok) {
+                if (response) {
                     setFormSent(true)
                 }
                 else {
-                    setError(get_server_translation("0500"))
+                    setError(get_server_translation("0500")) // server error
                 }
             })
         }
@@ -50,8 +50,9 @@ export default function ForgottenPassword() {
         <div  className="flex flex-col w-1/1 text-yellow">
             <span className="mb-5">
                 <h2 className="text-xl">{get_page_translation(formSent ? "give_code" : "reset")}</h2>
-                <p className="text-light-yellow text-xs">{get_page_translation(formSent ? "check_spam" : "description")}</p>
+                <p className="text-light-yellow text-xs mt-2">{get_page_translation(formSent ? "check_spam" : "description")}</p>
             </span>
+            { !formSent &&  
             <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1" >
                 <InputWithLabel type={(error && !formSent) ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} label={get_page_translation("email")} placeholder={get_page_translation("email_placeholder")}/>
                 <Button className="mt-5" type="full">{get_page_translation(formSent ? "confirm" : "continue")}</Button>
@@ -63,6 +64,7 @@ export default function ForgottenPassword() {
                     <LoginErrorMsg>{error}</LoginErrorMsg>
                 }
             </form>
+            }
         </div>
 
     )

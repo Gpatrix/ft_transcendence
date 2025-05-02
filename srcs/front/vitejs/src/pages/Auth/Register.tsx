@@ -74,10 +74,10 @@ export default function Register() {
         }
         catch(e) {
             if (e instanceof AuthError) { // frontend error
-                setError(e.message)
+                setError(get_server_translation(e.message))
                 setErrorField(e.code)
             }
-            if (e instanceof Error) { // backend error
+            else if (e instanceof Error) { // backend error
                 setError(get_server_translation("0500"))
             }
         }

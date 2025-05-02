@@ -42,7 +42,7 @@ export default function Login() {
         }
         catch(e) {
             if (e instanceof Error) { // backend error
-                setError(get_page_translation("Internal server error"))
+                setError(get_page_translation("0500"))
             }
         }
     }

@@ -64,6 +64,11 @@
     "Veuillez spécifier un mot de passe",
     "Per favore specifica una password"
   ],
+  "1010": [
+    "Your passwords don't match",
+    "Les mots de passe ne correspondent pas",
+    "Le password non corrispondono"
+  ],
   "1011": [
     "Missing argument",
     "Argument manquant",

@@ -67,10 +67,10 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                             res.status(403).send({ error: "1012"});
                           break
                         default:
-                            res.status(403).send({ error: "0000"});
+                            res.status(403).send({ error: "0500"});
                     }
             }
-            return (res.status(500).send({ error: "0000"}));
+            return (res.status(500).send({ error: "0500"}));
         }
     });
 
@@ -136,7 +136,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: false });
             }
         } catch (error) {
-            reply.status(500).send({ error:"0000" });
+            reply.status(500).send({ error:"0500" });
         }
 
     })

@@ -2,7 +2,8 @@
     "Routes": {
             "login" : "Auth",
             "register" : "Auth",
-            "forgot-password" : "Forgot_password"
+            "forgot-password" : "Forgot_password",
+            "forgot-password/new-password" : "Forgot_password"
     },
     "Pages": {
         "Auth": {
@@ -38,15 +39,19 @@
             "Fornisci l'indirizzo email associato al tuo account per recuperare la password."
             ],
             "give_code": [
-            "Enter the code received by email",
-            "Entrez le code reçu par e-mail",
-            "Inserisci il codice ricevuto via email"
+              "Email sent! Check it out and follow the instructions.",
+              "Un e-mail a été envoyé ! Consultez-le et suivez les instructions.",
+              "Email inviato! Controllalo e segui le istruzioni."
             ],
             "check_spam": [
-            "If you didn’t receive the email, please check your spam folder.",
-            "Si vous n'avez pas reçu l'e-mail, vérifiez votre dossier de courriers indésirables.",
-            "Se non hai ricevuto l'email, controlla la cartella dello spam."
-            ]
+              "If you didn’t receive the email, please check your spam folder.",
+              "Si vous n’avez pas reçu l’e-mail, veuillez vérifier votre dossier spam.",
+              "Se non hai ricevuto l’e-mail, controlla la cartella spam."
+            ],
+            "password": ["Password", "Mot de passe", "Password"],
+            "password_placeholder": ["Please enter your password", "Entrez votre mot de passe", "Inserisci la tua password"],
+            "password_confirm": ["Password confirmation", "Confirmation du mot de passe", "Conferma la password"],
+            "password_confirm_placeholder": ["Please confirm your password", "Veuillez confirmer votre mot de passe", "Conferma la tua password"]
         }
     }
 }

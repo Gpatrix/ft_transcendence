@@ -30,7 +30,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 res.status(200).send({ message: "qrcode_generated", data_url: data_url})
             });
         } catch (error) {
-            res.status(500).send({ error: "0000" });
+            res.status(500).send({ error: "0500" });
         }
     });
 
@@ -149,7 +149,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 res.status(response.status).send(data);
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_disabled" });
         } catch (error) {
-            res.status(500).send({ error: "0000" });
+            res.status(500).send({ error: "0500" });
         }
     });
 

@@ -127,7 +127,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     }
                 }
             else
-                reply.status(500).send({ error: "0000" });
+                reply.status(500).send({ error: "0500" });
         }
     })
 
@@ -175,7 +175,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     }
                 }
             else
-                reply.status(500).send({ error: "0000" });
+                reply.status(500).send({ error: "0500" });
         }
     })
 
@@ -259,7 +259,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                         reply.status(403).send({ error: error.message});
                 }
             }
-            reply.status(500).send({ error: "0000"});
+            reply.status(500).send({ error: "0500"});
         }
     })
 
@@ -330,7 +330,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     headers: form.getHeaders()
                 });
                 if (res.status != 200)
-                    throw(new Error("0000"));
+                    throw(new Error("0500"));
                 const result = res.data;
                 put.profPicture = result.fileName;
             }
@@ -345,7 +345,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             });
 
             if (!updatedUser)
-                throw (new Error('0000'));
+                throw (new Error('0500'));
             reply.status(200).send(updatedUser);
         } catch (error) {
             if (put.profPicture)
@@ -376,7 +376,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             else
             {
                 console.log(error)
-                reply.status(500).send({ error: "0000"});
+                reply.status(500).send({ error: "0500"});
             }
         }
     })
@@ -437,7 +437,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             });
             reply.status(200).send({ message: "user_successfully_blocked" });
         } catch (error) {
-            reply.status(500).send({ error: "0000"});
+            reply.status(500).send({ error: "0500"});
         }
     })
 
@@ -459,10 +459,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!targetUser)
-                return (reply.status(404).send({ error: "0000" }));
+                return (reply.status(404).send({ error: "0500" }));
             reply.status(200).send({ message: "user_successfully_unblocked" });
         } catch (error) {
-            reply.status(500).send({ error: "0000"});
+            reply.status(500).send({ error: "0500"});
         }
     })
 

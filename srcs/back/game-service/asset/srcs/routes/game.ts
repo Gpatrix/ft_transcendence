@@ -14,7 +14,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             res.status(200).send({ message: 'mesage' });
         } catch (error) {
             console.log(error)
-            res.status(500).send({ error: "0000" });
+            res.status(500).send({ error: "0500" });
         }
     });
 
