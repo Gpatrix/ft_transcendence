@@ -135,32 +135,13 @@ services:
     expose:
       - 5173
     volumes:
-      - data-front:/var/www/html
+      - ./front/vitejs:/var/www/html
     networks:
       - router
 
 volumes:
-  data-front:
-    name: data-front
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./front/vitejs
   db-chat:
-    name: db-chat
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./back/chat-service/volume
   db-user:
-    name: db-user
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./back/user-service/volume
 networks:
   router:
     driver: bridge
