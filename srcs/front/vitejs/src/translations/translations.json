@@ -18,7 +18,8 @@
             "connexion": ["Log in", "Connexion", "Accedi"],
             "or": ["OR", "OU", "O"],
             "register": ["Sign up for free", "S'inscrire gratuitement", "Iscriviti gratuitamente"],
-            "login": ["Already have an account?", "Se connecter", "Hai già un account?"]
+            "login": ["Already have an account?", "Se connecter", "Hai già un account?"],
+            "login_google": [ "Continue with Google", "Continuer avec Google", "Continua con Google"]        
         },
         "Forgot_password":
         {

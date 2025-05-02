@@ -159,14 +159,10 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     server.get('/api/auth/login/google/callback', async function (request, reply) {
         try {
             const { token } = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
-            console.log(token);
-    
             if (!token)
                 throw (Error("no_google_token_generated"));
     
             const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
-            console.log(userinfo);
-            
             if (!userinfo)
                 throw (Error("cannot_get_user_infos"));
     
@@ -178,6 +174,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                     credential: process.env.API_CREDENTIAL
                 })
             });
+
             user = await response?.json();
             if (!user) {
                 const response = await fetch(`http://user-service:3000/create`, {
@@ -191,7 +188,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 });
                 const data = await response?.json();
                 if (!response.ok)
-                    return (reply.status(response.status).send({ error: data.error }));
+                    return (reply.status(response.status).redirect("/register?oauth-error=1015"));
                 user = data;
             }
     
@@ -207,12 +204,12 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
     
             if (jsonwebtoken)
-                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken).send({ response: "successfully logged with google" }));
+                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken).redirect("/"));
             else
                 throw new Error("no token generated");
         } catch (error) {
             console.log(error);
-            reply.status(500).send({ error: "1015" });
+            return (reply.redirect("/register?oauth-error=1015"));
         }
     });
     done();    

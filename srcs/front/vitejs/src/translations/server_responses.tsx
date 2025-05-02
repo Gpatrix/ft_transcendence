@@ -8,5 +8,5 @@ export function get_server_translation(code: string) : string {
     if (translation) {
         return (translation[langIndex])
     }
-    return (translation["0000"][langIndex])
+    return (translation["0500"][langIndex])
 }
