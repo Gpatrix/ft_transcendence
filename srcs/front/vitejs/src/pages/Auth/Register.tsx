@@ -57,7 +57,7 @@ export default function Register() {
                     email
                 })
             }
-            fetch('/api/auth/signin', requestData)
+            fetch('/api/auth/signup', requestData)
             .then(response => {
                 if (response.ok)
                     navigate("/yeahloggin")
