@@ -134,6 +134,63 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
         }
     })
 
+    interface acceptUserFriendRequestParams 
+    {
+        id: string
+    }
+
+    server.delete<{ Params: acceptUserFriendRequestParams }>('/api/user/friends/requests/:id', async (request: any, reply: any) => {
+        try {
+            const requestId = request.params?.id;
+            const token = request.cookies['ft_transcendence_jw_token'];
+            if (!token)
+                return reply.status(403).send({ error: "0403" });
+            const decoded = jwt.decode(token);
+            const id = decoded?.data?.id;
+            if (!id)
+                return reply.status(403).send({ error: "0403" });
+            let user = await prisma.user.findUnique({
+                where: { 
+                    id: Number(id)
+                },
+                include: {
+                    friends: true
+                }
+            })
+            if (!user)
+                return reply.status(404).send({ error: "0403" });
+            const existingFriendRequest = await prisma.friendRequest.findFirst({
+                where: {
+                    id: Number(requestId)
+                }
+            })
+            if (!existingFriendRequest)
+                return reply.status(404).send({ error: '0404'});
+            let author = await prisma.user.findUnique({
+                where: { 
+                    id: existingFriendRequest.authorId
+                },
+                include: {
+                    friends: true
+                }
+            })
+            if (!author)
+                return reply.status(404).send({ error: "2012" });
+            if (existingFriendRequest.targetId != id)
+                return reply.status(401).send({ error: "0401" });
+            await prisma.friendRequest.delete({
+                where: {
+                    id: existingFriendRequest.id
+                },
+            });
+
+            reply.status(201).send();
+        } catch (error) {
+            console.log(error);
+            return reply.status(500).send({ error: "0500" });
+        }
+    })
+
     interface getUserFriendsParams 
     {
         id: string
@@ -168,6 +225,73 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             return reply.status(500).send({ error: "0500" });
         }
     })
+
+    interface deleteFriendParams {
+        id: string
+    }
+
+    server.delete<{ Params: deleteFriendParams }>('/api/user/friends/:id', async (request: any, reply: any) => {
+        try {
+            const token = request.cookies['ft_transcendence_jw_token'];
+            if (!token)
+                return reply.status(403).send({ error: "0403" });
+
+            const decoded = jwt.decode(token);
+            const id = decoded?.data?.id;
+            const targetId = request.params?.id;
+            if (!id || !targetId)
+                return reply.status(403).send({ error: "0403" });
+
+            const user = await prisma.user.findUnique({
+                where: { 
+                    id: Number(id)
+                },
+                include: {
+                    friends: true
+                }
+            })
+            if (!user)
+                return reply.status(404).send({ error: "0404" });
+            const userFriend = await prisma.friend.findFirst({
+                where: {
+                    userId: user.id,
+                    friendUserId: Number(targetId)
+                }
+            });
+
+            //delete friend for target
+            const targetFriend = await prisma.friend.findFirst({
+                where: {
+                    userId: Number(targetId),
+                    friendUserId: user.id
+                }
+            });
+
+            if (!userFriend)
+                return reply.status(404).send({ error: "0404" });
+
+            await prisma.friend.delete({
+                where: {
+                    id: userFriend.id
+                }
+            })
+
+            // we check if target account still exist before
+            if (targetFriend)
+            {
+                await prisma.friend.delete({
+                    where: {
+                        id: targetFriend.id
+                    }
+                })
+            }
+
+            reply.status(200).send();
+        } catch (error) {
+            console.log(error);
+            return reply.status(500).send({ error: "0500" });
+        }
+    });
 
     server.get<{}>('/api/user/friends', async (request: any, reply: any) => {
         try {
