@@ -23,11 +23,13 @@ model User {
   password String?
   profPicture String?
   bio String?
-  lang String?
+  lang String @default("user")
+  rank Int @default(0)
   isAdmin Boolean @default(false)
   twoFactorSecretTemp String?
   twoFactorSecret String?
   isTwoFactorEnabled Boolean @default(false)
+  playerTime Int @default(0)
 
   blockedUsers BlockedUser[] @relation("BlockedBy")
 }

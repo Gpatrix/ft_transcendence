@@ -58,16 +58,16 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2002':
-                            res.status(403).send({ error: "1003"});
+                            res.status(401).send({ error: "1003"});
                             break
                         case 'P2003':
-                            res.status(403).send({ error: "1011"});
+                            res.status(401).send({ error: "1011"});
                           break
                         case 'P2000':
-                            res.status(403).send({ error: "1012"});
+                            res.status(401).send({ error: "1012"});
                           break
                         default:
-                            res.status(403).send({ error: "0500"});
+                            res.status(401).send({ error: "0500"});
                     }
             }
             return (res.status(500).send({ error: "0500"}));
@@ -149,7 +149,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         const token = request.body.token;
         if (!token)
             return (reply.status(401).send({ error: "1016" }));
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = verify(token, process.env.JWT_SECRET);
         const id = decoded.data?.id
         if (!id)
           return (reply.status(401).send({ error: "1016" }));

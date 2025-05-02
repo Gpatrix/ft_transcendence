@@ -20,7 +20,9 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@fastify/cookie": "^11.0.2",
         "@fastify/oauth2": "^8.1.2",
+        "@fastify/websocket": "^11.0.2",
         "@prisma/client": "^6.6.0",
         "@types/node": "^22.14.1",
         "@types/nodemailer": "^6.4.17",

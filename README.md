@@ -20,7 +20,7 @@
 
 ## debut - Milieu
 
-- [x] Major module: Standard user management, authentication, users across tournaments.
+- [ ] Major module: Standard user management, authentication, users across tournaments.
 
 - [x] Major module: Implementing a remote authentication.
 

@@ -2,5 +2,7 @@
 **/node_modules
 *.log
 **/migrations
-**/db
+**/db*
 *.js
+**/prisma_client
+**/package-lock.json
