@@ -13,7 +13,26 @@ model BlockedUser {
   blockedUserId Int
 
   userId Int
-  user User @relation("BlockedBy", fields: [userId], references: [id])
+  user User @relation("UsersToBlockedUsers", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FriendRequest {
+  id Int @id @unique @default(autoincrement())
+
+  authorId Int
+  author User @relation("UserToSendedFriendRequests", fields: [authorId], references: [id], onDelete: Cascade)
+  targetId Int
+  target User @relation("UserToReceivedFriendRequests", fields: [targetId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Friend {
+  id Int @id @unique @default(autoincrement())
+  friendUserId Int
+
+  userId Int
+  user User @relation("UserToFriend", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model User {
@@ -31,8 +50,12 @@ model User {
   isTwoFactorEnabled Boolean @default(false)
   playerTime Int @default(0)
 
-  blockedUsers BlockedUser[] @relation("BlockedBy")
+  friends Friend[] @relation("UserToFriend")
+  blockedUsers BlockedUser[] @relation("UsersToBlockedUsers")
+  sendedFriendRequests FriendRequest[] @relation("UserToSendedFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("UserToReceivedFriendRequests")
 }
+
 // not supported with sqlite
 // enum Role {
 //   USER

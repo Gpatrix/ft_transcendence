@@ -16,6 +16,7 @@ server.register(require('@fastify/multipart'), {
 });
 server.register(cookiesPlugin, {});
 server.register(require("./routes/user"));
+server.register(require("./routes/friends"));
 
 async function main() {
   let _address;
