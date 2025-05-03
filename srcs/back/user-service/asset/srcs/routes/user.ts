@@ -61,21 +61,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         } catch (error) {
             return reply.status(500).send({ error: "server_error" });
         }
-<<<<<<< HEAD
-        else
-        {
-            user = await prisma.user.findUnique({
-                where: { 
-                    id: Number(value)
-                }
-            })
-        }
-        if (!user)
-            return reply.status(404).send({ error: "1006" });
-        reply.send(user);
-=======
  
->>>>>>> main
     })
 
     interface isBlockedByParams 

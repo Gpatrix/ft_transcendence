@@ -1,17 +1,17 @@
 import { setTimeout } from "timers";
 
-export class MatchMakingUser {
+class MatchMakingUser {
     constructor (id: number, rank: number, websocket: WebSocket)
     {
         this.id = id;
         this.rank = rank;
         this.waitFrom = new Date(Date.now());
-        this.websocket = websocket
+        this.websocket = websocket;
     }
     id: number;
     rank: number;
     waitFrom: Date;
-    websocket: WebSocket
+    websocket: WebSocket;
 }
 
 class MatchMakingMap extends Array<MatchMakingUser>
