@@ -64,7 +64,7 @@ export default function Login() {
                     {/* <div className="max-h-8/10 relative pt-1/10 bg-dark-yellow"> */}
                     {/* <Blur /> */}
                         <div className="flex flex-col pt-3 gap-3 overflow-y-scroll max-h-1/1 max-h-8/10 p-3">
-                            <UserContact status='online' userName='Titi42' image='/test.jpeg' />
+                            <UserContact status='online' userName='test' image='/test.jpeg' />
                             <UserContact status='online' notifs={12} userName='Titi42' image='/test.jpeg' />
                             <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
                             <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
