@@ -4,6 +4,7 @@ import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
+import crypto from 'crypto';
 import axios, { AxiosError } from 'axios';
 import FormData from 'form-data';
 
@@ -69,7 +70,7 @@ async function is_blocked(by: number, target: number): Promise<string>
    {
       const response = await axios.post(
          `http://user-service:3000/api/user/isBlockedBy/${by}/${target}`,
-         {credential: process.env.API_CREDENTIAL},
+         {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
       return (String(response.data.value));
@@ -85,16 +86,31 @@ async function is_blocked(by: number, target: number): Promise<string>
    }
 }
 
-async function get_target_id(target: string, socket: WebSocket): number
+interface userInfo
 {
+   id: number;
+   name: string;
+   email: string;
+   password: string;
+   prof_picture: string | undefined;
+   bio: string | null;
+   lang: string | undefined;
+   isAdmin: boolean;
+}
+
+async function get_user_info(username: string): Promise<userInfo | string>
+{
+   if (!process.env.API_CREDENTIAL)
+      return ("0500");
+
    try
    {
       const response = await axios.post(
-         `http://user-service:3000/api/user/isBlockedBy/`,
-         {credential: process.env.API_CREDENTIAL},
+         `http://user-service:3000/api/user/lookup/${username}`,
+         {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
-      return (new Promise<number>(response.data.value));
+      return (response.data as userInfo);
    }
    catch (error: AxiosError | unknown)
    {
@@ -103,8 +119,7 @@ async function get_target_id(target: string, socket: WebSocket): number
          if (error.response?.data.error !== undefined)
             return (error.response?.data.error);
       }
-
-      return (-1);
+      return ("0503");
    }
 }
 
@@ -116,11 +131,11 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       return;
    }
 
-   let targetID: number = get_target_id(payload.target);
-   if (targetID == -1)
-     return;
+   let user: userInfo | string = await get_user_info(payload.target);
+   if (typeof user === "string")
+      return (socket.send(`{error: ${user}}`));
 
-   let isBlocked = await is_blocked(token.id, targetID);
+   let isBlocked = await is_blocked(token.id, user.id);
    if (isBlocked !== 'false')
    {
       if (isBlocked === 'true')
@@ -129,31 +144,29 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
          socket.send(isBlocked);
    }
 
-   // try
-   // {
-   //    const channel_hash: string = getPrivChannelHash(token.name, payload.target);
-      
-   //    await prisma.msg.create(
-   //    {
-   //       data: {
-   //          userID: token.id,
-   //          channel: channel_hash,
-   //          text: payload.msg
-   //       }
-   //    });
+   try
+   {
+      await prisma.msg.create(
+      {
+         data: {
+            userID: token.id,
+            channel: channel_hash,
+            text: payload.msg
+         }
+      });
 
-   //    let target_socket = activeConn.get(payload.target);
-   //    if (target_socket !== undefined)
-   //    {
-   //       target_socket.send(
-   //          `"origin": ${token.name}, "msg": ${payload.msg}`
-   //       );
-   //    }
-   // }
-   // catch (error)
-   // {
-   //    console.log(error);
-   // }
+      let target_socket = activeConn.get(payload.target);
+      if (target_socket !== undefined)
+      {
+         target_socket.send(
+            `"origin": ${token.name}, "msg": ${payload.msg}`
+         );
+      }
+   }
+   catch (error)
+   {
+      console.log(error);
+   }
 }
 
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
@@ -196,10 +209,10 @@ function data_handler(
             handle_msg(payload, token, socket);
             break;
 
-         // case "refresh":
-         //    handle_refresh(payload, token, socket);
-            // break;
+         case "refresh":
+            handle_refresh(payload, token, socket);
 
+            break;
          default:
             socket.send("{error: 400}");
             return;
@@ -209,6 +222,22 @@ function data_handler(
    {
       console.log(error);
    }
+}
+
+function getPrivChannelHash(username: string, target_name: string): string
+{
+   const new_username = username.padEnd(20, ' ');
+   const new_target_name = target_name.padEnd(20, ' ');
+
+   let combinedString: string;
+   if (username > target_name)
+      combinedString = new_username + new_target_name;
+   else
+      combinedString = new_target_name + new_username;
+
+   const hash = crypto.createHash('sha256');
+   hash.update(combinedString);
+   return (hash.digest('base64'));
 }
 
 async function chatws()
