@@ -8,33 +8,48 @@ import Blur from "../../components/Blur"
 import DropDownMenu from "../../components/DropDownMenu"
 import InputWithIco from "../../components/InputWithIco"
 
-import { cloneElement, MouseEvent, useEffect, useState } from "react";
+import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState } from "react";
 import ClickableIco from "../../components/ClickableIco.tsx"
+import User from "../../classes/User.tsx"
+import Friend from "../../classes/Friend.tsx"
+import Message from "../../classes/Message.tsx"
 
 export default function Login() {
     const [inputSearch, setInputSearch] = useState<string>("");
     const [inputMessage, setInputMessage] = useState<string>("");
+    const [activFriend, setActivFriend] = useState<number>(0);
 
-    const handleSubmitSearch = (event : React.FormEvent<HTMLFormElement>) => {
+    const handleSubmitSearch = (event : FormEvent<HTMLFormElement>) => {
         console.log("test");
         // console.log(search)
         // console.log(message)
         event.preventDefault();
     }
 
-    const handleSubmitMessage = (event : React.FormEvent<HTMLFormElement>) => {
+    const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
         console.log("test");
         // console.log(search)
         // console.log(message)
         event.preventDefault();
     }
-
-    const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    
+    // HTMLAnchorElement
+    const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
         setInputSearch(e.target.value);
     };
-    const handleChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeMessage = (e: ChangeEvent<HTMLInputElement>) => {
         setInputMessage(e.target.value);
     };
+
+    const handleClicChangeActivFriend = (e: MouseEvent<HTMLButtonElement>): void => {
+        let balise: HTMLButtonElement = e.currentTarget as HTMLButtonElement;
+        if (balise.dataset.nb && balise.dataset.status && balise.dataset.status == 'online')
+        {
+            setActivFriend(Number(balise.dataset.nb))
+            // changer les messages affiches
+        }
+    }
+
 
     // useEffect(() => {
     //     console.log(inputSearch);
@@ -43,6 +58,30 @@ export default function Login() {
     // useEffect(() => {
     //     console.log(inputMessage);
     // }, [inputMessage]);
+
+    const friends : Friend[] = [
+        new Friend(0, 'Titi42', 'test@test.com', 'test.jpeg', [new Message(0, new Date(), "Ratio")], true),
+        new Friend(1, 'Titi42', 'test@test.com', 'test.jpeg', [], true, 12),
+        new Friend(2, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(3, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(4, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(5, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(6, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(7, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(8, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(9, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(10, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(11, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(12, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(13, 'testCo', 'test@test.com', 'test.jpeg', [], true),
+        new Friend(14, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(15, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(16, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(17, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(18, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(19, 'Titi42', 'test@test.com', 'test.jpeg', [], false),
+        new Friend(20, 'test', 'test@test.com', 'test.jpeg', [], false),
+    ];
 
     return (
         <div className="chat flex flex-col h-1/1 ">
@@ -61,41 +100,28 @@ export default function Login() {
                     />
                     <div className="h-[1px] w-4/5 bg-dark-yellow mx-auto my-3"></div>
 
-                    {/* <div className="max-h-8/10 relative pt-1/10 bg-dark-yellow"> */}
-                    {/* <Blur /> */}
-                        <div className="flex flex-col pt-3 gap-3 overflow-y-scroll max-h-1/1 max-h-8/10 p-3">
-                            <UserContact status='online' userName='test' image='/test.jpeg' />
-                            <UserContact status='online' notifs={12} userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='Titi42' image='/test.jpeg' />
-                            <UserContact status='offline' userName='vcx' image='/test.jpeg' />
-                            <UserContact status='offline' userName='TitiTest' image='/test.jpeg' />
-                        </div>
-                    {/* </div> */}
+                    <div className="flex flex-col pt-3 gap-3 overflow-y-scroll max-h-1/1 max-h-8/10 p-3">
+                        {friends.map((friend, id) => {
+                            return <UserContact key={id} nb={id}
+                                type={id==activFriend?'active':'nonactive'}
+                                status={friend.connected ? 'online' : 'offline'}
+                                className={friend.connected ? 'order-first' : ''}
+                                userName={friend.name}
+                                image={friend.imageUrl}
+                                notifs={friend.nbNotifs}
+                                onClick={handleClicChangeActivFriend}
+                            />;
+                        })}
+                    </div>
 
                 </div>
 
-                <div className="relative flex flex-col justify-end gap-5">
+                <div className="relative flex flex-col justify-end gap-5 w-1/1">
                     <Blur />
                     {/* <DropDownMenu /> */}
-                    <div className="relative overflow-y-scroll flex flex-col gap-5 p-10 pt-[200px]">
+                    <div className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
-                        <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
+                        {/* <ChatMessage profileIco='/test.jpeg' username='xX_D4rkSh4doW_Xx' profileLink='google.com' hour='13:12' >
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet gravida lacinia. Vivamus convallis sit amet nunc sit amet sodales. In molestie ipsum est, id gravida lorem elementum et. Maecenas
                         </ChatMessage>
         
@@ -121,7 +147,14 @@ export default function Login() {
                         </ChatMessage>
                         <ChatMessage profileIco='/test.jpeg' username='PepitoDeLaVega35' profileLink='google.com' hour='13:12' >
                             Issou
-                        </ChatMessage>
+                        </ChatMessage> */}
+                        {friends[activFriend].messages.map((message, id) => {
+                            let friend = friends[activFriend];
+                            return  <ChatMessage key={id} profileIco={friend.imageUrl} username={friend.name} profileLink='google.com' hour={'13:12'} >
+                                        {message.content}
+                                    </ChatMessage>
+                        })}
+
                     </div>
                     <div className="w-1/1 bg-dark border-0 border-t-1 border-yellow flex p-3 gap-2">
                         <InputWithIco className="w-[100%] rounded-xl"
@@ -132,7 +165,7 @@ export default function Login() {
                             onSubmit={handleSubmitMessage}
                         />
                         <div className="bg-yellow rounded-xl">
-                            <ClickableIco className="mx-[5px]" image={"/icons/game-alt.svg"} onClick={function (event: MouseEvent): void {
+                            <ClickableIco className="mx-[5px]" image={"/icons/game-alt.svg"} onClick={function (): void {
                                 throw new Error("Function not implemented.")
                             } } />
 
