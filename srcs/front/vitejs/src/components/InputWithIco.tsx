@@ -22,24 +22,30 @@ type InputWithIcoProps = {
     className?: string;
     iconSrc: string;
     value: string;
-  } & VariantProps<typeof variants> & React.FormHTMLAttributes<HTMLFormElement>;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  } & VariantProps<typeof variants>;
   
 export default function InputWithIco({
   iconSrc,
   className,
   placeholder,
   value,
+  onChange,
+  onSubmit,
   ...formProps
 }: InputWithIcoProps) {
     return (
     <form
-        className={clsx('flex py-1 border border-yellow rounded-lg', className)}
+        onSubmit={onSubmit}
+        className={clsx('flex py-1 border border-yellow rounded-lg bg-grey', className)}
         {...formProps}>
         <Input
             type='noborder'
-            className='mr-4'
+            className='mr-4 w-1/1 placeholder-dark-yellow'
             value={value}
-            placeholder={placeholder}   
+            placeholder={placeholder}
+            onChange={onChange}
         />
         <button type='submit' className='ml-auto mr-4 cursor-pointer'>
             <img src={iconSrc} alt="icon" />
