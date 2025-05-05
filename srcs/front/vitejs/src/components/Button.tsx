@@ -3,7 +3,7 @@ import { clsx } from 'clsx'
 import { ReactNode } from 'react';
 
 const variants = tv({
-    base: 'px-16 rounded-lg py-3 text-24 cursor-pointer',
+    base: ' rounded-lg py-3 text-24 cursor-pointer',
     variants: {
         type: {
             full: 'bg-yellow text-grey',

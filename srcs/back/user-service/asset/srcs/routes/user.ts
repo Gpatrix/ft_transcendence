@@ -56,12 +56,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 })
             }
             if (!user)
-                return reply.status(404).send({ error: "user_not_found" });
+                return reply.status(404).send({ error: "1006" });
             reply.send(user);
         } catch (error) {
-            return reply.status(500).send({ error: "server_error" });
+            return reply.status(500).send({ error: "0500" });
         }
-<<<<<<< HEAD
         else
         {
             user = await prisma.user.findUnique({
@@ -73,9 +72,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (!user)
             return reply.status(404).send({ error: "1006" });
         reply.send(user);
-=======
- 
->>>>>>> main
     })
 
     interface isBlockedByParams 
@@ -226,7 +222,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         email: string
     }
       
-    server.get<{ Params: getUserParams }>('/api/user/search/:email', { preHandler:[isAdmin] }, async (request, reply) => {
+    server.get<{ Params: getUserParams }>('/api/user/search/:email', {  }, async (request, reply) => {
         const value = request.params.email;
         const isEmail = value.includes('@');
         let user: User | null = null;
@@ -249,8 +245,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             return reply.status(404).send({ error: "1006" });
         reply.send(user);
     })
-
-    
 
     interface postUserBody
     {
@@ -412,7 +406,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                         reply.status(403).send({ error: "1012"});
                       break
                     default:
-                        reply.status(403).send({ error: error.message});
+                        reply.status(403).send({ error: "0500"});
                 }
             }
             else
