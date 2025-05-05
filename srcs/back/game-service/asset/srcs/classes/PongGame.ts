@@ -1,3 +1,5 @@
+import prisma from '../config/prisma';
+
 interface pos {
     x: number,
     y: number
@@ -14,15 +16,30 @@ class Ball {
     position: pos;
     velocity: velocity;
     radius: number;
+    isFreezed: boolean = true;
 
-    nextPos() {
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
+    set setVelocity(newVelocity: velocity) {
+        if (newVelocity.x < 10)
+            this.velocity.x = newVelocity.x;
+        if (newVelocity.y < 10)
+            this.velocity.y = newVelocity.y;      
     }
 
-    previousPos() {
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
+    set setPosition(newPosition: pos) {
+        this.position = newPosition;
+    }
+
+    nextPos() {
+        if (!this.isFreezed)
+        {
+            this.position.x += this.velocity.x;
+            this.position.y += this.velocity.y;
+        }
+    }
+
+    resetPos() {
+        this.position.x += 0;
+        this.position.y += 0;
     }
 }
 
@@ -30,18 +47,37 @@ class Player {
     constructor(id: number, position: pos) {
         this.id = id;
         this.position = position;
-    } 
+    }
     id: number;
     position: pos;
+
+    async score() {
+        const existingPlayer = await prisma.player.findUnique({
+            where: {
+                id: this.id
+            }
+        })
+        if (!existingPlayer)
+            return ;
+        prisma.player.updateFirst({
+            where: {
+                id: this.id
+            },
+            data: {
+                score: existingPlayer.score + 1
+            }
+        })
+    }
 }
 
 class PongGame {
-    constructor (playerIds: Array<number>) {
+    constructor (playerIds: Array<number>, id: number) {
         this.ball = new Ball({ x: 0, y: 0 }, { x: 1, y: 0 });
         this.players = [
             new Player(playerIds[0], { x: (this.width / 2 ) * -1, y: 0}),
             new Player(playerIds[1], { x: this.width / 2 , y: 0})
         ];
+        this.id = id;
     }
 
     start() {
@@ -49,12 +85,32 @@ class PongGame {
             this.ball.nextPos();
         }, 1000 / 60);
         this.timeout = setTimeout(() => {
-            this.end();
+            this.onEnd();
         }, )
     }
 
-    end() {
-        console.log('end of the game')
+    onEnd() {
+        prisma.game.updateFirst({
+            where: {
+                id: this.id
+            },
+            data: {
+                playTime: this.getDuration() / 1000,
+                closedAt: new Date()
+            }
+        })
+    }
+
+    endGame() {
+        this.timeout?.close();
+        this.interval?.close();
+        this.onEnd();
+    }
+
+    getDuration(): number {
+        if (!this.startedAt)
+            return (0);
+        return (Date.now() - this.startedAt);
     }
 
     onPlayerLeave(id: number) {
@@ -101,6 +157,8 @@ class PongGame {
     duration: number = 5 * 60 * 1000
     interval?: NodeJS.Timeout
     timeout?: NodeJS.Timeout
+    startedAt?: number 
+    id: number;
 }
 
 module.exports = PongGame;

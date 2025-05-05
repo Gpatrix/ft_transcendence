@@ -36,7 +36,7 @@ class GamesManager {
         const playerIds: Array<number> = matchMakingUsers.map(user => {
             return (user.id);
         });
-        GamesManager.games.set(tournament.games[0].id, new PongGame(playerIds));
+        GamesManager.games.set(tournament.games[0].id, new PongGame(playerIds, tournament.games[0].id));
         return (tournament)
     }
 }
