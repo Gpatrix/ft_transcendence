@@ -102,7 +102,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 return reply.status(401).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
             if (!isCorrect)
-                return reply.status(401).send({ error: "1006 "});
+                return reply.status(401).send({ error: "1006"});
             if (user.isBanned)
                 return reply.status(403).send({ error: "1013" });
             if (user.isTwoFactorEnabled) {
@@ -133,7 +133,12 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
                 if (!token)
                     throw (new Error("cannot generate user token"));
-                reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: false });
+                reply.cookie("ft_transcendence_jw_token", token, {
+                    path: "/",
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true
+                  }).send({ response: "successfully logged in", need2fa: false });
             }
         } catch (error) {
             reply.status(500).send({ error:"0500" });
