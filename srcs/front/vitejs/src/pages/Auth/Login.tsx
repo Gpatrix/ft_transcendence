@@ -25,7 +25,7 @@ export default function Login() {
                 {
                     email,
                     password,
-                })
+                }),
             }
             fetch('/api/auth/login', requestData)
             .then(response => {
