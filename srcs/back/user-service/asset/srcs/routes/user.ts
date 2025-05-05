@@ -1,15 +1,15 @@
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken';
-import { Prisma, PrismaClient, User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import isConnected from "../validators/jsonwebtoken";
 // import jwtValidator from "./validators/jsonwebtoken";
 import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
 import FormData from 'form-data';
 import axios from 'axios';
+import prisma from '../config/prisma';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
-const prisma = new PrismaClient();
 
 function userRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -61,6 +61,17 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         } catch (error) {
             return reply.status(500).send({ error: "0500" });
         }
+        else
+        {
+            user = await prisma.user.findUnique({
+                where: { 
+                    id: Number(value)
+                }
+            })
+        }
+        if (!user)
+            return reply.status(404).send({ error: "1006" });
+        reply.send(user);
     })
 
     interface isBlockedByParams 
@@ -371,7 +382,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
             if (!updatedUser)
                 throw (new Error('0500'));
-            reply.status(200).send({ response: "user successfully added" });
+            reply.status(200).send(updatedUser);
         } catch (error) {
             if (put.profPicture)
             {
