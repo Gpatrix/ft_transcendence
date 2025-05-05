@@ -65,21 +65,22 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
             reply.status(401).send({ error: "private_route" });
-        const target = String(request.params.target);
+        const target = Number(request.params.target);
         const target_user = await prisma.user.findUnique({
-            where: {
-                name: target
-                }
+            where:
+            {
+                id: target
+            }
         });
         if (!target_user || target_user === undefined)
         {
             reply.status(404).send({error: "2001"});
             return;
         }
-        const by = String(request.params.by);
+        const by = Number(request.params.by);
         const by_user = await prisma.user.findUnique({
             where: {
-              name: by
+              id: by
             },
             include: {
               blockedUsers: true
