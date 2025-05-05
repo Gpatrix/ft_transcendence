@@ -9,13 +9,22 @@ import GamesManager from '../classes/GamesManager';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
-var users: MatchMakingMap = new MatchMakingMap();
-var activeConn: Map<number, WebSocket> = new Map();
-
 interface gameConnectParams {
     tournamentId: string,
     gameId: string
 }
+
+var users: MatchMakingMap = new MatchMakingMap();
+var activeConn: Map<number, WebSocket> = new Map();
+
+// function getWebSocketFromPlayerId(playerId: number): WebSocket | null
+// {
+//     for (const [key, value] of userSockets.entries()) {
+//         if (value.playerId == playerId)
+//             return (key);
+//     }
+//     return (null);
+// }
 
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -29,8 +38,6 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             const gameId = Number(request.params.gameId);
             const tournamentId = Number(request.params.tournamentId);
 
-            if (activeConn.get(tokenPayload.id))
-                socket.close('user_not_registered_in_this_game', 403);
             const tournament = await prisma.tournament.findFirst({
                 where: {
                     id: tournamentId,
@@ -44,8 +51,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                     }
                 }
             })
+
             if (!tournament)
-                throw (new Error('cannot_find_tournament_in_db'));
+                throw (new Error('Cannot find tournament in DB'));
 
             const game = await prisma.game.findFirst({
                 where: {
@@ -55,27 +63,50 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                     players: true,
                 }
             })
+
             if (!game)
-                throw (new Error('cannot_find_game_in_db'));
+                throw (new Error('Cannot find game in DB'));
+
+            const player = await prisma.player.findFirst({
+                where: {
+                    userId: tokenPayload.id
+                }
+            })
+
+            if (!player)
+                throw (new Error('Cannot find player in DB'));
 
             socket.on('message', (RawData: WebSocket.RawData) => {
-                // const object = JSON.parse(RawData.toString('utf8'));
-                // if (object?.action && object.action == 'playerMove')
-                    //TODO : call GamesManager
+                const object = JSON.parse(RawData.toString('utf8'));
+                const action = object?.action;
+                if (!action)
+                    return ;
+                const pongGame = GamesManager.findGame(gameId);
+
+                switch (action) {
+                    case 'playerMove':
+                        pongGame.onPlayerMove(player.id);
+                        break;
+                
+                    default:
+                        console.log('WS invalid action');
+                        break;
+                }
                 console.log(JSON.parse(RawData.toString('utf8')));
             })
 
             socket.on('close', () => {
-                game.players.forEach(user => {
-                    activeConn.get(user.id)?.send(JSON.stringify({ message: `playerLeft`, playerId: tokenPayload.id}));
-                })
-                activeConn.delete(tokenPayload.id);
+                const pongGame = GamesManager.findGame(gameId);
+                if (!pongGame)
+                    return ;
+                pongGame.onPlayerLeave(player.id);
             });
-    
-            game.players.forEach(user => {
-                activeConn?.get(user.id)?.send(JSON.stringify({ message: `playerJoin`, playerId: tokenPayload.id }));
-            })
-            activeConn.set(tokenPayload.id, socket);
+
+            const pongGame = GamesManager.findGame(gameId);
+            if (!pongGame)
+                return ;
+
+            pongGame.onPlayerJoin(player.id);
         }
         catch (error)
         {
@@ -115,7 +146,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             {
                 const tournament = await GamesManager.createGame(result);
                 if (!tournament)
-                    throw (new Error('cannot_insert_tournament_in_db'));
+                    throw (new Error('Games manager cannot create game'));
                 result.forEach(user => {
                     user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
                     user.websocket.close();

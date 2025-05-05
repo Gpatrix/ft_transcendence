@@ -13,9 +13,6 @@ server.addHook('preValidation'
   , (request, reply, done) => {
      try
      {
-      console.log(`we here`);
-      console.log(`request = ${request.cookies['ft_transcendence_jw_token']}`)
-      console.log(`we after json.string`)
       const token: string | undefined = request.cookies['ft_transcendence_jw_token'];
         if (!token || token === undefined)
            return (reply.status(401).send({ error: "user_not_logged_in" }));

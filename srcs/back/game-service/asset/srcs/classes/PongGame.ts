@@ -1,4 +1,5 @@
 import prisma from '../config/prisma';
+import { GamesManager } from '../classes/GamesManager';
 
 interface pos {
     x: number,
@@ -44,12 +45,14 @@ class Ball {
 }
 
 class Player {
-    constructor(id: number, position: pos) {
+    constructor(id: number, position: pos, ws: WebSocket) {
         this.id = id;
         this.position = position;
+        this.ws = ws;
     }
     id: number;
     position: pos;
+    ws: WebSocket;
 
     async score() {
         const existingPlayer = await prisma.player.findUnique({
@@ -81,16 +84,17 @@ class PongGame {
     }
 
     start() {
+        // tick every fps
         this.interval = setInterval(() => {
             this.ball.nextPos();
         }, 1000 / 60);
         this.timeout = setTimeout(() => {
             this.onEnd();
-        }, )
+        }, 15 * 60 * 1000);
     }
 
     onEnd() {
-        prisma.game.updateFirst({
+        prisma.game.updateUnique({
             where: {
                 id: this.id
             },
@@ -113,13 +117,34 @@ class PongGame {
         return (Date.now() - this.startedAt);
     }
 
+    onPlayerMove(id: number, move: number)
+    {
+        const player = this.players.find(player => player.id == id) as Player;
+        const playerPos = player.position;
+        if (move + this.playerHeight / 2 >= this.height / 2)
+            return ;
+        else
+            player.position = { x: playerPos.x, y: playerPos.y };
+    }
+
+    onPlayerJoin(id: number) {
+        console.log(`Player ${id} joined`);
+        const index = this.players.findIndex(player => player.id == id);
+        this.players.forEach(player => {
+            player.ws.send(JSON.stringify({ message: `playerLeft`, playerId: id }));
+        })
+    }
+
     onPlayerLeave(id: number) {
         console.log(`Player ${id} leaved`);
         const index = this.players.findIndex(player => player.id == id);
         if (index !== -1) {
             this.players.splice(index, 1);
         }
-    } 
+        this.players.forEach(player => {
+            player.ws.send(JSON.stringify({ message: `playerLeft`, playerId: id }));
+        })
+    }
 
     isBallColidingPlayer(playerPos: pos): boolean {
         let isInX = false;
@@ -136,16 +161,6 @@ class PongGame {
         const ballPos = this.ball.position;
         if ((ballPos.y <= this.height * -1) || (ballPos.y >= this.height))
             this.ball.velocity.y *= -1;
-    }
-
-    playerMove(playerId: number, move: number)
-    {
-        const player = this.players.find(player => player.id == playerId) as Player;
-        const playerPos = player.position;
-        if (move + this.playerHeight / 2 >= this.height / 2)
-            return ;
-        else
-            player.position = { x: playerPos.x, y: playerPos.y };
     }
 
     ball: Ball
