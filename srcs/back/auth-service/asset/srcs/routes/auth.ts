@@ -265,7 +265,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             else
                 throw new Error("no token generated");
         } catch (error) {
-            console.log(`ERROR: ${error}`)
             return (reply.redirect("/register?oauth-error=1015"));
         }
     });

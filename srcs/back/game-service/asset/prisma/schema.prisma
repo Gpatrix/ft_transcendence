@@ -26,7 +26,7 @@ model Game {
   players Player[] @relation("PlayerToGame")
   createdAt DateTime @default(now())
   closedAt DateTime?
-  playTime Int @default(0)
+  playTime Int @default(0) // game time in seconds
 }
 
 model TournamentPlayer {
