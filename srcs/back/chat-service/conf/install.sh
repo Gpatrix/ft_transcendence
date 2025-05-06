@@ -7,3 +7,5 @@ if [ "$NODE_ENV" = "dev" ]; then
 else
     npm install --omit=dev && npm cache clean --force;
 fi
+
+npx prisma generate
