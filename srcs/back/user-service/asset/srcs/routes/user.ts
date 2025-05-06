@@ -7,6 +7,7 @@ import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
 import FormData from 'form-data';
 import axios from 'axios';
+import { error } from "console";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 const prisma = new PrismaClient();
@@ -15,7 +16,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 {
     interface lookupParams 
     {
-        email: string
+        type: string
+        lookup: string
     }
 
     interface lookupBody
@@ -23,17 +25,28 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         credential: string
     }
 
-    server.post<{ Params: lookupParams, Body: lookupBody }>('/api/user/lookup/:email', async (request, reply) => {
+    server.post<{ Params: lookupParams, Body: lookupBody }>('/api/user/lookup/:type/:lookup', async (request, reply) => {
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
             reply.status(401).send({ error: "private_route" });
-        const value = request.params.email;
-        const isEmail = value.includes('@');
+        const type: string = request.params.type;
+        const lookup: string | number = request.params.lookup;
+        if (type === undefined || lookup === undefined)
+            reply.status(400).send({ error: "0400" });
         let user: User | null = null;
-        if (isEmail) {
+        if (type === 'id')
+        {
             user = await prisma.user.findUnique({
                 where: { 
-                    email: value
+                    id: Number(lookup)
+                }
+            })
+        }
+        else if (type === 'mail')
+        {
+            user = await prisma.user.findUnique({
+                where: { 
+                    email: lookup
                 }
             })
         }
@@ -41,10 +54,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         {
             user = await prisma.user.findUnique({
                 where: { 
-                    id: Number(value)
+                    name: lookup
                 }
             })
         }
+
         if (!user)
             return reply.status(404).send({ error: "user_not_found" });
         reply.send(user);

@@ -7,13 +7,13 @@ import { Prisma } from "@prisma/client";
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
 
-    interface signInBody {
+    interface signupBody {
         email: string,
         name: string,
         password: string,
     }
     
-    server.post<{ Body: signInBody }>('/api/auth/signin', { preHandler:[validatePassword] }, async (req, res) => {
+    server.post<{ Body: signupBody }>('/api/auth/signup', { preHandler:[validatePassword] }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
             return (res.status(400).send({ error: "no_email" }));
@@ -165,7 +165,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             if (!userinfo)
                 throw (Error ("cannot_get_user_infos"));
             let user: User;
-            const response = await fetch(`http://user-service:3000/loopkup/${userinfo.email}`,  {
+            const response = await fetch(`http://user-service:3000/lookup/mail/${userinfo.email}`,  {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

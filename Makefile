@@ -22,7 +22,6 @@ clean down:
 fclean purge:
 	docker compose -f $(compose_file) down --volumes
 	docker system prune --all --force --volumes
-	docker volume prune -a -f
 
 re: down all
 

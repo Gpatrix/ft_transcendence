@@ -4,9 +4,7 @@ import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
-import crypto from 'crypto';
 import axios, { AxiosError } from 'axios';
-import FormData from 'form-data';
 
 
 const prisma = new PrismaClient();
@@ -53,7 +51,7 @@ server.addHook('preValidation'
       }
 })
 
-var activeConn: Map<string, WebSocket> = new Map();
+var activeConn: Map<number, WebSocket> = new Map();
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
@@ -86,6 +84,67 @@ async function is_blocked(by: number, target: number): Promise<string>
    }
 }
 
+interface t_channel
+{
+   id: number;
+   isGroup: boolean;
+   createdAt: Date;
+}
+
+async function GC_private_Channel(userId1: number, userId2: number): Promise<t_channel | undefined>
+{
+
+   try
+   {
+      const existingChannel = await prisma.channel.findFirst({
+         where: {
+           isGroup: false,
+           participants: {
+             every: {
+               OR: [
+                 { userId: userId1 },
+                 { userId: userId2 }
+               ]
+             }
+           }
+         },
+         include: {
+           participants: true,
+         }
+       });
+     
+       if (
+         existingChannel &&
+         existingChannel.participants.some(p => p.userId === userId1) &&
+         existingChannel.participants.some(p => p.userId === userId2)
+       ) {
+         return existingChannel as t_channel;
+       }
+       
+      const newChannel = await prisma.channel.create({
+      data: {
+         isGroup: false,
+         participants: {
+            create: [
+               { userId: userId1 },
+               { userId: userId2 }
+               ]
+            }
+      },
+      include: {
+         participants: true
+      }
+      });
+      
+      return newChannel as t_channel;
+   }
+   catch (error)
+   {
+      console.log(error);
+      return (undefined)
+   }
+ }
+
 interface userInfo
 {
    id: number;
@@ -106,7 +165,7 @@ async function get_user_info(username: string): Promise<userInfo | string>
    try
    {
       const response = await axios.post(
-         `http://user-service:3000/api/user/lookup/${username}`,
+         `http://user-service:3000/api/user/lookup/name/${username}`,
          {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
@@ -116,6 +175,7 @@ async function get_user_info(username: string): Promise<userInfo | string>
    {
       if (axios.isAxiosError(error))
       {
+         console.log(error.response?.data);
          if (error.response?.data.error !== undefined)
             return (error.response?.data.error);
       }
@@ -131,11 +191,11 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       return;
    }
 
-   let user: userInfo | string = await get_user_info(payload.target);
-   if (typeof user === "string")
-      return (socket.send(`{error: ${user}}`));
+   let target_user: userInfo | string = await get_user_info(payload.target);
+   if (typeof target_user === "string")
+      return (socket.send(`{"error": ${target_user}}`));
 
-   let isBlocked = await is_blocked(token.id, user.id);
+   let isBlocked = await is_blocked(token.id, target_user.id);
    if (isBlocked !== 'false')
    {
       if (isBlocked === 'true')
@@ -144,18 +204,22 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
          socket.send(isBlocked);
    }
 
+   const channel: t_channel | undefined = await GC_private_Channel(token.id, target_user.id);
+   if (typeof channel === undefined)
+      socket.send(`{"error": 0503}`);
+
    try
    {
-      await prisma.msg.create(
+      await prisma.message.create(
       {
          data: {
-            userID: token.id,
-            channel: channel_hash,
-            text: payload.msg
+            channelId: channel?.id,
+            senderId: token.id,
+            content: payload.msg
          }
       });
 
-      let target_socket = activeConn.get(payload.target);
+      let target_socket = activeConn.get(target_user.id);
       if (target_socket !== undefined)
       {
          target_socket.send(
@@ -171,23 +235,23 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
 
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   if (payload.skip === undefined || payload.take == undefined)
-      return (socket.send("{error: 400}"));
+   // if (payload.skip === undefined || payload.take == undefined)
+   //    return (socket.send("{error: 400}"));
 
-   if (payload.take < 1 || payload.take > 20)
-      return (socket.send("{error: 3010}"));
+   // if (payload.take < 1 || payload.take > 20)
+   //    return (socket.send("{error: 3010}"));
 
-   const channel_hash: string = getPrivChannelHash(token.name, payload.target);
+   // const channel_hash: string = getPrivChannelHash(token.name, payload.target);
 
-   const requested_msg = await prisma.msg.findMany(
-   {
-      where: {channel: channel_hash},
-      orderBy: {createdAt: 'desc'},
-      skip: payload.skip,
-      take: payload.take
-   });
+   // const requested_msg = await prisma.message.findMany(
+   // {
+   //    where: {channel: channel_hash},
+   //    orderBy: {createdAt: 'desc'},
+   //    skip: payload.skip,
+   //    take: payload.take
+   // });
 
-   socket.send(JSON.stringify(requested_msg));
+   // socket.send(JSON.stringify(requested_msg));
 }
 
 function data_handler(
@@ -222,22 +286,6 @@ function data_handler(
    {
       console.log(error);
    }
-}
-
-function getPrivChannelHash(username: string, target_name: string): string
-{
-   const new_username = username.padEnd(20, ' ');
-   const new_target_name = target_name.padEnd(20, ' ');
-
-   let combinedString: string;
-   if (username > target_name)
-      combinedString = new_username + new_target_name;
-   else
-      combinedString = new_target_name + new_username;
-
-   const hash = crypto.createHash('sha256');
-   hash.update(combinedString);
-   return (hash.digest('base64'));
 }
 
 async function chatws()
