@@ -150,7 +150,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                             reply.status(403).send({ error: "1012"});
                           break
                         default:
-                            reply.status(403).send({ error: error.message});
+                            reply.status(403).send({ error: "0500"});
                     }
                 }
             else
