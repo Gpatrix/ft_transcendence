@@ -61,17 +61,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         } catch (error) {
             return reply.status(500).send({ error: "0500" });
         }
-        else
-        {
-            user = await prisma.user.findUnique({
-                where: { 
-                    id: Number(value)
-                }
-            })
-        }
-        if (!user)
-            return reply.status(404).send({ error: "1006" });
-        reply.send(user);
     })
 
     interface isBlockedByParams 
@@ -245,6 +234,49 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             return reply.status(404).send({ error: "1006" });
         reply.send(user);
     })
+
+    interface getUserProfile
+    {
+        name: string
+    }
+
+    interface userProfile
+    {
+        name : number
+        lang : number
+    }
+
+    // now, search by id because of the google auth's duplicates
+    server.get<{ Params: getUserProfile }>('/api/user/get_profile/:id', async (request, reply) => {
+        const token = request.cookies['ft_transcendence_jw_token'];
+        if (!token) {
+            return (reply.status(401).send({ error: "0403" }));
+        }
+    
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            let name : string = request.params.name
+
+            if (name.length == 0) { // caller's profile
+                name = decoded.data.name
+                console.log(name)
+            }
+            const user: User | null = await prisma.user.findUnique({
+                where: { 
+                    id: 13
+                }
+            });
+    
+            if (!user) {
+                return (reply.status(404).send({ error: `User ${name} not found` }));
+            }
+    
+            return (reply.send(user));
+        } 
+        catch (error) {
+            return (reply.status(401).send({ error: "1016" }));
+        }
+    });
 
     interface postUserBody
     {
