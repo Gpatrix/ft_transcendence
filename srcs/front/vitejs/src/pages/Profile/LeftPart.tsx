@@ -1,5 +1,5 @@
 import TextAreaWithLabel from "../../components/TextAreaWithLabel"
-import { get_page_translation } from "../../translations/pages_reponses"
+import { gpt } from "../../translations/pages_reponses"
 import { ProfileDataType } from "./me/MyProfile"
 
 interface LeftPartProps {
@@ -15,7 +15,7 @@ export default function LeftPart({data}: LeftPartProps) {
                 <span className="text-yellow text-center">TOP #{data.rank}</span>
             </span>
             <span className="flex-col mt-[32px]">
-                <span className="text-yellow">{get_page_translation("bio")}:</span>
+                <span className="text-yellow">{gpt("bio")}:</span>
                 <p className="p-2 px-4 mt-[10px] min-h-[100px] whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow">
                     {data.bio ?? ""}
                 </p>

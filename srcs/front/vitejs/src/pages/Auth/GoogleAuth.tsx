@@ -1,5 +1,5 @@
 import { useCookies } from "react-cookie";
-import { get_page_translation } from "../../translations/pages_reponses";
+import { gpt } from "../../translations/pages_reponses";
 import Button from "../../components/Button";
 
 const GoogleAuth: React.FC = () => {
@@ -29,7 +29,7 @@ const GoogleAuth: React.FC = () => {
 
   return (
     <Button onClick={fetchOauth} type="google" className="flex items-center justify-left px-0">
-      {get_page_translation("login_google")}
+      {gpt("login_google")}
       <img className="h-[25px] ml-10" src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48-fcrop64=1,05000500ffffffff-rw" />
     </Button>
   );

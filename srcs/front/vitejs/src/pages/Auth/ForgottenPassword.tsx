@@ -5,7 +5,7 @@ import { useState } from "react";
 import check_email from "../../validators/email.tsx";
 import { useNavigate } from "react-router-dom";
 import LoginErrorMsg from "../../components/LoginErrorMsg.tsx";
-import { get_page_translation } from "../../translations/pages_reponses.tsx";
+import { gpt } from "../../translations/pages_reponses.tsx";
 import AuthError from "./ErrorClass.tsx";
 import { get_server_translation } from "../../translations/server_responses.tsx";
 
@@ -49,13 +49,13 @@ export default function ForgottenPassword() {
     return (
         <div  className="flex flex-col w-1/1 text-yellow">
             <span className="mb-5">
-                <h2 className="text-xl">{get_page_translation(formSent ? "give_code" : "reset")}</h2>
-                <p className="text-light-yellow text-xs mt-2">{get_page_translation(formSent ? "check_spam" : "description")}</p>
+                <h2 className="text-xl">{gpt(formSent ? "give_code" : "reset")}</h2>
+                <p className="text-light-yellow text-xs mt-2">{gpt(formSent ? "check_spam" : "description")}</p>
             </span>
             { !formSent &&  
             <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1" >
-                <InputWithLabel type={(error && !formSent) ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} label={get_page_translation("email")} placeholder={get_page_translation("email_placeholder")}/>
-                <Button className="mt-5" type="full">{get_page_translation(formSent ? "confirm" : "continue")}</Button>
+                <InputWithLabel type={(error && !formSent) ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} label={gpt("email")} placeholder={gpt("email_placeholder")}/>
+                <Button className="mt-5" type="full">{gpt(formSent ? "confirm" : "continue")}</Button>
                 {formSent &&  
                     <p>FORM SENT</p>    
                 }
