@@ -48,7 +48,6 @@ server.addHook('preValidation'
          done();
       }
       catch (error) {
-         console.log(error);
          return (reply.status(403).send({ error: "403" }));
       }
 })

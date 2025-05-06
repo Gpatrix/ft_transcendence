@@ -59,7 +59,6 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             })
             reply.status(201).send();
         } catch (error) {
-            console.log(error)
             return reply.status(500).send({ error: "0500" });
         }
     })
@@ -129,7 +128,6 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             });
             reply.status(201).send();
         } catch (error) {
-            console.log(error);
             return reply.status(500).send({ error: "0500" });
         }
     })
@@ -186,7 +184,6 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
 
             reply.status(201).send();
         } catch (error) {
-            console.log(error);
             return reply.status(500).send({ error: "0500" });
         }
     })
@@ -221,7 +218,6 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 return reply.status(404).send({ error: "0404" });
             reply.send(user.friends);
         } catch (error) {
-            console.log(error);
             return reply.status(500).send({ error: "0500" });
         }
     })
@@ -288,7 +284,6 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
 
             reply.status(200).send();
         } catch (error) {
-            console.log(error);
             return reply.status(500).send({ error: "0500" });
         }
     });
@@ -315,7 +310,6 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 return reply.status(404).send({ error: "0404" });
             reply.send(user.friends);
         } catch (error) {
-            console.log(error);
             return reply.status(500).send({ error: "0500" });
         }
     });
@@ -342,7 +336,6 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 return reply.status(404).send({ error: "0404" });
             reply.send(user.receivedFriendRequests);
         } catch (error) {
-            console.log(error);
             return reply.status(500).send({ error: "0500" });
         }
     });

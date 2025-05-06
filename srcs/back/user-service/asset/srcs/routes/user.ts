@@ -135,7 +135,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     password: password
                 }
             });
-            console.log(user);
             if (!user)
                 reply.status(404).send({ error: "1006" });
             reply.status(200).send({ message: "user_password_updated" });
@@ -358,14 +357,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const parts = request.parts()
         for await (const part of parts) {
             if (part.type === 'file') {
-                console.log(part)
                 file = part;
             } else {
                 fields[part.fieldname] = part.value; // Pas d'erreur ici maintenant
             }
-            console.log('iter')
         }
-        console.log('after')
         const bodyId = file?.fields?.id?.value;
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
@@ -453,7 +449,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             }
             else
             {
-                console.log(error)
                 reply.status(500).send({ error: "0500"});
             }
         }
