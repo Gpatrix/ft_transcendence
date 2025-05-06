@@ -5,6 +5,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  fetchWithAuth: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -12,6 +13,16 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+
+  const fetchWithAuth = async (input: RequestInfo, init?: RequestInit) => {
+    const response = await fetch(input, init);
+
+    if (response.status === 401) {
+      navigate("/login");
+      throw new Error("Unauthorized");
+    }
+    return (response);
+  };
 
   const login = async (email: string, password: string) => {
     const requestData = {
@@ -37,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth }}>
       {children}
     </AuthContext.Provider>
   );
