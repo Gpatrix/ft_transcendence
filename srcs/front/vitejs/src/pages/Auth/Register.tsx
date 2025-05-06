@@ -15,7 +15,7 @@ import { get_server_translation } from "../../translations/server_responses.tsx"
 import { useSearchParams } from "react-router";
 
 import GoogleAuth from "./GoogleAuth.tsx";
-import { stringify } from "postcss";
+import { useAuth } from "../../AuthProvider.tsx";
 
 export default function Register() {
     const [email, setEmail] = useState<string>("");
@@ -24,8 +24,10 @@ export default function Register() {
     const [passwordConfirm, setPasswordConfirm] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [errorfield, setErrorField] = useState<number>(0);
+    const {login} = useAuth()
 
     const [params] = useSearchParams()
+    const [setLogged] = useAuth()
 
     useEffect(()=> {
         if (params) {
@@ -60,7 +62,7 @@ export default function Register() {
             fetch('/api/auth/signup', requestData)
             .then(response => {
                 if (response.ok)
-                    navigate("/yeahloggin")
+                    login(email, password)
                 else
                 {
                     return (response.json().then(data => {
@@ -71,6 +73,7 @@ export default function Register() {
 
             setError("")
             setErrorField(-1) // all tests passed, restore red fields
+            setLogged
         }
         catch(e) {
             if (e instanceof AuthError) { // frontend error

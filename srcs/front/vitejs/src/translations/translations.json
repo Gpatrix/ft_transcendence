@@ -4,7 +4,7 @@
             "register" : "Auth",
             "forgot-password" : "Forgot_password",
             "forgot-password/new-password" : "Forgot_password",
-            "profile/test" : "Profile"
+            "profile/*" : "Profile"
     },
     "General":
     {
@@ -21,7 +21,8 @@
       "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
       "continue" : ["Continue", "Continuer", "Continuare"],
       "confirm": ["Confirm","Confirmer","Conferma"],
-      "bio": ["Bio","Bio","Bio"]
+      "bio": ["Bio","Bio","Bio"],
+      "bio_placeholder": ["Please write a short bio", "Veuillez écrire une brève biographie", "Scrivi una breve biografia"]
     },
     "Pages": {
         "Auth": {

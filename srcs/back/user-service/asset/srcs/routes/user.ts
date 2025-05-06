@@ -149,7 +149,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                             reply.status(403).send({ error: "1012"});
                           break
                         default:
-                            reply.status(403).send({ error: error.message});
+                            reply.status(403).send({ error: "0500"});
                     }
                 }
             else
@@ -262,12 +262,13 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 name: true,
                 bio: true,
                 profPicture: true,
-                rank: true
+                rank: true,
             };
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
-                selectFields.email = true
+                selectFields.email = true,
+                selectFields.lang = true
             }
 
             const data = await prisma.user.findUnique({
@@ -303,9 +304,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const email = request.body.email;
             const name = request.body.name;
             const password = request.body.password;
-            const profPicture = request.body.profPicture;
-            const isAdmin = request.body.isAdmin;
-            const lang = 0
+            const profPicture = request.body.profPicture ?? null;
+            const isAdmin = request.body.isAdmin ?? false;
+            const lang = "0"
             let user = await prisma.user.create({
                 data: {
                     email,
@@ -316,10 +317,12 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     lang
                 }
             })
-            if (!user)
+            if (!user) {
                 throw (new Error())
+            }
             reply.send(user);
         } catch (error) {
+            console.log(error)
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {

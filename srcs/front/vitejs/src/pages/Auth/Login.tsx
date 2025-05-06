@@ -7,6 +7,7 @@ import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { get_server_translation } from "../../translations/server_responses";
 import { get_page_translation } from "../../translations/pages_reponses";
 import GoogleAuth from "./GoogleAuth";
+import { useAuth } from "../../AuthProvider";
 
 export default function Login() {
     const [email, setEmail] = useState<string>("");
@@ -14,35 +15,18 @@ export default function Login() {
     const [error, setError] = useState<string>("");
 
     const navigate = useNavigate(); // redirect to home
+    const { login } = useAuth();
 
-    const handleSubmit = (event : React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            const requestData = {
-                method :  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(
-                {
-                    email,
-                    password,
-                }),
-            }
-            fetch('/api/auth/login', requestData)
-            .then(response => {
-                if (response.ok) {
-                    setError("")
-                    navigate("/yeahloggin")
-                }
-                else {
-                    return (response.json().then(data => {
-                        setError(get_server_translation(data.error))
-                    }))
-                }
-            })
-        }
-        catch(e) {
-            if (e instanceof Error) { // backend error
-                setError(get_page_translation("0500"))
+            await login(email, password);
+            setError("");
+        } catch (e) {
+            if (e instanceof Error) {
+                setError(get_server_translation(e.message));
+            } else {
+                setError(get_page_translation("0500"));
             }
         }
     }
