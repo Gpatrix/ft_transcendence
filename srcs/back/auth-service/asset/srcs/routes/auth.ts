@@ -6,7 +6,6 @@ import { Prisma } from "@prisma/client";
 
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
-
     interface signUpBody {
         email: string,
         name: string,
@@ -52,7 +51,12 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
             if (!token)
                 throw(new Error("cannot generate user token"));
-            return (res.cookie("ft_transcendence_jw_token", token).status(200).send({ response: "successfully signed in" }));
+            res.cookie("ft_transcendence_jw_token", token, {
+                path: "/",
+                httpOnly: true,
+                sameSite: "none",
+                secure: true
+              }).send({ response: "successfully logged in", need2fa: false });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
@@ -83,6 +87,8 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const email = request.body.email;
             const password = request.body.password;
+            if (!email || !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
+                return (reply.status(400).send({ error: "1007" }));
             const response = await fetch(`http://user-service:3000/api/user/lookup/${email}`,
             {
                 method: 'POST',
@@ -93,6 +99,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }),
             });
             const data = await response.json();
+            
             if (!response.ok)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
@@ -118,7 +125,12 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
                 if (!token)
                     throw (new Error("cannot generate user token"));
-                reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: true });
+                return (reply.cookie("ft_transcendence_jw_token", token, {
+                    path: "/",
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true
+                  }).send({ response: "successfully logged in", need2fa: true }));
             }
             else {
                 const token = await jwt.sign({
@@ -133,17 +145,16 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
                 if (!token)
                     throw (new Error("cannot generate user token"));
-                reply.cookie("ft_transcendence_jw_token", token, {
+                return (reply.cookie("ft_transcendence_jw_token", token, {
                     path: "/",
                     httpOnly: true,
                     sameSite: "none",
                     secure: true
-                  }).send({ response: "successfully logged in", need2fa: false });
+                  }).send({ response: "successfully logged in", need2fa: false }));
             }
         } catch (error) {
             reply.status(500).send({ error:"0500" });
         }
-
     })
 
     interface logoutParams {
@@ -161,6 +172,19 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         reply.clearCookie('ft_transcendence_jw_token', {}).send({ response: "logout_success" });
     })
 
+
+    type LookupUserError = {
+        error: number;
+      };
+    type LookupUserSuccess = {
+        id: number;
+        email: string;
+        name: string;
+        error?: never;
+      };
+    type LookupUserResponse = LookupUserError | LookupUserSuccess
+
+
     server.get('/api/auth/login/google/callback', async function (request, reply) {
         try {
             const { token } = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
@@ -170,33 +194,55 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
             if (!userinfo)
                 throw (Error("cannot_get_user_infos"));
-    
-            let user: User;
-            const response = await fetch(`http://user-service:3000/loopkup/${userinfo.email}`, {
+
+            const response = await fetch(`http://user-service:3000/api/user/lookup/${encodeURIComponent(userinfo.email)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    credential: process.env.API_CREDENTIAL
+                  credential: process.env.API_CREDENTIAL
                 })
             });
+            let user;
+            const lookupData = await response.json();
 
-            user = await response?.json();
-            if (!user) {
-                const response = await fetch(`http://user-service:3000/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: userinfo.email,
-                        profPicture: userinfo.picture,
-                        name: userinfo.name
-                    }),
-                });
-                const data = await response?.json();
-                if (!response.ok)
-                    return (reply.status(response.status).redirect("/register?oauth-error=1015"));
-                user = data;
+            if (response.ok && !('error' in lookupData)) {
+              user = lookupData;
             }
-    
+
+            else 
+            {
+                console.log(`User ${userinfo.name} not found, creating new user`);
+
+                const createResponse = await fetch(`http://user-service:3000/api/user/create`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    email: userinfo.email,
+                    profPicture: userinfo.picture,
+                    name: String(Date.now())
+                  }),
+                });
+                
+                if (!createResponse.ok) {
+                    console.log(userinfo.name)
+                    console.error('Failed to create user:', await createResponse.text());
+                    return reply.status(createResponse.status).redirect("/register?oauth-error=1015");
+                }
+                
+                user = await createResponse.json();
+                console.log('New user created:', user);
+              }
+            // console.log("JWT Payload:", {
+            //     data: {
+            //       id: user.id,
+            //       email: user.email,
+            //       name: user.name,
+            //       isAdmin: user.isAdmin,
+            //       twoFactorSecret: user.twoFactorSecret,
+            //       dfa: true
+            //     }
+            //   });
+            console.log(user)
             const jsonwebtoken = await jwt.sign({
                 data: {
                     id: user.id,
@@ -209,11 +255,16 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
     
             if (jsonwebtoken)
-                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken).redirect("/"));
+                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken, {
+                    path: "/",
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true
+                  }).redirect("/"));
             else
                 throw new Error("no token generated");
         } catch (error) {
-            console.log(error);
+            console.log(`ERROR: ${error}`)
             return (reply.redirect("/register?oauth-error=1015"));
         }
     });
