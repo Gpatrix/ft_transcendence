@@ -30,7 +30,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 res.status(200).send({ message: "qrcode_generated", data_url: data_url})
             });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "0500" });
         }
     });
 
@@ -58,9 +58,9 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             return res.status(userLookupResponse.status).send({ error: userLookupData.error})
         const user = userLookupData;
         if (!user)
-            return res.status(404).send({ error: "user_not_found" });
+            return res.status(404).send({ error: "1006" });
         if (!user.password)
-            return res.status(401).send({ error: "account_created_with_provider" });
+            return res.status(401).send({ error: "1014" });
 
         // compare the first temp token the user got for example '420420'
         const verified = speakeasy.totp.verify({ secret: user.twoFactorSecretTemp,
@@ -84,7 +84,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_enabled" })
         }
         else
-            return (res.status(401).send({ error: "invalid_code" }));
+            return (res.status(401).send({ error: "1017" }));
     });
 
     interface dfaSubmitBody {
@@ -95,9 +95,9 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
         const jsonWebToken= req.cookies['ft_transcendence_jw_token'];
         const decoded = jwt.verify(jsonWebToken, process.env.JWT_SECRET);
         if (!decoded || !decoded.data || !decoded.data.id)
-            return res.status(401).send({ error: "invalid_token" });
+            return res.status(401).send({ error: "1016" });
         if (decoded.data.dfa)
-            return res.status(403).send({ error: "already_logged_in" });
+            return res.status(403).send({ error: "1018" });
         const jsonWebTokenPayload = decoded.data;
         const { userToken } = req.body;
 
@@ -122,7 +122,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 return (res.cookie("ft_transcendence_jw_token", jsonwebtoken).send({ response: "successfully logged with 2fa" }));
         }
         else
-            return (res.status(401).send({ error: "invalid_code" }));
+            return (res.status(401).send({ error: "1017" }));
     });
 
     server.delete('/api/auth/2fa/delete', {}, async (req, res) => {
@@ -131,9 +131,9 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const tokenPayload = decoded.data;
             if (!tokenPayload || !tokenPayload.id)
-                return res.status(401).send({ error: "user_not_logged_in" });
+                return res.status(401).send({ error: 1019 });
             if (!tokenPayload.dfa)
-                return res.status(403).send({ error: "user_not_logged_in_with_2fa" });
+                return res.status(403).send({ error: "1020" });
             const response = await fetch(`http://user-service:3000/api/user/2fa/update/${tokenPayload.id}`,
             {
                 method: 'PUT',
@@ -149,7 +149,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 res.status(response.status).send(data);
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_disabled" });
         } catch (error) {
-            res.status(500).send({ error: "server_error" });
+            res.status(500).send({ error: "0500" });
         }
     });
 

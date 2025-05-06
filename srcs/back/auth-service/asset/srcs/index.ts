@@ -2,6 +2,7 @@ import fastify from 'fastify'
 const oauthPlugin = require('@fastify/oauth2')
 const cookiesPlugin = require('@fastify/cookie');
 import { OAuth2Namespace } from '@fastify/oauth2';
+import { FastifyRequest, FastifyReply } from 'fastify';
 
 const server = fastify();
 
@@ -35,6 +36,19 @@ server.register(oauthPlugin, {
   callbackUri: 'https://localhost/api/auth/login/google/callback',
   discovery: {
     issuer: 'https://accounts.google.com'
+  },
+
+  generateStateFunction: (request: FastifyRequest, reply: FastifyReply) => {
+    // @ts-ignore
+    return request.query.state
+  },
+  checkStateFunction: (request: FastifyRequest, callback: any) => {
+      // @ts-ignore
+      if (request.query.state) {
+          callback()
+          return;
+      }
+      callback(new Error('Invalid state'))
   }
 })
 

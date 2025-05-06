@@ -3,7 +3,7 @@ import { ErrorTypes } from "../pages/Auth/ErrorClass";
 
 export function check_password(password : string) {
     if (!password || password.length < 8)
-        throw new AuthError("Your password must contain at least 8 characters.", ErrorTypes.PASS)
+        throw new AuthError("1002", ErrorTypes.PASS)
     let hasUpperCase : boolean = false;
     let hasLowerCase : boolean = false;
     let hasDigit : boolean = false;
@@ -19,15 +19,11 @@ export function check_password(password : string) {
             hasDigit = true;
         }
     }
-    if (!hasUpperCase)
-        throw new AuthError("Your password must contain uppercases.", ErrorTypes.PASS)
-    if (!hasLowerCase)
-        throw new AuthError("Your password must contain lowercases.", ErrorTypes.PASS)
-    if (!hasDigit)
-        throw new AuthError("Your password must contain digits.", ErrorTypes.PASS)
+    if (!hasUpperCase || !hasLowerCase || !hasDigit)
+        throw new AuthError("1001", ErrorTypes.PASS)
 }
 
 export function confirm_password(pass1:string, pass2:string) {
     if (pass1 != pass2)
-        throw new AuthError("Your passwords doesn't match", ErrorTypes.PASS_MATCH)
+        throw new AuthError("1010", ErrorTypes.PASS_MATCH)
 }

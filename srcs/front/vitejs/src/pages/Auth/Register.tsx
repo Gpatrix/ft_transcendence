@@ -1,7 +1,7 @@
 import { Link } from "react-router"
 import InputWithLabel from "../../components/InputWithLabel"
 import Button from "../../components/Button"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {check_password, confirm_password} from "../../validators/password.tsx";
 import check_email from "../../validators/email.tsx";
 import check_username from "../../validators/username.tsx";
@@ -11,6 +11,11 @@ import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { ErrorTypes} from "./ErrorClass"
 import AuthError from "./ErrorClass";
 import { useNavigate } from "react-router-dom";
+import { get_server_translation } from "../../translations/server_responses.tsx";
+import { useSearchParams } from "react-router";
+
+import GoogleAuth from "./GoogleAuth.tsx";
+import { stringify } from "postcss";
 
 export default function Register() {
     const [email, setEmail] = useState<string>("");
@@ -19,6 +24,18 @@ export default function Register() {
     const [passwordConfirm, setPasswordConfirm] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [errorfield, setErrorField] = useState<number>(0);
+
+    const [params] = useSearchParams()
+
+    useEffect(()=> {
+        if (params) {
+            const authError = params.get("oauth-error")
+            if (authError)
+                setError(get_server_translation(authError))
+        }
+    }, [params])
+
+    // useEffect
 
     const navigate = useNavigate(); // redirect to home
 
@@ -40,14 +57,14 @@ export default function Register() {
                     email
                 })
             }
-            fetch('/api/auth/signin', requestData)
+            fetch('/api/auth/signup', requestData)
             .then(response => {
                 if (response.ok)
                     navigate("/yeahloggin")
                 else
                 {
                     return (response.json().then(data => {
-                        setError(data.error)
+                        setError(get_server_translation(data.error))
                     }))
                 }
             })
@@ -57,42 +74,45 @@ export default function Register() {
         }
         catch(e) {
             if (e instanceof AuthError) { // frontend error
-                setError(e.message)
+                setError(get_server_translation(e.message))
                 setErrorField(e.code)
             }
-            if (e instanceof Error) { // backend error
-                setError(e.message)
+            else if (e instanceof Error) { // backend error
+                setError(get_server_translation("0500"))
             }
         }
     }
 
     return (
-        <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col max-w-[80%] min-w-[60%]  px-5">
-            <InputWithLabel type={errorfield == ErrorTypes.USERNAME ? "error" : "ok"} onChange={(e)=>setName(e.target.value)} 
-            placeholder={get_page_translation("username_placeholder")} label={get_page_translation("username")} />
+        <span className="flex flex-col w-1/1">
+            <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1">
+                <InputWithLabel type={errorfield == ErrorTypes.USERNAME ? "error" : "ok"} onChange={(e)=>setName(e.target.value)} 
+                placeholder={get_page_translation("username_placeholder")} label={get_page_translation("username")} />
 
-            <InputWithLabel type={errorfield == ErrorTypes.MAIL ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)}
-            placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
+                <InputWithLabel type={errorfield == ErrorTypes.MAIL ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)}
+                placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
 
-            <InputWithLabel type={errorfield == ErrorTypes.PASS ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} 
-            placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
+                <InputWithLabel type={errorfield == ErrorTypes.PASS ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} 
+                placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
 
-            <InputWithLabel type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} hidechars={true}
-            placeholder={get_page_translation("password_confirm_placeholder")} label={get_page_translation("password_confirm")} />
+                <InputWithLabel type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} hidechars={true}
+                placeholder={get_page_translation("password_confirm_placeholder")} label={get_page_translation("password_confirm")} />
 
-            <Link className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
+                <Link to="/forgot-password"  className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
 
-            { error && 
-                <LoginErrorMsg>{error}</LoginErrorMsg>
-            }
+                { error && 
+                    <LoginErrorMsg>{error}</LoginErrorMsg>
+                }
 
-            <Button type="full" className="mt-5">{get_page_translation("register")}</Button>
-            <span className="flex text-xs text-yellow items-center my-[10px]">
-                <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
-                <span>{get_page_translation("or")}</span>
-                <span className="w-full h-[1px] ml-[12px] bg-yellow"/>
-            </span>
+                <Button type="full" className="mt-5">{get_page_translation("register")}</Button>
+                <span className="flex text-xs text-yellow items-center my-[10px]">
+                    <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
+                    <span>{get_page_translation("or")}</span>
+                    <span className="w-full h-[1px] ml-[12px] bg-yellow"/>
+                </span>
+            </form>
+            <GoogleAuth />
             <Link to="/login" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{get_page_translation("login")}</Link>
-        </form>
+        </span>
     )
 }

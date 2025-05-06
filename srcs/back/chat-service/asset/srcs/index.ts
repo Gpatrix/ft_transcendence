@@ -184,7 +184,7 @@ async function get_user_info(username: string): Promise<userInfo | string>
    try
    {
       const response = await axios.post(
-         `http://user-service:3000/api/user/lookup/name/${username}`,
+         `http://user-service:3000/api/user/lookup/${username}`,
          {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )

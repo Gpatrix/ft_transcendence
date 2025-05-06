@@ -6,21 +6,20 @@ import { Prisma } from "@prisma/client";
 
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
-
-    interface signupBody {
+    interface signUpBody {
         email: string,
         name: string,
         password: string,
     }
     
-    server.post<{ Body: signupBody }>('/api/auth/signup', { preHandler:[validatePassword] }, async (req, res) => {
+    server.post<{ Body: signUpBody }>('/api/auth/signup', { preHandler:[validatePassword] }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
-            return (res.status(400).send({ error: "no_email" }));
+            return (res.status(400).send({ error: "1007" }));
         if (!name)
-            return (res.status(400).send({ error: "no_name" }));
+            return (res.status(400).send({ error: "1008" }));
         if (!password)
-            return (res.status(400).send({ error: "no_password" }));
+            return (res.status(400).send({ error: "1009" }));
         try {
             const hashedPassword = await bcrypt.hash(password, 12);
             const response = await fetch(`http://user-service:3000/api/user/create`,
@@ -52,25 +51,30 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
             if (!token)
                 throw(new Error("cannot generate user token"));
-            return (res.cookie("ft_transcendence_jw_token", token).status(200).send({ response: "successfully signed in" }));
+            res.cookie("ft_transcendence_jw_token", token, {
+                path: "/",
+                httpOnly: true,
+                sameSite: "none",
+                secure: true
+              }).send({ response: "successfully logged in", need2fa: false });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
                     switch (error.code) {
                         case 'P2002':
-                            res.status(401).send({ error: "this name is already used"});
+                            res.status(401).send({ error: "1003"});
                             break
                         case 'P2003':
-                            res.status(401).send({ error: "missing_arg"});
+                            res.status(401).send({ error: "1011"});
                           break
                         case 'P2000':
-                            res.status(401).send({ error: "too_long_arg"});
+                            res.status(401).send({ error: "1012"});
                           break
                         default:
-                            res.status(401).send({ error: error.message});
+                            res.status(401).send({ error: "0500"});
                     }
             }
-            return (res.status(500).send({ error: "server_error"}));
+            return (res.status(500).send({ error: "0500"}));
         }
     });
 
@@ -83,6 +87,8 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const email = request.body.email;
             const password = request.body.password;
+            if (!email || !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
+                return (reply.status(400).send({ error: "1007" }));
             const response = await fetch(`http://user-service:3000/api/user/lookup/${email}`,
             {
                 method: 'POST',
@@ -93,18 +99,19 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }),
             });
             const data = await response.json();
+            
             if (!response.ok)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
             if (!user)
-                return reply.status(404).send({ error: "user_not_found" });
+                return reply.status(404).send({ error: "1006" });
             if (!user.password)
-                return reply.status(401).send({ error: "account_created_with_provider" });
+                return reply.status(401).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
             if (!isCorrect)
-                return reply.status(401).send({ error: "invalid_password "});
+                return reply.status(401).send({ error: "1006"});
             if (user.isBanned)
-                return reply.status(403).send({ error: "user_banned" });
+                return reply.status(403).send({ error: "1013" });
             if (user.isTwoFactorEnabled) {
                 const token = await jwt.sign({
                     data: {
@@ -118,7 +125,12 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
                 if (!token)
                     throw (new Error("cannot generate user token"));
-                reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: true });
+                return (reply.cookie("ft_transcendence_jw_token", token, {
+                    path: "/",
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true
+                  }).send({ response: "successfully logged in", need2fa: true }));
             }
             else {
                 const token = await jwt.sign({
@@ -133,12 +145,16 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
                 if (!token)
                     throw (new Error("cannot generate user token"));
-                reply.cookie("ft_transcendence_jw_token", token).send({ response: "successfully logged in", need2fa: false });
+                return (reply.cookie("ft_transcendence_jw_token", token, {
+                    path: "/",
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true
+                  }).send({ response: "successfully logged in", need2fa: false }));
             }
         } catch (error) {
-            reply.status(500).send({ error:"server_error" });
+            reply.status(500).send({ error:"0500" });
         }
-
     })
 
     interface logoutParams {
@@ -148,72 +164,111 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     server.delete<{ Body: logoutParams }>('/api/auth/logout', async (request, reply) => {
         const token = request.body.token;
         if (!token)
-            return (reply.status(401).send({ error: "no_token_provided" }));
+            return (reply.status(401).send({ error: "1016" }));
         const decoded = verify(token, process.env.JWT_SECRET);
         const id = decoded.data?.id
         if (!id)
-          return (reply.status(401).send({ error: "invalid_token_provided" }));
+          return (reply.status(401).send({ error: "1016" }));
         reply.clearCookie('ft_transcendence_jw_token', {}).send({ response: "logout_success" });
     })
+
+
+    type LookupUserError = {
+        error: number;
+      };
+    type LookupUserSuccess = {
+        id: number;
+        email: string;
+        name: string;
+        error?: never;
+      };
+    type LookupUserResponse = LookupUserError | LookupUserSuccess
+
 
     server.get('/api/auth/login/google/callback', async function (request, reply) {
         try {
             const { token } = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
             if (!token)
-                throw (Error ("no_google_token_generated"));
+                throw (Error("no_google_token_generated"));
+    
             const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
             if (!userinfo)
-                throw (Error ("cannot_get_user_infos"));
-            let user: User;
-            const response = await fetch(`http://user-service:3000/lookup/mail/${userinfo.email}`,  {
+                throw (Error("cannot_get_user_infos"));
+
+            const response = await fetch(`http://user-service:3000/api/user/lookup/mail/${encodeURIComponent(userinfo.email)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    credential: process.env.API_CREDENTIAL
+                  credential: process.env.API_CREDENTIAL
                 })
-                });
-            user = await response?.json();
-            if (!user)
+            });
+            let user;
+            const lookupData = await response.json();
+
+            if (response.ok && !('error' in lookupData)) {
+              user = lookupData;
+            }
+
+            else 
             {
-                const response = await fetch(`http://user-service:3000/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: userinfo.email,
-                        profPicture: userinfo.picture,
-                        name: userinfo.name
-                    }),
+                console.log(`User ${userinfo.name} not found, creating new user`);
+
+                const createResponse = await fetch(`http://user-service:3000/api/user/create`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    email: userinfo.email,
+                    profPicture: userinfo.picture,
+                    name: String(Date.now())
+                  }),
                 });
-                const data = await response?.json();
-                if (!response.ok)
-                    return (reply.status(response.status).send({ error: data.error }));
-                user = data;
-            }
+                
+                if (!createResponse.ok) {
+                    console.log(userinfo.name)
+                    console.error('Failed to create user:', await createResponse.text());
+                    return reply.status(createResponse.status).redirect("/register?oauth-error=1015");
+                }
+                
+                user = await createResponse.json();
+                console.log('New user created:', user);
+              }
+            // console.log("JWT Payload:", {
+            //     data: {
+            //       id: user.id,
+            //       email: user.email,
+            //       name: user.name,
+            //       isAdmin: user.isAdmin,
+            //       twoFactorSecret: user.twoFactorSecret,
+            //       dfa: true
+            //     }
+            //   });
+            console.log(user)
             const jsonwebtoken = await jwt.sign({
-            data: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                isAdmin: user.isAdmin,
-                twoFactorSecret: user.twoFactorSecret,
-                dfa: true
-            }
+                data: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    isAdmin: user.isAdmin,
+                    twoFactorSecret: user.twoFactorSecret,
+                    dfa: true
+                }
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+    
             if (jsonwebtoken)
-                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken).send({ response: "successfully logged with google" }));
+                return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken, {
+                    path: "/",
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true
+                  }).redirect("/"));
             else
                 throw new Error("no token generated");
         } catch (error) {
-            reply.status(500).send({ error: "server_error" })
+            console.log(`ERROR: ${error}`)
+            return (reply.redirect("/register?oauth-error=1015"));
         }
-        
-        
-        // if later need to refresh the token this can be used
-        // const { token: newToken } = await this.getNewAccessTokenUsingRefreshToken(token)
-    
-    })
-      
-    done()
+    });
+    done();    
 }
 
 module.exports = authRoutes;

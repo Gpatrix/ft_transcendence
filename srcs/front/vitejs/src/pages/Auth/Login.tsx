@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { get_server_translation } from "../../translations/server_responses";
 import { get_page_translation } from "../../translations/pages_reponses";
-
+import GoogleAuth from "./GoogleAuth";
 
 export default function Login() {
     const [email, setEmail] = useState<string>("");
@@ -16,7 +16,6 @@ export default function Login() {
     const navigate = useNavigate(); // redirect to home
 
     const handleSubmit = (event : React.FormEvent<HTMLFormElement>) => {
-        get_server_translation("1001")
         event.preventDefault();
         try {
             const requestData = {
@@ -26,7 +25,7 @@ export default function Login() {
                 {
                     email,
                     password,
-                })
+                }),
             }
             fetch('/api/auth/login', requestData)
             .then(response => {
@@ -36,39 +35,40 @@ export default function Login() {
                 }
                 else {
                     return (response.json().then(data => {
-                        setError(data.error)
+                        setError(get_server_translation(data.error))
                     }))
                 }
             })
         }
         catch(e) {
             if (e instanceof Error) { // backend error
-                setError("")
+                setError(get_page_translation("0500"))
             }
         }
     }
 
     return (
-        <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col  max-w-[100%] min-w-[60%] px-5">
-            <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
-            <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
-            <Link className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
-            
-            { error && 
-                <LoginErrorMsg>{error}</LoginErrorMsg>
-            }
+        <span className="flex flex-col w-1/1">
+            <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1">
+                <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
+                <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
+                <Link to="/forgot-password" className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
 
-            <Button type="full" className="mt-5">{get_page_translation("connexion")}</Button>
+                { error && 
+                    <LoginErrorMsg>{error}</LoginErrorMsg>
+                }
 
-            <span className="flex text-xs text-yellow items-center my-[10px]">
-                <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
-                <span>{get_page_translation("or")}</span>
-                <span className="w-full h-[1px] ml-[12px] bg-yellow"/>
-            </span>
+                <Button type="full" className="mt-5">{get_page_translation("connexion")}</Button>
 
+                <span className="flex text-xs text-yellow items-center my-[10px]">
+                    <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
+                    <span>{get_page_translation("or")}</span>
+                    <span className="w-full h-[1px] ml-[12px] bg-yellow"/>
+                </span>
+                </form>
+            <GoogleAuth />
             <Link to="/register" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{get_page_translation("register")}</Link>
+        </span>
 
-
-        </form>
     )
 }
