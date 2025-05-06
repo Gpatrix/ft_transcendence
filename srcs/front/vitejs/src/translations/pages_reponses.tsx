@@ -1,23 +1,30 @@
 import { useLocation } from 'react-router';
 import translations from './translations.json';
 
-export function get_page_translation(str: string) : string {
-    const location : string  = useLocation().pathname.slice(1)
-
-    let normalizedLocation = location.endsWith('/') ? location.slice(0, -1) : location;
+export function get_page_translation(str: string): string {
+    const location: string = useLocation().pathname.slice(1);
+    const normalizedLocation = location.endsWith('/') ? location.slice(0, -1) : location;
     let pageName = (translations.Routes as Record<string, string>)[normalizedLocation];
 
-    if (pageName && pageName.length > 0 && pageName.slice(-1) == '/')
-        pageName = pageName.slice(0, -1)
-    if (!pageName) 
-        return (`No route match for "${location}"`);
+    if (pageName && pageName.length > 0 && pageName.endsWith('/'))
+        pageName = pageName.slice(0, -1);
 
-    const page = (translations.Pages as Record<string, any>)[pageName];
-    if (!page) 
-        return (`No page named "${pageName}"`);
+    if (!pageName)
+        return `No route match for "${location}"`;
 
-    let language : number | null = Number(localStorage.getItem("LANGUAGE"))
-    if (language != null)
-        return (page[str][language])
-    return (page[str][0])
+    const pages = translations.Pages as Record<string, Record<string, string[]>>;
+    const general = translations.General as Record<string, string[]>;
+
+    const page = pages[pageName];
+
+    const language = Number(localStorage.getItem("LANGUAGE"));
+    const langIndex = [0, 1, 2].includes(language) ? language : 0;
+
+    if (page && page[str])
+        return page[str][langIndex];
+
+    if (general[str])
+        return general[str][langIndex];
+
+    return `No translation found for "${str}" in page "${pageName}" or general`;
 }

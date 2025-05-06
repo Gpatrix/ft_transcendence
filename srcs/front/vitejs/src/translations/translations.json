@@ -3,18 +3,28 @@
             "login" : "Auth",
             "register" : "Auth",
             "forgot-password" : "Forgot_password",
-            "forgot-password/new-password" : "Forgot_password"
+            "forgot-password/new-password" : "Forgot_password",
+            "profile/test" : "Profile"
+    },
+    "General":
+    {
+      "username": ["Username", "Nom d'utilisateur", "Nome utente"],
+      "username_placeholder": ["Username", "Nom d'utilisateur", "Nome utente"],
+      "password": ["Password", "Mot de passe", "Password"],
+      "actual_password": ["Actual password", "Mot de passe actuel", "Actual Password"],
+      "new_password": ["New password", "Nouveau mot de passe", "Nuova password"],
+      "new_password_placeholder": [  "Enter a new password",   "Entrez un nouveau mot de passe",   "Inserisci una nuova password"],
+      "password_placeholder": ["Please enter your password", "Entrez votre mot de passe", "Inserisci la tua password"],
+      "password_confirm": ["Password confirmation", "Confirmation du mot de passe", "Conferma la password"],
+      "password_confirm_placeholder": ["Please confirm your password", "Veuillez confirmer votre mot de passe", "Conferma la tua password"],
+      "email": ["Email", "Adresse mail", "Email"],
+      "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
+      "continue" : ["Continue", "Continuer", "Continuare"],
+      "confirm": ["Confirm","Confirmer","Conferma"],
+      "bio": ["Bio","Bio","Bio"]
     },
     "Pages": {
         "Auth": {
-            "username": ["Username", "Nom d'utilisateur", "Nome utente"],
-            "username_placeholder": ["Username", "Nom d'utilisateur", "Nome utente"],
-            "password": ["Password", "Mot de passe", "Password"],
-            "password_placeholder": ["Please enter your password", "Entrez votre mot de passe", "Inserisci la tua password"],
-            "password_confirm": ["Password confirmation", "Confirmation du mot de passe", "Conferma la password"],
-            "password_confirm_placeholder": ["Please confirm your password", "Veuillez confirmer votre mot de passe", "Conferma la tua password"],
-            "email": ["Email", "Adresse mail", "Email"],
-            "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
             "forgotten": ["Forgotten password ?", "Mot de passe oublié ?", "Password dimenticata?"],
             "connexion": ["Log in", "Connexion", "Accedi"],
             "or": ["OR", "OU", "O"],
@@ -24,10 +34,6 @@
         },
         "Forgot_password":
         {
-            "email": ["Email", "Adresse mail", "Email"],
-            "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
-            "continue" : ["Continue", "Continuer", "Continuare"],
-            "confirm": ["Confirm","Confirmer","Conferma"],
             "reset": [
             "Password reset",
             "Réinitialisation du mot de passe",
@@ -47,11 +53,7 @@
               "If you didn’t receive the email, please check your spam folder.",
               "Si vous n’avez pas reçu l’e-mail, veuillez vérifier votre dossier spam.",
               "Se non hai ricevuto l’e-mail, controlla la cartella spam."
-            ],
-            "password": ["Password", "Mot de passe", "Password"],
-            "password_placeholder": ["Please enter your password", "Entrez votre mot de passe", "Inserisci la tua password"],
-            "password_confirm": ["Password confirmation", "Confirmation du mot de passe", "Conferma la password"],
-            "password_confirm_placeholder": ["Please confirm your password", "Veuillez confirmer votre mot de passe", "Conferma la tua password"]
+            ]
         }
     }
 }

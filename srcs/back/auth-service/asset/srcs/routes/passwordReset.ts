@@ -30,7 +30,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 return res.status(userLookupResponse.status).send({ error: userLookupData.error})
             const user = userLookupData;
             if (!user)
-                res.status(200).send({ message: "mail sent" });
+                return res.status(404).send({ error: "1006" });
             const passwordResetToken = await jwt.sign({
             data: {
                 email

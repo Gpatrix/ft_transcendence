@@ -56,12 +56,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 })
             }
             if (!user)
-                return reply.status(404).send({ error: "user_not_found" });
+                return reply.status(404).send({ error: "1006" });
             reply.send(user);
         } catch (error) {
-            return reply.status(500).send({ error: "server_error" });
+            return reply.status(500).send({ error: "0500" });
         }
- 
     })
 
     interface isBlockedByParams 
@@ -211,7 +210,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         email: string
     }
       
-    server.get<{ Params: getUserParams }>('/api/user/search/:email', { preHandler:[isAdmin] }, async (request, reply) => {
+    server.get<{ Params: getUserParams }>('/api/user/search/:email', {  }, async (request, reply) => {
         const value = request.params.email;
         const isEmail = value.includes('@');
         let user: User | null = null;
@@ -235,7 +234,56 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         reply.send(user);
     })
 
-    
+    interface getUserProfile
+    {
+        id: string
+    }
+
+    interface otherProfile
+    {
+        name : string
+        lang : number
+        bio  : string
+        mail : string
+    }
+
+    // now, search by id because of the google auth's duplicates
+    server.get<{ Params: getUserProfile }>('/api/user/get_profile/:id', async (request, reply) => {
+        const token = request.cookies['ft_transcendence_jw_token'];
+        if (!token) {
+            return (reply.status(401).send({ error: "0403" }));
+        }
+
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const callerId = decoded.data.id
+
+            const selectFields: any = {
+                name: true,
+                bio: true,
+                profPicture: true,
+                rank: true
+            };
+            let id : string = request.params.id;
+            if (id.length == 0) {
+                id = callerId;
+                selectFields.email = true
+            }
+
+            const data = await prisma.user.findUnique({
+                where: { id: Number(id) },
+                select: selectFields
+            });
+            if (!data)
+                return (reply.status(404).send({ error: "0404" }));
+            return (reply.status(200).send({data}));
+        }
+
+        catch (error) {
+            console.log(error)
+            return   (reply.status(401).send({ error: "1016" }));
+        }
+    });
 
     interface postUserBody
     {
@@ -257,13 +305,15 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const password = request.body.password;
             const profPicture = request.body.profPicture;
             const isAdmin = request.body.isAdmin;
+            const lang = 0
             let user = await prisma.user.create({
                 data: {
                     email,
                     name,
                     password,
                     profPicture,
-                    isAdmin
+                    isAdmin,
+                    lang
                 }
             })
             if (!user)
@@ -394,7 +444,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                         reply.status(403).send({ error: "1012"});
                       break
                     default:
-                        reply.status(403).send({ error: error.message});
+                        reply.status(403).send({ error: "0500"});
                 }
             }
             else

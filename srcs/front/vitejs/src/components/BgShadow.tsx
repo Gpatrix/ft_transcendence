@@ -8,7 +8,7 @@ type BgShadowProps = {
 
 export default function BgShadow({children , className} : BgShadowProps) {
     return (
-        <div className={clsx('rounded-[5vw]  shadow-purple ', className)}>
+        <div className={clsx('rounded-[5vw]  shadow-yellow', className)}>
             {children}
         </div>
     );
