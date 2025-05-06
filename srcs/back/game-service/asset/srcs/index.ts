@@ -23,7 +23,6 @@ server.addHook('preValidation'
         done();
      }
      catch (error) {
-        console.log(error);
         return (reply.status(401).send({ error: "invalid_token_provided" }));
      }
 })

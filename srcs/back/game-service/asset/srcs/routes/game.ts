@@ -53,7 +53,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             if (!tournament)
-                throw (new Error('Cannot find tournament in DB'));
+                throw (new Error('Cannot find tournament in DB')); // TODO: close ws with error code
 
             const game = await prisma.game.findFirst({
                 where: {
@@ -65,16 +65,17 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             if (!game)
-                throw (new Error('Cannot find game in DB'));
+                throw (new Error('Cannot find game in DB')); // TODO: close ws with error code
 
             const player = await prisma.player.findFirst({
                 where: {
-                    userId: tokenPayload.id
+                    userId: tokenPayload.id,
+                    gameId: gameId,
                 }
             })
 
             if (!player)
-                throw (new Error('Cannot find player in DB'));
+                throw (new Error('Cannot find player in DB')); // TODO: close ws with error code
 
             socket.on('message', (RawData: WebSocket.RawData) => {
                 const object = JSON.parse(RawData.toString('utf8'));
@@ -89,10 +90,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                         break;
                 
                     default:
-                        console.log('WS invalid action');
+                        // console.log('WS invalid action');
                         break;
                 }
-                console.log(JSON.parse(RawData.toString('utf8')));
             })
 
             socket.on('close', () => {
@@ -102,16 +102,15 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 pongGame.onPlayerLeave(player.id);
             });
 
-            const pongGame = GamesManager.findGame(gameId);
-            if (!pongGame)
-                return ;
+            const pongGame: PongGame | undefined = GamesManager.findGame(gameId);
+            if (pongGame == undefined)
+                return (socket.close(4002));
 
-            pongGame.onPlayerJoin(player.id);
+            pongGame.onPlayerJoin(player.id, socket);
         }
         catch (error)
         {
-            console.log(error);
-            socket.close();
+            socket.close(4001);
         }
     });
 
@@ -126,17 +125,17 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 credential: process.env.API_CREDENTIAL
             });
             if (res.status != 200)
-                return (socket.close(res.status, res.data.error || 'server_error' ))
+                return (socket.close(4001))
 
             if (!(res.data?.id))
-                return (socket.close('user_not_found', 404));
+                return (socket.close(4003));
 
             if (activeConn.get(tokenPayload.id))
-                socket.close('user_not_registered_in_this_game', 403);
+                socket.close(4002,);
 
-            socket.on('message', (RawData: WebSocket.RawData) => {
-                console.log(RawData.message);
-            })
+            // socket.on('message', (RawData: WebSocket.RawData) => {
+            //     console.log(RawData.message);
+            // })
     
             socket.on('close', () => {
                 activeConn.delete(tokenPayload.id);
@@ -156,8 +155,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         }
         catch (error)
         {
-            console.log(error)
-            socket.close(500)
+            socket.close(4001)
         }
     });
 

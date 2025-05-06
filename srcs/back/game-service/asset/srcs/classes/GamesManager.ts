@@ -6,17 +6,17 @@ class GamesManager {
     static games: Map<number, PongGame> = new Map<number, PongGame>();
 
     static async waitAndStart(game: PongGame) {
-        await new Promise(resolve => setTimeout(resolve, 10 * 2));
+        await new Promise(resolve => setTimeout(resolve, 10 * 1000)); // Wait for other players to join
         try {
             game.start();
             console.log("GamesManger: Game successfully launched");
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             throw (new Error('GamesManger: PongGame cannot be started'));
         }
     }
 
-    static async findGame(id: number): PongGame {
+    static findGame(id: number): PongGame | undefined {
         const game = GamesManager.games.get(id);
         return (game);
     }
@@ -45,13 +45,17 @@ class GamesManager {
                     }
                 },
                 include: {
-                    games: true
+                    games: {
+                        include: {
+                            players: true
+                        }
+                    }
                 },
             })
             if (!tournament)
                 throw('GamesManager: cannot insert game in DB');
-            const playerIds: Array<number> = matchMakingUsers.map(user => {
-                return (user.id);
+            const playerIds = tournament.games[0].players.map((player: any) => {
+                return (player.id);
             });
             const newGame = new PongGame(playerIds, tournament.games[0].id);
             GamesManager.waitAndStart(newGame);

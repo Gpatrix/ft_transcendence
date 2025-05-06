@@ -36,7 +36,7 @@ class MatchMakingMap extends Array<MatchMakingUser>
         this.push(user);
         if (this.length == this.playerCount)
         {
-            await new Promise(resolve => setTimeout(resolve, 10 * 1000));
+            await new Promise(resolve => setTimeout(resolve, 1 * 1000)); // Wait for other players to join
             return (this.extractUsers());
         }
         else if (this.length > this.playerCount)

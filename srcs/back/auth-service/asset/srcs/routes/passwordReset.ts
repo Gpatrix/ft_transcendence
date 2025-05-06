@@ -39,7 +39,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
             const link : string = `https://localhost/forgot-password/new-password?token=${passwordResetToken}`
             if (userLookupData)
                 await sendMail(email, 'Password reset', `You asked for a password reset, here is your link ${link}\nIt will expire at ${expireIn} minutes`);
-            console.log(`Retrieve-link : ${link}`)
+            // console.log(`Retrieve-link : ${link}`)
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
             res.status(500).send({ error: "0500" });
