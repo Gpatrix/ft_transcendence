@@ -24,7 +24,6 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
             pump(file.file, storedFile);
             res.status(200).send({ fileName: fileName });
         } catch (error) {
-            console.log(error)
             res.status(500).send({ error: "0500" });
         }
     });
@@ -46,7 +45,6 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
             fs.unlink(`../uploads/${fileName}`, err => {});
             res.status(200).send({ message: 'file_successfully_deleted' });
         } catch (error) {
-            console.log(error)
             res.status(500).send({ error: "0500" });
         }
     });
