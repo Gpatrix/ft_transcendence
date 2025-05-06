@@ -4,11 +4,16 @@ import translations from './translations.json';
 export function get_page_translation(str: string): string {
     const location: string = useLocation().pathname.slice(1);
     const normalizedLocation = location.endsWith('/') ? location.slice(0, -1) : location;
+
     let pageName = (translations.Routes as Record<string, string>)[normalizedLocation];
 
     if (pageName && pageName.length > 0 && pageName.endsWith('/'))
         pageName = pageName.slice(0, -1);
 
+    if (normalizedLocation.startsWith('profile')) {
+        pageName = 'Profile';
+    }
+    
     if (!pageName)
         return `No route match for "${location}"`;
 

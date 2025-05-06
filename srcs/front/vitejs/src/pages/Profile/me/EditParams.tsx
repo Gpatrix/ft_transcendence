@@ -7,6 +7,8 @@ import LanguageSelect from "./LanguageSelect";
 import { ProfileDataType } from "./MyProfile";
 import LoginErrorMsg from "../../../components/LoginErrorMsg";
 import { get_server_translation } from "../../../translations/server_responses";
+import { useAuth } from "../../../AuthProvider";
+
 
 interface EditParamsProps {
     placeholders : ProfileDataType
@@ -60,7 +62,8 @@ export default function EditParams({placeholders} : EditParamsProps) {
             }
         }
 
-        const res = fetch("https://localhost/api/user/edit", {
+        const { fetchWithAuth } = useAuth();
+        const res = fetchWithAuth("https://localhost/api/user/edit", {
             method: "PUT",
             body: form,
         }).then((response)=>{
@@ -74,13 +77,8 @@ export default function EditParams({placeholders} : EditParamsProps) {
                     setError(get_server_translation(data.error));
                 });
             }
-
         })
     }
-    
-    useEffect(()=> {
-        setInit(placeholders.lang)
-    }, [placeholders.lang]);
 
     return (
             <form onSubmit={(e)=>submitForm(e)} className="sm:border flex border-yellow justify-around text-yellow py-4 rounded-2xl flex-col sm:flex-row">

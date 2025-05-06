@@ -4,7 +4,7 @@
             "register" : "Auth",
             "forgot-password" : "Forgot_password",
             "forgot-password/new-password" : "Forgot_password",
-            "profile/test" : "Profile"
+            "profile/*" : "Profile"
     },
     "General":
     {

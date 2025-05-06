@@ -26,7 +26,7 @@ createRoot(document.getElementById('root')!).render(
           </Route>
 
           <Route element={<ProfileBackground/>}>
-            <Route path="/profile/test" element={<MyProfile />}/>
+            <Route path="/profile/:id" element={<MyProfile />}/>
           </Route>
 
         </Routes>

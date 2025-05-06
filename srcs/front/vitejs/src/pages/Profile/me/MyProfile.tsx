@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import LeftPart from "../LeftPart"
 import RightPart from "../RightPart"
 import { useAuth } from "../../../AuthProvider"
+import { useParams } from "react-router"
 
 export type ProfileDataType = {
     name: string
@@ -23,9 +24,10 @@ export default function MyProfile() {
     })
 
     const { fetchWithAuth } = useAuth();
+    const { id } = useParams();
 
     function getUserParams() {
-        fetchWithAuth("https://localhost/api/user/get_profile/")
+        fetchWithAuth(`https://localhost/api/user/get_profile/${id != "me" && id}`)
             .then((response) => response.json())
             .then((json) => {
                 const data = json.data

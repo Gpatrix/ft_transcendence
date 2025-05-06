@@ -19,10 +19,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (response.status === 401) {
       navigate("/login");
-      throw new Error("Unauthorized");
     }
     return (response);
   };
+
+  const setLogged = () => {
+    setIsAuthenticated(true)
+  }
 
   const login = async (email: string, password: string) => {
     const requestData = {

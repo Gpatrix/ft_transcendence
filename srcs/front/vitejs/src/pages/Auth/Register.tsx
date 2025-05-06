@@ -27,6 +27,7 @@ export default function Register() {
     const {login} = useAuth()
 
     const [params] = useSearchParams()
+    const [setLogged] = useAuth()
 
     useEffect(()=> {
         if (params) {
@@ -72,6 +73,7 @@ export default function Register() {
 
             setError("")
             setErrorField(-1) // all tests passed, restore red fields
+            setLogged
         }
         catch(e) {
             if (e instanceof AuthError) { // frontend error
