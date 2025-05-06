@@ -1,10 +1,11 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin from '@fastify/websocket';
+import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
 import axios, { AxiosError } from 'axios';
+import { PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
 
 
 const prisma = new PrismaClient();
@@ -55,7 +56,7 @@ var activeConn: Map<number, WebSocket> = new Map();
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
-   activeConn.delete(token.name);
+   activeConn.delete(token.id);
    console.log(`TODO handle closed ${token.name} socket, remaining: ${activeConn.size}`);
 }
 
@@ -91,9 +92,8 @@ interface t_channel
    createdAt: Date;
 }
 
-async function GC_private_Channel(userId1: number, userId2: number): Promise<t_channel | undefined>
+async function GC_private_Channel(userId1: number, userId2: number): Promise<t_channel | string>
 {
-
    try
    {
       const existingChannel = await prisma.channel.findFirst({
@@ -138,10 +138,15 @@ async function GC_private_Channel(userId1: number, userId2: number): Promise<t_c
       
       return newChannel as t_channel;
    }
-   catch (error)
+   catch (error: AxiosError | unknown)
    {
-      console.log(error);
-      return (undefined)
+      if (axios.isAxiosError(error))
+      {
+         console.log(error.response?.data);
+         if (error.response?.data.error !== undefined)
+            return (error.response?.data.error);
+      }
+      return ("0503");
    }
  }
 
@@ -192,8 +197,8 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    }
 
    let target_user: userInfo | string = await get_user_info(payload.target);
-   if (typeof target_user === "string")
-      return (socket.send(`{"error": ${target_user}}`));
+   if (typeof target_user === 'string')
+      return (socket.send(`{"error": ${target_user}}`))
 
    let isBlocked = await is_blocked(token.id, target_user.id);
    if (isBlocked !== 'false')
@@ -202,11 +207,12 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
          socket.send("3001");
       else
          socket.send(isBlocked);
+      return;
    }
 
-   const channel: t_channel | undefined = await GC_private_Channel(token.id, target_user.id);
-   if (typeof channel === undefined)
-      socket.send(`{"error": 0503}`);
+   const channel: t_channel | string = await GC_private_Channel(token.id, target_user.id);
+   if (typeof channel === 'string')
+      return (socket.send(channel));
 
    try
    {
@@ -219,7 +225,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
          }
       });
 
-      let target_socket = activeConn.get(target_user.id);
+      const target_socket: WebSocket | undefined = activeConn.get(target_user.id);
       if (target_socket !== undefined)
       {
          target_socket.send(
@@ -229,62 +235,74 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    }
    catch (error)
    {
-      console.log(error);
+      if (axios.isAxiosError(error))
+      {
+         console.log(error.response?.data);
+         if (error.response?.data.error !== undefined)
+            return (error.response?.data.error);
+      }
+      return ("0503");
    }
 }
 
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   // if (payload.skip === undefined || payload.take == undefined)
-   //    return (socket.send("{error: 400}"));
+   if (payload.skip === undefined || payload.take == undefined)
+      return (socket.send(`{"error": 0400}`));
 
-   // if (payload.take < 1 || payload.take > 20)
-   //    return (socket.send("{error: 3010}"));
+   if (payload.take < 1 || payload.take > 20)
+      return (socket.send(`{"error": 3010}`));
 
-   // const channel_hash: string = getPrivChannelHash(token.name, payload.target);
+   try
+   {
+      const target_info: userInfo | string = await get_user_info(payload.target);
+      if (typeof target_info === 'string')
+         return (socket.send(`{"error": ${target_info}}`));
 
-   // const requested_msg = await prisma.message.findMany(
-   // {
-   //    where: {channel: channel_hash},
-   //    orderBy: {createdAt: 'desc'},
-   //    skip: payload.skip,
-   //    take: payload.take
-   // });
+      const channel: t_channel | string = await GC_private_Channel(token.id, target_info.id);
+      if (typeof channel === 'string')
+         return (socket.send(`{"error": ${target_info}}`));
 
-   // socket.send(JSON.stringify(requested_msg));
+      const requested_msg = await prisma.message.findMany(
+      {
+         where: {channelId: channel.id},
+         orderBy: {sentAt: 'desc'},
+         skip: payload.skip,
+         take: payload.take
+      });
+      
+      socket.send(JSON.stringify(requested_msg));
+   }
+   catch (error)
+   {
+      return (socket.send(`{"error": 0500}`));
+   }
 }
 
 function data_handler(
    RawData: WebSocket.RawData, socket: WebSocket, token: tokenStruct): void
 {
-   try
+   console.log('Received:\n', RawData.toString());
+   const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
+   if (payload.action === undefined || payload.target === undefined)
+      return (socket.send('{error: 0400}'));
+
+   if (payload.target === token.name)
+      return socket.send('{error: 3002}');
+
+   switch (payload.action)
    {
-      console.log('Received:\n', RawData.toString());
-      const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
-      if (payload.action === undefined || payload.target === undefined)
-         return (socket.send('{error: 400}'));
+      case "msg":
+         handle_msg(payload, token, socket);
+         break;
 
-      if (payload.target === token.name)
-         return socket.send('{error: 3002}');
+      case "refresh":
+         handle_refresh(payload, token, socket);
 
-      switch (payload.action)
-      {
-         case "msg":
-            handle_msg(payload, token, socket);
-            break;
-
-         case "refresh":
-            handle_refresh(payload, token, socket);
-
-            break;
-         default:
-            socket.send("{error: 400}");
-            return;
-      }
-   }
-   catch (error)
-   {
-      console.log(error);
+         break;
+      default:
+         socket.send(`{"error": 0400}`);
+         return;
    }
 }
 
@@ -297,7 +315,7 @@ async function chatws()
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
 
-         activeConn.set(decodedToken.name, socket);
+         activeConn.set(decodedToken.id, socket);
 
          socket.on('message', (RawData: WebSocket.RawData) =>
             data_handler(RawData, socket, decodedToken));
