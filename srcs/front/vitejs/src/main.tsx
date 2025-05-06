@@ -43,9 +43,6 @@ createRoot(document.getElementById('root')!).render(
       </AuthProvider>
       </CookiesProvider>
 
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/test" element={<App />} />
-
 
     </BrowserRouter>
 )
