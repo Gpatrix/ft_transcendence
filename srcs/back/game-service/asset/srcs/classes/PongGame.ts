@@ -63,7 +63,7 @@ class Player {
         })
         if (!existingPlayer)
             return ;
-        prisma.player.updateFirst({
+        prisma.player.update({
             where: {
                 id: this.id
             },
@@ -92,14 +92,18 @@ class PongGame {
             this.managePlayerColision();
             this.manageRoofAndFloorColision();
             this.ball.nextPos();
-            if (this.isBallColidingWall()) {
+            const looserPlayerId = this.isBallColidingWall();
+            if (looserPlayerId != -1) {
                 this.ball.resetPos();
                 console.log(`Ball colided with wall`);
-                if (this.ball.lastToucher == -1)
-                    // scoreEveryone()
-
+                if (this.ball.lastToucher == -1)    // In case ball collide player's wall before being hit
+                    this.scoreEveryone(looserPlayerId)
+                else
+                {
+                    const winner = this.players.find(player => player.id == this.ball.lastToucher);
+                    winner?.scoreGoal();
+                }
             }
-
         }, 1000 / 60);
         this.timeout = setTimeout(() => {
             this.onEnd();
@@ -130,7 +134,7 @@ class PongGame {
         let ball: Ball;
         if (n == 2)
         {
-            const a = Math.floor(Math.random() * n).;
+            const a = Math.floor(Math.random() * n);
             if (a == 1)
                 ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
             else
@@ -138,7 +142,7 @@ class PongGame {
         }
         else if (n == 3)
         {
-            const a = Math.floor(Math.random() * n).;
+            const a = Math.floor(Math.random() * n);
             if (a == 1)
                 ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
             else if (a == 2)
@@ -148,7 +152,7 @@ class PongGame {
         }
         else if (n == 4)
         {
-            const a = Math.floor(Math.random() * n).;
+            const a = Math.floor(Math.random() * n);
             if (a == 1)
                 ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
             else if (a == 2)
@@ -245,11 +249,24 @@ class PongGame {
             this.ball.velocity.y *= -1;
     }
 
-    private isBallColidingWall(): boolean {
-        const ballPos = this.ball.position;
-        if ((ballPos.x <= this.width * -1) || (ballPos.x >= this.width))
-            return (true);
-        return (false);
+    private isBallColidingWall(): number {
+        const ballPos: pos = this.ball.position;
+        const playerCount: number = this.players.length;
+        if (playerCount == 2)
+        {
+            if (ballPos.x <= this.width / 2 * -1)
+                return (this.players[0].id);
+            else if (ballPos.x >= this.width / 2)
+                return (this.players[1].id);
+        }
+        else
+        {
+            if (ballPos.x <= this.width / 2 * -1)
+                return (this.players[0].id);
+            else if (ballPos.x >= this.width / 2)
+                return (this.players[1].id);
+        }
+        return (-1);
     }
 
     ball: Ball
