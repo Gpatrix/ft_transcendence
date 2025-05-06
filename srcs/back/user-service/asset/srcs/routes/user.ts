@@ -237,13 +237,15 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     interface getUserProfile
     {
-        name: string
+        id: string
     }
 
-    interface userProfile
+    interface otherProfile
     {
-        name : number
+        name : string
         lang : number
+        bio  : string
+        mail : string
     }
 
     // now, search by id because of the google auth's duplicates
@@ -252,29 +254,35 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (!token) {
             return (reply.status(401).send({ error: "0403" }));
         }
-    
+
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            let name : string = request.params.name
+            const callerId = decoded.data.id
 
-            if (name.length == 0) { // caller's profile
-                name = decoded.data.name
-                console.log(name)
+            const selectFields: any = {
+                name: true,
+                bio: true,
+                profPicture: true,
+                rank: true
+            };
+            let id : string = request.params.id;
+            if (id.length == 0) {
+                id = callerId;
+                selectFields.email = true
             }
-            const user: User | null = await prisma.user.findUnique({
-                where: { 
-                    id: 13
-                }
+
+            const data = await prisma.user.findUnique({
+                where: { id: Number(id) },
+                select: selectFields
             });
-    
-            if (!user) {
-                return (reply.status(404).send({ error: `User ${name} not found` }));
-            }
-    
-            return (reply.send(user));
-        } 
+            if (!data)
+                return (reply.status(404).send({ error: "0404" }));
+            return (reply.status(200).send({data}));
+        }
+
         catch (error) {
-            return (reply.status(401).send({ error: "1016" }));
+            console.log(error)
+            return   (reply.status(401).send({ error: "1016" }));
         }
     });
 
@@ -298,13 +306,15 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const password = request.body.password;
             const profPicture = request.body.profPicture;
             const isAdmin = request.body.isAdmin;
+            const lang = 0
             let user = await prisma.user.create({
                 data: {
                     email,
                     name,
                     password,
                     profPicture,
-                    isAdmin
+                    isAdmin,
+                    lang
                 }
             })
             if (!user)
