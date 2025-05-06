@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Router } from "react-router";
 import './css/global.css'
 
 import  Login from "./pages/Auth/Login.tsx"
@@ -10,25 +10,27 @@ import { CookiesProvider } from 'react-cookie';
 import NewPassword from './pages/Auth/NewPassword.tsx';
 import ProfileBackground from './pages/Profile/ProfileBackground.tsx';
 import MyProfile from './pages/Profile/me/MyProfile.tsx';
+import { AuthProvider } from './AuthProvider.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
-  <CookiesProvider>
     <BrowserRouter>
-      <Routes>
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgottenPassword />} />
-          <Route path="/forgot-password/new-password" element={<NewPassword />} />
-        </Route>
+      <CookiesProvider>
+      <AuthProvider>
+        <Routes>
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgottenPassword />} />
+            <Route path="/forgot-password/new-password" element={<NewPassword />} />
+          </Route>
 
+          <Route element={<ProfileBackground/>}>
+            <Route path="/profile/test" element={<MyProfile />}/>
+          </Route>
 
-        <Route element={<ProfileBackground/>}>
-          <Route path="/profile/test" element={<MyProfile />}/>
-        </Route>
-
-      </Routes>
+        </Routes>
+      </AuthProvider>
+      </CookiesProvider>
     </BrowserRouter>
-  </CookiesProvider>
 )

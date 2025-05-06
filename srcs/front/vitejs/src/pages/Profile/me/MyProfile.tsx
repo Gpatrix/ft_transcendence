@@ -4,6 +4,7 @@ import RightPart from "../RightPart"
 
 function getUserParams() {
     fetch("https://localhost/api/user/get_profile/")
+
 }
 
 

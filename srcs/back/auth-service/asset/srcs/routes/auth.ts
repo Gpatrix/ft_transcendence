@@ -35,7 +35,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             });
             const data = await response.json();
             if (!response.ok)
-                res.status(response.status).send({ error: data.error})
+                return (res.status(response.status).send({ error: data.error}))
             const user = data;
             if (!user)
                 throw(new Error("cannot upsert user in prisma"));
@@ -51,13 +51,14 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
             if (!token)
                 throw(new Error("cannot generate user token"));
-            res.cookie("ft_transcendence_jw_token", token, {
+            return (res.cookie("ft_transcendence_jw_token", token, {
                 path: "/",
                 httpOnly: true,
                 sameSite: "none",
                 secure: true
-              }).send({ response: "successfully logged in", need2fa: false });
+              }).send({ response: "successfully logged in", need2fa: false }));
         } catch (error) {
+            console.error("Unhandled error during signup:", error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
                     switch (error.code) {
