@@ -117,11 +117,12 @@ async function CreateChannel(usersID: number[], isGame: boolean): Promise<t_chan
    catch (error)
    {
       if (axios.isAxiosError(error))
-         {
-            console.log(error.response?.data);
-            if (error.response?.data.error !== undefined)
-               return (error.response?.data.error);
-         }
+      {
+         console.log(error.response?.data);
+         if (error.response?.data.error !== undefined)
+            return (error.response?.data.error);
+      }
+      console.log(error);
       return ("0503");
    }
 }
@@ -158,6 +159,7 @@ async function findChannel(usersID: number[], isGame: boolean): Promise<t_channe
          if (error.response?.data.error !== undefined)
             return (error.response?.data.error);
       }
+      console.log(error);
       return ("0503");
    }
 }
@@ -196,6 +198,7 @@ async function get_user_info(username: string): Promise<userInfo | string>
          if (error.response?.data.error !== undefined)
             return (error.response?.data.error);
       }
+      console.log(error);
       return ("0503");
    }
 }
@@ -255,6 +258,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
          if (error.response?.data.error !== undefined)
             return (error.response?.data.error);
       }
+      console.log(error);
       return ("0503");
    }
 }
@@ -273,9 +277,11 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
       if (typeof target_info === 'string')
          return (socket.send(`{"error": ${target_info}}`));
 
-      const channel: t_channel | string = await findOrCreateChannel(token.id, target_info.id);
+      let channel: t_channel | string | null = await findChannel([token.id, target_info.id], false);
+      if (channel === null)
+         channel = await CreateChannel([token.id, target_info.id], false);
       if (typeof channel === 'string')
-         return (socket.send(`{"error": ${target_info}}`));
+         return (socket.send(channel));
 
       const requested_msg = await prisma.message.findMany(
       {
@@ -320,15 +326,15 @@ function data_handler(
    }
 }
 
-interface newChannelParams
-{
-   userId: number[];
-}
+// interface newChannelParams
+// {
+//    userId: number[];
+// }
 
-interface newChannelBody
-{
-    credential: string
-}
+// interface newChannelBody
+// {
+//     credential: string
+// }
 
 async function chat_api()
 {
@@ -352,17 +358,18 @@ async function chat_api()
       }
    });
 
-   server.post<{ Params: newChannelParams, Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
-      const credential = request.body?.credential;
-      if (!credential || credential != process.env.API_CREDENTIAL)
-         reply.status(401).send({ error: "private_route" });
+   // server.post<{ Params: newChannelParams, Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
+   //    const credential = request.body?.credential;
+   //    if (!credential || credential != process.env.API_CREDENTIAL)
+   //       reply.status(401).send({ error: "private_route" });
    
-      let channel: t_channel | string= await CreateChannel(request.params.userId, true);
-      if (typeof channel === 'string')
-         return (reply.status(400).send(channel));
+   //    let channel: t_channel | string= await CreateChannel(request.params.userId, true);
+   //    if (typeof channel === 'string')
+   //       return (reply.status(400).send(channel));
       
-      return (reply.status(200).send({channelId: channel.id}));
-   })}
+   //    return (reply.status(200).send({channelId: channel.id}));
+   // })
+}
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
 {
