@@ -9,11 +9,11 @@ generator client {
 }
 
 model channel {
-  id            Int      @id @default(autoincrement())
-  isGroup       Boolean
-  createdAt     DateTime @default(now())
-  participants  channelParticipant[]
-  messages      Message[]
+  id           Int      @id @default(autoincrement())
+  isGame       Boolean @map("isGame")
+  createdAt    DateTime @default(now())
+  participants channelParticipant[]
+  messages     Message[]
 }
 
 model channelParticipant {
