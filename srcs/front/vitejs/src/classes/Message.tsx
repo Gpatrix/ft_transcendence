@@ -7,6 +7,7 @@ class Message {
     this.id = id;
     this.date = date;
     this.content = content;
+    //implemeter la personne qui a envoyer le message
   }
 
   updateDate(newDate: Date) {

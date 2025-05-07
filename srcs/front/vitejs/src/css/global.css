@@ -5,6 +5,7 @@
 @theme {
     --color-yellow: #FEFE00;        /* Primary light yellow */  
     --shadow-yellow: rgba(254, 254, 0, 0.5);        /* Shadow light yellow */  
+    --dark-transp: rgba(0, 0, 0, 0.5);        /* Shadow light yellow */  
     --color-dark-yellow: #7B7B43;   /* Dark yellow (placeholders, unavailable buttons) */
     --color-light-yellow: #FFFFB3;  /* Texts, cta */
 

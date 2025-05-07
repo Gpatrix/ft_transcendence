@@ -7,6 +7,7 @@ class Friend extends User {
     connected: boolean;
     nbNotifs: number;
 
+
     constructor(id: number, name: string, email: string, imageUrl: string, messages: Message[], connected: boolean, nbNotifs: number = 0) {
         super(id, name, email, imageUrl);
         
@@ -14,6 +15,7 @@ class Friend extends User {
         this.messages = messages;
         this.nbNotifs = nbNotifs;
     }
+
     
     addMessages(newMessages: Message) {
         this.messages.push(newMessages);
