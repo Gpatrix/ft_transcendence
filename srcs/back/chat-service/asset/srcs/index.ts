@@ -1,10 +1,11 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
+import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
 import axios, { AxiosError } from 'axios';
+import { StatementResultingChanges } from 'node:sqlite';
 
 
 const prisma = new PrismaClient();
@@ -13,6 +14,14 @@ const server = fastify();
 server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
+
+interface message
+{
+   content: string;
+   channelId: number;
+   senderId: number;
+   sentAt: Date;
+}
 
 interface payloadstruct
 {
@@ -127,7 +136,7 @@ async function CreateChannel(usersID: number[], isGame: boolean): Promise<t_chan
    }
 }
 
-async function findChannel(usersID: number[], isGame: boolean): Promise<t_channel | string | null>
+async function findChannel(usersID: number[]): Promise<t_channel | string | null>
 {
    try
    {
@@ -135,7 +144,7 @@ async function findChannel(usersID: number[], isGame: boolean): Promise<t_channe
 
       const existingChannel = await prisma.channel.findFirst({
          where: {
-            isGame: isGame,
+            isGame: false,
             participants: {
                some: {
                   userId: {
@@ -206,10 +215,7 @@ async function get_user_info(username: string): Promise<t_userInfo | string>
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.msg === undefined)
-   {
-      socket.send("{error: 400}");
-      return;
-   }
+      return (socket.send("{error: 400}"));
 
    let target_user: t_userInfo | string = await get_user_info(payload.target);
    if (typeof target_user === 'string')
@@ -225,7 +231,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       return;
    }
 
-   let channel: t_channel | string | null = await findChannel([token.id, target_user.id], false);
+   let channel: t_channel | string | null = await findChannel([token.id, target_user.id]);
    if (channel === null)
       channel = await CreateChannel([token.id, target_user.id], false);
    if (typeof channel === 'string')
@@ -263,6 +269,94 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    }
 }
 
+async function findGameChannel(channelId: number): Promise<t_game_participants[] | string>
+{
+   try
+   {
+      const channel = await prisma.channel.findUnique({
+         where:{
+            id: channelId,
+            isGame: true
+         },
+         include: {
+            participants: true,
+         },
+      });
+      
+      if (channel?.participants)
+         return (channel.participants);
+      return ([]);
+   }
+   catch (error: AxiosError | unknown)
+   {
+      if (axios.isAxiosError(error))
+         {
+            console.log(error.response?.data);
+            if (error.response?.data.error !== undefined)
+               return (error.response?.data.error);
+         }
+         console.log(error);
+         return ("0503");
+      }
+}
+
+interface t_game_participants
+{
+   channelId: number;
+   userId: number;
+}
+   
+async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
+{
+   const channelId: number = Number(payload.target);
+   if (payload.msg === undefined || isNaN(channelId))
+      return (socket.send("{error: 400}"));
+
+   const participants: t_game_participants[] | string = await findGameChannel(channelId);
+   if (typeof participants === 'string')
+      return (socket.send(participants));
+
+   if (!participants.some(p => p.userId === token.id))
+      return (socket.send(`{"error": 401}`));
+
+   try
+   {
+      const new_msg: message = await prisma.message.create(
+      {
+         data: {
+            channelId: channelId,
+            senderId: token.id,
+            content: payload.msg
+         }
+      });
+
+      const to_send: string = `"isGame": 1, "data": ${JSON.stringify(new_msg)}`;
+      console.log(to_send);
+      let target_socket;
+      for (let p of participants)
+      {
+         if (p.userId === token.id)
+            continue;
+
+         target_socket = activeConn.get(p.userId);
+         if (target_socket !== undefined)
+            target_socket.send(to_send);
+      }
+   }
+   catch (error)
+   {
+      if (axios.isAxiosError(error))
+      {
+         console.log(error.response?.data);
+         if (error.response?.data.error !== undefined)
+            return (error.response?.data.error);
+      }
+      console.log(error);
+      return ("0503");
+   }
+   
+}
+
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.skip === undefined || payload.take == undefined)
@@ -277,7 +371,7 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
       if (typeof target_info === 'string')
          return (socket.send(`{"error": ${target_info}}`));
 
-      let channel: t_channel | string | null = await findChannel([token.id, target_info.id], false);
+      let channel: t_channel | string | null = await findChannel([token.id, target_info.id]);
       if (channel === null)
          channel = await CreateChannel([token.id, target_info.id], false);
       if (typeof channel === 'string')
@@ -314,6 +408,10 @@ function data_handler(
    {
       case "msg":
          handle_msg(payload, token, socket);
+         break;
+      
+      case "game_msg":
+         handle_game_msg(payload, token, socket);
          break;
 
       case "refresh":
