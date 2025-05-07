@@ -8,6 +8,7 @@ const server = fastify();
 server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(require("./routes/game"));
+server.register(require("./routes/stats"));
 
 server.addHook('preValidation'
   , (request, reply, done) => {

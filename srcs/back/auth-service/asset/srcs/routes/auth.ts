@@ -35,7 +35,11 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             });
             const data = await response.json();
             if (!response.ok)
-                res.status(response.status).send({ error: data.error})
+            {
+                res.status(response.status).send({ error: data.error })
+                console.log(data.error);
+                return;
+            }
             const user = data;
             if (!user)
                 throw(new Error("cannot upsert user in prisma"));
@@ -74,6 +78,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                             res.status(401).send({ error: "0500"});
                     }
             }
+            console.log(error);
             return (res.status(500).send({ error: "0500"}));
         }
     });

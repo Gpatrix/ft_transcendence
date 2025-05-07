@@ -1,11 +1,109 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
+
 async function main() {
-  prisma.tournament.upsert({
-    where: { id: 1},             // avoid seeding every building
+  // Tournoi principal avec plusieurs stages
+  await prisma.tournament.upsert({
+    where: { id: 1 },
     update: {},
     create: {
-      players : {
+      id: 1,
+      players: {
+        createMany: {
+          data: [
+            { userId: 1, score: 0 },
+            { userId: 2, score: 0 },
+            { userId: 3, score: 0 },
+            { userId: 4, score: 0 },
+            { userId: 5, score: 0 },
+            { userId: 6, score: 0 },
+            { userId: 7, score: 0 },
+            { userId: 8, score: 0 },
+          ]
+        }
+      },
+      games: {
+        create: [
+          // QUARTS (Stage 4)
+          {
+            tournamentStage: 4,
+            players: {
+              create: [
+                { userId: 1, score: 16 },
+                { userId: 2, score: 14 }
+              ]
+            }
+          },
+          {
+            tournamentStage: 4,
+            players: {
+              create: [
+                { userId: 3, score: 16 },
+                { userId: 4, score: 9 }
+              ]
+            }
+          },
+          {
+            tournamentStage: 4,
+            players: {
+              create: [
+                { userId: 5, score: 16 },
+                { userId: 6, score: 2 }
+              ]
+            }
+          },
+          {
+            tournamentStage: 4,
+            players: {
+              create: [
+                { userId: 7, score: 16 },
+                { userId: 8, score: 2 }
+              ]
+            }
+          },
+
+          // DEMIS (Stage 2)
+          {
+            tournamentStage: 2,
+            players: {
+              create: [
+                { userId: 1, score: 16 },
+                { userId: 3, score: 2 }
+              ]
+            }
+          },
+          {
+            tournamentStage: 2,
+            players: {
+              create: [
+                { userId: 5, score: 5 },
+                { userId: 7, score: 16 }
+              ]
+            }
+          },
+
+          // FINALE (Stage 1)
+          {
+            tournamentStage: 1,
+            players: {
+              create: [
+                { userId: 1, score: 11 },
+                { userId: 7, score: 16 }
+              ]
+            }
+          },
+        ]
+      }
+    }
+  });
+
+  // Match indépendant tournoi 2
+  await prisma.tournament.upsert({
+    where: { id: 2 },
+    update: {},
+    create: {
+      id: 2,
+      players: {
         createMany: {
           data: [
             { userId: 1, score: 121 },
@@ -13,28 +111,53 @@ async function main() {
           ]
         }
       },
-      games : {
+      games: {
         create: [
           {
-            tournamentStage: 4,
+            tournamentStage: 1,
             players: {
               create: [
-                {
-                  userId: 1,
-                  score: 42
-                },
-                {
-                  userId: 2,
-                  score: 331
-                }
+                { userId: 1, score: 42 },
+                { userId: 2, score: 331 }
               ]
             }
           }
         ]
       }
     }
-  })
+  });
+
+  // Match indépendant tournoi 3
+  await prisma.tournament.upsert({
+    where: { id: 3 },
+    update: {},
+    create: {
+      id: 3,
+      players: {
+        createMany: {
+          data: [
+            { userId: 4, score: 99 },
+            { userId: 6, score: 101 }
+          ]
+        }
+      },
+      games: {
+        create: [
+          {
+            tournamentStage: 1,
+            players: {
+              create: [
+                { userId: 4, score: 9 },
+                { userId: 6, score: 16 }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  });
 }
+
 main()
   .then(async () => {
     await prisma.$disconnect()
