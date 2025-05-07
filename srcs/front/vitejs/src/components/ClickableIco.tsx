@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 
 
@@ -7,9 +8,9 @@ type ClickableIcoProps = {
     onClick: React.MouseEventHandler<HTMLButtonElement>;
 };
 
-export default function ClickableIco({image, onClick} : ClickableIcoProps) {
+export default function ClickableIco({image, onClick, className} : ClickableIcoProps) {
     return (
-        <button onClick={onClick} className='h-full cursor-pointer'>
+        <button onClick={onClick} className={clsx('h-full cursor-pointer', className)}>
             <img  src={image}/>
         </button>
     );

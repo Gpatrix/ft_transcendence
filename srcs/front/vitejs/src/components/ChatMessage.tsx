@@ -19,7 +19,7 @@ export default function ChatMessage({profileLink, profileIco, username, hour, ch
                 <span className='bg-light-yellow rounded-full w-[5px] h-[5px]' ></span>
                 <span className='text-white font-thin'>{hour}</span>
             </span>
-            <p className='text-white p-[16px] w-fit rounded-xl bg-grey-2'>
+            <p className='text-white p-[16px] w-fit rounded-xl bg-grey-2 pink-shadow'>
                 {children}
             </p>
         </span>

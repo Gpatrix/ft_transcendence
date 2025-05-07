@@ -197,7 +197,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             if (!userinfo)
                 throw (Error("cannot_get_user_infos"));
 
-            const response = await fetch(`http://user-service:3000/api/user/lookup/${encodeURIComponent(userinfo.email)}`, {
+            const response = await fetch(`http://user-service:3000/api/user/lookup/mail/${encodeURIComponent(userinfo.email)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

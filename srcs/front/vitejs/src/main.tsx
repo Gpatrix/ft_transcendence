@@ -12,6 +12,9 @@ import NewPassword from './pages/Auth/NewPassword.tsx';
 import ProfileBackground from './pages/Profile/ProfileBackground.tsx';
 import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
+import  Chat from "./pages/Auth/Chat.tsx"
+import  App from "./App"
+
 
 
 createRoot(document.getElementById('root')!).render(
@@ -30,9 +33,14 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/profile" element={<MyProfile />}/>
             <Route path="/profile/:id" element={<OthersProfile />}/>
           </Route>
+          
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/test" element={<App />} />
 
         </Routes>
       </AuthProvider>
       </CookiesProvider>
+
+
     </BrowserRouter>
 )
