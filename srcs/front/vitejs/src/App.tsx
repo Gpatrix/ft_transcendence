@@ -8,6 +8,7 @@ import Input from './components/Input.tsx'
 import ProfilePic from './components/ProfilePic.tsx'
 import BgShadow from './components/BgShadow.tsx'
 import InputWithLabel from './components/InputWithLabel.tsx'
+import MonTest from './components/MonTest.tsx'
 import UserContact from './components/UserContact.tsx'
 import ClickableIco from './components/ClickableIco.tsx'
 import ChatMessage from './components/ChatMessage.tsx'
@@ -70,8 +71,9 @@ function App()
 
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-1/2 align-center'>
           <BgShadow className='flex flex-col'>
-            {/* <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
-            <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel> */}
+            <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
+            <InputWithLabel label="Nom d'utilisateur" placeholder="Entrez votre nom d'utilisateur" ></InputWithLabel>
+            <MonTest states="Victoire" users={['user1', 'user2']} ></MonTest>
             <MatchResult states="Victoire" users={players} idMainUser={3} ></MatchResult>
           </BgShadow>
       </div>
