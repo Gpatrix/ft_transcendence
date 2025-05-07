@@ -5,8 +5,6 @@ import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
 import axios, { AxiosError } from 'axios';
-import { Param } from '@prisma/client/runtime/library';
-import { userInfo } from 'os';
 
 
 const prisma = new PrismaClient();
@@ -166,7 +164,7 @@ async function findChannel(usersID: number[], isGame: boolean): Promise<t_channe
    }
 }
 
-interface userInfo
+interface t_userInfo
 {
    id: number;
    name: string;
@@ -178,7 +176,7 @@ interface userInfo
    isAdmin: boolean;
 }
 
-async function get_user_info(username: string): Promise<userInfo | string>
+async function get_user_info(username: string): Promise<t_userInfo | string>
 {
    if (!process.env.API_CREDENTIAL)
       return ("0500");
@@ -190,7 +188,7 @@ async function get_user_info(username: string): Promise<userInfo | string>
          {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
-      return (response.data as userInfo);
+      return (response.data as t_userInfo);
    }
    catch (error: AxiosError | unknown)
    {
@@ -213,7 +211,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       return;
    }
 
-   let target_user: userInfo | string = await get_user_info(payload.target);
+   let target_user: t_userInfo | string = await get_user_info(payload.target);
    if (typeof target_user === 'string')
       return (socket.send(`{"error": ${target_user}}`))
 
@@ -275,7 +273,7 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
 
    try
    {
-      const target_info: userInfo | string = await get_user_info(payload.target);
+      const target_info: t_userInfo | string = await get_user_info(payload.target);
       if (typeof target_info === 'string')
          return (socket.send(`{"error": ${target_info}}`));
 
