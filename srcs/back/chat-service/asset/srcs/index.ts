@@ -6,6 +6,7 @@ import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
 import axios, { AxiosError } from 'axios';
 import { Param } from '@prisma/client/runtime/library';
+import { userInfo } from 'os';
 
 
 const prisma = new PrismaClient();
@@ -93,6 +94,8 @@ interface t_channel
 
 async function CreateChannel(usersID: number[], isGame: boolean): Promise<t_channel | string>
 {
+   if (usersID === undefined)
+      return ("400");
    usersID.sort((a, b) => a - b)
 
    try
@@ -245,7 +248,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       if (target_socket !== undefined)
       {
          target_socket.send(
-            `"origin": ${token.name}, "msg": ${payload.msg}`
+            `"origin": ${token.id}, "msg": ${payload.msg}`
          );
       }
    }
@@ -325,15 +328,11 @@ function data_handler(
    }
 }
 
-// interface newChannelParams
-// {
-//    userId: number[];
-// }
-
-// interface newChannelBody
-// {
-//     credential: string
-// }
+interface newChannelBody
+{
+   credential: string;
+   usersId: number[];
+}
 
 async function chat_api()
 {
@@ -357,17 +356,17 @@ async function chat_api()
       }
    });
 
-   // server.post<{ Params: newChannelParams, Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
-   //    const credential = request.body?.credential;
-   //    if (!credential || credential != process.env.API_CREDENTIAL)
-   //       reply.status(401).send({ error: "private_route" });
-   
-   //    let channel: t_channel | string= await CreateChannel(request.params.userId, true);
-   //    if (typeof channel === 'string')
-   //       return (reply.status(400).send(channel));
+   server.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
+      const credential = request.body?.credential;
+      if (!credential || credential != process.env.API_CREDENTIAL)
+         reply.status(401).send({ error: "private_route" });
       
-   //    return (reply.status(200).send({channelId: channel.id}));
-   // })
+      let channel: t_channel | string= await CreateChannel(request.body?.usersId, true);
+      if (typeof channel === 'string')
+         return (reply.status(400).send(channel));
+      
+      return (reply.status(200).send({channelId: channel.id}));
+   })
 }
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
