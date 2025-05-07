@@ -37,6 +37,47 @@ class Friend extends User {
     getUserInfo() {
         return `${super.getUserInfo()}, Messages: ${this.messages}, Connected ${this.connected}`;
     }
+    
+    static friendRequest(name: string)
+    {
+        // test
+        console.log("test request for friend request");
+        
+        try {
+            // tout les checks
+
+            const requestData = {
+                method :  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(
+                { 
+                    // body de la requete
+                })
+            }
+            fetch('/api/chat/connect', requestData) // url a fetch
+            .then(response => {
+                console.log("response :");
+                console.log(response);
+                
+                if (response.ok)
+                {
+                    // cas de reussite
+                }
+                else
+                {
+                    // cas d'erreur
+                    console.log("C'est tliste");
+                    
+                }
+            })
+
+            // set toutes les erreurs a ""
+        }
+        catch(e) {
+            console.error("Pas de chance !");
+            console.error(e);
+        }
+    }
 
 }
 

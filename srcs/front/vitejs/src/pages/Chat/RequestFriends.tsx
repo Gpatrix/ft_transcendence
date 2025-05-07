@@ -13,14 +13,29 @@ type RequestFriendsProps = {
 
 export default function RequestFriends({} : RequestFriendsProps) {
 
+    const handleAcceptRequest = () => {
+        alert("accepte");
+    }
+
+    const handleRefuseRequest = () => {
+        alert("refuse");
+    }
+
 
     return (
-        <div className="w-[100%]">
-            <UserContact userName={"test"} />
-            {/* <UserContact status='online'  userName='Titi42' image='/test.jpeg' >
-                <ClickableIco image='/icons/icon_chat.svg' onClick={()=>alert('test')}/>
-                <ClickableIco image='/icons/icon_chat.svg' onClick={()=>alert('test')}/>
-            </UserContact>  */}
+        <div className="w-[100%] pt-3">
+            {/* <UserContact userName={"test"} /> */}
+            <div className="flex flex-col gap-2">
+                {/* faire une liste */}
+                <UserContact status='none'  userName='Titi42' image='/test.jpeg' >
+                    <ClickableIco image='/icons/accept.svg' onClick={()=> handleAcceptRequest()} className="w-[30px] mr-1"/>
+                    <ClickableIco image='/icons/trash.svg' onClick={()=> handleRefuseRequest()}/>
+                </UserContact>
+                <UserContact status='none'  userName='Titi42' image='/test.jpeg' >
+                    <ClickableIco image='/icons/accept.svg' onClick={()=>alert('test')} className="w-[30px] mr-1"/>
+                    <ClickableIco image='/icons/trash.svg' onClick={()=>alert('test')}/>
+                </UserContact>
+            </div>
         </div>
     )
 }

@@ -10,6 +10,7 @@ const statusVariants = tv({
       status: {
         online: 'h-1/1 opacity-100',
         offline: 'h-1/1 opacity-70',
+        none: 'opacity-100',
       }
     },
     defaultVariants: {
@@ -34,20 +35,20 @@ const typeVariants = tv({
 type UserContactProps = {
     userName: string,
     children?: React.ReactNode,
-    status?: 'online' | 'offline',
+    status?: 'online' | 'offline' | "none",
     type?: 'nonactive' | 'active',
     className?: string,
     notifs?: number,
     image?: string
     nb?: number;
-    onClick?: React.MouseEventHandler<HTMLButtonElement>;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
 
   } & VariantProps<typeof statusVariants> & VariantProps<typeof typeVariants>;
 
 export default function UserContact({className, userName, status='online', notifs = 0, type, image, children, nb, onClick} : UserContactProps) {
 
     return (
-        <button data-nb={nb} data-status={status}
+        <div data-nb={nb} data-status={status}
             className={clsx('userContact h-[50px] p-[4px] pink-shadow bg-grey', statusVariants( {status} ), typeVariants( {type} ) , className)} onClick={onClick}>
             <span className='flex items-center h-1/1'>
                 <ProfilePic profileLink='test.jpg' image={image} status={status} className='h-1/3 min-w-[42px]'/>
@@ -65,6 +66,6 @@ export default function UserContact({className, userName, status='online', notif
                     </span>
                 </span>
             }
-        </button>
+        </div>
     );
 }

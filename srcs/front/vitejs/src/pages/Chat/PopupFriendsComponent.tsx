@@ -1,9 +1,7 @@
 import Button from "../../components/Button.tsx"
-import InputWithIco from "../../components/InputWithIco.tsx"
 
 import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
 import Friend from "../../classes/Friend.tsx"
-import UserContact from "../../components/UserContact.tsx";
 import RequestFriends from "./RequestFriends.tsx";
 import AddFriends from "./AddFriends.tsx";
 
@@ -17,7 +15,15 @@ export default function PopupFriendsComponent({onClose} : PopupFriendsComponentP
 
     const [onglet, setOnglet] = useState<"waiting" | "add">("waiting");
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+            console.log("test");
+            window.removeEventListener("keydown", handleKeyDown);
+            onClose(false);
+        }
+    };
 
+    window.addEventListener("keydown", handleKeyDown);
 
     return (
         <div className="w-[100vw] h-[100vh] fixed z-999 top-0 left-0">
@@ -30,8 +36,8 @@ export default function PopupFriendsComponent({onClose} : PopupFriendsComponentP
                 </button>
                 <div className="flex justify-center">
                     {/* ajouter une ombre */}
-                    <Button type={onglet=="waiting"?"full":"stroke"} style="popup" className="mt-3" onClick={() => setOnglet("waiting")}>En attente</Button>
-                    <Button type={onglet=="add"?"full":"stroke"} style="popup" className="mt-3" onClick={() => setOnglet("add")}>Ajouter</Button>
+                    <Button type={onglet=="waiting"?"full":"stroke"} style="popup" className={"mt-3" + (onglet=="waiting" ? " pink-shadow" : " shadow-none")} onClick={() => setOnglet("waiting")}>En attente</Button>
+                    <Button type={onglet=="add"?"full":"stroke"} style="popup" className={"mt-3" + (onglet=="add" ? " pink-shadow" : " shadow-none")} onClick={() => setOnglet("add")}>Ajouter</Button>
                 </div>
                 {onglet=="waiting" ?
                     <RequestFriends />

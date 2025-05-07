@@ -8,7 +8,7 @@ import UserContact from "../../components/UserContact.tsx";
 type LeftChatProps = {
     activFriend: number;
     friends: Friend[],
-    onClickFriend : React.MouseEventHandler<HTMLButtonElement>;
+    onClickFriend : React.MouseEventHandler<HTMLDivElement>;
     setShowFriendPopup: React.Dispatch<SetStateAction<boolean>>;
     // ajouter un 2eme conClick pour l'ajout d'ami
 }
@@ -16,11 +16,23 @@ type LeftChatProps = {
 export default function LeftChat({activFriend, friends, onClickFriend, setShowFriendPopup} : LeftChatProps) {
 
     const [inputSearch, setInputSearch] = useState<string>("");
+    const [listFriends, setListFriends] = useState<Friend[]>(friends);
 
 
     const handleSubmitSearch = (event : FormEvent<HTMLFormElement>) => {
         console.log("test");
 
+        const regex = new RegExp(inputSearch, 'g');
+        // paragraph.match(regex);
+        const tempsFriends: Friend[] = friends.filter((friend) => friend.name.match(regex));
+
+        console.log(tempsFriends);
+        
+
+        if (tempsFriends.length == 0 && inputSearch.length == 0)
+            setListFriends(friends);
+        else
+            setListFriends(tempsFriends);
         event.preventDefault();
     }
     
@@ -42,9 +54,9 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
             <div className="h-[1px] w-4/5 bg-dark-yellow mx-auto my-3"></div>
 
             <div className="flex flex-col pt-3 gap-3 overflow-y-scroll max-h-1/1 max-h-8/10 p-3">
-                {friends.map((friend, id) => {
-                    return <UserContact key={id} nb={id}
-                        type={id==activFriend?'active':'nonactive'}
+                {listFriends.map((friend, id) => {
+                    return <UserContact key={id} nb={friend.id}
+                        type={friend.id==activFriend?'active':'nonactive'}
                         status={friend.connected ? 'online' : 'offline'}
                         className={friend.connected ? 'order-first' : ''}
                         userName={friend.name}

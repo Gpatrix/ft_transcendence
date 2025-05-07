@@ -41,8 +41,8 @@ export default function Chat() {
     ]);
 
 
-    const handleClicChangeActivFriend = (e: MouseEvent<HTMLButtonElement>): void => {
-        let balise: HTMLButtonElement = e.currentTarget as HTMLButtonElement;
+    const handleClicChangeActivFriend = (e: MouseEvent<HTMLDivElement>): void => {
+        let balise: HTMLDivElement = e.currentTarget as HTMLDivElement;
         if (balise.dataset.nb && balise.dataset.status && balise.dataset.status == 'online')
         {
             setActivFriend(Number(balise.dataset.nb))
