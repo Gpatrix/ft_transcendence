@@ -23,4 +23,4 @@ export default function RightPart({data, owner} : RightPartProps) {
             }
         </div>
     )
-}
+}       

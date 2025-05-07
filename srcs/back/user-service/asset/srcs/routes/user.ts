@@ -409,7 +409,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 if (res.status != 200)
                     throw(new Error("0500"));
                 const result = res.data;
-                put.profPicture = result.fileName;
+                put.profPicture = `https://localhost/api/upload/${result.fileName}`;
             }
             put.name = fields['name']
             put.bio = fields['bio'];
