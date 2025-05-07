@@ -257,6 +257,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const callerId = decoded.data.id
+            console.log(`CallerID : ${callerId}`)
+
+
 
             const selectFields: any = {
                 name: true,
@@ -270,7 +273,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 selectFields.email = true,
                 selectFields.lang = true
             }
-
+            console.log(`ID : ${id}`)
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
                 select: selectFields

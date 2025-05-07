@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router';
 import translations from './translations.json';
 
-export function get_page_translation(str: string): string {
+export function gpt(str: string): string {
     const location: string = useLocation().pathname.slice(1);
     const normalizedLocation = location.endsWith('/') ? location.slice(0, -1) : location;
 
