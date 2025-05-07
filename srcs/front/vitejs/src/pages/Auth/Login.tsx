@@ -1,7 +1,7 @@
-import { Link } from "react-router"
+import { Link, useParams } from "react-router"
 import InputWithLabel from "../../components/InputWithLabel"
 import Button from "../../components/Button"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { get_server_translation } from "../../translations/server_responses";
@@ -13,9 +13,8 @@ export default function Login() {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
-
     const navigate = useNavigate(); // redirect to home
-    const { login } = useAuth();
+    const { login, setLogged, isAuthenticated } = useAuth();
 
     const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -30,6 +29,16 @@ export default function Login() {
             }
         }
     }
+
+    useEffect(()=> { //  oauth forcing authProvider
+        const queryParameters = new URLSearchParams(window.location.search)
+        const callback = queryParameters.get("oauth")
+        if (callback) {
+            setLogged()
+            navigate("/")
+        }
+    }, [])
+
 
     return (
         <span className="flex flex-col w-1/1">

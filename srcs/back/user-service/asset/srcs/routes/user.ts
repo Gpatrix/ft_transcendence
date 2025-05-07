@@ -321,7 +321,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             }
             reply.send(user);
         } catch (error) {
-            console.log(error)
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {
