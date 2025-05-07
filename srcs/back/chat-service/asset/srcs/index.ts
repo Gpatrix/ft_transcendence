@@ -15,8 +15,9 @@ server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
 
-interface message
+interface t_message
 {
+   isGame?: boolean;
    content: string;
    channelId: number;
    senderId: number;
@@ -239,22 +240,25 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
 
    try
    {
-      await prisma.message.create(
+      const new_msg: t_message = await prisma.message.create(
       {
          data: {
             channelId: channel?.id,
             senderId: token.id,
             content: payload.msg
-         }
+         },
+         select: {
+            channelId: true,
+            senderId: true,
+            content: true,
+            sentAt: true,
+          },
       });
 
+      new_msg.isGame = false;
       const target_socket: WebSocket | undefined = activeConn.get(target_user.id);
       if (target_socket !== undefined)
-      {
-         target_socket.send(
-            `"origin": ${token.id}, "msg": ${payload.msg}`
-         );
-      }
+         target_socket.send(JSON.stringify(new_msg));
    }
    catch (error)
    {
@@ -305,7 +309,7 @@ interface t_game_participants
    channelId: number;
    userId: number;
 }
-   
+
 async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    const channelId: number = Number(payload.target);
@@ -321,16 +325,23 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
 
    try
    {
-      const new_msg: message = await prisma.message.create(
+      const new_msg: t_message = await prisma.message.create(
       {
          data: {
             channelId: channelId,
             senderId: token.id,
             content: payload.msg
-         }
+         },
+         select: {
+            channelId: true,
+            senderId: true,
+            content: true,
+            sentAt: true,
+          },
       });
 
-      const to_send: string = `"isGame": 1, "data": ${JSON.stringify(new_msg)}`;
+      new_msg.isGame = true;
+      const to_send: string = JSON.stringify(new_msg);
       console.log(to_send);
       let target_socket;
       for (let p of participants)
