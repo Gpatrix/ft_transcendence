@@ -51,7 +51,7 @@ export default function MyProfile() {
     return (
         <div className="px-5 w-full ml-auto mr-auto h-fit flex justify-stretch z-1 lg:flex-row flex-col">
             <LeftPart data={profileData}/>
-            <RightPart data={profileData}/>
+            <RightPart data={profileData} owner={true}/>
         </div>
     )
 }
