@@ -26,7 +26,7 @@ interface t_message
 interface payloadstruct
 {
    action: string;
-   target: string;
+   targetId: number;
    skip?: number;
    take?: number;
    msg?: string;
@@ -185,7 +185,7 @@ interface t_userInfo
    isAdmin: boolean;
 }
 
-async function get_user_info(username: string): Promise<t_userInfo | string>
+async function get_user_info(userId: number): Promise<t_userInfo | string>
 {
    if (!process.env.API_CREDENTIAL)
       return ("0500");
@@ -193,7 +193,7 @@ async function get_user_info(username: string): Promise<t_userInfo | string>
    try
    {
       const response = await axios.post(
-         `http://user-service:3000/api/user/lookup/${username}`,
+         `http://user-service:3000/api/user/lookup/${userId}`,
          {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
@@ -218,7 +218,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    if (payload.msg === undefined)
       return (socket.send("{error: 400}"));
    
-   let target_user: t_userInfo | string = await get_user_info(payload.target);
+   let target_user: t_userInfo | string = await get_user_info(payload.targetId);
    if (typeof target_user === 'string')
       return (socket.send(`{"error": ${target_user}}`))
    
@@ -312,7 +312,7 @@ interface t_game_participants
 
 async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   const channelId: number = Number(payload.target);
+   const channelId: number = Number(payload.targetId);
    if (payload.msg === undefined || isNaN(channelId))
       return (socket.send("{error: 400}"));
 
@@ -378,7 +378,7 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
 
    try
    {
-      const target_info: t_userInfo | string = await get_user_info(payload.target);
+      const target_info: t_userInfo | string = await get_user_info(payload.targetId);
       if (typeof target_info === 'string')
          return (socket.send(`{"error": ${target_info}}`));
 
@@ -393,7 +393,13 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
          where: {channelId: channel.id},
          orderBy: {sentAt: 'desc'},
          skip: payload.skip,
-         take: payload.take
+         take: payload.take,
+         select: {
+            channelId: true,
+            senderId: true,
+            content: true,
+            sentAt: true,
+          },
       });
       
       socket.send(JSON.stringify(requested_msg));
@@ -409,10 +415,10 @@ function data_handler(
 {
    console.log('Received:\n', RawData.toString());
    const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
-   if (payload.action === undefined || payload.target === undefined)
+   if (payload.action === undefined || payload.targetId === undefined)
       return (socket.send('{error: 0400}'));
 
-   if (payload.target === token.name)
+   if (payload.targetId === token.id)
       return socket.send('{error: 3002}');
 
    switch (payload.action)
