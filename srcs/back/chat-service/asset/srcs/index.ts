@@ -1,11 +1,10 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
+import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
 import axios, { AxiosError } from 'axios';
-import { Param } from '@prisma/client/runtime/library';
 
 
 const prisma = new PrismaClient();
@@ -15,10 +14,19 @@ server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
 
+interface t_message
+{
+   isGame?: boolean;
+   content: string;
+   channelId: number;
+   senderId: number;
+   sentAt: Date;
+}
+
 interface payloadstruct
 {
    action: string;
-   target: string;
+   targetId: number;
    skip?: number;
    take?: number;
    msg?: string;
@@ -93,6 +101,8 @@ interface t_channel
 
 async function CreateChannel(usersID: number[], isGame: boolean): Promise<t_channel | string>
 {
+   if (usersID === undefined)
+      return ("400");
    usersID.sort((a, b) => a - b)
 
    try
@@ -126,7 +136,7 @@ async function CreateChannel(usersID: number[], isGame: boolean): Promise<t_chan
    }
 }
 
-async function findChannel(usersID: number[], isGame: boolean): Promise<t_channel | string | null>
+async function findChannel(usersID: number[]): Promise<t_channel | string | null>
 {
    try
    {
@@ -134,7 +144,7 @@ async function findChannel(usersID: number[], isGame: boolean): Promise<t_channe
 
       const existingChannel = await prisma.channel.findFirst({
          where: {
-            isGame: isGame,
+            isGame: false,
             participants: {
                some: {
                   userId: {
@@ -163,7 +173,7 @@ async function findChannel(usersID: number[], isGame: boolean): Promise<t_channe
    }
 }
 
-interface userInfo
+interface t_userInfo
 {
    id: number;
    name: string;
@@ -175,7 +185,7 @@ interface userInfo
    isAdmin: boolean;
 }
 
-async function get_user_info(username: string): Promise<userInfo | string>
+async function get_user_info(userId: number): Promise<t_userInfo | string>
 {
    if (!process.env.API_CREDENTIAL)
       return ("0500");
@@ -183,11 +193,11 @@ async function get_user_info(username: string): Promise<userInfo | string>
    try
    {
       const response = await axios.post(
-         `http://user-service:3000/api/user/lookup/${username}`,
+         `http://user-service:3000/api/user/lookup/${userId}`,
          {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
-      return (response.data as userInfo);
+      return (response.data as t_userInfo);
    }
    catch (error: AxiosError | unknown)
    {
@@ -204,27 +214,25 @@ async function get_user_info(username: string): Promise<userInfo | string>
 
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
+   
    if (payload.msg === undefined)
-   {
-      socket.send("{error: 400}");
-      return;
-   }
-
-   let target_user: userInfo | string = await get_user_info(payload.target);
+      return (socket.send("{error: 400}"));
+   
+   let target_user: t_userInfo | string = await get_user_info(payload.targetId);
    if (typeof target_user === 'string')
       return (socket.send(`{"error": ${target_user}}`))
-
+   
    let isBlocked = await is_blocked(token.id, target_user.id);
    if (isBlocked !== 'false')
-   {
-      if (isBlocked === 'true')
-         socket.send("3001");
-      else
-         socket.send(isBlocked);
+      {
+         if (isBlocked === 'true')
+            socket.send("3001");
+         else
+            socket.send(isBlocked);
       return;
    }
 
-   let channel: t_channel | string | null = await findChannel([token.id, target_user.id], false);
+   let channel: t_channel | string | null = await findChannel([token.id, target_user.id]);
    if (channel === null)
       channel = await CreateChannel([token.id, target_user.id], false);
    if (typeof channel === 'string')
@@ -232,22 +240,25 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
 
    try
    {
-      await prisma.message.create(
+      const new_msg: t_message = await prisma.message.create(
       {
          data: {
             channelId: channel?.id,
             senderId: token.id,
             content: payload.msg
-         }
+         },
+         select: {
+            channelId: true,
+            senderId: true,
+            content: true,
+            sentAt: true,
+          },
       });
 
+      new_msg.isGame = false;
       const target_socket: WebSocket | undefined = activeConn.get(target_user.id);
       if (target_socket !== undefined)
-      {
-         target_socket.send(
-            `"origin": ${token.name}, "msg": ${payload.msg}`
-         );
-      }
+         target_socket.send(JSON.stringify(new_msg));
    }
    catch (error)
    {
@@ -262,6 +273,101 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    }
 }
 
+async function findGameChannel(channelId: number): Promise<t_game_participants[] | string>
+{
+   try
+   {
+      const channel = await prisma.channel.findUnique({
+         where:{
+            id: channelId,
+            isGame: true
+         },
+         include: {
+            participants: true,
+         },
+      });
+      
+      if (channel?.participants)
+         return (channel.participants);
+      return ([]);
+   }
+   catch (error: AxiosError | unknown)
+   {
+      if (axios.isAxiosError(error))
+         {
+            console.log(error.response?.data);
+            if (error.response?.data.error !== undefined)
+               return (error.response?.data.error);
+         }
+         console.log(error);
+         return ("0503");
+      }
+}
+
+interface t_game_participants
+{
+   channelId: number;
+   userId: number;
+}
+
+async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
+{
+   const channelId: number = Number(payload.targetId);
+   if (payload.msg === undefined || isNaN(channelId))
+      return (socket.send("{error: 400}"));
+
+   const participants: t_game_participants[] | string = await findGameChannel(channelId);
+   if (typeof participants === 'string')
+      return (socket.send(participants));
+
+   if (!participants.some(p => p.userId === token.id))
+      return (socket.send(`{"error": 401}`));
+
+   try
+   {
+      const new_msg: t_message = await prisma.message.create(
+      {
+         data: {
+            channelId: channelId,
+            senderId: token.id,
+            content: payload.msg
+         },
+         select: {
+            channelId: true,
+            senderId: true,
+            content: true,
+            sentAt: true,
+          },
+      });
+
+      new_msg.isGame = true;
+      const to_send: string = JSON.stringify(new_msg);
+      console.log(to_send);
+      let target_socket;
+      for (let p of participants)
+      {
+         if (p.userId === token.id)
+            continue;
+
+         target_socket = activeConn.get(p.userId);
+         if (target_socket !== undefined)
+            target_socket.send(to_send);
+      }
+   }
+   catch (error)
+   {
+      if (axios.isAxiosError(error))
+      {
+         console.log(error.response?.data);
+         if (error.response?.data.error !== undefined)
+            return (error.response?.data.error);
+      }
+      console.log(error);
+      return ("0503");
+   }
+   
+}
+
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.skip === undefined || payload.take == undefined)
@@ -272,11 +378,11 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
 
    try
    {
-      const target_info: userInfo | string = await get_user_info(payload.target);
+      const target_info: t_userInfo | string = await get_user_info(payload.targetId);
       if (typeof target_info === 'string')
          return (socket.send(`{"error": ${target_info}}`));
 
-      let channel: t_channel | string | null = await findChannel([token.id, target_info.id], false);
+      let channel: t_channel | string | null = await findChannel([token.id, target_info.id]);
       if (channel === null)
          channel = await CreateChannel([token.id, target_info.id], false);
       if (typeof channel === 'string')
@@ -287,7 +393,13 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
          where: {channelId: channel.id},
          orderBy: {sentAt: 'desc'},
          skip: payload.skip,
-         take: payload.take
+         take: payload.take,
+         select: {
+            channelId: true,
+            senderId: true,
+            content: true,
+            sentAt: true,
+          },
       });
       
       socket.send(JSON.stringify(requested_msg));
@@ -303,16 +415,20 @@ function data_handler(
 {
    console.log('Received:\n', RawData.toString());
    const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
-   if (payload.action === undefined || payload.target === undefined)
+   if (payload.action === undefined || payload.targetId === undefined)
       return (socket.send('{error: 0400}'));
 
-   if (payload.target === token.name)
+   if (payload.targetId === token.id)
       return socket.send('{error: 3002}');
 
    switch (payload.action)
    {
       case "msg":
          handle_msg(payload, token, socket);
+         break;
+      
+      case "game_msg":
+         handle_game_msg(payload, token, socket);
          break;
 
       case "refresh":
@@ -325,15 +441,11 @@ function data_handler(
    }
 }
 
-// interface newChannelParams
-// {
-//    userId: number[];
-// }
-
-// interface newChannelBody
-// {
-//     credential: string
-// }
+interface newChannelBody
+{
+   credential: string;
+   usersId: number[];
+}
 
 async function chat_api()
 {
@@ -357,17 +469,17 @@ async function chat_api()
       }
    });
 
-   // server.post<{ Params: newChannelParams, Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
-   //    const credential = request.body?.credential;
-   //    if (!credential || credential != process.env.API_CREDENTIAL)
-   //       reply.status(401).send({ error: "private_route" });
-   
-   //    let channel: t_channel | string= await CreateChannel(request.params.userId, true);
-   //    if (typeof channel === 'string')
-   //       return (reply.status(400).send(channel));
+   server.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
+      const credential = request.body?.credential;
+      if (!credential || credential != process.env.API_CREDENTIAL)
+         reply.status(401).send({ error: "private_route" });
       
-   //    return (reply.status(200).send({channelId: channel.id}));
-   // })
+      let channel: t_channel | string= await CreateChannel(request.body?.usersId, true);
+      if (typeof channel === 'string')
+         return (reply.status(400).send(channel));
+      
+      return (reply.status(200).send({channelId: channel.id}));
+   })
 }
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
