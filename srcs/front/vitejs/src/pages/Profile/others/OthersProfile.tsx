@@ -23,12 +23,17 @@ export default function OthersProfile() {
         lang : null
     })
     const { id } = useParams();
-    const [navigate] = useNavigate()
+    const navigate = useNavigate()
 
     const { fetchWithAuth } = useAuth();
     function getUserParams() {
         fetchWithAuth(`https://localhost/api/user/get_profile/${id}`)
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) 
+                    throw new Error("User not found");
+                return (response.json())
+                }
+            )
             .then((json) => {
                 const data = json.data
                 setProfileData(prev => ({
@@ -42,19 +47,18 @@ export default function OthersProfile() {
                 }));
             })
             .catch((error) => {
-                navigate("/profile")
+                navigate("/page-not-found")
             });
-    }
+    }   
 
     useEffect(()=>{
         getUserParams()
     }, [])
 
-
     return (
         <div className="px-5 w-full ml-auto mr-auto h-fit flex justify-stretch z-1 lg:flex-row flex-col">
-            <LeftPart data={profileData}/>
-            <RightPart data={profileData}/>
+            <LeftPart data={profileData} />
+            <RightPart data={profileData} owner={false}/>
         </div>
     )
 }

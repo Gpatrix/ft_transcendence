@@ -35,7 +35,7 @@ createRoot(document.getElementById('root')!).render(
           </Route>
           
           <Route path="/chat" element={<Chat />} />
-          <Route path="/test" element={<App />} />
+          {/* <Route path="/test" element={<App />} /> */}
 
         </Routes>
       </AuthProvider>

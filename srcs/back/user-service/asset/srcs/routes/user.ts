@@ -15,8 +15,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 {
     interface lookupParams 
     {
-        type: string
-        lookup: string
+        email: string;
     }
 
     interface lookupBody
@@ -32,6 +31,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
+            console.log(`isId: ${isId}, isEmail: ${isEmail}`);
             let user: User | null = null;
             if (isEmail) {
                 user = await prisma.user.findUnique({
@@ -91,10 +91,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.status(404).send({error: "2001"});
             return;
         }
+
         const by = Number(request.params.by);
         const by_user = await prisma.user.findUnique({
             where: {
-              name: by
+              id: by
             },
             include: {
               blockedUsers: true
@@ -409,7 +410,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 if (res.status != 200)
                     throw(new Error("0500"));
                 const result = res.data;
-                put.profPicture = result.fileName;
+                put.profPicture = `https://localhost/api/upload/${result.fileName}`;
             }
             put.name = fields['name']
             put.bio = fields['bio'];

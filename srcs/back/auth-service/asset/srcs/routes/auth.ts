@@ -197,7 +197,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             if (!userinfo)
                 throw (Error("cannot_get_user_infos"));
 
-            const response = await fetch(`http://user-service:3000/api/user/lookup/mail/${encodeURIComponent(userinfo.email)}`, {
+            const response = await fetch(`http://user-service:3000/api/user/lookup/${userinfo.email}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -206,7 +206,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             });
             let user;
             const lookupData = await response.json();
-
+            console.log(await lookupData)
             if (response.ok && !('error' in lookupData)) {
               user = lookupData;
             }
@@ -221,7 +221,8 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                   body: JSON.stringify({
                     email: userinfo.email,
                     profPicture: userinfo.picture,
-                    name: String(Date.now())
+                    name: String(Date.now()),
+                    credential: process.env.API_CREDENTIAL
                   }),
                 });
                 
