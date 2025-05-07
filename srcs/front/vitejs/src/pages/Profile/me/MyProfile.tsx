@@ -27,7 +27,7 @@ export default function MyProfile() {
     const { id } = useParams();
 
     function getUserParams() {
-        fetchWithAuth(`https://localhost/api/user/get_profile/${id != "me" && id}`)
+        fetchWithAuth(`https://localhost/api/user/get_profile/${id != "me" ? id : ""}`)
             .then((response) => response.json())
             .then((json) => {
                 const data = json.data

@@ -1,60 +1,43 @@
 {
-    "Routes": {
-            "login" : "Auth",
-            "register" : "Auth",
-            "forgot-password" : "Forgot_password",
-            "forgot-password/new-password" : "Forgot_password",
-            "profile/*" : "Profile"
-    },
-    "General":
-    {
-      "username": ["Username", "Nom d'utilisateur", "Nome utente"],
-      "username_placeholder": ["Username", "Nom d'utilisateur", "Nome utente"],
-      "password": ["Password", "Mot de passe", "Password"],
-      "actual_password": ["Actual password", "Mot de passe actuel", "Actual Password"],
-      "new_password": ["New password", "Nouveau mot de passe", "Nuova password"],
-      "new_password_placeholder": [  "Enter a new password",   "Entrez un nouveau mot de passe",   "Inserisci una nuova password"],
-      "password_placeholder": ["Please enter your password", "Entrez votre mot de passe", "Inserisci la tua password"],
-      "password_confirm": ["Password confirmation", "Confirmation du mot de passe", "Conferma la password"],
-      "password_confirm_placeholder": ["Please confirm your password", "Veuillez confirmer votre mot de passe", "Conferma la tua password"],
-      "email": ["Email", "Adresse mail", "Email"],
-      "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
-      "continue" : ["Continue", "Continuer", "Continuare"],
-      "confirm": ["Confirm","Confirmer","Conferma"],
-      "bio": ["Bio","Bio","Bio"],
-      "bio_placeholder": ["Please write a short bio", "Veuillez écrire une brève biographie", "Scrivi una breve biografia"]
-    },
-    "Pages": {
-        "Auth": {
-            "forgotten": ["Forgotten password ?", "Mot de passe oublié ?", "Password dimenticata?"],
-            "connexion": ["Log in", "Connexion", "Accedi"],
-            "or": ["OR", "OU", "O"],
-            "register": ["Sign up for free", "S'inscrire gratuitement", "Iscriviti gratuitamente"],
-            "login": ["Already have an account?", "Se connecter", "Hai già un account?"],
-            "login_google": [ "Continue with Google", "Continuer avec Google", "Continua con Google"]        
-        },
-        "Forgot_password":
-        {
-            "reset": [
-            "Password reset",
-            "Réinitialisation du mot de passe",
-            "Reimpostazione della password"
-            ],
-            "description": [
-            "Provide the email address associated with your account to recover your password.",
-            "Fournissez l'adresse e-mail associée à votre compte pour récupérer votre mot de passe.",
-            "Fornisci l'indirizzo email associato al tuo account per recuperare la password."
-            ],
-            "give_code": [
-              "Email sent! Check it out and follow the instructions.",
-              "Un e-mail a été envoyé ! Consultez-le et suivez les instructions.",
-              "Email inviato! Controllalo e segui le istruzioni."
-            ],
-            "check_spam": [
-              "If you didn’t receive the email, please check your spam folder.",
-              "Si vous n’avez pas reçu l’e-mail, veuillez vérifier votre dossier spam.",
-              "Se non hai ricevuto l’e-mail, controlla la cartella spam."
-            ]
-        }
-    }
+  "General": {
+    "username": ["Username", "Nom d'utilisateur", "Nome utente"],
+    "username_placeholder": ["Username", "Nom d'utilisateur", "Nome utente"],
+    "password": ["Password", "Mot de passe", "Password"],
+    "actual_password": ["Actual password", "Mot de passe actuel", "Actual Password"],
+    "new_password": ["New password", "Nouveau mot de passe", "Nuova password"],
+    "new_password_placeholder": ["Enter a new password", "Entrez un nouveau mot de passe", "Inserisci una nuova password"],
+    "password_placeholder": ["Please enter your password", "Entrez votre mot de passe", "Inserisci la tua password"],
+    "password_confirm": ["Password confirmation", "Confirmation du mot de passe", "Conferma la password"],
+    "password_confirm_placeholder": ["Please confirm your password", "Veuillez confirmer votre mot de passe", "Conferma la tua password"],
+    "email": ["Email", "Adresse mail", "Email"],
+    "email_placeholder": ["Please enter your mail", "Entrez votre adresse mail", "Inserisci la tua email"],
+    "continue": ["Continue", "Continuer", "Continuare"],
+    "confirm": ["Confirm", "Confirmer", "Conferma"],
+    "bio": ["Bio", "Bio", "Bio"],
+    "bio_placeholder": ["Please write a short bio", "Veuillez écrire une brève biographie", "Scrivi una breve biografia"],
+    
+    "forgotten": ["Forgotten password ?", "Mot de passe oublié ?", "Password dimenticata?"],
+    "connexion": ["Log in", "Connexion", "Accedi"],
+    "or": ["OR", "OU", "O"],
+    "register": ["Sign up for free", "S'inscrire gratuitement", "Iscriviti gratuitamente"],
+    "login": ["Already have an account?", "Se connecter", "Hai déjà un account?"],
+    "login_google": ["Continue with Google", "Continuer avec Google", "Continua con Google"],
+    
+    "reset": ["Password reset", "Réinitialisation du mot de passe", "Reimpostazione della password"],
+    "description": [
+      "Provide the email address associated with your account to recover your password.",
+      "Fournissez l'adresse e-mail associée à votre compte pour récupérer votre mot de passe.",
+      "Fornisci l'indirizzo email associato al tuo account per recuperare la password."
+    ],
+    "give_code": [
+      "Email sent! Check it out and follow the instructions.",
+      "Un e-mail a été envoyé ! Consultez-le et suivez les instructions.",
+      "Email inviato! Controllalo e segui le istruzioni."
+    ],
+    "check_spam": [
+      "If you didn’t receive the email, please check your spam folder.",
+      "Si vous n’avez pas reçu l’e-mail, veuillez vérifier votre dossier spam.",
+      "Se non hai ricevuto l’e-mail, controlla la cartella spam."
+    ]
+  }
 }

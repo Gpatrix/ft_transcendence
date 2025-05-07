@@ -2,7 +2,7 @@ import { use, useEffect, useState } from "react"
 import { useSearchParams } from "react-router"
 import Button from "../../components/Button"
 import InputWithLabel from "../../components/InputWithLabel"
-import { get_page_translation } from "../../translations/pages_reponses"
+import { gpt } from "../../translations/pages_reponses"
 import { get_server_translation } from "../../translations/server_responses"
 import { confirm_password, check_password } from "../../validators/password"
 import AuthError from "./ErrorClass"
@@ -68,10 +68,10 @@ export default function NewPassword() {
 
     return (
             <form onSubmit={(e)=>handleSubmit(e)}>
-                <h2 className="text-xl text-yellow underline">{get_page_translation("reset")}</h2>
-                <InputWithLabel hidechars={true} type={errorfield == ErrorTypes.PASS ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")}/>
-                <InputWithLabel hidechars={true} type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} placeholder={get_page_translation("password_confirm_placeholder")} label={get_page_translation("password_confirm")}/>
-                <Button className="w-full mt-10" type="full">{get_page_translation("confirm")}</Button>
+                <h2 className="text-xl text-yellow underline">{gpt("reset")}</h2>
+                <InputWithLabel hidechars={true} type={errorfield == ErrorTypes.PASS ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} placeholder={gpt("password_placeholder")} label={gpt("password")}/>
+                <InputWithLabel hidechars={true} type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} placeholder={gpt("password_confirm_placeholder")} label={gpt("password_confirm")}/>
+                <Button className="w-full mt-10" type="full">{gpt("confirm")}</Button>
                 { error && 
                     <LoginErrorMsg>{error}</LoginErrorMsg>
                 }

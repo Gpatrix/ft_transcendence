@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import {check_password, confirm_password} from "../../validators/password.tsx";
 import check_email from "../../validators/email.tsx";
 import check_username from "../../validators/username.tsx";
-import { get_page_translation } from "../../translations/pages_reponses.tsx";
+import { gpt } from "../../translations/pages_reponses.tsx";
 
 import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { ErrorTypes} from "./ErrorClass"
@@ -27,7 +27,7 @@ export default function Register() {
     const {login} = useAuth()
 
     const [params] = useSearchParams()
-    const [setLogged] = useAuth()
+    // const [setLogged] = useAuth()
 
     useEffect(()=> {
         if (params) {
@@ -90,32 +90,32 @@ export default function Register() {
         <span className="flex flex-col w-1/1">
             <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1">
                 <InputWithLabel type={errorfield == ErrorTypes.USERNAME ? "error" : "ok"} onChange={(e)=>setName(e.target.value)} 
-                placeholder={get_page_translation("username_placeholder")} label={get_page_translation("username")} />
+                placeholder={gpt("username_placeholder")} label={gpt("username")} />
 
                 <InputWithLabel type={errorfield == ErrorTypes.MAIL ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)}
-                placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
+                placeholder={gpt("email_placeholder")} label={gpt("email")} />
 
                 <InputWithLabel type={errorfield == ErrorTypes.PASS ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} 
-                placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
+                placeholder={gpt("password_placeholder")} label={gpt("password")} />
 
                 <InputWithLabel type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} hidechars={true}
-                placeholder={get_page_translation("password_confirm_placeholder")} label={get_page_translation("password_confirm")} />
+                placeholder={gpt("password_confirm_placeholder")} label={gpt("password_confirm")} />
 
-                <Link to="/forgot-password"  className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
+                <Link to="/forgot-password"  className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{gpt("forgotten")}</Link> 
 
                 { error && 
                     <LoginErrorMsg>{error}</LoginErrorMsg>
                 }
 
-                <Button type="full" className="mt-5">{get_page_translation("register")}</Button>
+                <Button type="full" className="mt-5">{gpt("register")}</Button>
                 <span className="flex text-xs text-yellow items-center my-[10px]">
                     <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
-                    <span>{get_page_translation("or")}</span>
+                    <span>{gpt("or")}</span>
                     <span className="w-full h-[1px] ml-[12px] bg-yellow"/>
                 </span>
             </form>
             <GoogleAuth />
-            <Link to="/login" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{get_page_translation("login")}</Link>
+            <Link to="/login" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{gpt("login")}</Link>
         </span>
     )
 }

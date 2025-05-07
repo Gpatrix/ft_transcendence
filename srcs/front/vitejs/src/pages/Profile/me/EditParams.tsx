@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import InputWithLabel from "../../../components/InputWithLabel";
 import Button from "../../../components/Button";
-import { get_page_translation } from "../../../translations/pages_reponses";
+import { gpt } from "../../../translations/pages_reponses";
 import TextAreaWithLabel from "../../../components/TextAreaWithLabel";
 import LanguageSelect from "./LanguageSelect";
 import { ProfileDataType } from "./MyProfile";
@@ -38,6 +38,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
     const [formValues, setFormValues] = useState<FormType>(initialFormValues);
     const [init, setInit] = useState<number | null>(placeholders.lang);
     const [error, setError] = useState<string | null>(null)
+    const { fetchWithAuth } = useAuth();
 
     function createNullSetter<K extends keyof FormType>(key: K, isNumber = false) {
         return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -61,8 +62,6 @@ export default function EditParams({placeholders} : EditParamsProps) {
                 form.append(key, String(value))
             }
         }
-
-        const { fetchWithAuth } = useAuth();
         const res = fetchWithAuth("https://localhost/api/user/edit", {
             method: "PUT",
             body: form,
@@ -86,20 +85,20 @@ export default function EditParams({placeholders} : EditParamsProps) {
                     <InputWithLabel 
                         value={formValues.name ?? ""}
                         onChange={createNullSetter("name")}
-                        label={get_page_translation("username")} 
+                        label={gpt("username")} 
                         placeholder={placeholders.name}
                     />
                     <InputWithLabel 
                         value={formValues.mail ?? ""}
                         onChange={createNullSetter("mail")}
-                        label={get_page_translation("email")}    
-                        placeholder={placeholders.email ?? get_page_translation("email_placeholder")}
+                        label={gpt("email")}    
+                        placeholder={placeholders.email ?? gpt("email_placeholder")}
                     />
                     <TextAreaWithLabel
                         value={formValues.bio ?? ""}
                         onChange={createNullSetter("bio")}   
-                        label={get_page_translation("bio")}   
-                        placeholder={placeholders.bio ?? get_page_translation("bio_placeholder")} 
+                        label={gpt("bio")}   
+                        placeholder={placeholders.bio ?? gpt("bio_placeholder")} 
                     />
 
                 </span>
@@ -108,23 +107,23 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         hidechars={true}
                         value={formValues.actual_password ?? ""}
                         onChange={createNullSetter("actual_password")}
-                        label={get_page_translation("actual_password")} 
-                        placeholder={get_page_translation("password_placeholder")}/>
+                        label={gpt("actual_password")} 
+                        placeholder={gpt("password_placeholder")}/>
                     <InputWithLabel
                         hidechars={true}
                         value={formValues.new_password ?? ""} 
                         onChange={createNullSetter("new_password")}
-                        label={get_page_translation("new_password")}    
-                        placeholder={get_page_translation("new_password_placeholder")}/>
+                        label={gpt("new_password")}    
+                        placeholder={gpt("new_password_placeholder")}/>
                     <InputWithLabel className="mb-5" hidechars={true}
                         value={formValues.confirm_new_password ?? ""}
                         onChange={createNullSetter("confirm_new_password")}
-                        label={get_page_translation("password_confirm")}
-                        placeholder={get_page_translation("password_confirm_placeholder")} />
+                        label={gpt("password_confirm")}
+                        placeholder={gpt("password_confirm_placeholder")} />
                     <LanguageSelect setValue={(lang: number) => setFormValues((prev) => ({ ...prev, lang: lang }))} init={init} resetInit={()=>setInit(null)} lang={formValues.lang} />
                     { (formValues.name || formValues.mail || formValues.bio || formValues.new_password || formValues.lang != null)
                     && <Button className="w-full ml-auto mt-auto px-5 rounded-tl-2xl rounded-br-2xl" type="full">
-                            {get_page_translation("confirm")}
+                            {gpt("confirm")}
                     </Button>
                     }
                     {
