@@ -34,6 +34,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }),
             });
             const data = await response.json();
+            console.log(response)
             if (!response.ok)
                 return (res.status(response.status).send({ error: data.error}))
             const user = data;
@@ -58,7 +59,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 secure: true
               }).send({ response: "successfully logged in", need2fa: false }));
         } catch (error) {
-            console.error("Unhandled error during signup:", error);
+            console.log("Unhandled error during signup:", error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
                     switch (error.code) {
@@ -261,7 +262,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                     httpOnly: true,
                     sameSite: "none",
                     secure: true
-                  }).redirect("/"));
+                  }).redirect("/login?oauth=true"));
             else
                 throw new Error("no token generated");
         } catch (error) {

@@ -272,7 +272,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 selectFields.email = true,
                 selectFields.lang = true
             }
-
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
                 select: selectFields
@@ -324,7 +323,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             }
             reply.send(user);
         } catch (error) {
-            console.log(error)
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {

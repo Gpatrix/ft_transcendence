@@ -6,6 +6,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   fetchWithAuth: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+  setLogged: ()=> void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -51,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth, setLogged }}>
       {children}
     </AuthContext.Provider>
   );
