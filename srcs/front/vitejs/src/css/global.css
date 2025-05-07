@@ -4,6 +4,7 @@
 
 @theme {
     --color-yellow: #FEFE00;        /* Primary light yellow */  
+    --shadow-yellow: rgba(254, 254, 0, 0.5);        /* Shadow light yellow */  
     --color-dark-yellow: #7B7B43;   /* Dark yellow (placeholders, unavailable buttons) */
     --color-light-yellow: #FFFFB3;  /* Texts, cta */
 
@@ -26,8 +27,32 @@
     html {
         @apply bg-grey;
     }
+    body, #root {
+        height: 100vh;
+    }
     * {
         @apply font-display ;
+    }
+    h1 {
+        @apply font-title;
+        font-size: 1.3rem;
+        text-shadow: 7px 5px 5px rgba(255, 0, 0, 0.4);
+    }
+    .yellow-shadow-btn {
+        box-shadow: 0 0 5px var(--shadow-yellow);
+    }
+    .red-shadow-btn {
+        box-shadow: 2px 2px 4px var(--color-dark-red);
+    }
+    .btn-dark-red {
+        border-color: var(--color-dark-red)!important;
+        color: var(--color-dark-red)!important;
+    }
+    .pink-shadow {
+        box-shadow: 0px 1px 5px rgba(190, 0, 130, 0.7);
+    }
+    .chat-pink-shadow {
+        box-shadow: 0px 2px 10px rgba(190, 0, 130, 0.7);
     }
 }
 

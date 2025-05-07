@@ -94,7 +94,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const by = Number(request.params.by);
         const by_user = await prisma.user.findUnique({
             where: {
-              id: by
+              name: by
             },
             include: {
               blockedUsers: true
