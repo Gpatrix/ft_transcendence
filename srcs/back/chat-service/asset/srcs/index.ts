@@ -5,7 +5,6 @@ import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import { PrismaClient } from "../prisma/prisma_client";
 import axios, { AxiosError } from 'axios';
-import { StatementResultingChanges } from 'node:sqlite';
 
 
 const prisma = new PrismaClient();
@@ -215,20 +214,21 @@ async function get_user_info(username: string): Promise<t_userInfo | string>
 
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
+   
    if (payload.msg === undefined)
       return (socket.send("{error: 400}"));
-
+   
    let target_user: t_userInfo | string = await get_user_info(payload.target);
    if (typeof target_user === 'string')
       return (socket.send(`{"error": ${target_user}}`))
-
+   
    let isBlocked = await is_blocked(token.id, target_user.id);
    if (isBlocked !== 'false')
-   {
-      if (isBlocked === 'true')
-         socket.send("3001");
-      else
-         socket.send(isBlocked);
+      {
+         if (isBlocked === 'true')
+            socket.send("3001");
+         else
+            socket.send(isBlocked);
       return;
    }
 

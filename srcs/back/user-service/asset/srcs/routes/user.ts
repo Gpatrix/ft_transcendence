@@ -91,10 +91,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.status(404).send({error: "2001"});
             return;
         }
+
         const by = Number(request.params.by);
         const by_user = await prisma.user.findUnique({
             where: {
-              name: by
+              id: by
             },
             include: {
               blockedUsers: true
