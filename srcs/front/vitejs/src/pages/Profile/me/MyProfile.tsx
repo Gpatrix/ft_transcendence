@@ -25,7 +25,7 @@ export default function MyProfile() {
 
     const { fetchWithAuth } = useAuth();
     function getUserParams() {
-        fetch(`https://localhost/api/user/get_profile/`)
+        fetchWithAuth(`https://localhost/api/user/get_profile/`)
             .then((response) => response.json())
             .then((json) => {
                 const data = json.data
@@ -43,10 +43,6 @@ export default function MyProfile() {
                 console.error("Error :", error);
             });
     }
-
-    useEffect(() => {
-        console.log(profileData)
-    }, [profileData]);
 
     useEffect(()=>{
         getUserParams()
