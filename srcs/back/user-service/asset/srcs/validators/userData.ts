@@ -1,9 +1,37 @@
-export function validateUserData(request, reply, done) {
+export async function validateUserData(request, reply) {
 
-    const email = request.body?.email;
-    const name = request.body?.name;
-    const bio = request.body?.bio;
-    const lang = request.body?.lang;
+    let email;
+    let name;
+    let bio;
+    let lang;
+
+    if (request.body) {
+        email = request.body.email;
+        name = request.body.name;
+        bio = request.body.bio;
+        lang = request.body.lang;
+    }
+    else
+    {
+        const parts = request.parts()
+        if (parts) {
+            for await (const part of parts) {
+                console.log("part", part.fieldname, part.type, part.value);
+                if (part.fieldname === 'email')
+                    email = part.value;
+                else if (part.fieldname === 'name')
+                    name = part.value;
+                else if (part.fieldname === 'bio')
+                    bio = part.value;
+                else if (part.fieldname === 'lang')
+                    lang = part.value;
+            }
+        }
+    }
+
+    console.log("email", email);
+    console.log("name", name);
+    console.log("bio", bio);
 
     if (email && email.length > 50)
         return (reply.status(400).send({ error: "email_too_long" }));
@@ -17,8 +45,6 @@ export function validateUserData(request, reply, done) {
         return (reply.status(400).send({ error: "forbidden_characters_in_email" }));
     if (name && !name.match(/^[a-zA-Z0-9._-]+$/))
         return (reply.status(400).send({ error: "forbidden_characters_in_name" }));
-
-    done();
 }
 
 module.exports = validateUserData;

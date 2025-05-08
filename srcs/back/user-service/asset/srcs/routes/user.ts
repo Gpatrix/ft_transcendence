@@ -344,7 +344,14 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
-    interface editUserBody 
+    interface EditUserBody 
+    {
+        name?: string,
+        bio?: string,
+        lang?: string
+    }
+
+    interface UserData
     {
         id?: number,
         name?: string,
@@ -354,8 +361,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         profPicture?: string
     }
 
-    server.put<{ Body: editUserBody }>('/api/user/edit', { preHandler: [isConnected, validateUserData] }, async (request, reply) => {
-        let put: editUserBody = {};
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, validateUserData] }, async (request, reply) => {
+        let put: UserData = {};
         let file;
         let fields: { [key: string]: any } = {};
         const parts = request.parts()
@@ -428,7 +435,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         } catch (error) {
             if (put.profPicture)
             {
-                let put: editUserBody = {};
+                let put: UserData = {};
                 const res = await fetch(`http:/upload-service:3000/api/upload/${put.profPicture}`, {
                     method: 'DELETE',
                     body: JSON.stringify({ credential: process.env.API_CREDENTIAL }),
