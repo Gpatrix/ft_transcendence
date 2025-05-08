@@ -300,15 +300,15 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     server.post<{ Body: postUserBody }>('/api/user/create', { preHandler:[validateUserData] }, async (request, reply) => {
         try {
-            const credential = request.body?.credential;
+            const credential = request.body.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
                 reply.status(401).send({ error: "private_route" });
             const email = request.body.email;
             const name = request.body.name;
             const password = request.body.password;
-            const profPicture = request.body.profPicture ?? null;
-            const isAdmin = request.body.isAdmin ?? false;
-            const lang = "0"
+            const profPicture = request.body.profPicture;
+            const isAdmin = request.body.isAdmin;
+            const lang = request.body.lang;
             let user = await prisma.user.create({
                 data: {
                     email,
@@ -324,6 +324,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             }
             reply.send(user);
         } catch (error) {
+            console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {
