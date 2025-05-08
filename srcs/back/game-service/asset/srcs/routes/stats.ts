@@ -3,27 +3,9 @@ import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 
-axios.defaults.validateStatus = status => status >= 200 && status <= 500;
+import { isPlayerWinnerInGame } from "../utils.ts";
 
-function isPlayerWinnerInGame(game: any, userId: number): number
-{
-    let playerScore = 0;
-    let maxScore = 0; 
-    game.players.forEach((player: any) => {
-        if (player.userId == userId)
-        {
-            playerScore = player.score;
-        }
-        else if (player.score > maxScore)
-            maxScore = player.score;
-    });
-    if (playerScore > maxScore)
-        return (1);
-    else if (playerScore == maxScore)
-        return (0)
-    else
-        return (-1);
-}
+axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
 interface PlayerStats
 {
@@ -51,6 +33,25 @@ function getPlayersMainStats(players: Array<any>, userId: number): PlayerStats
             noContests++;
     })
     return ({ wins, looses, noContests, games: players.length });
+}
+
+function getAveragePlayTime(players: Array<any>, userId: number): number
+{
+    let totalPlayTime = 0;
+    let gamesCount = 0;
+    if (!players || players.length == 0)
+        return (console.log('no players in func'), 0);
+    players.forEach(player => {
+        const game = player.game;
+        if (game.playTime)
+        {
+            totalPlayTime += game.playTime;
+            gamesCount++;
+        }
+    })
+    if (gamesCount == 0)
+        return (0);
+    return (totalPlayTime / gamesCount);
 }
 
 function gameRoutes(server: FastifyInstance, options: any, done: any)
@@ -105,17 +106,19 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
                 if (!players)
                     return reply.status(200).send({});
                 const { wins, looses, games, noContests } = getPlayersMainStats(players, userId);
+                const averagePlayTime = getAveragePlayTime(players, userId);
                 reply.status(200).send({
                     wins,
                     looses,
                     games,
-                    noContests
+                    noContests,
+                    winRate: (wins + noContests) / (games + noContests) * 100,
+                    averagePlayTime: averagePlayTime,
                 });
             } catch (error) {
                 console.log(error);
                 return reply.status(500).send({ error: '0500' });
             }
-
         }
     );
 

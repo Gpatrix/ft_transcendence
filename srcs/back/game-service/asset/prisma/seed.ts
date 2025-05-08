@@ -32,7 +32,8 @@ async function main() {
                 { userId: 1, score: 16 },
                 { userId: 2, score: 14 }
               ]
-            }
+            },
+            playTime: 1200
           },
           {
             tournamentStage: 4,
@@ -41,7 +42,8 @@ async function main() {
                 { userId: 3, score: 16 },
                 { userId: 4, score: 9 }
               ]
-            }
+            },
+            playTime: 1200
           },
           {
             tournamentStage: 4,
@@ -50,7 +52,8 @@ async function main() {
                 { userId: 5, score: 16 },
                 { userId: 6, score: 2 }
               ]
-            }
+            },
+            playTime: 700
           },
           {
             tournamentStage: 4,
@@ -59,7 +62,8 @@ async function main() {
                 { userId: 7, score: 16 },
                 { userId: 8, score: 2 }
               ]
-            }
+            },
+            playTime: 300
           },
 
           // DEMIS (Stage 2)
@@ -70,7 +74,8 @@ async function main() {
                 { userId: 1, score: 16 },
                 { userId: 3, score: 2 }
               ]
-            }
+            },
+            playTime: 230
           },
           {
             tournamentStage: 2,
@@ -79,7 +84,8 @@ async function main() {
                 { userId: 5, score: 5 },
                 { userId: 7, score: 16 }
               ]
-            }
+            },
+            playTime: 670
           },
 
           // FINALE (Stage 1)
@@ -90,7 +96,8 @@ async function main() {
                 { userId: 1, score: 11 },
                 { userId: 7, score: 16 }
               ]
-            }
+            },
+            playTime: 50
           },
         ]
       }
@@ -120,7 +127,8 @@ async function main() {
                 { userId: 1, score: 42 },
                 { userId: 2, score: 331 }
               ]
-            }
+            },
+            playTime: 550
           }
         ]
       }
@@ -150,7 +158,8 @@ async function main() {
                 { userId: 4, score: 9 },
                 { userId: 6, score: 16 }
               ]
-            }
+            },
+            playTime: 380
           }
         ]
       }

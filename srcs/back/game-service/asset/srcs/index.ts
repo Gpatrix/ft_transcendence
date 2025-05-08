@@ -9,6 +9,7 @@ server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(require("./routes/game"));
 server.register(require("./routes/stats"));
+server.register(require("./routes/history"));
 
 server.addHook('preValidation'
   , (request, reply, done) => {
