@@ -1,73 +1,66 @@
-import { Link } from "react-router"
+import { Link, useParams } from "react-router"
 import InputWithLabel from "../../components/InputWithLabel"
 import Button from "../../components/Button"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import LoginErrorMsg from "../../components/LoginErrorMsg";
 import { get_server_translation } from "../../translations/server_responses";
-import { get_page_translation } from "../../translations/pages_reponses";
+import { gpt } from "../../translations/pages_reponses";
 import GoogleAuth from "./GoogleAuth";
+import { useAuth } from "../../AuthProvider";
 
 export default function Login() {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
-
     const navigate = useNavigate(); // redirect to home
+    const { login, setLogged, isAuthenticated } = useAuth();
 
-    const handleSubmit = (event : React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            const requestData = {
-                method :  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(
-                {
-                    email,
-                    password,
-                }),
-            }
-            fetch('/api/auth/login', requestData)
-            .then(response => {
-                if (response.ok) {
-                    setError("")
-                    navigate("/yeahloggin")
-                }
-                else {
-                    return (response.json().then(data => {
-                        setError(get_server_translation(data.error))
-                    }))
-                }
-            })
-        }
-        catch(e) {
-            if (e instanceof Error) { // backend error
-                setError(get_page_translation("0500"))
+            await login(email, password);
+            setError("");
+        } catch (e) {
+            if (e instanceof Error) {
+                setError(get_server_translation(e.message));
+            } else {
+                setError(gpt("0500"));
             }
         }
     }
 
+    useEffect(()=> { //  oauth forcing authProvider
+        const queryParameters = new URLSearchParams(window.location.search)
+        const callback = queryParameters.get("oauth")
+        if (callback) {
+            setLogged()
+            navigate("/")
+        }
+    }, [])
+
+
     return (
         <span className="flex flex-col w-1/1">
             <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1">
-                <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} placeholder={get_page_translation("email_placeholder")} label={get_page_translation("email")} />
-                <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} placeholder={get_page_translation("password_placeholder")} label={get_page_translation("password")} />
-                <Link to="/forgot-password" className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{get_page_translation("forgotten")}</Link> 
+                <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} placeholder={gpt("email_placeholder")} label={gpt("email")} />
+                <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} placeholder={gpt("password_placeholder")} label={gpt("password")} />
+                <Link to="/forgot-password" className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{gpt("forgotten")}</Link> 
 
                 { error && 
                     <LoginErrorMsg>{error}</LoginErrorMsg>
                 }
 
-                <Button type="full" className="mt-5">{get_page_translation("connexion")}</Button>
+                <Button type="full" className="mt-5">{gpt("connexion")}</Button>
 
                 <span className="flex text-xs text-yellow items-center my-[10px]">
                     <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
-                    <span>{get_page_translation("or")}</span>
+                    <span>{gpt("or")}</span>
                     <span className="w-full h-[1px] ml-[12px] bg-yellow"/>
                 </span>
                 </form>
             <GoogleAuth />
-            <Link to="/register" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{get_page_translation("register")}</Link>
+            <Link to="/register" className="text-yellow ml-auto mr-auto underline py-2 mb-4 hover:text-yellow">{gpt("register")}</Link>
         </span>
 
     )

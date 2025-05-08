@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import LeftPart from "../LeftPart"
 import RightPart from "../RightPart"
 import { useAuth } from "../../../AuthProvider"
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 
 export type ProfileDataType = {
     name: string
@@ -13,7 +13,7 @@ export type ProfileDataType = {
     lang : number | null
 }
 
-export default function MyProfile() {
+export default function OthersProfile() {   
     const [profileData, setProfileData] = useState<ProfileDataType>({
         name: "",
         email: null,
@@ -22,11 +22,18 @@ export default function MyProfile() {
         rank: 0,
         lang : null
     })
+    const { id } = useParams();
+    const navigate = useNavigate()
 
     const { fetchWithAuth } = useAuth();
     function getUserParams() {
-        fetchWithAuth(`https://localhost/api/user/get_profile/`)
-            .then((response) => response.json())
+        fetchWithAuth(`https://localhost/api/user/get_profile/${id}`)
+            .then((response) => {
+                if (!response.ok) 
+                    throw new Error("User not found");
+                return (response.json())
+                }
+            )
             .then((json) => {
                 const data = json.data
                 setProfileData(prev => ({
@@ -40,9 +47,9 @@ export default function MyProfile() {
                 }));
             })
             .catch((error) => {
-                console.error("Error :", error);
+                navigate("/page-not-found")
             });
-    }
+    }   
 
     useEffect(()=>{
         getUserParams()
@@ -50,8 +57,8 @@ export default function MyProfile() {
 
     return (
         <div className="px-5 w-full ml-auto mr-auto h-fit flex justify-stretch z-1 lg:flex-row flex-col">
-            <LeftPart data={profileData} owner={true}/>
-            <RightPart data={profileData} owner={true}/>
+            <LeftPart data={profileData} />
+            <RightPart data={profileData} owner={false}/>
         </div>
     )
 }

@@ -15,7 +15,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 {
     interface lookupParams 
     {
-        email: string
+        email: string;
     }
 
     interface lookupBody
@@ -31,6 +31,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
+            console.log(`isId: ${isId}, isEmail: ${isEmail}`);
             let user: User | null = null;
             if (isEmail) {
                 user = await prisma.user.findUnique({
@@ -78,21 +79,23 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
             reply.status(401).send({ error: "private_route" });
-        const target = String(request.params.target);
+        const target = Number(request.params.target);
         const target_user = await prisma.user.findUnique({
-            where: {
-                name: target
-                }
+            where:
+            {
+                id: target
+            }
         });
         if (!target_user || target_user === undefined)
         {
             reply.status(404).send({error: "2001"});
             return;
         }
-        const by = String(request.params.by);
+
+        const by = Number(request.params.by);
         const by_user = await prisma.user.findUnique({
             where: {
-              name: by
+              id: by
             },
             include: {
               blockedUsers: true
@@ -149,7 +152,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                             reply.status(403).send({ error: "1012"});
                           break
                         default:
-                            reply.status(403).send({ error: error.message});
+                            reply.status(403).send({ error: "0500"});
                     }
                 }
             else
@@ -262,14 +265,14 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 name: true,
                 bio: true,
                 profPicture: true,
-                rank: true
+                rank: true,
             };
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
-                selectFields.email = true
+                selectFields.email = true,
+                selectFields.lang = true
             }
-
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
                 select: selectFields
@@ -316,8 +319,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     lang
                 }
             })
-            if (!user)
+            if (!user) {
                 throw (new Error())
+            }
             reply.send(user);
         } catch (error) {
             console.log(error);
@@ -407,7 +411,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 if (res.status != 200)
                     throw(new Error("0500"));
                 const result = res.data;
-                put.profPicture = result.fileName;
+                put.profPicture = `https://localhost/api/upload/${result.fileName}`;
             }
             put.name = fields['name']
             put.bio = fields['bio'];
