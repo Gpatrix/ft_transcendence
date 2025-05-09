@@ -17,15 +17,6 @@ interface gameConnectParams {
 var users: MatchMakingMap = new MatchMakingMap();
 var activeConn: Map<number, WebSocket> = new Map();
 
-// function getWebSocketFromPlayerId(playerId: number): WebSocket | null
-// {
-//     for (const [key, value] of userSockets.entries()) {
-//         if (value.playerId == playerId)
-//             return (key);
-//     }
-//     return (null);
-// }
-
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
     server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
