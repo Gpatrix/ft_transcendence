@@ -55,10 +55,8 @@ function closing_conn(socket: WebSocket, token: tokenStruct): void
    console.log(`TODO handle closed ${token.name} socket, remaining: ${activeConn.size}`);
 }
 
-
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   
    if (payload.msg === undefined)
       return (socket.send("{error: 400}"));
    
@@ -90,7 +88,6 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    if (target_socket !== undefined)
       target_socket.send(JSON.stringify(new_msg));
 }
-
 
 async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {

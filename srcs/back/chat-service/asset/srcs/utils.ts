@@ -42,8 +42,7 @@ function trad_prisma_error(error: any): string
    if (axios.isAxiosError(error))
    {
          console.log(error.response?.data);
-         if (error.response?.data.error !== undefined)
-            return (error.response?.data.error);
+         return (error.response?.data.code)
    }
    console.log(error);
    return ("0503");
