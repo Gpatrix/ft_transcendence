@@ -171,6 +171,7 @@ export async function findGameChannel(channelId: number): Promise<t_game_partici
      return (trad_prisma_error(error));
    }
 }
+
 export async function create_msg(channelId: number, senderId: number, content: string, isGame: boolean): Promise<t_message | string>
 {
     try

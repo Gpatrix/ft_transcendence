@@ -31,7 +31,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
-            console.log(`isId: ${isId}, isEmail: ${isEmail}`);
             let user: User | null = null;
             if (isEmail) {
                 user = await prisma.user.findUnique({
