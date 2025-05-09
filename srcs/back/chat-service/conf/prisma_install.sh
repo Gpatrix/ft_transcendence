@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 npx prisma generate
 
 if [ "$NODE_ENV" = "dev" ]; then
