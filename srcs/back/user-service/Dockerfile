@@ -13,11 +13,11 @@ RUN chmod +x npm_install.sh && ./npm_install.sh
 
 COPY ./asset/prisma ./prisma
 COPY ./conf/prisma_install.sh .
+COPY ./asset/tsconfig.json .
 RUN chmod +x prisma_install.sh && ./prisma_install.sh
 
 COPY ./conf/entrypoint.sh .
 COPY ./asset/srcs ./srcs
-COPY ./asset/tsconfig.json .
 RUN chmod +x entrypoint.sh 
 
 ENTRYPOINT ["./entrypoint.sh"]

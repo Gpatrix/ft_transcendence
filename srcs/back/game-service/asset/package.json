@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "prisma": {
-        "seed": "ts-node --transpile-only ./prisma/seed.ts"
+        "seed": "ts-node --project tsconfig.json --transpile-only ./prisma/seed.ts"
     },
     "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs --ignore-watch ./prisma ./srcs/index.ts",
@@ -17,7 +17,7 @@
     "dependencies": {
         "@fastify/cookie": "^11.0.2",
         "@fastify/websocket": "^11.0.2",
-        "@prisma/client": "^6.6.0",
+        "@prisma/client": "^6.7.0",
         "@types/node": "^22.14.1",
         "axios": "^1.9.0",
         "fastify": "^5.3.0",
@@ -27,7 +27,7 @@
     },
     "devDependencies": {
         "@types/jsonwebtoken": "^9.0.9",
-        "prisma": "^6.6.0",
+        "prisma": "^6.7.0",
         "typescript": "^5.8.3"
     }
 }
