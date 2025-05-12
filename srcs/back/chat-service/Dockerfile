@@ -5,8 +5,8 @@ WORKDIR  /usr/src/chat-service
 RUN apk update --no-cache && \
     apk add sqlite openssl --no-cache
 
-    
 ARG DATABASE_URL
+ARG NODE_ENV
 COPY ./asset/package.json .
 COPY ./conf/npm_install.sh .
 RUN chmod +x npm_install.sh && ./npm_install.sh

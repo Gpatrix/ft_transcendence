@@ -1,5 +1,0 @@
-option for ts:
-	noImplicitAny
-	strictNullChecks
-
-use JWE over JWS for better protection

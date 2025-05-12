@@ -14,7 +14,7 @@ export default function LanguageSelect({setValue, lang, init, resetInit} : Langu
                      "italy",]
     console.log(`init : ${init}`)
     return (
-        <span className="flex  ml-auto mr-auto mb-5">
+        <span className="flex  ml-auto mr-auto mt-5 w-fit">
             {keys.map((key, i) => 
                 <img    key={key}
                         onClick={()=>{
