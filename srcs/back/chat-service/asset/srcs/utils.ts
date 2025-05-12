@@ -130,6 +130,7 @@ export async function findChannel(usersID: number[]): Promise<t_channel | string
 
 export async function get_user_info(userId: number): Promise<t_userInfo | string>
 {
+   console.log("test");
    if (!process.env.API_CREDENTIAL)
       return ("0500");
 
