@@ -256,7 +256,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (!token) {
             return (reply.status(401).send({ error: "0403" }));
         }
-
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const callerId = decoded.data.id
@@ -272,6 +271,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 id = callerId;
                 selectFields.email = true,
                 selectFields.lang = true
+                selectFields.isTwoFactorEnabled = true
             }
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
@@ -362,6 +362,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         newPassword?: string,
         bio?: string,
         lang?: string,
+        profPicture?: string,
+        isTwoFactorEnabled?: boolean
         image?: string
     }
 
@@ -396,9 +398,43 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
             if (!foundUser)
                 reply.status(404).send({ error: "1006" });
-            console.log("body", body);
+            let form;
+            if (file)
+            {
+                form = new FormData();
+                form.append('credential', process.env.API_CREDENTIAL);
+                form.append('file', file.file, {
+                    filename: file.filename,
+                    contentType: file.mimetype
+                });                
+                
+                //delete the old pp
+                // if (foundUser.profPicture)
+                // {
+                //     const res = await fetch(`http://upload-service:3000/api/upload/${foundUser.profPicture}`, {
+                //         method: 'DELETE',
+                //         body: JSON.stringify({ credential: process.env.API_CREDENTIAL })
+                //     });
+                //     if (!(res?.ok))
+                //         throw(new Error("cannot_delete_old_prof_pic"));
+                // }
+
+                //upload the new pp
+                const res = await axios.post('http://upload-service:3000/api/upload/', form, {
+                    headers: form.getHeaders()
+                });
+                if (res.status != 200)
+                    throw(new Error("0500"));
+                const result = res.data;
+                put.profPicture = `https://localhost/api/upload/${result.fileName}`;
+            }
+            put.name = fields['name']
+            put.bio = fields['bio'];
+            put.lang = fields['lang']
+            if (fields['isTwoFactorEnabled'])
+                put.isTwoFactorEnabled = fields['isTwoFactorEnabled']
             const updatedUser = await prisma.user.update({
-                where: { 
+                where: {
                     id: tokenPayload.id
                 },
                 data : updateData

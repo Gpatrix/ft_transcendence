@@ -58,6 +58,26 @@
       "Invalid file format. Please select an image file (JPG, PNG, etc.).",
       "Format de fichier invalide. Veuillez sélectionner une image (JPG, PNG, etc.).",
       "Formato di file non valido. Seleziona un'immagine (JPG, PNG, ecc.)."
+    ],
+    "page_not_found": [
+      "Page not found. The page you're looking for doesn't exist or has been moved.",
+      "Page non trouvée. La page que vous cherchez n'existe pas ou a été déplacée.",
+      "Pagina non trovata. La pagina che stai cercando non esiste o è stata spostata."
+    ],
+    "back_to_home": [
+      "Back to Home",
+      "Retour à l'accueil",
+      "Torna alla home"
+    ],
+    "2fa": [
+      "Two factor authentication",
+      "Authentification à deux facteurs",
+      "Autenticazione a due fattori"
+    ],
+    "language": [
+      "Language",
+      "Langue",
+      "Lingua"
     ]
   }
 }
