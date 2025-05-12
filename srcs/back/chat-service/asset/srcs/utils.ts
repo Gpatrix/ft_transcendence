@@ -1,4 +1,4 @@
-import { PrismaClient } from "../prisma/prisma_client";
+import { PrismaClient } from "@prisma/client";
 import axios, { AxiosError } from 'axios';
 
 const prisma = new PrismaClient();
@@ -130,6 +130,7 @@ export async function findChannel(usersID: number[]): Promise<t_channel | string
 
 export async function get_user_info(userId: number): Promise<t_userInfo | string>
 {
+   console.log("test");
    if (!process.env.API_CREDENTIAL)
       return ("0500");
 

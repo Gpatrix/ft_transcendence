@@ -28,6 +28,11 @@ interface tokenStruct
     isAdmin: boolean
 }
 
+function sendError(code: string, socket: WebSocket): void
+{
+   socket.send(`{"error": ${code === undefined ? "0503" : code}}`);
+}
+
 server.addHook('preValidation'
    , (request, reply, done) => {
       
@@ -35,15 +40,15 @@ server.addHook('preValidation'
       try
       {
          if (!token || token === undefined)
-            return (reply.status(403).send({ error: "403" }));
+            return (reply.status(403).send({ error: "0403" }));
          const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
          const id = decoded.id;
          if (!id || id === undefined)
-            return (reply.status(403).send({ error: "403" }));
+            return (reply.status(403).send({ error: "0403" }));
          done();
       }
       catch (error) {
-         return (reply.status(403).send({ error: "403" }));
+         return (reply.status(403).send({ error: "0403" }));
       }
 })
 
@@ -59,30 +64,31 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
 {
    if (payload.msg === undefined)
       return (socket.send("{error: 400}"));
-   
+
+
    let target_user: Utils.t_userInfo | string = await Utils.get_user_info(payload.targetId);
-   if (typeof target_user === 'string')
-      return (socket.send(`{"error": ${target_user}}`))
-   
+   if (typeof target_user !== 'object')
+      return (sendError(target_user, socket));
+
    let isBlocked = await Utils.is_blocked(token.id, target_user.id);
    if (isBlocked !== 'false')
-      {
-         if (isBlocked === 'true')
-            socket.send("3001");
-         else
-            socket.send(isBlocked);
+   {
+      if (isBlocked === 'true')
+         sendError("3001", socket);
+      else
+         sendError(isBlocked, socket);
       return;
    }
 
    let channel: Utils.t_channel | string | null = await Utils.findChannel([token.id, target_user.id]);
    if (channel === null)
       channel = await Utils.CreateChannel([token.id, target_user.id], false);
-   if (typeof channel === 'string')
-      return (socket.send(channel));
+   if (typeof channel !== 'object')
+      return (sendError(channel, socket));
 
    const new_msg: Utils.t_message | string = await Utils.create_msg(channel.id, token.id, payload.msg, false);
    if(typeof new_msg === 'string')
-      return (socket.send(new_msg));
+      return (sendError(new_msg, socket));
 
    const target_socket: WebSocket | undefined = activeConn.get(target_user.id);
    if (target_socket !== undefined)
@@ -93,21 +99,20 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
 {
    const channelId: number = Number(payload.targetId);
    if (payload.msg === undefined || isNaN(channelId))
-      return (socket.send("{error: 400}"));
+      return (socket.send(`{"error": 0400}`));
 
    const participants: Utils.t_game_participants[] | string = await Utils.findGameChannel(channelId);
    if (typeof participants === 'string')
       return (socket.send(participants));
 
    if (!participants.some(p => p.userId === token.id))
-      return (socket.send(`{"error": 401}`));
+      return (socket.send(`{"error": 0401}`));
 
       const new_msg: Utils.t_message | string = await Utils.create_msg(channelId, token.id, payload.msg, true);
       if(typeof new_msg === 'string')
          return (socket.send(new_msg));
 
       const to_send: string = JSON.stringify(new_msg);
-      console.log(to_send);
       let target_socket;
       for (let p of participants)
       {
@@ -131,19 +136,19 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
    try
    {
       const target_info: Utils.t_userInfo | string = await Utils.get_user_info(payload.targetId);
-      if (typeof target_info === 'string')
-         return (socket.send(`{"error": ${target_info}}`));
+      if (typeof target_info !== 'object')
+         return (sendError(target_info, socket));
 
       let channel: Utils.t_channel | string | null = await Utils.findChannel([token.id, target_info.id]);
       if (channel === null)
          channel = await Utils.CreateChannel([token.id, target_info.id], false);
-      if (typeof channel === 'string')
-         return (socket.send(channel));
+      if (typeof channel !== 'object')
+         return (sendError(channel, socket));
 
 
       const requested_msg: Utils.t_message[] | string = await Utils.get_msg(channel.id, payload.skip, payload.take);
-      if(typeof requested_msg === 'string')
-         return (socket.send(requested_msg));
+      if(typeof requested_msg !== 'object')
+         return (sendError(requested_msg, socket));
       socket.send(JSON.stringify(requested_msg));
    }
    catch (error)
