@@ -18,7 +18,6 @@ services:
     volumes:
       - ./back/auth-service/asset/srcs:/usr/src/auth-service/asset/srcs
     environment:
-      DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
@@ -106,25 +105,25 @@ services:
     networks:
       - router
 
-  game-service:
-    container_name: game-service
-    restart: on-failure
-    volumes:
-      - ./back/game-service/asset/srcs:/usr/src/game-service/asset/srcs
-    environment:
-      DATABASE_URL: ${DATABASE_URL:?}
-      API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
-      JWT_SECRET: ${JWT_SECRET:?}
-    build:
-        context: ./back/game-service
-        dockerfile: Dockerfile
-        args:
-          NODE_ENV: ${NODE_ENV:?}
-    expose:
-      - 3000
-    networks:
-      - router
+  # game-service:
+  #   container_name: game-service
+  #   restart: on-failure
+  #   volumes:
+  #     - ./back/game-service/asset/srcs:/usr/src/game-service/asset/srcs
+  #   environment:
+  #     DATABASE_URL: ${DATABASE_URL:?}
+  #     API_CREDENTIAL: ${API_CREDENTIAL:?}
+  #     NODE_ENV: ${NODE_ENV:?}
+  #     JWT_SECRET: ${JWT_SECRET:?}
+  #   build:
+  #       context: ./back/game-service
+  #       dockerfile: Dockerfile
+  #       args:
+  #         NODE_ENV: ${NODE_ENV:?}
+  #   expose:
+  #     - 3000
+  #   networks:
+  #     - router
 
   front_dev:
     container_name: front_dev
