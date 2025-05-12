@@ -40,8 +40,6 @@ services:
     networks:
       - router
 
-
-
   chat-service:
     container_name: chat-service
     restart: on-failure
@@ -57,6 +55,7 @@ services:
         context: ./back/chat-service
         dockerfile: Dockerfile
         args:
+          NODE_ENV: ${NODE_ENV:?}
           DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
@@ -81,6 +80,7 @@ services:
         dockerfile: Dockerfile
         args:
           NODE_ENV: ${NODE_ENV:?}
+          DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
     networks:
@@ -114,7 +114,6 @@ services:
       - ./back/user-service/asset/srcs:/usr/src/user-service/asset/srcs
       - db-user:/usr/src/user-service/asset/prisma/db
     environment:
-      DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
       NODE_ENV: ${NODE_ENV:?}
@@ -123,6 +122,7 @@ services:
         dockerfile: Dockerfile
         args:
           NODE_ENV: ${NODE_ENV:?}
+          DATABASE_URL: ${DATABASE_URL:?}
     ports:
       - 5555:5555
     expose:

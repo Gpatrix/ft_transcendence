@@ -3,6 +3,9 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
+    "prisma": {
+        "seed": "ts-node --transpile-only ./prisma/seed.ts"
+    },
     "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs --ignore-watch ./prisma ./srcs/index.ts",
         "build": "tsc -p tsconfig.json",
