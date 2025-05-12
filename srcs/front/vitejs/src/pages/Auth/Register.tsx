@@ -27,7 +27,7 @@ export default function Register() {
     const {login} = useAuth()
 
     const [params] = useSearchParams()
-    const { setLogged } = useAuth();
+    const { setLogged, isAuthenticated } = useAuth();
 
     useEffect(()=> {
         if (params) {
@@ -36,6 +36,12 @@ export default function Register() {
                 setError(get_server_translation(authError))
         }
     }, [params])
+
+    useEffect(()=> {
+        if (isAuthenticated) {
+            navigate("/")
+        }
+    }, [])
 
     const navigate = useNavigate(); // redirect to home
 

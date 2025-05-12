@@ -9,6 +9,9 @@ import ForgottenPassword from './pages/Auth/ForgottenPassword.tsx';
 import  AuthLayout from "./pages/Auth/AuthLayout.tsx"
 import { CookiesProvider } from 'react-cookie';
 import NewPassword from './pages/Auth/NewPassword.tsx';
+import DfaCheck from './pages/Auth/DfaCheck.tsx';
+import DfaSetup from './pages/Auth/DfaSetup.tsx';
+
 import ProfileBackground from './pages/Profile/ProfileBackground.tsx';
 import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
@@ -17,7 +20,6 @@ import NotFound from './pages/404/NotFound.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
-      <CookiesProvider>
         <AuthProvider>
           <Routes>
             <Route element={<AuthLayout />}>
@@ -26,6 +28,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/forgot-password" element={<ForgottenPassword />} />
               <Route path="/forgot-password/new-password" element={<NewPassword />} />
               <Route path="*" element={<NotFound />}/> 
+              <Route path='2fa-setup' element={<DfaSetup />}/>
+              <Route path='2fa-check' element={<DfaCheck />}/>
             </Route>
 
 
@@ -39,6 +43,5 @@ createRoot(document.getElementById('root')!).render(
 
           </Routes>
         </AuthProvider>
-      </CookiesProvider>
     </BrowserRouter>
 )

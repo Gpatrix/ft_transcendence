@@ -30,11 +30,17 @@ export default function Login() {
         }
     }
 
-    useEffect(()=> { //  oauth forcing authProvider
-        const queryParameters = new URLSearchParams(window.location.search)
+    useEffect(()=> { 
+        const queryParameters = new URLSearchParams(window.location.search) //  oauth forcing authProvider
         const callback = queryParameters.get("oauth")
         if (callback) {
             setLogged()
+            navigate("/")
+        }
+
+        if (isAuthenticated) {
+            alert("test")
+
             navigate("/")
         }
     }, [])

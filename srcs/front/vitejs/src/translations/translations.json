@@ -78,6 +78,21 @@
       "Language",
       "Langue",
       "Lingua"
+    ],
+    "code_placeholder": [
+      "Please enter your authentication code",
+      "Veuillez entrer votre code d'authentification",
+      "Inserisci il tuo codice di autenticazione"
+    ],
+    "code": [
+      "Code:",
+      "Code :",
+      "Codice:"
+    ],
+    "text_2fa": [
+      "Scan this QR code with your authentication app to validate 2FA.",
+      "Scannez ce QR code avec votre application d’authentification pour valider la 2FA.",
+      "Scansiona questo QR code con la tua app di autenticazione per vallidare la 2FA."
     ]
   }
 }

@@ -21,6 +21,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (response.status === 401) {
       navigate("/login");
     }
+    const json = await response.json()
+    if (json.error == "1020") {
+      navigate("/2fa-check")
+    }
     return (response);
   };
 
@@ -36,9 +40,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const response = await fetch("/api/auth/login", requestData);
+    const json = await response.json();
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || "0500");
+      throw new Error(json.error || "0500");
+    }
+    if (json.need2fa) {
+      navigate("/2fa-check");
+      return ;
     }
 
     setIsAuthenticated(true);
@@ -63,3 +71,14 @@ export const useAuth = () => {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 };
+
+
+export const checkAuth = () {
+  
+}
+
+export const AuthChecker = ()=> {
+  const verify = async () => {
+    const check = await 
+  }
+}
