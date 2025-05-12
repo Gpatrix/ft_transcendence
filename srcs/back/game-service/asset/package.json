@@ -3,18 +3,10 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
-    "prisma": {
-        "seed": "ts-node --transpile-only ./prisma/seed.ts"
-    },
-    "watch": {
-        "dev": "./srcs/*.ts"
-    },
     "scripts": {
-        "dev": "ts-node-dev --respawn --transpile-only ./srcs/index.ts",
+        "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs --ignore-watch ./prisma ./srcs/index.ts",
         "build": "tsc -p tsconfig.json",
-        "start": "node ./srcs/index.js",
-        "db:deploy": "npx prisma generate && npx prisma migrate deploy && npx prisma db seed",
-        "db:dev": "npx prisma generate && npx prisma db push && npx prisma db seed"
+        "start": "node ./srcs/index.js"
     },
     "keywords": [],
     "author": "",
