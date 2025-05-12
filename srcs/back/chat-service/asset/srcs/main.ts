@@ -1,15 +1,13 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin from '@fastify/websocket';
+import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
 
-const server = fastify();
-server.register(cookiesPlugin);
-server.register(websocketPlugin);
-server.register(chat_api);
+const PING_INTERVAL = 30000; // 30s
+const PONG_TIMEOUT = 5000;  // 5s
 
 interface payloadstruct
 {
@@ -27,6 +25,21 @@ interface tokenStruct
     name: string,
     isAdmin: boolean
 }
+
+interface i_user
+{
+   socket: WebSocket;
+   timeout: NodeJS.Timeout | null;
+}
+
+const server = fastify();
+server.register(cookiesPlugin);
+server.register(websocketPlugin);
+server.register(chat_api);
+
+setInterval(recurrentPing, PING_INTERVAL);
+
+var activeConn: Map<number, i_user> = new Map();
 
 server.addHook('preValidation'
    , (request, reply, done) => {
@@ -47,12 +60,11 @@ server.addHook('preValidation'
       }
 })
 
-var activeConn: Map<number, WebSocket> = new Map();
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
    activeConn.delete(token.id);
-   console.log(`TODO handle closed ${token.name} socket, remaining: ${activeConn.size}`);
+   console.log(`closing ${token.name} connection, remaining: ${activeConn.size}`);
 }
 
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
@@ -84,7 +96,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    if(typeof new_msg === 'string')
       return (socket.send(new_msg));
 
-   const target_socket: WebSocket | undefined = activeConn.get(target_user.id);
+   const target_socket: WebSocket | undefined = activeConn.get(target_user.id)?.socket;
    if (target_socket !== undefined)
       target_socket.send(JSON.stringify(new_msg));
 }
@@ -93,14 +105,14 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
 {
    const channelId: number = Number(payload.targetId);
    if (payload.msg === undefined || isNaN(channelId))
-      return (socket.send("{error: 400}"));
+      return (socket.send(`{"error": 0400}`));
 
    const participants: Utils.t_game_participants[] | string = await Utils.findGameChannel(channelId);
    if (typeof participants === 'string')
       return (socket.send(participants));
 
    if (!participants.some(p => p.userId === token.id))
-      return (socket.send(`{"error": 401}`));
+      return (socket.send(`{"error": 0401}`));
 
       const new_msg: Utils.t_message | string = await Utils.create_msg(channelId, token.id, payload.msg, true);
       if(typeof new_msg === 'string')
@@ -108,13 +120,13 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
 
       const to_send: string = JSON.stringify(new_msg);
       console.log(to_send);
-      let target_socket;
+      let target_socket: WebSocket | undefined;
       for (let p of participants)
       {
          if (p.userId === token.id)
             continue;
 
-         target_socket = activeConn.get(p.userId);
+         target_socket = activeConn.get(p.userId)?.socket;
          if (target_socket !== undefined)
             target_socket.send(to_send);
       }
@@ -198,12 +210,14 @@ async function chat_api()
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
 
-         activeConn.set(decodedToken.id, socket);
+         const user: i_user = {socket: socket, timeout: null}
+         activeConn.set(decodedToken.id, user);
 
-         socket.on('message', (RawData: WebSocket.RawData) =>
-            data_handler(RawData, socket, decodedToken));
+         socket.on('message', (RawData: WebSocket.RawData) => data_handler(RawData, socket, decodedToken));
 
          socket.on('close', () => closing_conn(socket, decodedToken));
+
+         socket.on('pong', () => pingTimeoutClear(user));
       }
       catch (error)
       {
@@ -232,3 +246,24 @@ server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
    }
    console.log(`ready`);
 })
+
+function pingTimeoutClear(user: i_user)
+{
+   if (user.timeout !== null)
+      clearTimeout(user.timeout);
+
+   user.timeout = null;
+}
+
+function recurrentPing(): void
+{
+   activeConn.forEach((user, userId) =>
+   {
+      user.socket.ping();
+      user.timeout = setTimeout(() => {
+         activeConn.delete(userId);
+         console.log(`No pong from user ${userId}. Connection closed.`);
+         user.socket.terminate();
+      }, PONG_TIMEOUT);
+   });
+}
