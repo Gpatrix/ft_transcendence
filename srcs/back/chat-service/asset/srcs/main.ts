@@ -60,7 +60,6 @@ server.addHook('preValidation'
       }
 })
 
-
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
    activeConn.delete(token.id);
