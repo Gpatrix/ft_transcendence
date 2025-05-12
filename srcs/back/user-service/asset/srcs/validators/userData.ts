@@ -1,24 +1,33 @@
-export function validateUserData(request, reply, done) {
+import deleteImage from "../utils/deleteImage";
 
-    const email = request.body?.email;
-    const name = request.body?.name;
-    const bio = request.body?.bio;
-    const lang = request.body?.lang;
+export async function validateUserData(request: any, reply: any) {
+    try {
+        const { email, name, bio, lang } = request.body || {};
 
-    if (email && email.length > 50)
-        return (reply.status(400).send({ error: "email_too_long" }));
-    if (name && name.length > 20)
-        return (reply.status(400).send({ error: "name_too_long" }));
-    if (bio && bio.length > 200)
-        return (reply.status(400).send({ error: "bio_too_long" }));
-    if (lang && lang != "0" && lang != "1" && lang != "2")
-        return (reply.status(400).send({ error: "lang_not_supported" }));
-    if (email && !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
-        return (reply.status(400).send({ error: "forbidden_characters_in_email" }));
-    if (name && !name.match(/^[a-zA-Z0-9._-]+$/))
-        return (reply.status(400).send({ error: "forbidden_characters_in_name" }));
-
-    done();
+        try {
+            if (email && email.length > 50)
+                throw new Error("1004");
+            if (name && name.length > 20)
+                throw new Error("1005");
+            if (bio && bio.length > 200)
+                throw new Error("1011");
+            // if (lang && !["en", "fr", "ro"].includes(lang))
+            //     throw new Error("0401");
+            if (email && !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
+                throw new Error("1004");
+            if (name && !name.match(/^[a-zA-Z0-9._-]+$/))
+                throw new Error("1005");
+        } catch (error: any) {
+            reply.status(400).send({ error: error.message });
+            if (request.body?.image)
+                deleteImage(request.body.image);
+        }
+    } catch (error) {
+        console.error("Error in validateUserData:", error);
+        reply.status(500).send({ error: '0500' });
+        if (request.body?.image)
+            deleteImage(request.body.image);
+    }
 }
 
 module.exports = validateUserData;
