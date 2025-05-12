@@ -14,7 +14,7 @@ export default function Login() {
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
     const navigate = useNavigate(); // redirect to home
-    const { login, setLogged, isAuthenticated } = useAuth();
+    const { login, setLogged } = useAuth();
 
     const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -36,12 +36,8 @@ export default function Login() {
         if (callback) {
             setLogged()
             navigate("/")
-        }
-
-        if (isAuthenticated) {
-            alert("test")
-
-            navigate("/")
+            return ;
+            // alert()
         }
     }, [])
 

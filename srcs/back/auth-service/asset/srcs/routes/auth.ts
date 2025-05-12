@@ -271,6 +271,9 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             return (reply.redirect("/register?oauth-error=1015"));
         }
     });
+
+    // server.get('/api/auth/status', async function (request, reply) {
+
     done();    
 }
 

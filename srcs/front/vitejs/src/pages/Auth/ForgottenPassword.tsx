@@ -47,7 +47,7 @@ export default function ForgottenPassword() {
         }
         catch (e) {
             if (e instanceof AuthError) {
-                setError(e.message)
+                setError(get_server_translation(e.message))
             }
             else
                 setError(get_server_translation("0500"))

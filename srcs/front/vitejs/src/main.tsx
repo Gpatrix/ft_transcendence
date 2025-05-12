@@ -20,6 +20,7 @@ import NotFound from './pages/404/NotFound.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
+      <CookiesProvider>
         <AuthProvider>
           <Routes>
             <Route element={<AuthLayout />}>
@@ -43,5 +44,6 @@ createRoot(document.getElementById('root')!).render(
 
           </Routes>
         </AuthProvider>
+        </CookiesProvider>
     </BrowserRouter>
 )
