@@ -68,6 +68,16 @@
       "Back to Home",
       "Retour à l'accueil",
       "Torna alla home"
+    ],
+    "2fa": [
+      "Two factor authentication",
+      "Authentification à deux facteurs",
+      "Autenticazione a due fattori"
+    ],
+    "language": [
+      "Language",
+      "Langue",
+      "Lingua"
     ]
   }
 }

@@ -256,7 +256,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (!token) {
             return (reply.status(401).send({ error: "0403" }));
         }
-
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const callerId = decoded.data.id
@@ -272,6 +271,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 id = callerId;
                 selectFields.email = true,
                 selectFields.lang = true
+                selectFields.isTwoFactorEnabled = true
             }
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
@@ -351,7 +351,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         password?: string,
         bio?: string,
         lang?: string,
-        profPicture?: string
+        profPicture?: string,
+        isTwoFactorEnabled?: boolean
     }
 
     server.put<{ Body: editUserBody }>('/api/user/edit', { preHandler: [isConnected, validateUserData] }, async (request, reply) => {
@@ -415,8 +416,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             put.name = fields['name']
             put.bio = fields['bio'];
             put.lang = fields['lang']
+            if (fields['isTwoFactorEnabled'])
+                put.isTwoFactorEnabled = fields['isTwoFactorEnabled']
             const updatedUser = await prisma.user.update({
-                where: { 
+                where: {
                     id: tokenPayload.id
                 },
                 data : put
