@@ -272,7 +272,19 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         }
     });
 
-    // server.get('/api/auth/status', async function (request, reply) {
+    server.get('/api/auth/status', async function (request, reply) {
+        const token = request.cookies.ft_transcendence_jw_token;
+        console.log(token)
+        if (!token)
+            return (reply.status(401).send({ error: "1016" }));
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            return (reply.status(200).send({ message: "logged_in" }));
+        }
+        catch (error) {
+            return (reply.status(500).send({ error: "0403" }));
+        }
+    });
 
     done();    
 }
