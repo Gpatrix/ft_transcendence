@@ -61,38 +61,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const location = useLocation()
 
-    useEffect(() => {
+
+    const checkAuthStatus = async () => {
       const logoutPages = [
         "/register",
         "/login",
         "/login?oauth=true",
-        "/2fa-check",
-        "/2fa-setup",
         "/forgot-password",
         "/forgot-password/new-password",
       ]
-
-      const checkAuthStatus = async () => {
-        try {
-          const response = await fetch("https://localhost/api/auth/status", { method: "GET" });
-          if (!response.ok) {
-            setIsAuthenticated(false);
-            if (!logoutPages.includes(location.pathname))
-                navigate("/login");
-          }
-          else {
-            setIsAuthenticated(true);
-            if (logoutPages.includes(location.pathname))
-              navigate("/");
-          }
-        } catch (error) {
+      try {
+        const response = await fetch("https://localhost/api/auth/status", { method: "GET" });
+        if (!response.ok) {
           setIsAuthenticated(false);
-          navigate("/login");
+          const data = await response.json()
+          console.log(data)
+          if (data.error == "1020") {
+            navigate("/2fa-check");
+            return ;
+          }
+        
+          if (!logoutPages.includes(location.pathname))
+              navigate("/login");
         }
-      };
-    
+        else {
+          setIsAuthenticated(true);
+          if (logoutPages.includes(location.pathname))
+            navigate("/");
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        navigate("/login");
+      }
+    };
+
+    useEffect(() => {
       checkAuthStatus();
-    }, [navigate, location.pathname]);
+    }, [navigate]);
+
+
+    useEffect(() => {
+      checkAuthStatus();
+    }, []);
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth, setLogged }}>

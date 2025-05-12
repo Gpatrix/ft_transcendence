@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import validatePassword  from "../validators/password";
 import { Prisma } from "@prisma/client";
+const isConnected = require('../validators/jsonwebtoken'); 
 
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -273,17 +274,10 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     });
 
     server.get('/api/auth/status', async function (request, reply) {
-        const token = request.cookies.ft_transcendence_jw_token;
-        console.log(token)
-        if (!token)
-            return (reply.status(401).send({ error: "1016" }));
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const connected = await isConnected(request, reply, ()=> {
             return (reply.status(200).send({ message: "logged_in" }));
-        }
-        catch (error) {
-            return (reply.status(500).send({ error: "0403" }));
-        }
+        })
+        console.log(connected)
     });
 
     done();    
