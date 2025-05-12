@@ -5,9 +5,10 @@ import isConnected from "../validators/jsonwebtoken";
 // import jwtValidator from "./validators/jsonwebtoken";
 import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
-import FormData from 'form-data';
 import axios from 'axios';
 import prisma from '../config/prisma';
+import deleteImage from "../utils/deleteImage";
+import imageUpload from "../validators/imageUpload";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -343,29 +344,31 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
-    interface editUserBody 
+    interface UserData 
+    {
+        name?: string,
+        bio?: string,
+        lang?: string,
+        profPicture?: string,
+        newPassword?: string
+    }
+
+    interface EditUserBody
     {
         id?: number,
         name?: string,
         password?: string,
+        newPassword?: string,
         bio?: string,
         lang?: string,
-        profPicture?: string
+        image?: string
     }
 
-    server.put<{ Body: editUserBody }>('/api/user/edit', { preHandler: [isConnected, validateUserData] }, async (request, reply) => {
-        let put: editUserBody = {};
-        let file;
-        let fields: { [key: string]: any } = {};
-        const parts = request.parts()
-        for await (const part of parts) {
-            if (part.type === 'file') {
-                file = part;
-            } else {
-                fields[part.fieldname] = part.value; // Pas d'erreur ici maintenant
-            }
-        }
-        const bodyId = file?.fields?.id?.value;
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData] }, async (request, reply) => {
+        const body: EditUserBody = request.body;
+        if (!body)
+            return (reply.status(400).send({ error: "0401" }));
+        const bodyId = body?.id;
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
             reply.status(401).send({ error: "1019" });
@@ -374,6 +377,17 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (tokenPayload?.isAdmin && bodyId)
             tokenPayload.id = bodyId;
         try {
+            const updateData: UserData = {};
+            if (body.name)
+                updateData.name = body.name;
+            if (body.bio)
+                updateData.bio = body.bio;
+            if (body.lang)
+                updateData.lang = body.lang;
+            if (body.newPassword)
+                updateData.newPassword = body.newPassword;
+            if (body.image)
+                updateData.profPicture = body.image;
             const foundUser = await prisma.user.findUnique({
                 where: {
                     id: tokenPayload.id
@@ -381,59 +395,21 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
             if (!foundUser)
                 reply.status(404).send({ error: "1006" });
-            let form;
-            if (file)
-            {
-                form = new FormData();
-                form.append('credential', process.env.API_CREDENTIAL);
-                form.append('file', file.file, {
-                    filename: file.filename,
-                    contentType: file.mimetype
-                });                
-                
-                //delete the old pp
-                // if (foundUser.profPicture)
-                // {
-                //     const res = await fetch(`http://upload-service:3000/api/upload/${foundUser.profPicture}`, {
-                //         method: 'DELETE',
-                //         body: JSON.stringify({ credential: process.env.API_CREDENTIAL })
-                //     });
-                //     if (!(res?.ok))
-                //         throw(new Error("cannot_delete_old_prof_pic"));
-                // }
-
-                //upload the new pp
-                const res = await axios.post('http://upload-service:3000/api/upload/', form, {
-                    headers: form.getHeaders()
-                });
-                if (res.status != 200)
-                    throw(new Error("0500"));
-                const result = res.data;
-                put.profPicture = `https://localhost/api/upload/${result.fileName}`;
-            }
-            put.name = fields['name']
-            put.bio = fields['bio'];
-            put.lang = fields['lang']
+            console.log("body", body);
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
                 },
-                data : put
+                data : updateData
             });
 
             if (!updatedUser)
                 throw (new Error('0500'));
             reply.status(200).send(updatedUser);
         } catch (error) {
-            if (put.profPicture)
-            {
-                let put: editUserBody = {};
-                const res = await fetch(`http:/upload-service:3000/api/upload/${put.profPicture}`, {
-                    method: 'DELETE',
-                    body: JSON.stringify({ credential: process.env.API_CREDENTIAL }),
-                    headers: { 'Content-Type': 'application/json' }      
-                });
-            }
+            console.log(error);
+            if (body.image)
+                deleteImage(body.image);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {
