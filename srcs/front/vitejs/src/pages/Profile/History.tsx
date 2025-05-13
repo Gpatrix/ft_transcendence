@@ -41,17 +41,16 @@ export default function History({ playerId }: { playerId: number }) {
     fetchHistory();
   }, [playerId]);
 
-  if (loading) return <p>Chargement des matchs...</p>;
-  if (!matches || matches.length === 0) return <p>Aucun match trouvé.</p>;
+  if (loading) return <p className="text-yellow">Loading...</p>;
+  if (!matches || matches.length === 0) return <p className="text-yellow">No match found.</p>;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 h-[500px] overflow-scroll">
       {matches.map((match, idx) => (
         <MatchHistory
         key={match.gameId}
         match={match}
-      />
-      ))}
+      />))}
     </div>
   );
 }

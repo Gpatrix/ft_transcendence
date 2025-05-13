@@ -57,6 +57,7 @@ export default function MatchResult({ match }: MatchResultProps) {
         setLoading(false);
       }
     };
+    match.gameDate = new Date(match.gameDate)
     fetchUsers();
   }, [match]);
 
@@ -81,7 +82,15 @@ export default function MatchResult({ match }: MatchResultProps) {
   return (
     <div className='relative mt-7'>
         <span className='z-1 absolute right-0 top-[-20px] bg-grey px-2 border-yellow border-1 text-yellow'>
-        {String(match.gameDate)}
+        {match.gameDate.toLocaleDateString("fr-FR", {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }) + ", " + match.gameDate.toLocaleTimeString("fr-FR", {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }).replace(":", "h")}
         </span>
 
         <div className={clsx('z-0 relative w-full text-yellow overflow-hidden border-solid border-yellow rounded-sm', 'bg-neutral-800', expendedItem ? styles.expended : '')}>
