@@ -78,6 +78,21 @@
       "Language",
       "Langue",
       "Lingua"
+    ],
+    "victory": [
+      "Victories",
+      "Victoires",
+      "Vittorie"
+    ],
+    "victory_rate": [
+      "Victory rate",
+      "Taux de victoire",
+      "Percentuale di vittorie"
+    ],
+    "loose": [
+      "Losses",
+      "Défaites",
+      "Sconfitte"
     ]
   }
 }

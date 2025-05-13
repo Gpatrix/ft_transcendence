@@ -27,9 +27,15 @@ export default function History({ playerId }: { playerId: number }) {
     async function fetchHistory() {
       try {
         const res = await fetch(`/api/game/history/${playerId}`);
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
+        if (!res.ok) throw new Error("ERROR");
         const data = await res.json();
-        setMatches(data.games);
+  
+        const parsedGames = data.games.map((match: any) => ({
+          ...match,
+          gameDate: new Date(match.gameDate)
+        }));
+  
+        setMatches(parsedGames);
       } catch (err) {
         console.error("Erreur fetch:", err);
         setMatches([]);
@@ -37,7 +43,7 @@ export default function History({ playerId }: { playerId: number }) {
         setLoading(false);
       }
     }
-
+  
     fetchHistory();
   }, [playerId]);
 
