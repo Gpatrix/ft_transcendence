@@ -26,9 +26,6 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
         // paragraph.match(regex);
         const tempsFriends: Friend[] = friends.filter((friend) => friend.name.match(regex));
 
-        console.log(tempsFriends);
-        
-
         if (tempsFriends.length == 0 && inputSearch.length == 0)
             setListFriends(friends);
         else

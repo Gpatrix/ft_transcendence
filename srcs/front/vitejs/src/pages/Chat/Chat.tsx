@@ -16,9 +16,10 @@ import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 
 export default function Chat() {
 
-    const [activFriend, setActivFriend] = useState<number>(0);
+    const { fetchWithAuth } = useAuth();
+    const { friends, setFriends, activFriend, setActivFriend } = useWebSocket();
+
     const [showFriendPopup, setShowFriendPopup] = useState(false);
-    // const [friends, setFriends] = useState<Friend[]>([]);
 
     const navigate = useNavigate()
 
@@ -28,41 +29,28 @@ export default function Chat() {
         if (balise.dataset.nb) //  && balise.dataset.status && balise.dataset.status == 'online'
         {
             setActivFriend(Number(balise.dataset.nb))
-            // changer les messages affiches
+            const newFriend: Friend[] = [...friends];
+            const friend = newFriend.find(friend => friend.id == Number(balise.dataset.nb));
+            if (friend)
+                friend.nbNotifs = 0;
+            setFriends(newFriend);
         }
     }
-
-    // const [profileData, setProfileData] = useState<ProfileDataType>({
-    //         name: "",
-    //         email: null,
-    //         bio: null,
-    //         profPicture: null,
-    //         rank: 0,
-    //         lang : null
-    //     })
-    
-
-    const { fetchWithAuth } = useAuth();
-    const { friends, setFriends } = useWebSocket();
-    
-
-
-    // idSender
 
     const [profileData, setProfileData] = useState<User | undefined>()
 
     function getUserParams() {
         fetchWithAuth(`https://localhost/api/user/get_profile/`)
-            .then((response) => response.json())
-            .then((json) => {
-                const data = json.data
-                console.log(data);
-                setProfileData(new User(0, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank));
+        .then((response) => response.json())
+        .then((json) => {
+            const data = json.data
+            console.log(data);
+            setProfileData(new User(0, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank));
 
-            })
-            .catch((error) => {
-                console.error("Error :", error);
-            });
+        })
+        .catch((error) => {
+            console.error("Error :", error);
+        });
     }
 
 

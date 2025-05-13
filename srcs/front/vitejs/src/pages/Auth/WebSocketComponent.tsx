@@ -13,6 +13,8 @@ import Message from '../../classes/Message';
 
 type WebSocketContextType = {
     socket: WebSocket | null;
+    activFriend: number;
+    setActivFriend: React.Dispatch<React.SetStateAction<number>>;
     friends : Friend[];
     setFriends : React.Dispatch<React.SetStateAction<Friend[]>>;
 };
@@ -21,6 +23,8 @@ type WebSocketContextType = {
 
 export const WebSocketContext = createContext<WebSocketContextType>({
     socket: null,
+    activFriend: 0,
+    setActivFriend: () => {},
     friends :  [],
     setFriends : () => {},
 });
@@ -35,6 +39,10 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     // on gere ici toutes les modifications dont on a besoin
     // mettre ici tout les amis avec tout les messages ???
     const [socket, setSocket] = useState<WebSocket | null>(null);
+
+    const [activFriend, setActivFriend] = useState<number>(0)
+    const activFriendRef = useRef<number>(0);
+
     const [friends, setFriends] = useState<Friend[]>([]);
     const friendsRef = useRef<Friend[]>([]);
 
@@ -58,9 +66,14 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
                 if (newMessage != undefined) {
-                   const newFriends = [...friendsRef.current];
-                   newFriends.find((friend) => friend.id == data.senderId)?.addMessages(newMessage);
-                   setFriends(newFriends);
+                    const newFriends = [...friendsRef.current];
+                    const friend = newFriends.find((friend) => friend.id == data.senderId);
+                    if (friend) {
+                        friend.addMessages(newMessage);
+                        if (friend.id != activFriendRef.current)
+                            friend.nbNotifs++;
+                        setFriends(newFriends);
+                    }
                 }
            } else {
                console.warn('Socket non connectée');
@@ -86,19 +99,21 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
         connectWebSocket();
     }, []);
-    useEffect(() => {
-        // WebSocketContext.set = setFriends;
 
+    useEffect(() => {
         friendsRef.current = friends;
-        
     }, [friends]);
+
+    useEffect(() => {
+        activFriendRef.current = activFriend;
+    }, [activFriend]);
 
     // ce au'on vas recuperer dans les enfants :
     // value={{ socket, lastMessage }}
     // faire const { lastMessage } = useWebSocket(); pour recupere lastMessage par exemple
 
     return (
-        <WebSocketContext.Provider value={{ socket, friends, setFriends }}>
+        <WebSocketContext.Provider value={{ socket, friends, setFriends, activFriend, setActivFriend }}>
             {children}
         </WebSocketContext.Provider>
     );
