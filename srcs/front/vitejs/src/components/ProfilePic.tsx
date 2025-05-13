@@ -36,8 +36,8 @@ export default function ProfilePic({ image, className, profileLink, status='none
             </span> }
             {
                 // image ? <img src={image} className="rounded-full h-1/1" />
-                image ? <img src={image} className="rounded-full h-1/1 inline-block" />
-                      : <div className="flex justify-center items-center text-[100%] font-bold rounded-full h-1/1 w-1/1 bg-light-yellow text-grey">T</div>
+                <img src={image ? image : "/default.png"} className="rounded-full h-1/1 inline-block" />
+
             }
         </Link>
     );

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import SwitchButton from "./SwitchButton";
 import EditParams from "./me/EditParams";
 import { ProfileDataType } from "./me/MyProfile";
+import History from "./History";
 
 interface RightPartProps {
     data : ProfileDataType
@@ -19,7 +20,7 @@ export default function RightPart({data, owner} : RightPartProps) {
             }
             {
                 (!owner || menuSwitch) &&
-                <p>history!! TODO.</p>
+                <History playerId={1}/>
             }
         </div>
     )

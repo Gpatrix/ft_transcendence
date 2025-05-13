@@ -5,6 +5,7 @@ class Player extends User {
     points: number;
     idGame: number;
     place: number;
+    id: number;
 
     constructor(id: number, name: string, email: string, imageUrl: string, points: number, idGame: number, place: number) {
         super(id, name, email, imageUrl);
@@ -12,8 +13,19 @@ class Player extends User {
         this.idGame = idGame;
         this.points = points;
         this.place = place;
+        this.id = id
     }
     
+    static async fillFromApi(userId: number, points: number, idGame: number, place: number): Promise<Player> {
+        const res = await fetch(`/api/user/get_profile/${userId}`);
+        if (!res.ok) throw new Error(`Failed to fetch user with id ${userId}`);
+        
+        const data = await res.json();
+        
+        return new Player(data.id, data.name, data.email, data.imageUrl, points, idGame, place);
+    }
+    
+
     addPoints(newPoints: number) {
         this.points += newPoints;
     }
