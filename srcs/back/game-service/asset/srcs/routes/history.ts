@@ -55,7 +55,15 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
     server.get<{ Params: GetPlayerHistoryParams }>(`/api/game/history/:id`, async ( request: any, reply: any ) =>
         {
             try {
-                const userId = Number(request.params.id);
+                let userId = Number(request.params.id);
+                if (!userId) // /me when no id is provided
+                {
+                    const token = request.cookies['ft_transcendence_jw_token'];
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                    const tokenPayload = decoded.data;
+                    console.log(tokenPayload)
+                    userId = tokenPayload.id
+                }
                 if (!userId)
                     return reply.status(403).send({ error: '0403' });
                 const players = await prisma.player.findMany({
