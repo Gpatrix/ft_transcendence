@@ -26,7 +26,7 @@ export default function History({ playerId }: { playerId: number }) {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const res = await fetch(`/api/game/history/4`);
+        const res = await fetch(`/api/game/history/${playerId}`);
         if (!res.ok) throw new Error("Erreur lors de la récupération des données");
         const data = await res.json();
         setMatches(data.games);

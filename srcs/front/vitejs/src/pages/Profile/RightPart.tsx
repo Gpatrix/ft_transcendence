@@ -3,6 +3,7 @@ import SwitchButton from "./SwitchButton";
 import EditParams from "./me/EditParams";
 import { ProfileDataType } from "./me/MyProfile";
 import History from "./History";
+import { useParams } from "react-router";
 
 interface RightPartProps {
     data : ProfileDataType
@@ -11,7 +12,7 @@ interface RightPartProps {
 
 export default function RightPart({data, owner} : RightPartProps) {
     const [menuSwitch, setMenuSwitch] = useState<boolean>(false)
-
+    const { id } = useParams();
     return (
         <div className="w-full">
             {owner && <SwitchButton setState={setMenuSwitch} state={menuSwitch}/>}
@@ -20,7 +21,7 @@ export default function RightPart({data, owner} : RightPartProps) {
             }
             {
                 (!owner || menuSwitch) &&
-                <History playerId={1}/>
+                <History playerId={Number(id)}/>
             }
         </div>
     )

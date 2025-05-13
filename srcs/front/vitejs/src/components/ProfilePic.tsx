@@ -36,7 +36,7 @@ export default function ProfilePic({ image, className, profileLink, status='none
             </span> }
             {
                 // image ? <img src={image} className="rounded-full h-1/1" />
-                <img src={image ? image : "/default.png"} className="rounded-full h-1/1 inline-block" />
+                <img src={image ? image : "/default.png"} className="rounded-full h-1/1 w-1/1 inline-block bg-grey" />
 
             }
         </Link>
