@@ -116,6 +116,7 @@ services:
     environment:
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
+      DATABASE_URL: ${DATABASE_URL:?}
       NODE_ENV: ${NODE_ENV:?}
     build:
         context: ./back/user-service

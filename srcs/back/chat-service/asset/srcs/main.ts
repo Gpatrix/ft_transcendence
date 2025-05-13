@@ -74,21 +74,17 @@ function closing_conn(socket: WebSocket, token: tokenStruct): void
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.msg === undefined)
-      return (socket.send("{error: 400}"));
-
+      return (sendError("0400", socket));
 
    let target_user: Utils.t_userInfo | string = await Utils.get_user_info(payload.targetId);
    if (typeof target_user !== 'object')
       return (sendError(target_user, socket));
 
-   let isBlocked = await Utils.is_blocked(token.id, target_user.id);
-   if (isBlocked !== 'false')
+   if (token.isAdmin === false)
    {
-      if (isBlocked === 'true')
-         sendError("3001", socket);
-      else
-         sendError(isBlocked, socket);
-      return;
+      let isBlocked = await Utils.is_blocked(token.id, target_user.id);
+      if (isBlocked !== 'false')
+         return (sendError(isBlocked, socket));
    }
 
    let channel: Utils.t_channel | string | null = await Utils.findChannel([token.id, target_user.id]);

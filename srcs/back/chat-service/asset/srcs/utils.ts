@@ -60,7 +60,7 @@ export async function is_blocked(by: number, target: number): Promise<string>
          {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
-      return (String(response.data.value));
+      return (response.data.value);
    }
    catch (error: AxiosError | unknown)
    {

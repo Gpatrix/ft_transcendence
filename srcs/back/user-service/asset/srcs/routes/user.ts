@@ -9,6 +9,7 @@ import axios from 'axios';
 import prisma from '../config/prisma';
 import deleteImage from "../utils/deleteImage";
 import imageUpload from "../validators/imageUpload";
+import { isBlock } from "typescript";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -79,37 +80,40 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
             reply.status(401).send({ error: "private_route" });
-        const target = Number(request.params.target);
         const target_user = await prisma.user.findUnique({
-            where:
-            {
-                id: target
+            where: {
+                id: Number(request.params.target)
+            },
+            include: {
+                blockedUsers: true
             }
         });
         if (!target_user || target_user === undefined)
-        {
-            reply.status(404).send({error: "2001"});
-            return;
-        }
+            return (reply.status(404).send({error: "2001"}));
 
-        const by = Number(request.params.by);
         const by_user = await prisma.user.findUnique({
             where: {
-              id: by
+              id: Number(request.params.by)
             },
             include: {
               blockedUsers: true
             }
         });
-        if (by_user == null|| by_user === undefined)
+        if (!by_user || by_user === undefined)
             reply.status(404).send({error: "2002"});
-        else    
+        else
         {
-
-            let isBlocked: boolean 
+            let isBlocked: boolean
             = (by_user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => 
-                blockedUser.blockedUserId == target_user.id) || by_user.isAdmin)
-            reply.status(200).send({ value: isBlocked });
+                blockedUser.blockedUserId === target_user.id))
+            if (isBlocked === true)
+                return (reply.status(200).send({value: "3001"}))
+            isBlocked
+            = (target_user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => 
+                blockedUser.blockedUserId === by_user.id))
+            if (isBlocked === true)
+                return (reply.status(200).send({value: "3002"}))
+            reply.status(200).send({ value: false });
         }
     })
 
