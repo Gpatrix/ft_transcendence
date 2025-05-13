@@ -60,7 +60,7 @@ export async function is_blocked(by: number, target: number): Promise<string>
          {credential: process.env.API_CREDENTIAL}, 
          {headers: {'Content-Type': 'application/json'}}
       )
-      return (response.data.value);
+      return (String(response.data.value));
    }
    catch (error: AxiosError | unknown)
    {
@@ -130,7 +130,6 @@ export async function findChannel(usersID: number[]): Promise<t_channel | string
 
 export async function get_user_info(userId: number): Promise<t_userInfo | string>
 {
-   console.log("test");
    if (!process.env.API_CREDENTIAL)
       return ("0500");
 
