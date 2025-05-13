@@ -94,7 +94,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
       return (sendError(channel, socket));
 
    const new_msg: Utils.t_message | string = await Utils.create_msg(channel.id, token.id, payload.msg, false);
-   if(typeof new_msg === 'string')
+   if(typeof new_msg !== 'object')
       return (sendError(new_msg, socket));
 
    const target_socket: WebSocket | undefined = activeConn.get(target_user.id)?.socket;
