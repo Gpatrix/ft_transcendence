@@ -5,12 +5,12 @@ type ChatMessageProps = {
     className?: string;
     profileIco: string;
     username: string;
-    profileLink: string;
+    profileLink?: string;
     hour: string;
     children: string;
 };
 
-export default function ChatMessage({profileLink, profileIco, username, hour, children} : ChatMessageProps) {
+export default function ChatMessage({profileLink = "", profileIco, username, hour, children} : ChatMessageProps) {
     return (
         <span className='flex flex-col space-y-[8px]'>
             <span className='flex items-center h-[42px] space-x-[16px] text-white'>

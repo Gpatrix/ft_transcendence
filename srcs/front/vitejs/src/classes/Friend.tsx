@@ -9,8 +9,9 @@ class Friend extends User {
     nbNotifs: number;
 
 
-    constructor(id: number, name: string, email: string, profPicture: string, bio: string, rank: number, messages: Message[] = [], connected: boolean = false, nbNotifs: number = 0) {
-        super(id, name, email, profPicture, bio, rank);
+    constructor(id: number, name: string, email: string, profPicture: string, bio: string, lang : string,
+            isTwoFactorEnabled : boolean, rank: number, messages: Message[] = [], connected: boolean = false, nbNotifs: number = 0) {
+        super(id, name, email, profPicture, bio, lang, isTwoFactorEnabled, rank);
         
         this.connected = connected;
         this.messages = messages;
@@ -19,7 +20,7 @@ class Friend extends User {
 
     
     addMessages(newMessages: Message) {
-        this.messages.push(newMessages);
+        this.messages.splice(0, 0, newMessages);
     }
     
     removeMessages(messagesToRemove: Message) {
@@ -107,7 +108,7 @@ class Friend extends User {
                 const user : User | undefined = await Friend.getUserById(req.friendUserId);
                 
                 if (user != undefined)
-                    friends.push(new Friend(req.friendUserId, user.name, user.email, user.profPicture, user.bio, user.rank));
+                    friends.push(new Friend(req.friendUserId, user.name, user.email, user.profPicture, user.bio, user.lang, user.isTwoFactorEnabled, user.rank));
             }
 
             return (friends);

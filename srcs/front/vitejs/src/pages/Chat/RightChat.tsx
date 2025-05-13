@@ -9,11 +9,23 @@ import ClickableIco from "../../components/ClickableIco.tsx"
 import Friend from "../../classes/Friend.tsx"
 import Message from "../../classes/Message.tsx"
 import ButtonMenu from '../../components/ButtonMenu.tsx';
+import { useWebSocket } from '../Auth/WebSocketComponent.tsx';
+import User from '../../classes/User.tsx';
+
+interface payloadstruct
+{
+    action: string; // "msg", "game_msg", "refresh"
+    targetId: number;
+    skip?: number;
+    take?: number;
+    msg?: string;
+}
 
 type RightChatProps = {
     activFriend: number;
     friends: Friend[],
     setFriends: React.Dispatch<React.SetStateAction<Friend[]>>;
+    profileData: User;
     // openMenu: React.Dispatch<SetStateAction<boolean>>;
     // isOpenMenu: boolean;
     // onClose: React.Dispatch<SetStateAction<boolean>>;
@@ -21,9 +33,10 @@ type RightChatProps = {
     // passer en props le onClick de ClickableIco
 }
 
-export default function RightChat({activFriend, friends, setFriends} : RightChatProps) {
+export default function RightChat({activFriend, friends, setFriends, profileData} : RightChatProps) {
 
     // const navigate = useNavigate();
+    const { socket } = useWebSocket();
 
     const [inputMessage, setInputMessage] = useState<string>("");
 
@@ -31,12 +44,17 @@ export default function RightChat({activFriend, friends, setFriends} : RightChat
         event.preventDefault();
         if (inputMessage != "")
         {
-            // cas de reussite
-            const newFriends = [...friends];
-            newFriends[activFriend].addMessages(new Message(0, new Date(), inputMessage));
-
-            setFriends(newFriends);
-            setInputMessage("");
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                 const newMessage = Message.sendMessage(-1, activFriend, inputMessage, socket)
+                if (newMessage != undefined) {
+                    const newFriends = [...friends];
+                    newFriends.find((friend) => friend.id == activFriend)?.addMessages(newMessage);
+                    setFriends(newFriends);
+                    setInputMessage("");
+                }
+            } else {
+                console.warn('Socket non connectée');
+            }
         }
     }
     
@@ -54,15 +72,19 @@ export default function RightChat({activFriend, friends, setFriends} : RightChat
         <div className="relative flex flex-col justify-end gap-5 w-1/1">
             <ButtonMenu className="top-5 right-5" setFriends={setFriends} friendId={activFriend} />
             <Blur />
-            {/* <DropDownMenu /> */}
             <div className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
-                {friends[activFriend] && friends[activFriend].messages.map((message, id) => {
-                    let friend = friends[activFriend];
-                    return  <ChatMessage key={id} profileIco={friend.profPicture} username={friend.name} profileLink='google.com' hour={'13:12'} >
-                                {message.content}
-                            </ChatMessage>
-                })}
+                {friends.length > 0 && friends.find((friend) => friend.id == activFriend)?.messages.map((message, id) => {
+                        let friend = friends.find((friend) => friend.id == activFriend) as Friend;
+                        if (message.idSender == activFriend)
+                            return  <ChatMessage key={id} profileIco={friend.profPicture} username={friend.name} hour={message.date.getHours() + ":" + message.date.getMinutes()} >
+                                        {message.content}
+                                    </ChatMessage>
+                        else
+                            return  <ChatMessage key={id} profileIco={profileData.profPicture} username={profileData.name} hour={message.date.getHours() + ":" + message.date.getMinutes()} >
+                                        {message.content}
+                                    </ChatMessage>     
+                    })}
             </div>
 
             <div className="w-1/1 bg-dark border-0 border-t-1 border-yellow flex p-3 gap-2">

@@ -14,15 +14,19 @@ class User {
   email: string;
   profPicture: string;
   bio: string;
+  lang : string;
+  isTwoFactorEnabled : boolean;
   rank: number;
 
-  constructor(id: number, name: string, email: string, profPicture:string, bio:string, rank: number) {
+  constructor(id: number, name: string, email: string, profPicture:string, bio:string, lang : string, isTwoFactorEnabled : boolean, rank: number) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.profPicture = profPicture;
     this.bio = bio;
-    this.rank = rank;
+    this.lang = lang;
+    this.isTwoFactorEnabled = isTwoFactorEnabled;
+  this.rank = rank;
   }
 
   updateName(newName: string) {

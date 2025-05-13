@@ -8,37 +8,19 @@ import RightChat from './RightChat.tsx'
 import LeftChat from './LeftChat.tsx'
 import PopupFriendsComponent from "./PopupFriendsComponent.tsx";
 import { useAuth } from "../../AuthProvider.tsx";
+// import { ProfileDataType } from "../Profile/others/OthersProfile.tsx";
+import { useNavigate, useParams } from "react-router-dom";
 import { ProfileDataType } from "../Profile/me/MyProfile.tsx";
+import User from "../../classes/User.tsx";
+import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 
 export default function Chat() {
 
     const [activFriend, setActivFriend] = useState<number>(0);
     const [showFriendPopup, setShowFriendPopup] = useState(false);
-    const [friends, setFriends] = useState<Friend[]>([]);
-    // [
-    //     new Friend(0, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [new Message(0, new Date(), "Ratio")], true),
-    //     new Friend(1, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], true, 12),
-    //     new Friend(2, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(3, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(4, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(5, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(6, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(7, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(8, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(9, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(10, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(11, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(12, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(13, 'testCo', 'test@test.com', 'test.jpeg', "", 0, [], true),
-    //     new Friend(14, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(15, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(16, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(17, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(18, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(19, 'Titi42', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    //     new Friend(20, 'test', 'test@test.com', 'test.jpeg', "", 0, [], false),
-    // ]
+    // const [friends, setFriends] = useState<Friend[]>([]);
 
+    const navigate = useNavigate()
 
     const handleClicChangeActivFriend = (e: MouseEvent<HTMLDivElement>): void => {
         let balise: HTMLDivElement = e.currentTarget as HTMLDivElement;
@@ -50,16 +32,39 @@ export default function Chat() {
         }
     }
 
-    const [profileData, setProfileData] = useState<ProfileDataType>({
-        name: "",
-        email: null,
-        bio: null,
-        profPicture: null,
-        rank: 0,
-        lang : null
-    })
+    // const [profileData, setProfileData] = useState<ProfileDataType>({
+    //         name: "",
+    //         email: null,
+    //         bio: null,
+    //         profPicture: null,
+    //         rank: 0,
+    //         lang : null
+    //     })
+    
 
     const { fetchWithAuth } = useAuth();
+    const { friends, setFriends } = useWebSocket();
+    
+
+
+    // idSender
+
+    const [profileData, setProfileData] = useState<User | undefined>()
+
+    function getUserParams() {
+        fetchWithAuth(`https://localhost/api/user/get_profile/`)
+            .then((response) => response.json())
+            .then((json) => {
+                const data = json.data
+                console.log(data);
+                setProfileData(new User(0, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank));
+
+            })
+            .catch((error) => {
+                console.error("Error :", error);
+            });
+    }
+
 
     const fetchFriends = async () => {
         try {
@@ -82,26 +87,6 @@ export default function Chat() {
         }
     };
 
-    const getUserParams = async () => {
-        fetchWithAuth(`https://localhost/api/user/get_profile/`)
-        .then((response) => response.json())
-        .then((json) => {
-            const data = json.data
-            setProfileData(prev => ({
-                ...prev,
-                name: data.name,
-                email: data.email,
-                bio: data.bio,
-                profPicture: data.profPicture,
-                rank: data.rank,
-                lang: data.lang
-            }));
-        })
-        .catch((error) => {
-            console.error("Error :", error);
-        });
-    }
-
     useEffect(() => {
         getUserParams()
         fetchFriends();
@@ -114,7 +99,7 @@ export default function Chat() {
 
                 <LeftChat activFriend={activFriend} friends={friends} onClickFriend={handleClicChangeActivFriend} setShowFriendPopup={setShowFriendPopup}/>
 
-                <RightChat activFriend={activFriend} friends={friends} setFriends={setFriends}/>
+                <RightChat activFriend={activFriend} friends={friends} setFriends={setFriends} profileData={profileData as User}/>
 
                 {showFriendPopup && (
                     <PopupFriendsComponent friends={friends} onClose={setShowFriendPopup} setFriends={setFriends}/>
