@@ -13,6 +13,7 @@ const variants = tv({
         style: {
             none:'',
             header: 'px-[30px] py-[15px] rounded-md m-3 yellow-shadow-btn',
+            popup: 'px-[20px] py-[5px] rounded-md m-3 yellow-shadow-btn',
             selected: 'px-[30px] py-[15px] rounded-md m-3 yellow-shadow-btn border-dark-red text-dark-red',
             play: 'px-[60px] py-[15px] rounded-md m-3 red-shadow-btn',
             add: 'px-[15px] py-[2px] rounded-full m-3 red-shadow-btn',

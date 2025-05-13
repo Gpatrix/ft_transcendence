@@ -5,6 +5,7 @@
 @theme {
     --color-yellow: #FEFE00;        /* Primary light yellow */  
     --shadow-yellow: rgba(254, 254, 0, 0.5);        /* Shadow light yellow */  
+    --dark-transp: rgba(0, 0, 0, 0.5);        /* Shadow light yellow */  
     --color-dark-yellow: #7B7B43;   /* Dark yellow (placeholders, unavailable buttons) */
     --color-light-yellow: #FFFFB3;  /* Texts, cta */
 
@@ -18,6 +19,8 @@
     --color-dark : #000E1A;         /* Pure black, for header / layout contrast */
     --color-offline : #A2A2A2;      /* Grey offline */
     --color-green : #33FB68;
+    --color-blue1 : #62929E;
+    --color-blue2 : #003554;
     --font-display: "Inter", sans-serif; 
     --font-title: "Press Start 2P", sans-serif;
     --animate-wiggle: wiggle 1s ease-in-out infinite;
@@ -63,6 +66,9 @@
     }
     .yellow-shadow-btn {
         box-shadow: 0 0 5px var(--shadow-yellow);
+    }
+    .blue-shadow-btn {
+        box-shadow: 0 0 5px var(--color-blue2);
     }
     .red-shadow-btn {
         box-shadow: 2px 2px 4px var(--color-dark-red);
