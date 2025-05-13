@@ -7,7 +7,7 @@ class LobbyError extends Error {
     errorCode?: errorCode
     constructor(errorCode: errorCode)
     {
-        super("Player cannot join lobby")
+        super("LobbyError")
         this.errorCode = errorCode;
     }
 }
@@ -88,7 +88,7 @@ class Lobby
     checkIfCanBeLaunched(): void 
     {
         if (this.users.length != this.playerCount)
-            throw (new LobbyError(5104));
+            throw (new LobbyError(4007));
         return ;
     }
 }

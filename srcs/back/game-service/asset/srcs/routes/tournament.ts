@@ -67,16 +67,9 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         {
             console.log(error)
             if (error instanceof LobbyError)
-            {
                 return socket.close((error as LobbyError).errorCode);
-            }
             else
-            {
-                console.log('6');
-                console.log(error)
                 return socket.close(500);
-            }
-
         }
     });
 
@@ -90,26 +83,32 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const tokenPayload = decoded.data;
             const userId = tokenPayload.id;
-            const lobbyId = request.params.id;
+            const lobbyId = Number(request.params.id);
     
-            const lobby = Lobby.lobbies.find((lobby: Lobby) => lobby.id == lobbyId);
+            const lobby = Lobby.lobbies.get(lobbyId);
             if (!lobby)
                 return reply.status(404).send({ error: '0404' });
-            if (!tokenPayload?.id || userId != lobby.owner.id)
+            if (!(tokenPayload?.id) || userId != lobby.ownerId)
                 return reply.status(401).send({ error: '0401' });
+            console.log('before')
             lobby.checkIfCanBeLaunched();
+            console.log('after')
             const tournament = await GamesManager.createGame(lobby.users);
             if (!tournament)
                 throw (new Error('Games manager cannot create game'));
+            console.log('tournamenntt: ', tournament);
             lobby.users.forEach((user: LobbyUser) => {
+                console.log(`users: ${user.id}`);
+                console.log(`tournament: ${tournament.id}`);
+                console.log(`game: ${tournament.games[0].id}`);
                 user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
                 user.websocket.close();
             })
         } catch (error) {
-            if (error instanceof LobbyError)
-                return (reply.status(400).send({ error: (error as LobbyError).statusCode }));
+            if ((error as LobbyError).errorCode)
+                reply.status(400).send({ error: (error as LobbyError).errorCode });
             else
-                return (reply.status(500).send({ error: 'Internal server error' }));
+                reply.status(500).send({ error: 'Internal server error' });
         }
     })
 
