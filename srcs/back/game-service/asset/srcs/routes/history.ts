@@ -61,7 +61,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
                     const token = request.cookies['ft_transcendence_jw_token'];
                     const decoded = jwt.verify(token, process.env.JWT_SECRET);
                     const tokenPayload = decoded.data;
-                    console.log(tokenPayload)
                     userId = tokenPayload.id
                 }
                 if (!userId)
