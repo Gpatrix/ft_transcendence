@@ -45,12 +45,15 @@ export default function History({ playerId }: { playerId: number }) {
   if (!matches || matches.length === 0) return <p className="text-yellow">No match found.</p>;
 
   return (
-    <div className="flex flex-col gap-4 h-[500px] overflow-scroll">
+    <div className="flex flex-col gap-4 h-[500px]">
+      <h2 className="text-yellow text-2xl">Match history</h2>
+      <span className="flex flex-col gap-4 h-[500px] overflow-scroll">
       {matches.map((match, idx) => (
         <MatchHistory
         key={match.gameId}
         match={match}
       />))}
+      </span>
     </div>
   );
 }

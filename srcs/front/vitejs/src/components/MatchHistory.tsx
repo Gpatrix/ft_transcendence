@@ -57,7 +57,7 @@ export default function MatchResult({ match }: MatchResultProps) {
         setLoading(false);
       }
     };
-    match.gameDate = new Date(match.gameDate)
+   
     fetchUsers();
   }, [match]);
 
@@ -66,8 +66,10 @@ export default function MatchResult({ match }: MatchResultProps) {
     setMainUser(user || null);
   }, [users, match.you.userId]);
 
+  useEffect(()=> {
+    match.gameDate = new Date(match.gameDate)
+  })
 
-  console.log(match.gameDate)
   const winner = users.find(user => user.place === 1);
   const otherPlayers = users.filter(user => user.place !== 1);
 
