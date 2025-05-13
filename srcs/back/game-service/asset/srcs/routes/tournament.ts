@@ -8,6 +8,8 @@ import { Lobby, LobbyUser, LobbyError } from '../classes/Lobby';
 import GamesManager from '../classes/GamesManager';
 import isConnected from "../validators/jsonwebtoken";
 import validateLobbyData from '../validators/lobbyData';
+import sendLobbyData from '../functions/sendLobbyData';
+import { send } from "process";
 
 
 axios.defaults.validateStatus = (status: number) => status >= 200 && status <= 500;
@@ -32,33 +34,6 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         return reply.status(200).send({ message: "Game lobby created", lobbyId: lobby.id })
     })
 
-    interface GetLobbyInfosParams {
-        lobbyId: string;
-    }
-
-    interface GetLobbyInfosResponse {
-        id: number;
-        title: string;
-        playersCount: number;
-        users: Array<{ id: number; name: string; }>;
-        ownerId: number;
-    }
-        
-
-    server.get<{ Params: GetLobbyInfosParams }>('/api/game/lobby/:lobbyId', { preHandler: [isConnected] }, async (request: any, reply: any ) => {
-        const token = request.cookies['ft_transcendence_jw_token'];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const tokenPayload = decoded.data;
-        const userId = tokenPayload.id;
-        const lobbyId = Number(request.params.id);
-        const lobby = Lobby.lobbies.get(lobbyId);
-        if (!lobby)
-            return reply.status(404).send({ error: '0404' });
-        if (!lobby.users.find((user: LobbyUser) => user.id == userId))
-            return reply.status(401).send({ error: '0401' });
-
-    });
-
     interface ConnectToLobbyParams {
         id: string;
     }
@@ -81,6 +56,8 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
                 return (socket.close(4004 ));
 
             lobby.playerJoin(userId, socket);
+
+            sendLobbyData(socket, lobby);
     
             socket.on('close', () => {
                 lobby.playerLeave(userId);
