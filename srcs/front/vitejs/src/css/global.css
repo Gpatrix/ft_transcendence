@@ -19,6 +19,8 @@
     --color-dark : #000E1A;         /* Pure black, for header / layout contrast */
     --color-offline : #A2A2A2;      /* Grey offline */
     --color-green : #33FB68;
+    --color-blue1 : #62929E;
+    --color-blue2 : #003554;
     --font-display: "Inter", sans-serif; 
     --font-title: "Press Start 2P", sans-serif;
     --animate-wiggle: wiggle 1s ease-in-out infinite;
@@ -64,6 +66,9 @@
     }
     .yellow-shadow-btn {
         box-shadow: 0 0 5px var(--shadow-yellow);
+    }
+    .blue-shadow-btn {
+        box-shadow: 0 0 5px var(--color-blue2);
     }
     .red-shadow-btn {
         box-shadow: 2px 2px 4px var(--color-dark-red);

@@ -3,16 +3,21 @@ import Blur from "../../components/Blur.tsx"
 // import DropDownMenu from "../../components/DropDownMenu.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState } from "react";
+import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
 // import { useNavigate } from 'react-router-dom';
 import ClickableIco from "../../components/ClickableIco.tsx"
 import Friend from "../../classes/Friend.tsx"
 import Message from "../../classes/Message.tsx"
+import ButtonMenu from '../../components/ButtonMenu.tsx';
 
 type RightChatProps = {
     activFriend: number;
     friends: Friend[],
     setFriends: React.Dispatch<React.SetStateAction<Friend[]>>;
+    // openMenu: React.Dispatch<SetStateAction<boolean>>;
+    // isOpenMenu: boolean;
+    // onClose: React.Dispatch<SetStateAction<boolean>>;
+
     // passer en props le onClick de ClickableIco
 }
 
@@ -26,64 +31,12 @@ export default function RightChat({activFriend, friends, setFriends} : RightChat
         event.preventDefault();
         if (inputMessage != "")
         {
-            console.log("document.cookie");
-            console.log(document.cookie);
-            
+            // cas de reussite
+            const newFriends = [...friends];
+            newFriends[activFriend].addMessages(new Message(0, new Date(), inputMessage));
 
-            try {
-                // tout les checks
-    
-                const requestData = {
-                    method :  'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(
-                    { 
-                        "action": "msg",
-                        "target": "obo",
-                        "msg": inputMessage
-                    })
-                }
-                fetch('/api/chat/connect', requestData) // url a fetch
-                .then(response => {
-                    console.log("response :");
-                    console.log(response);
-                    
-                    if (response.ok)
-                    {
-                        // cas de reussite
-                        const newFriends = [...friends];
-                        newFriends[activFriend].addMessages(new Message(0, new Date(), inputMessage));
-
-                        setFriends(newFriends);
-                        setInputMessage("");
-                    }
-                    else
-                    {
-                        // cas d'erreur
-                        console.log("C'est tliste");
-                        
-                    }
-                })
-    
-                // set toutes les erreurs ""
-            }
-            catch(e) {
-                console.error("Pas de chance !");
-                console.error(e);
-                // if (e instanceof AuthError) { // frontend error
-                //     // inscrire les erreurs
-                // }
-                // else if (e instanceof Error) { // backend error
-                //     // inscrire les erreurs
-                // }
-            }
-
-
-            // const newFriends = [...friends];
-            // newFriends[activFriend].addMessages(new Message(0, new Date(), inputMessage));
-
-            // setFriends(newFriends);
-            // setInputMessage("");
+            setFriends(newFriends);
+            setInputMessage("");
         }
     }
     
@@ -91,16 +44,22 @@ export default function RightChat({activFriend, friends, setFriends} : RightChat
         setInputMessage(e.target.value);
     };
 
+    // const handleOpenMenu : React.MouseEventHandler<HTMLButtonElement> = () => {
+    //     openMenu(true);
+    // };
+
+
 
     return (
         <div className="relative flex flex-col justify-end gap-5 w-1/1">
+            <ButtonMenu className="top-5 right-5" setFriends={setFriends} friendId={activFriend} />
             <Blur />
             {/* <DropDownMenu /> */}
             <div className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
-                {friends[activFriend].messages.map((message, id) => {
+                {friends[activFriend] && friends[activFriend].messages.map((message, id) => {
                     let friend = friends[activFriend];
-                    return  <ChatMessage key={id} profileIco={friend.imageUrl} username={friend.name} profileLink='google.com' hour={'13:12'} >
+                    return  <ChatMessage key={id} profileIco={friend.profPicture} username={friend.name} profileLink='google.com' hour={'13:12'} >
                                 {message.content}
                             </ChatMessage>
                 })}
@@ -117,8 +76,7 @@ export default function RightChat({activFriend, friends, setFriends} : RightChat
                 <div className="bg-yellow rounded-xl">
                     <ClickableIco className="mx-[5px]" image={"/icons/game-alt.svg"} onClick={function (): void {
                         console.log("Game !");
-                        // passer un props le onClick
-                        // navigate('/game');
+                        // navigate('/game'); + ajout utilisateur selectionne en game
                     } } />
 
                 </div>

@@ -7,11 +7,12 @@ import AddFriends from "./AddFriends.tsx";
 
 type PopupFriendsComponentProps = {
     friends: Friend[],
+    setFriends: React.Dispatch<SetStateAction<Friend[]>>;
     onClose: React.Dispatch<SetStateAction<boolean>>;
     // ajouter un 2eme conClick pour l'ajout d'ami
 }
 
-export default function PopupFriendsComponent({onClose} : PopupFriendsComponentProps) {
+export default function PopupFriendsComponent({onClose, friends,setFriends} : PopupFriendsComponentProps) {
 
     const [onglet, setOnglet] = useState<"waiting" | "add">("waiting");
 
@@ -40,7 +41,7 @@ export default function PopupFriendsComponent({onClose} : PopupFriendsComponentP
                     <Button type={onglet=="add"?"full":"stroke"} style="popup" className={"mt-3" + (onglet=="add" ? " pink-shadow" : " shadow-none")} onClick={() => setOnglet("add")}>Ajouter</Button>
                 </div>
                 {onglet=="waiting" ?
-                    <RequestFriends />
+                    <RequestFriends friends={friends} setFriends={setFriends}/>
                 :
                     <AddFriends />
 

@@ -2,6 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 import { clsx } from 'clsx'
 import ProfilePic from './ProfilePic.tsx';
 import { Link } from 'react-router';
+import { useEffect, useState } from 'react';
 
 const statusVariants = tv({
     base: 'flex  w-full  rounded-xl  flex items-center',
@@ -51,7 +52,7 @@ export default function UserContact({className, userName, status='online', notif
         <div data-nb={nb} data-status={status}
             className={clsx('userContact h-[50px] p-[4px] pink-shadow bg-grey', statusVariants( {status} ), typeVariants( {type} ) , className)} onClick={onClick}>
             <span className='flex items-center h-1/1'>
-                <ProfilePic profileLink='test.jpg' image={image} status={status} className='h-1/3 min-w-[42px]'/>
+                <ProfilePic profileLink='test.jpg' image={image} status={status} className={'h-1/3 min-w-[42px]'}/>
                 <p className={clsx('w-fit font-bold ml-[8px]', typeVariants( {type} ) )}>{userName}</p>
             </span>
             {notifs != 0 && <p className='ml-auto mr-[4px] bg-light-red text-white 

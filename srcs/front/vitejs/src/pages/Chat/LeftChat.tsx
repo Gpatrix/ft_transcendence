@@ -16,7 +16,7 @@ type LeftChatProps = {
 export default function LeftChat({activFriend, friends, onClickFriend, setShowFriendPopup} : LeftChatProps) {
 
     const [inputSearch, setInputSearch] = useState<string>("");
-    const [listFriends, setListFriends] = useState<Friend[]>(friends);
+    const [listFriends, setListFriends] = useState<Friend[]>([]);
 
 
     const handleSubmitSearch = (event : FormEvent<HTMLFormElement>) => {
@@ -40,6 +40,10 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
         setInputSearch(e.target.value);
     };
 
+    useEffect(() => {
+        setListFriends(friends);
+    }, [friends])
+
     return (
         <div className="w-[270px] bg-dark border-0 border-r-1 border-yellow relative z-120 chat-pink-shadow ">
             <Button style="add" className="mt-3 block m-auto" onClick={() => setShowFriendPopup(true)}>Ajouter un ami</Button>
@@ -55,12 +59,14 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
 
             <div className="flex flex-col pt-3 gap-3 overflow-y-scroll max-h-1/1 max-h-8/10 p-3">
                 {listFriends.map((friend, id) => {
+                    console.log(friend);
+                    
                     return <UserContact key={id} nb={friend.id}
                         type={friend.id==activFriend?'active':'nonactive'}
                         status={friend.connected ? 'online' : 'offline'}
                         className={friend.connected ? 'order-first' : ''}
                         userName={friend.name}
-                        image={friend.imageUrl}
+                        image={friend.profPicture}
                         notifs={friend.nbNotifs}
                         onClick={onClickFriend}
                     />;

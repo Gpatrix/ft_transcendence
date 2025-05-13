@@ -6,8 +6,8 @@ class Player extends User {
     idGame: number;
     place: number;
 
-    constructor(id: number, name: string, email: string, imageUrl: string, points: number, idGame: number, place: number) {
-        super(id, name, email, imageUrl);
+    constructor(id: number, name: string, email: string, profPicture: string, points: number, idGame: number, place: number) {
+        super(id, name, email, profPicture);
         
         this.idGame = idGame;
         this.points = points;

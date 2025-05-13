@@ -48,7 +48,7 @@ export default function MatchResult({ states, className, users, idMainUser } : M
                     <span className={clsx('flex flex-col', styles.users)}>
                         <div className={clsx('flex md:gap-8 content-between main-cara max-h-1/1 mr-5 relative', styles.matchRecap)}>
                             <span className='w-[60px]'>
-                                <ProfilePic profileLink='https://tailwindcss.com/docs/height' image={mainUser?mainUser.imageUrl:''}/>
+                                <ProfilePic profileLink='https://tailwindcss.com/docs/height' image={mainUser?mainUser.profPicture:''}/>
                             </span>
 
                             <span className='separator text-5xl h-min self-center'>/</span>
@@ -59,7 +59,7 @@ export default function MatchResult({ states, className, users, idMainUser } : M
                                         if (x.id == idMainUser)
                                             return ''
                                         comptUser++;
-                                        return <ProfilePic key={i} profileLink='https://www.google.com' image={x.imageUrl} className={(comptUser == 1?'':'ml-[-20px] ')+'inline-block w-[60px]'}/>
+                                        return <ProfilePic key={i} profileLink='https://www.google.com' image={x.profPicture} className={(comptUser == 1?'':'ml-[-20px] ')+'inline-block w-[60px]'}/>
                                     })
                                 }
                             </span>
@@ -74,7 +74,7 @@ export default function MatchResult({ states, className, users, idMainUser } : M
                                         #{x.place} |
                                     </span>
                                     <span className='w-[60px]'>
-                                        <ProfilePic profileLink='https://www.google.com' image={x.imageUrl}/>
+                                        <ProfilePic profileLink='https://www.google.com' image={x.profPicture}/>
                                     </span>
 
                                     <span className='separator h-min self-center'>{x.name}</span>
