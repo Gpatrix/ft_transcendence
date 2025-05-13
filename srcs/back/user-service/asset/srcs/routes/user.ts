@@ -9,7 +9,6 @@ import axios from 'axios';
 import prisma from '../config/prisma';
 import deleteImage from "../utils/deleteImage";
 import imageUpload from "../validators/imageUpload";
-import { isBlock } from "typescript";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
