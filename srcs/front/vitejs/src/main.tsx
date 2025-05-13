@@ -13,34 +13,32 @@ import ProfileBackground from './pages/Profile/ProfileBackground.tsx';
 import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
 import  Chat from "./pages/Chat/Chat.tsx"
-import  App from "./App"
-
-
+import NotFound from './pages/404/NotFound.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <CookiesProvider>
-      <AuthProvider>
-        <Routes>
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgottenPassword />} />
-            <Route path="/forgot-password/new-password" element={<NewPassword />} />
-          </Route>
+        <AuthProvider>
+          <Routes>
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgottenPassword />} />
+              <Route path="/forgot-password/new-password" element={<NewPassword />} />
+              <Route path="*" element={<NotFound />}/> 
+            </Route>
 
-          <Route element={<ProfileBackground/>}>
-            <Route path="/profile" element={<MyProfile />}/>
-            <Route path="/profile/:id" element={<OthersProfile />}/>
-          </Route>
-          
-          <Route path="/chat" element={<Chat />} />
-          {/* <Route path="/test" element={<App />} /> */}
 
-        </Routes>
-      </AuthProvider>
+            <Route element={<ProfileBackground/>}>
+              <Route path="/profile" element={<MyProfile />}/>
+              <Route path="/profile/:id" element={<OthersProfile />}/>
+            </Route>
+
+            <Route path="/chat" element={<Chat />} />
+            {/* <Route path="/test" element={<App />} /> */}
+
+          </Routes>
+        </AuthProvider>
       </CookiesProvider>
-
-
     </BrowserRouter>
 )

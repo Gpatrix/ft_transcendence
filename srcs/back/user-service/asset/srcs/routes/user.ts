@@ -5,9 +5,10 @@ import isConnected from "../validators/jsonwebtoken";
 // import jwtValidator from "./validators/jsonwebtoken";
 import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
-import FormData from 'form-data';
 import axios from 'axios';
 import prisma from '../config/prisma';
+import deleteImage from "../utils/deleteImage";
+import imageUpload from "../validators/imageUpload";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -31,7 +32,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
-            console.log(`isId: ${isId}, isEmail: ${isEmail}`);
             let user: User | null = null;
             if (isEmail) {
                 user = await prisma.user.findUnique({
@@ -79,37 +79,40 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
             reply.status(401).send({ error: "private_route" });
-        const target = Number(request.params.target);
         const target_user = await prisma.user.findUnique({
-            where:
-            {
-                id: target
+            where: {
+                id: Number(request.params.target)
+            },
+            include: {
+                blockedUsers: true
             }
         });
         if (!target_user || target_user === undefined)
-        {
-            reply.status(404).send({error: "2001"});
-            return;
-        }
+            return (reply.status(404).send({error: "2001"}));
 
-        const by = Number(request.params.by);
         const by_user = await prisma.user.findUnique({
             where: {
-              id: by
+              id: Number(request.params.by)
             },
             include: {
               blockedUsers: true
             }
         });
-        if (by_user == null|| by_user === undefined)
+        if (!by_user || by_user === undefined)
             reply.status(404).send({error: "2002"});
-        else    
+        else
         {
-
-            let isBlocked: boolean 
+            let isBlocked: boolean
             = (by_user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => 
-                blockedUser.blockedUserId == target_user.id) || by_user.isAdmin)
-            reply.status(200).send({ value: isBlocked });
+                blockedUser.blockedUserId === target_user.id))
+            if (isBlocked === true)
+                return (reply.status(200).send({value: "3001"}))
+            isBlocked
+            = (target_user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => 
+                blockedUser.blockedUserId === by_user.id))
+            if (isBlocked === true)
+                return (reply.status(200).send({value: "3002"}))
+            reply.status(200).send({ value: false });
         }
     })
 
@@ -256,7 +259,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (!token) {
             return (reply.status(401).send({ error: "0403" }));
         }
-
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const callerId = decoded.data.id
@@ -272,6 +274,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 id = callerId;
                 selectFields.email = true,
                 selectFields.lang = true
+                selectFields.isTwoFactorEnabled = true
             }
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
@@ -300,15 +303,15 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     server.post<{ Body: postUserBody }>('/api/user/create', { preHandler:[validateUserData] }, async (request, reply) => {
         try {
-            const credential = request.body?.credential;
+            const credential = request.body.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
                 reply.status(401).send({ error: "private_route" });
             const email = request.body.email;
             const name = request.body.name;
             const password = request.body.password;
-            const profPicture = request.body.profPicture ?? null;
-            const isAdmin = request.body.isAdmin ?? false;
-            const lang = "0"
+            const profPicture = request.body.profPicture;
+            const isAdmin = request.body.isAdmin;
+            const lang = request.body.lang;
             let user = await prisma.user.create({
                 data: {
                     email,
@@ -324,6 +327,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             }
             reply.send(user);
         } catch (error) {
+            console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {
@@ -344,29 +348,33 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
-    interface editUserBody 
+    interface UserData 
+    {
+        name?: string,
+        bio?: string,
+        lang?: string,
+        profPicture?: string,
+        newPassword?: string
+    }
+
+    interface EditUserBody
     {
         id?: number,
         name?: string,
         password?: string,
+        newPassword?: string,
         bio?: string,
         lang?: string,
-        profPicture?: string
+        profPicture?: string,
+        isTwoFactorEnabled?: boolean
+        image?: string
     }
 
-    server.put<{ Body: editUserBody }>('/api/user/edit', { preHandler: [isConnected, validateUserData] }, async (request, reply) => {
-        let put: editUserBody = {};
-        let file;
-        let fields: { [key: string]: any } = {};
-        const parts = request.parts()
-        for await (const part of parts) {
-            if (part.type === 'file') {
-                file = part;
-            } else {
-                fields[part.fieldname] = part.value; // Pas d'erreur ici maintenant
-            }
-        }
-        const bodyId = file?.fields?.id?.value;
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData] }, async (request, reply) => {
+        const body: EditUserBody = request.body;
+        if (!body)
+            return (reply.status(400).send({ error: "0401" }));
+        const bodyId = body?.id;
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
             reply.status(401).send({ error: "1019" });
@@ -375,6 +383,17 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         if (tokenPayload?.isAdmin && bodyId)
             tokenPayload.id = bodyId;
         try {
+            const updateData: UserData = {};
+            if (body.name)
+                updateData.name = body.name;
+            if (body.bio)
+                updateData.bio = body.bio;
+            if (body.lang)
+                updateData.lang = body.lang;
+            if (body.newPassword)
+                updateData.newPassword = body.newPassword;
+            if (body.image)
+                updateData.profPicture = body.image;
             const foundUser = await prisma.user.findUnique({
                 where: {
                     id: tokenPayload.id
@@ -415,26 +434,22 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             put.name = fields['name']
             put.bio = fields['bio'];
             put.lang = fields['lang']
+            if (fields['isTwoFactorEnabled'])
+                put.isTwoFactorEnabled = fields['isTwoFactorEnabled']
             const updatedUser = await prisma.user.update({
-                where: { 
+                where: {
                     id: tokenPayload.id
                 },
-                data : put
+                data : updateData
             });
 
             if (!updatedUser)
                 throw (new Error('0500'));
             reply.status(200).send(updatedUser);
         } catch (error) {
-            if (put.profPicture)
-            {
-                let put: editUserBody = {};
-                const res = await fetch(`http:/upload-service:3000/api/upload/${put.profPicture}`, {
-                    method: 'DELETE',
-                    body: JSON.stringify({ credential: process.env.API_CREDENTIAL }),
-                    headers: { 'Content-Type': 'application/json' }      
-                });
-            }
+            console.log(error);
+            if (body.image)
+                deleteImage(body.image);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {

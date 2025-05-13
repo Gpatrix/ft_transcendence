@@ -86,8 +86,6 @@ class PongGame {
     }
 
     start() {
-        // tick every fps
-
         this.interval = setInterval(() => {
             this.managePlayerColision();
             this.manageRoofAndFloorColision();
