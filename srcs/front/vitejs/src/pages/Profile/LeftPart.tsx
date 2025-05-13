@@ -125,9 +125,19 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
 
             {error && <LoginErrorMsg>{error}</LoginErrorMsg>}
 
-            <span className="ml-auto mr-auto w-fit flex flex-col justify-center">
-                <h2 className="w-fit text-light-yellow text-4xl font-bold">{data.name}</h2>
-                <span className="text-yellow text-center">TOP #{data.rank}</span>
+            <span className="w-full flex flex-col justify-center">
+                <h2 className="w-fit mr-auto ml-auto text-light-yellow text-4xl font-bold">{data.name}</h2>
+                { statsData &&
+                <span className="w-full mt-5 ml-auto mr-auto  flex flex-col p-7 rounded-3xl shadow-2xl">
+                    <span className="text-yellow text-xl ml-auto mr-auto"> Taux de victoire : {statsData.winRate}%</span>
+                    <div className="w-full h-[1px] bg-yellow/20 my-4"></div>
+                    <span className="flex justify-evenly ">
+                        <span className="text-yellow text-bold">{statsData.wins} Victoires </span>
+                        <span className="mx-8 text-purple">|</span>
+                        <span className="text-purple">{statsData.looses} Defaites</span>
+                    </span>
+                </span>
+                }
             </span>
             { data.bio &&
             <span className="flex-col mt-[32px]">
