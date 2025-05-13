@@ -102,12 +102,15 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 <h2 className="w-fit text-light-yellow text-4xl font-bold">{data.name}</h2>
                 <span className="text-yellow text-center">TOP #{data.rank}</span>
             </span>
+            { data.bio &&
             <span className="flex-col mt-[32px]">
                 <span className="text-yellow">{gpt("bio")}:</span>
+
                 <p className="p-2 px-4 mt-[10px] min-h-[100px] whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow">
-                    {data.bio ?? ""}
+                    {data.bio}
                 </p>
             </span>
+            }
         </div>
     )
 }
