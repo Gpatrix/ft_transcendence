@@ -16,7 +16,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     const [file, setFile] = useState<File>();
     const [error, setError] = useState<string>("");
     const { fetchWithAuth } = useAuth();
-    const [newImageUrl, setNewImageUrl] = useState("")
+    const [newProfPicture, setNewProfPicture] = useState("")
 
     const MAX_FILE_SIZE = 200000;
 
@@ -37,7 +37,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
             }
             setFile(event.target.files[0]);
             setError("");
-            setNewImageUrl(URL.createObjectURL(event.target.files[0]))
+            setNewProfPicture(URL.createObjectURL(event.target.files[0]))
         }
     };
 
@@ -88,7 +88,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 <input accept="image/png, image/jpeg, image/webp, image/jpg" onChange={handleFileChange} type="file" className="z-1 absolute inset-x-0 m-auto w-[100px] h-[100px] text-transparent cursor-pointer"/>
                 <img onClick={file ? handleSubmit : undefined} src={file ? "/icons/valid.svg" : "/icons/edit.svg"} className={`cursor-pointer absolute bottom-0 h-[100px] w-[40px] inset-x-[55%] z-0 wiggle ${file && "animate-wiggle z-100"}`}/>
 
-                <img src={newImageUrl || data.profPicture || "/default.png"} 
+                <img src={newProfPicture || data.profPicture || "/default.png"} 
                 className={"ml-auto mr-auto rounded-full w-[100px] h-[100px] object-cover mb-8 shadow-lg/40 shadow-purple cursor-pointer"}/>
             </span>
 

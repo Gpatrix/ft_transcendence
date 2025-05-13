@@ -23,8 +23,9 @@ type InputProps = {
     hidechars?: boolean;
 } & VariantProps<typeof variants>;
 
-export default function Input({type, className, placeholder, onChange, hidechars} : InputProps) {
+export default function Input({type, className, placeholder, onChange, hidechars, value} : InputProps) {
     return (
-        <input className={clsx(variants({ type }), className)} type={hidechars ? "password" : "text"} onChange={onChange}  placeholder={placeholder}></input>
+        <input className={clsx(variants({ type }), className)} type={hidechars ? "password" : "text"} value={value} onChange={onChange}  placeholder={placeholder}></input>
+
     );
 }
