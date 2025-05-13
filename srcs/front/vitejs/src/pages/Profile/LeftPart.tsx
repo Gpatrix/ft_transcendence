@@ -2,21 +2,33 @@ import { useState } from "react"
 import TextAreaWithLabel from "../../components/TextAreaWithLabel"
 import { gpt } from "../../translations/pages_reponses"
 import { ProfileDataType } from "./me/MyProfile"
-import { Form } from "react-router"
+import { Form, useParams } from "react-router"
 import { useAuth } from "../../AuthProvider"
 import LoginErrorMsg from "../../components/LoginErrorMsg"
 import { get_server_translation } from "../../translations/server_responses"
+import { useEffect } from "react"
 
 interface LeftPartProps {
     data : ProfileDataType
     owner?: boolean
 }
 
+interface PlayerStats {
+    wins: number;
+    looses: number;
+    games: number;
+    noContests: number;
+    winRate: number;
+}
+
+
 export default function LeftPart({ data, owner }: LeftPartProps) {
     const [file, setFile] = useState<File>();
     const [error, setError] = useState<string>("");
     const { fetchWithAuth } = useAuth();
     const [newImageUrl, setNewImageUrl] = useState("")
+    const [statsData, setStatsData] = useState<PlayerStats | null>(null)
+    const params = useParams()
 
     const MAX_FILE_SIZE = 200000;
 
@@ -80,10 +92,26 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
         }
     };
 
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetchWithAuth(`/api/game/stats${params.id ? "/" + params.id : ""}`);
+                if (!res.ok) throw new Error("Erreur lors du chargement des stats");
+                const data = await res.json();
+                setStatsData(data);
+            } catch (err) {
+                setError("Impossible de charger les statistiques");
+                alert(err);
+            }
+        };
+    
+        fetchStats();
+    }, [owner]);
+
 
     return (
         <div className="z-1 w-1/1 xl:w-2/3 lg:mr-[32px] flex flex-col 100vh md:h-fit">
-        { owner ?
+            { owner ?
             <span className="relative">
                 <input accept="image/png, image/jpeg, image/webp, image/jpg" onChange={handleFileChange} type="file" className="z-1 absolute inset-x-0 m-auto w-[100px] h-[100px] text-transparent cursor-pointer"/>
                 <img onClick={file ? handleSubmit : undefined} src={file ? "/icons/valid.svg" : "/icons/edit.svg"} className={`cursor-pointer absolute bottom-0 h-[100px] w-[40px] inset-x-[55%] z-0 wiggle ${file && "animate-wiggle z-100"}`}/>
@@ -91,12 +119,11 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 <img src={newImageUrl || data.profPicture || "/default.png"} 
                 className={"ml-auto mr-auto rounded-full w-[100px] h-[100px] object-cover mb-8 shadow-lg/40 shadow-purple cursor-pointer"}/>
             </span>
-
             :
             <img src={data.profPicture ?? "/default.png"} 
-            className={`ml-auto mr-auto rounded-full w-[100px] mb-8 shadow-lg/40 shadow-purple`}/>
-        }
-                {error && <LoginErrorMsg>{error}</LoginErrorMsg>}
+            className={`ml-auto mr-auto rounded-full w-[100px] mb-8 shadow-lg/40 shadow-purple`}/>}
+
+            {error && <LoginErrorMsg>{error}</LoginErrorMsg>}
 
             <span className="ml-auto mr-auto w-fit flex flex-col justify-center">
                 <h2 className="w-fit text-light-yellow text-4xl font-bold">{data.name}</h2>
@@ -109,8 +136,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 <p className="p-2 px-4 mt-[10px] min-h-[100px] whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow">
                     {data.bio}
                 </p>
-            </span>
-            }
+            </span>}
         </div>
     )
 }
