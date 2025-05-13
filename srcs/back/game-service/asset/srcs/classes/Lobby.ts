@@ -51,11 +51,11 @@ class Lobby
     playerJoin(userId: number, websocket: WebSocket): void
     {
         const authorizedUserId = this.authorizedIds.find(value => userId == value);
-        if (!authorizedUserId && authorizedUserId != this.ownerId)
-            throw (new LobbyError(5001));
+        if (!authorizedUserId && userId != this.ownerId)
+            throw (new LobbyError(4003));
         const alreadyExistingUserId = this.users.find(user => user.id == userId);
         if (alreadyExistingUserId)
-            throw (new LobbyError(5001));
+            throw (new LobbyError(4009));
         const lobbyUser = new LobbyUser(userId, websocket);
         this.users.push(lobbyUser);
         this.users.forEach(user => {

@@ -32,6 +32,77 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         return reply.status(200).send({ message: "Game lobby created", lobbyId: lobby.id })
     })
 
+    interface GetLobbyInfosParams {
+        lobbyId: string;
+    }
+
+    interface GetLobbyInfosResponse {
+        id: number;
+        title: string;
+        playersCount: number;
+        users: Array<{ id: number; name: string; }>;
+        ownerId: number;
+    }
+        
+
+    server.get<{ Params: GetLobbyInfosParams }>('/api/game/lobby/:lobbyId', { preHandler: [isConnected] }, async (request: any, reply: any ) => {
+        const token = request.cookies['ft_transcendence_jw_token'];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenPayload = decoded.data;
+        const userId = tokenPayload.id;
+        const lobbyId = Number(request.params.id);
+        const lobby = Lobby.lobbies.get(lobbyId);
+        if (!lobby)
+            return reply.status(404).send({ error: '0404' });
+        if (!lobby.users.find((user: LobbyUser) => user.id == userId))
+            return reply.status(401).send({ error: '0401' });
+
+    });
+
+    interface ConnectToLobbyParams {
+        id: string;
+    }
+
+    server.get<{ Params: ConnectToLobbyParams }>('/api/game/lobby/:id', { websocket: true, preHandler:[isConnected] }, async (socket: WebSocket, request: any ) => 
+    {
+        try
+        {
+            const token = request.cookies['ft_transcendence_jw_token'];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const tokenPayload = decoded.data;
+            const lobbyId = Number(request.params.id);
+            const userId = tokenPayload?.id;
+            if (!userId)
+                return (socket.close(4001));
+            console.log('1');
+
+            const lobby = Lobby.lobbies.get(lobbyId);
+            if (!lobby)
+                return (socket.close(4004 ));
+
+            lobby.playerJoin(userId, socket);
+    
+            socket.on('close', () => {
+                lobby.playerLeave(userId);
+            });
+        }
+        catch (error)
+        {
+            console.log(error)
+            if (error instanceof LobbyError)
+            {
+                return socket.close((error as LobbyError).errorCode);
+            }
+            else
+            {
+                console.log('6');
+                console.log(error)
+                return socket.close(500);
+            }
+
+        }
+    });
+
     interface LobbyLaunchGameParams {
         id: number
     }
@@ -65,50 +136,34 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
-    interface LobbyConnectParams {
-        id: number
+    interface InvitePlayerToLobbyParams {
+        lobbyId: string;
+        targetUserId: string;
     }
 
-    server.get('/api/game/lobby/:id', { websocket: true, preHandler: [isConnected] }, async (socket: WebSocket, request: any ) => 
-    {
-        try
-        {
-            playerJoin()
-            return socket.close((error as LobbyError).statusCode);
-            
-            if (activeConn.get(tokenPayload.id))
-                socket.close(4002,);
-
-            // socket.on('message', (RawData: WebSocket.RawData) => {
-            //     console.log(RawData.message);
-            // })
-    
-            socket.on('close', () => {
-                activeConn.delete(tokenPayload.id);
-            });
-            const result: MatchMakingUser[] | undefined = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
-            if (result != undefined && result != null)
-            {
-                const tournament = await GamesManager.createGame(result);
-                if (!tournament)
-                    throw (new Error('Games manager cannot create game'));
-                result.forEach(user => {
-                    user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
-                    user.websocket.close();
-                })
-                activeConn.set(tokenPayload.id, socket);
-            }
-        }
-        catch (error)
-        {
-            if (error instanceof LobbyError)
-                return socket.close((error as LobbyError).statusCode);
-            else
-                return socket.close(500);
-        }
-    });
+    server.post<{ Params: InvitePlayerToLobbyParams }>('/api/game/invite/:lobbyId/:targetUserId',{ preHandler: [isConnected] }, async (request: any, reply: any ) => {
+        const token = request.cookies['ft_transcendence_jw_token'];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenPayload = decoded?.data;
+        const userId = tokenPayload?.id;
+        const targetUserId = Number(request.params?.targetUserId);
+        const lobbyId = Number(request.params?.lobbyId);
+        const lobby = Lobby.lobbies.get(lobbyId);
+        if (!lobby)
+            return reply.status(404).send({ error: '0404' });
+        if (!userId)
+            return (reply.status(403).send({ error: "403" }));
+        if (lobby.ownerId != userId)
+            return (reply.status(401).send({ error: "401" }));
+        lobby.invitePlayer(targetUserId);  
+        return reply.status(200).send({ message: "Player invited to lobby", lobbyId: lobbyId })
+    })
 
     done()
 }
 
 module.exports = lobbyRoutes;
+
+function playerJoin() {
+    throw new Error("Function not implemented.");
+}
