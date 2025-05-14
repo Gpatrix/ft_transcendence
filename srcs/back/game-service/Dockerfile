@@ -3,7 +3,7 @@ FROM node:23-alpine
 WORKDIR  /usr/src/game-service
 
 RUN apk update --no-cache && \
-    apk add sqlite openssl --no-cache
+    apk add sqlite openssl pnpm --no-cache
 
 ARG DATABASE_URL
 ARG NODE_ENV

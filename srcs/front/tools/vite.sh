@@ -1,2 +1,2 @@
-npm install
-exec npm run dev
+pnpm install
+exec pnpm dev
