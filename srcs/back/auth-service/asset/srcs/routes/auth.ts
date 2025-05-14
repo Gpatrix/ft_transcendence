@@ -76,6 +76,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                             res.status(401).send({ error: "0500"});
                     }
             }
+            console.log(error);
             return (res.status(500).send({ error: "0500"}));
         }
     });

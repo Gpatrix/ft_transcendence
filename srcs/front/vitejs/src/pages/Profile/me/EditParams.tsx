@@ -24,6 +24,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
         new_password: string | null
         confirm_new_password: string | null
         lang: number | null
+        isTwoFactorEnabled:  boolean | null
     }
 
     const initialFormValues = {
@@ -34,11 +35,16 @@ export default function EditParams({placeholders} : EditParamsProps) {
         new_password: null,
         confirm_new_password: null,
         lang: null,
+        isTwoFactorEnabled: null
       };
     const [formValues, setFormValues] = useState<FormType>(initialFormValues);
     const [init, setInit] = useState<number | null>(placeholders.lang);
     const [error, setError] = useState<string | null>(null)
     const { fetchWithAuth } = useAuth();
+
+      useEffect(()=>{
+        console.log(formValues)
+      }, [formValues])
 
     function createNullSetter<K extends keyof FormType>(key: K, isNumber = false) {
         return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -100,6 +106,12 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         label={gpt("bio")}   
                         placeholder={placeholders.bio ?? gpt("bio_placeholder")} 
                     />
+                    <div className=" mt-[8px]">
+                    <label className="py-2">{gpt("language")}</label>
+                    <LanguageSelect setValue={(lang: number) => setFormValues((prev) => ({ ...prev, lang: lang }))} init={init} resetInit={()=>setInit(null)} lang={formValues.lang} />
+
+                    </div>
+
 
                 </span>
                 <span className="md:w-3/7 flex-col flex">
@@ -120,9 +132,24 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         onChange={createNullSetter("confirm_new_password")}
                         label={gpt("password_confirm")}
                         placeholder={gpt("password_confirm_placeholder")} />
-                    <LanguageSelect setValue={(lang: number) => setFormValues((prev) => ({ ...prev, lang: lang }))} init={init} resetInit={()=>setInit(null)} lang={formValues.lang} />
-                    { (formValues.name || formValues.mail || formValues.bio || formValues.new_password || formValues.lang != null)
-                    && <Button className="w-full ml-auto mt-auto px-5 rounded-tl-2xl rounded-br-2xl" type="full">
+                    <span>
+                        <label>{gpt("2fa")}</label>
+                        <span className="w-2/5 h-[40px] flex justify-evenly border-1 p-1 rounded-xl border-yellow bg-grey mt-[8px]">
+                            {((formValues.isTwoFactorEnabled == null && placeholders.isTwoFactorEnabled == false) 
+                            || formValues.isTwoFactorEnabled == false)
+                            ? <span  onClick={()=>setFormValues((prev) => ({ ...prev, isTwoFactorEnabled: true}))} 
+                                className="w-[50%] h-full rounded-full bg-light-yellow opacity-10 mr-auto cursor-pointer"></span>
+
+                            : <span  onClick={()=>setFormValues((prev) => ({ ...prev, isTwoFactorEnabled: false}))} 
+                                className="w-[50%] h-full rounded-full bg-yellow ml-auto cursor-pointer"></span>
+                            }
+                        </span>
+                    </span>
+
+                    { (formValues.name || formValues.mail || formValues.bio 
+                    || formValues.new_password || formValues.lang != null 
+                    || formValues.isTwoFactorEnabled != null)
+                    && <Button className="w-full ml-auto px-5 rounded-tl-2xl rounded-br-2xl mt-10 md:mt-auto" type="full">
                             {gpt("confirm")}
                     </Button>
                     }
