@@ -355,6 +355,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         lang?: string,
         profPicture?: string,
         newPassword?: string
+        isTwoFactorEnabled?: boolean
     }
 
     interface EditUserBody
@@ -366,7 +367,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         bio?: string,
         lang?: string,
         profPicture?: string,
-        isTwoFactorEnabled?: boolean
+        isTwoFactorEnabled?: string
         image?: string
     }
 
