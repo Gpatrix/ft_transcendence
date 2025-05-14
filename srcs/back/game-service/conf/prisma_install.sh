@@ -1,4 +1,4 @@
 #!/bin/sh
 
-npx prisma generate
-npx prisma migrate dev --name init
+pnpx prisma generate
+pnpx prisma migrate dev --name init

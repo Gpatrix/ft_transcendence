@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$NODE_ENV" = "dev" ]; then
-    npm install && npm cache clean --force;
+    pnpm install && pnpm cache clean;
 else
-    npm install --omit=dev && npm cache clean --force;
+    pnpm install --omit=dev && pnpm cache clean;
 fi
