@@ -51,6 +51,28 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
     const RECONNECT_INTERVAL = 500;
 
+
+    const fetchFriends = async () => {
+        try {
+            const friends: Friend[] | undefined = await Friend.getFriends(); //socket
+            if (friends != undefined)
+            {
+                // IL FAUT MODIFIER CA !
+
+                friends.forEach(friend => {
+                    // supprimer cette ligne :
+                    friend.toggleConnected();
+                });
+                
+                setFriends(friends);
+                if (friends[0])
+                    setActivFriend(friends[0].id);
+            }
+        } catch (error) {
+            console.error("Erreur en récupérant les demandes d'ami :", error);
+        }
+    };
+
     const connectWebSocket = () => {
         const ws = new WebSocket('wss://localhost/api/chat/connect');
 
@@ -61,23 +83,26 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
         ws.onmessage = (event) => {
             console.log('Message reçu:', event.data);
-            const data = JSON.parse(event.data);
+            if (event.data) {
+                const data = JSON.parse(event.data);
 
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
-                if (newMessage != undefined) {
-                    const newFriends = [...friendsRef.current];
-                    const friend = newFriends.find((friend) => friend.id == data.senderId);
-                    if (friend) {
-                        friend.addMessages(newMessage);
-                        if (friend.id != activFriendRef.current)
-                            friend.nbNotifs++;
-                        setFriends(newFriends);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
+                    if (newMessage != undefined) {
+                        const newFriends = [...friendsRef.current];
+                        const friend = newFriends.find((friend) => friend.id == data.senderId);
+                        if (friend) {
+                            friend.addMessages(newMessage);
+                            if (friend.id != activFriendRef.current)
+                                friend.nbNotifs++;
+                            setFriends(newFriends);
+                        }
                     }
-                }
-           } else {
-               console.warn('Socket non connectée');
-           }
+               } else {
+                   console.warn('Socket non connectée');
+               }
+            }
+            
         };
 
         ws.onclose = () => {
@@ -107,6 +132,12 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         activFriendRef.current = activFriend;
     }, [activFriend]);
+
+    useEffect(() => {
+        if (socket) {
+            fetchFriends()
+        }
+    }, [socket]);
 
     // ce au'on vas recuperer dans les enfants :
     // value={{ socket, lastMessage }}

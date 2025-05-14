@@ -17,7 +17,7 @@ import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 export default function Chat() {
 
     const { fetchWithAuth } = useAuth();
-    const { friends, setFriends, activFriend, setActivFriend } = useWebSocket();
+    const { socket, friends, setFriends, activFriend, setActivFriend } = useWebSocket();
 
     const [showFriendPopup, setShowFriendPopup] = useState(false);
 
@@ -54,31 +54,36 @@ export default function Chat() {
     }
 
 
-    const fetchFriends = async () => {
-        try {
-            const friends: Friend[] | undefined = await Friend.getFriends();
-            if (friends != undefined)
-            {
-                // IL FAUT MODIFIER CA !
+    // const fetchFriends = async () => {
+    //     try {
+    //         const friends: Friend[] | undefined = await Friend.getFriends(); //socket
+    //         if (friends != undefined)
+    //         {
+    //             // IL FAUT MODIFIER CA !
 
-                friends.forEach(friend => {
-                    friend.toggleConnected();
-                    // il faut recuperer tout les messages
-                });
+    //             friends.forEach(friend => {
+    //                 // supprimer cette ligne :
+    //                 friend.toggleConnected();
+    //             });
                 
-                setFriends(friends);
-                if (friends[0])
-                    setActivFriend(friends[0].id);
-            }
-        } catch (error) {
-            console.error("Erreur en récupérant les demandes d'ami :", error);
-        }
-    };
+    //             setFriends(friends);
+    //             if (friends[0])
+    //                 setActivFriend(friends[0].id);
+    //         }
+    //     } catch (error) {
+    //         console.error("Erreur en récupérant les demandes d'ami :", error);
+    //     }
+    // };
 
     useEffect(() => {
         getUserParams()
-        fetchFriends();
+        // fetchFriends();
     }, []);
+
+    // useEffect(() => {
+    //     if (socket)
+    //         fetchFriends();
+    // }, [socket])
 
     return (
         <div className="chat flex flex-col h-1/1 ">

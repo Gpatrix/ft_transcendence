@@ -5,6 +5,7 @@ import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
+import { log } from 'console';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
@@ -175,6 +176,12 @@ function data_handler(
 
    if (payload.targetId === token.id)
       return socket.send('{error: 3002}');
+
+   // console.log("test");
+   
+   // console.log(payload);
+   // console.log(payload.action);
+   
 
    switch (payload.action)
    {
