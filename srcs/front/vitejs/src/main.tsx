@@ -17,9 +17,10 @@ import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
 import  Chat from "./pages/Chat/Chat.tsx"
 import NotFound from './pages/404/NotFound.tsx';
-import Lobby from './pages/Lobby/Lobby.tsx';
 import Menu from './pages/Lobby/Menu.tsx';
 import LobbyLayout from './pages/Lobby/LobbyLayout.tsx';
+import FriendsLobby from './pages/Lobby/FriendsLobby/FriendsLobby.tsx';
+import PopupCreate from './pages/Lobby/FriendsLobby/PopupCreate.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -45,7 +46,8 @@ createRoot(document.getElementById('root')!).render(
             </Route>
 
             <Route element={<LobbyLayout />}>
-              <Route path="/lobby/friends" element={<div></div>}/>
+              <Route path="/lobby/friends" element={<FriendsLobby />}/>
+              <Route path="/lobby/friends/create" element={<PopupCreate />}/>
               <Route path="/lobby/matchmaking" element={<div></div>}/>
             </Route>
 
