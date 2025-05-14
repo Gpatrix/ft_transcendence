@@ -154,7 +154,9 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         </span>
                     </span>
 
-                    { (formValues.name || formValues.mail || formValues.bio || formValues.new_password || formValues.lang != null)
+                    { (formValues.name || formValues.mail || formValues.bio 
+                    || formValues.new_password || formValues.lang != null 
+                    || formValues.isTwoFactorEnabled != null)
                     && <Button className="w-full ml-auto px-5 rounded-tl-2xl rounded-br-2xl mt-10 md:mt-auto" type="full">
                             {gpt("confirm")}
                     </Button>

@@ -18,7 +18,6 @@ services:
     volumes:
       - ./back/auth-service/asset/srcs:/usr/src/auth-service/asset/srcs
     environment:
-      DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
@@ -41,29 +40,6 @@ services:
     networks:
       - router
 
-  user-service:
-    container_name: user-service
-    restart: on-failure
-    volumes:
-      - ./back/user-service/asset/srcs:/usr/src/user-service/asset/srcs
-      - db-user:/usr/src/user-service/asset/prisma/db
-    environment:
-      DATABASE_URL: ${DATABASE_URL:?}
-      API_CREDENTIAL: ${API_CREDENTIAL:?}
-      JWT_SECRET: ${JWT_SECRET:?}
-      NODE_ENV: ${NODE_ENV:?}
-    build:
-        context: ./back/user-service
-        dockerfile: Dockerfile
-        args:
-          NODE_ENV: ${NODE_ENV:?}
-    ports:
-      - 5555:5555
-    expose:
-      - 3000
-    networks:
-      - router
-
   chat-service:
     container_name: chat-service
     restart: on-failure
@@ -79,6 +55,7 @@ services:
         context: ./back/chat-service
         dockerfile: Dockerfile
         args:
+          NODE_ENV: ${NODE_ENV:?}
           DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
@@ -87,11 +64,34 @@ services:
     networks:
       - router
 
+  game-service:
+    container_name: game-service
+    restart: on-failure
+    volumes:
+      - ./back/game-service/asset/srcs:/usr/src/game-service/srcs
+      - db-game:/usr/src/game-service/prisma/db
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+      NODE_ENV: ${NODE_ENV:?}
+      JWT_SECRET: ${JWT_SECRET:?}
+    build:
+        context: ./back/game-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:?}
+          DATABASE_URL: ${DATABASE_URL:?}
+    expose:
+      - 3000
+    networks:
+      - router
+
   upload-service:
     container_name: upload-service
     restart: on-failure
     volumes:
-      - ./back/upload-service/asset/srcs:/usr/src/upload-service/asset/srcs
+      - ./back/upload-service/asset/srcs:/usr/src/upload-service/srcs
+      - db-upload:/usr/src/upload-service/uploads
     environment:
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
@@ -106,21 +106,27 @@ services:
     networks:
       - router
 
-  game-service:
-    container_name: game-service
+
+  user-service:
+    container_name: user-service
     restart: on-failure
     volumes:
-      - ./back/game-service/asset/srcs:/usr/src/game-service/asset/srcs
+      - ./back/user-service/asset/srcs:/usr/src/user-service/srcs
+      - db-user:/usr/src/user-service/asset/prisma/db
     environment:
-      DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
       JWT_SECRET: ${JWT_SECRET:?}
+      DATABASE_URL: ${DATABASE_URL:?}
+      NODE_ENV: ${NODE_ENV:?}
+      DATABASE_URL: ${DATABASE_URL:?}
     build:
-        context: ./back/game-service
+        context: ./back/user-service
         dockerfile: Dockerfile
         args:
           NODE_ENV: ${NODE_ENV:?}
+          DATABASE_URL: ${DATABASE_URL:?}
+    ports:
+      - 5555:5555
     expose:
       - 3000
     networks:
@@ -142,6 +148,8 @@ services:
 volumes:
   db-chat:
   db-user:
+  db-game:
+  db-upload:
 networks:
   router:
     driver: bridge

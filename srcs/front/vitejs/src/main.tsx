@@ -15,7 +15,7 @@ import DfaSetup from './pages/Auth/DfaSetup.tsx';
 import ProfileBackground from './pages/Profile/ProfileBackground.tsx';
 import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
-import  Chat from "./pages/Auth/Chat.tsx"
+import  Chat from "./pages/Chat/Chat.tsx"
 import NotFound from './pages/404/NotFound.tsx';
 
 createRoot(document.getElementById('root')!).render(

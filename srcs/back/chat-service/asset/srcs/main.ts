@@ -1,15 +1,13 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin from '@fastify/websocket';
+import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
 
-const server = fastify();
-server.register(cookiesPlugin);
-server.register(websocketPlugin);
-server.register(chat_api);
+const PING_INTERVAL = 30000; // 30s
+const PONG_TIMEOUT = 5000;  // 5s
 
 interface payloadstruct
 {
@@ -28,6 +26,26 @@ interface tokenStruct
     isAdmin: boolean
 }
 
+function sendError(code: string, socket: WebSocket): void
+{
+   socket.send(`{"error": ${code === undefined ? "0503" : code}}`);
+}
+
+interface i_user
+{
+   socket: WebSocket;
+   timeout: NodeJS.Timeout | null;
+}
+
+const server = fastify();
+server.register(cookiesPlugin);
+server.register(websocketPlugin);
+server.register(chat_api);
+
+setInterval(recurrentPing, PING_INTERVAL);
+
+var activeConn: Map<number, i_user> = new Map();
+
 server.addHook('preValidation'
    , (request, reply, done) => {
       
@@ -35,56 +53,51 @@ server.addHook('preValidation'
       try
       {
          if (!token || token === undefined)
-            return (reply.status(403).send({ error: "403" }));
+            return (reply.status(403).send({ error: "0403" }));
          const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
          const id = decoded.id;
          if (!id || id === undefined)
-            return (reply.status(403).send({ error: "403" }));
+            return (reply.status(403).send({ error: "0403" }));
          done();
       }
       catch (error) {
-         return (reply.status(403).send({ error: "403" }));
+         return (reply.status(403).send({ error: "0403" }));
       }
 })
-
-var activeConn: Map<number, WebSocket> = new Map();
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
    activeConn.delete(token.id);
-   console.log(`TODO handle closed ${token.name} socket, remaining: ${activeConn.size}`);
+   console.log(`closing ${token.name} connection, remaining: ${activeConn.size}`);
 }
 
 async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.msg === undefined)
-      return (socket.send("{error: 400}"));
-   
+      return (sendError("0400", socket));
+
    let target_user: Utils.t_userInfo | string = await Utils.get_user_info(payload.targetId);
-   if (typeof target_user === 'string')
-      return (socket.send(`{"error": ${target_user}}`))
-   
-   let isBlocked = await Utils.is_blocked(token.id, target_user.id);
-   if (isBlocked !== 'false')
-      {
-         if (isBlocked === 'true')
-            socket.send("3001");
-         else
-            socket.send(isBlocked);
-      return;
+   if (typeof target_user !== 'object')
+      return (sendError(target_user, socket));
+
+   if (token.isAdmin === false)
+   {
+      let isBlocked = await Utils.is_blocked(token.id, target_user.id);
+      if (isBlocked !== 'false')
+         return (sendError(isBlocked, socket));
    }
 
    let channel: Utils.t_channel | string | null = await Utils.findChannel([token.id, target_user.id]);
    if (channel === null)
       channel = await Utils.CreateChannel([token.id, target_user.id], false);
-   if (typeof channel === 'string')
-      return (socket.send(channel));
+   if (typeof channel !== 'object')
+      return (sendError(channel, socket));
 
    const new_msg: Utils.t_message | string = await Utils.create_msg(channel.id, token.id, payload.msg, false);
-   if(typeof new_msg === 'string')
-      return (socket.send(new_msg));
+   if(typeof new_msg !== 'object')
+      return (sendError(new_msg, socket));
 
-   const target_socket: WebSocket | undefined = activeConn.get(target_user.id);
+   const target_socket: WebSocket | undefined = activeConn.get(target_user.id)?.socket;
    if (target_socket !== undefined)
       target_socket.send(JSON.stringify(new_msg));
 }
@@ -93,14 +106,14 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
 {
    const channelId: number = Number(payload.targetId);
    if (payload.msg === undefined || isNaN(channelId))
-      return (socket.send("{error: 400}"));
+      return (socket.send(`{"error": 0400}`));
 
    const participants: Utils.t_game_participants[] | string = await Utils.findGameChannel(channelId);
    if (typeof participants === 'string')
       return (socket.send(participants));
 
    if (!participants.some(p => p.userId === token.id))
-      return (socket.send(`{"error": 401}`));
+      return (socket.send(`{"error": 0401}`));
 
       const new_msg: Utils.t_message | string = await Utils.create_msg(channelId, token.id, payload.msg, true);
       if(typeof new_msg === 'string')
@@ -108,13 +121,13 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
 
       const to_send: string = JSON.stringify(new_msg);
       console.log(to_send);
-      let target_socket;
+      let target_socket: WebSocket | undefined;
       for (let p of participants)
       {
          if (p.userId === token.id)
             continue;
 
-         target_socket = activeConn.get(p.userId);
+         target_socket = activeConn.get(p.userId)?.socket;
          if (target_socket !== undefined)
             target_socket.send(to_send);
       }
@@ -131,19 +144,19 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
    try
    {
       const target_info: Utils.t_userInfo | string = await Utils.get_user_info(payload.targetId);
-      if (typeof target_info === 'string')
-         return (socket.send(`{"error": ${target_info}}`));
+      if (typeof target_info !== 'object')
+         return (sendError(target_info, socket));
 
       let channel: Utils.t_channel | string | null = await Utils.findChannel([token.id, target_info.id]);
       if (channel === null)
          channel = await Utils.CreateChannel([token.id, target_info.id], false);
-      if (typeof channel === 'string')
-         return (socket.send(channel));
+      if (typeof channel !== 'object')
+         return (sendError(channel, socket));
 
 
       const requested_msg: Utils.t_message[] | string = await Utils.get_msg(channel.id, payload.skip, payload.take);
-      if(typeof requested_msg === 'string')
-         return (socket.send(requested_msg));
+      if(typeof requested_msg !== 'object')
+         return (sendError(requested_msg, socket));
       socket.send(JSON.stringify(requested_msg));
    }
    catch (error)
@@ -198,12 +211,14 @@ async function chat_api()
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
 
-         activeConn.set(decodedToken.id, socket);
+         const user: i_user = {socket: socket, timeout: null}
+         activeConn.set(decodedToken.id, user);
 
-         socket.on('message', (RawData: WebSocket.RawData) =>
-            data_handler(RawData, socket, decodedToken));
+         socket.on('message', (RawData: WebSocket.RawData) => data_handler(RawData, socket, decodedToken));
 
          socket.on('close', () => closing_conn(socket, decodedToken));
+
+         socket.on('pong', () => pingTimeoutClear(user));
       }
       catch (error)
       {
@@ -232,3 +247,24 @@ server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
    }
    console.log(`ready`);
 })
+
+function pingTimeoutClear(user: i_user)
+{
+   if (user.timeout !== null)
+      clearTimeout(user.timeout);
+
+   user.timeout = null;
+}
+
+function recurrentPing(): void
+{
+   activeConn.forEach((user, userId) =>
+   {
+      user.socket.ping();
+      user.timeout = setTimeout(() => {
+         activeConn.delete(userId);
+         console.log(`No pong from user ${userId}. Connection closed.`);
+         user.socket.terminate();
+      }, PONG_TIMEOUT);
+   });
+}

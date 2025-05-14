@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
+import WebSocketComponent from "./pages/Auth/WebSocketComponent";
 
 type AuthContextType = {
     isAuthenticated: boolean;
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const setLogged = () => {
         setIsAuthenticated(true)
     }
+
 
     const login = async (email: string, password: string) => {
         const requestData = {
@@ -104,11 +106,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       checkAuthStatus();
     }, []);
 
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth, setLogged }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth, setLogged }}>
+      <WebSocketComponent>
+        {children}
+      </WebSocketComponent>
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

@@ -5,7 +5,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  // output = "../generated/prisma_client"
+  output = "./prisma_client"
 }
 
 model BlockedUser {
