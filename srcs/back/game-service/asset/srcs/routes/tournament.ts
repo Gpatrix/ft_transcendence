@@ -65,8 +65,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         }
         catch (error)
         {
-            console.log(error)
-            if (error instanceof LobbyError)
+            if ((error as LobbyError).errorCode)
                 return socket.close((error as LobbyError).errorCode);
             else
                 return socket.close(500);
@@ -96,11 +95,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
             const tournament = await GamesManager.createGame(lobby.users);
             if (!tournament)
                 throw (new Error('Games manager cannot create game'));
-            console.log('tournamenntt: ', tournament);
             lobby.users.forEach((user: LobbyUser) => {
-                console.log(`users: ${user.id}`);
-                console.log(`tournament: ${tournament.id}`);
-                console.log(`game: ${tournament.games[0].id}`);
                 user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
                 user.websocket.close();
             })

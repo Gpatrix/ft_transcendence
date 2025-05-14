@@ -1,3 +1,6 @@
+import { WebSocket } from "ws";
+import sendLobbyData from "../functions/sendLobbyData";
+
 type id = number;
 
 // errorCode need to be a 4 digits number
@@ -61,23 +64,24 @@ class Lobby
         this.users.forEach(user => {
             if (!user)
                 return ;
-            user.websocket.send(JSON.stringify({ message: "playerJoinedLobby", userId: userId}))
-        })
+            user.websocket.send(JSON.stringify({ message: "playerJoinedLobby", userId: userId}));
+            if (user.id != userId)
+                sendLobbyData(user.websocket, this);
+        });
     }
 
     playerLeave(userId: number)
     {
-        let lobbyUser = this.users.find(user => user.id == userId);
-        if (!lobbyUser)
-            return ;
-        lobbyUser = undefined;
+        this.users = this.users.filter(user => user.id !== userId);
         if (this.users.length <= 0)
-            this.deleteLobby();
+            return this.deleteLobby();
         this.users.forEach(user => {
             if (!user)
                 return ;
-            user.websocket.send(JSON.stringify({ message: "playerLeftLobby", userId: userId}))
-        })
+            user.websocket.send(JSON.stringify({ message: "playerLeftLobby", userId: userId}));
+            if (user.id != userId)
+                sendLobbyData(user.websocket, this);
+        });
     }
 
     private deleteLobby()
