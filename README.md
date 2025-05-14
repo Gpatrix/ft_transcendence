@@ -26,6 +26,8 @@
 
 - [x] Major module: Implement Two-Factor Authentication (2FA) and JWT.
 
+- [ ] Minor module: User and Game Stats Dashboards
+
 
 ## Milieu - Fin
 
@@ -33,7 +35,7 @@
 
 - [ ] Major module: Multiplayer (more than 2 players in the same game).
 
-- [ ] Major module: Live chat.
+- [x] Major module: Live chat.
 
 - [ ] Major module: Introduce an AI opponent.
 
