@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$NODE_ENV" = "dev" ]; then
-    pnpm install && pnpm cache clean;
+    pnpm install;
 else
-    pnpm install --omit=dev && pnpm cache clean;
+    pnpm install --omit=dev;
 fi
