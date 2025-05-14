@@ -17,6 +17,8 @@ import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
 import  Chat from "./pages/Chat/Chat.tsx"
 import NotFound from './pages/404/NotFound.tsx';
+import Lobby from './pages/Lobby/Lobby.tsx';
+import Menu from './pages/Lobby/Menu.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -31,6 +33,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="*" element={<NotFound />}/> 
               <Route path='2fa-setup' element={<DfaSetup />}/>
               <Route path='2fa-check' element={<DfaCheck />}/>
+              <Route path='/' element={<Menu />} />
+
             </Route>
 
 
@@ -38,6 +42,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/profile" element={<MyProfile />}/>
               <Route path="/profile/:id" element={<OthersProfile />}/>
             </Route>
+
+
 
             <Route path="/chat" element={<Chat />} />
             {/* <Route path="/test" element={<App />} /> */}
