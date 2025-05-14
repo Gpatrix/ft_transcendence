@@ -1,4 +1,3 @@
-
 import User from "./User";
 
 class Player extends User {
@@ -32,7 +31,5 @@ class Player extends User {
         return players.find(user => user.id === userId);
       }
 }
-
-
 
 export default Player;

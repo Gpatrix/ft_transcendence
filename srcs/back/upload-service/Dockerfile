@@ -3,7 +3,7 @@ FROM node:23-alpine
 WORKDIR  /usr/src/upload-service
 
 RUN apk update --no-cache && \
-    apk add sqlite openssl --no-cache
+    apk add sqlite openssl pnpm --no-cache
 
 ARG NODE_ENV
 COPY ./asset/package.json .

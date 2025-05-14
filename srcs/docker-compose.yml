@@ -116,8 +116,8 @@ services:
     environment:
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
-      DATABASE_URL: ${DATABASE_URL:?}
       NODE_ENV: ${NODE_ENV:?}
+      DATABASE_URL: ${DATABASE_URL:?}
     build:
         context: ./back/user-service
         dockerfile: Dockerfile

@@ -14,7 +14,7 @@ export default function Login() {
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
     const navigate = useNavigate(); // redirect to home
-    const { login, setLogged, isAuthenticated } = useAuth();
+    const { login, setLogged } = useAuth();
 
     const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -30,12 +30,14 @@ export default function Login() {
         }
     }
 
-    useEffect(()=> { //  oauth forcing authProvider
-        const queryParameters = new URLSearchParams(window.location.search)
+    useEffect(()=> { 
+        const queryParameters = new URLSearchParams(window.location.search) //  oauth forcing authProvider
         const callback = queryParameters.get("oauth")
         if (callback) {
             setLogged()
             navigate("/")
+            return ;
+            // alert()
         }
     }, [])
 

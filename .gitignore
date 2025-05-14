@@ -7,3 +7,5 @@
 **/prisma_client
 **/package-lock.json
 docker.debug
+**/pnpm-lock.yaml
+**/.pnpm-store

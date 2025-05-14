@@ -24,11 +24,8 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             const data = await response.json();
             if (!response.ok)
                 res.status(response.status).send(data);
-            QRCode.toDataURL(secret.otpauth_url, function(err: any, data_url: any) {
-                if (err)
-                    throw(err);
-                res.status(200).send({ message: "qrcode_generated", data_url: data_url})
-            });
+            const data_url = await QRCode.toDataURL(secret.otpauth_url);
+            return (res.status(200).send({ message: "qrcode_generated", data_url }));
         } catch (error) {
             res.status(500).send({ error: "0500" });
         }
@@ -42,7 +39,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
         const jsonWebToken= req.cookies['ft_transcendence_jw_token'];
         const decoded = jwt.verify(jsonWebToken, process.env.JWT_SECRET);
         const jsonWebTokenPayload = decoded.data;
-        const { userToken } = req.body;
+        const userToken  = req.body;
 
         //here we ask user api for user data
         const userLookupResponse = await fetch(`http://user-service:3000/api/user/lookup/${jsonWebTokenPayload.email}`,
@@ -57,7 +54,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
         if (!userLookupResponse.ok)
             return res.status(userLookupResponse.status).send({ error: userLookupData.error})
         const user = userLookupData;
-        if (!user)
+        if (!user)  
             return res.status(404).send({ error: "1006" });
         if (!user.password)
             return res.status(401).send({ error: "1014" });
@@ -99,7 +96,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
         if (decoded.data.dfa)
             return res.status(403).send({ error: "1018" });
         const jsonWebTokenPayload = decoded.data;
-        const { userToken } = req.body;
+        const userToken = req.body;
 
         // compare the first temp token the user got for example '420420'
         const verified = speakeasy.totp.verify({ secret: jsonWebTokenPayload.twoFactorSecret,
@@ -119,7 +116,12 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             }
             }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
             if (jsonwebtoken)
-                return (res.cookie("ft_transcendence_jw_token", jsonwebtoken).send({ response: "successfully logged with 2fa" }));
+                return (res.cookie("ft_transcendence_jw_token", jsonwebtoken,  {
+                    path: "/",
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true
+                  })).send({ response: "successfully logged with 2fa" });
         }
         else
             return (res.status(401).send({ error: "1017" }));

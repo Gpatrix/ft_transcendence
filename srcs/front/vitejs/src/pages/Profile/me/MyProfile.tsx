@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import LeftPart from "../LeftPart"
 import RightPart from "../RightPart"
 import { useAuth } from "../../../AuthProvider"
-import { useParams } from "react-router"
+import useAuthChecker from "../../../AuthChecker"
 
 export type ProfileDataType = {
     name: string
@@ -46,6 +46,7 @@ export default function MyProfile() {
                 console.error("Error :", error);
             });
     }
+    useAuthChecker()
 
     useEffect(()=>{
         getUserParams()

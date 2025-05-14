@@ -1,7 +1,8 @@
 #!/bin/sh
 
 if [ "$NODE_ENV" = "dev" ]; then
-    exec npm run dev
+    exec pnpm dev
 else
-    exec npm run build start;
+    pnpm build;
+    exec pnpm build start;
 fi

@@ -8,6 +8,7 @@ import { ProfileDataType } from "./MyProfile";
 import LoginErrorMsg from "../../../components/LoginErrorMsg";
 import { get_server_translation } from "../../../translations/server_responses";
 import { useAuth } from "../../../AuthProvider";
+import { useNavigate } from "react-router";
 
 
 interface EditParamsProps {
@@ -41,6 +42,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
     const [init, setInit] = useState<number | null>(placeholders.lang);
     const [error, setError] = useState<string | null>(null)
     const { fetchWithAuth } = useAuth();
+    const navigate = useNavigate()
 
       useEffect(()=>{
         console.log(formValues)
@@ -75,6 +77,12 @@ export default function EditParams({placeholders} : EditParamsProps) {
             if (response.ok) {
                 setFormValues(initialFormValues)
                 formValues.lang != null && localStorage.setItem('LANGUAGE', JSON.stringify(formValues.lang));
+                if (formValues.isTwoFactorEnabled == true) {
+                    navigate("/2fa-setup")
+                }
+                if (formValues.isTwoFactorEnabled == false) {
+                    fetchWithAuth("/api/auth/2fa/delete", {method: "DELETE"})
+                }
                 window.location.reload();
             }
             else {
@@ -146,7 +154,9 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         </span>
                     </span>
 
-                    { (formValues.name || formValues.mail || formValues.bio || formValues.new_password || formValues.lang != null)
+                    { (formValues.name || formValues.mail || formValues.bio 
+                    || formValues.new_password || formValues.lang != null 
+                    || formValues.isTwoFactorEnabled != null)
                     && <Button className="w-full ml-auto px-5 rounded-tl-2xl rounded-br-2xl mt-10 md:mt-auto" type="full">
                             {gpt("confirm")}
                     </Button>
