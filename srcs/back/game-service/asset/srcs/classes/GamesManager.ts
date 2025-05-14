@@ -1,5 +1,6 @@
 import PongGame from './PongGame';
 import { MatchMakingUser } from './MatchMaking';
+import { LobbyUser } from './Lobby';
 import prisma from "../config/prisma";
 
 class GamesManager {
@@ -21,13 +22,13 @@ class GamesManager {
         return (game);
     }
 
-    static async createGame(matchMakingUsers: MatchMakingUser[]): Promise<any>
+    static async createGame(matchMakingUsers: MatchMakingUser[] | LobbyUser ): Promise<any>
     {
         try {
             const tournament = await prisma.tournament.create({
                 data: {
                     players : {
-                        create: matchMakingUsers.map(user => {
+                        create: matchMakingUsers.map((user: MatchMakingUser | LobbyUser ) => {
                             return ({ userId: user.id, score: 0 })
                         })
                     },
@@ -36,7 +37,7 @@ class GamesManager {
                             {
                                 tournamentStage: 0,
                                 players: {
-                                    create: matchMakingUsers.map(user => {
+                                    create: matchMakingUsers.map((user: MatchMakingUser | LobbyUser ) => {
                                         return ({ userId: user.id, score: 0 })
                                     })
                                 }
