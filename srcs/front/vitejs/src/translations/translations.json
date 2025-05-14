@@ -79,6 +79,26 @@
       "Langue",
       "Lingua"
     ],
+    "victory": [
+      "Victories",
+      "Victoires",
+      "Vittorie"
+    ],
+    "victory_rate": [
+      "Victory rate",
+      "Taux de victoire",
+      "Percentuale di vittorie"
+    ],
+    "loose": [
+      "Losses",
+      "Défaites",
+      "Sconfitte"
+    ],
+    "match_history": [
+      "Match history",
+      "Historique des matchs",
+      "Storia della partita"
+    ],
     "code_placeholder": [
       "Please enter your authentication code",
       "Veuillez entrer votre code d'authentification",
@@ -108,6 +128,11 @@
       "History",
       "Historique",
       "Storia"
+    ],
+    "no_match" : [
+      "No match found.",
+      "Aucun match trouvé",
+      "Nessuna corrispondenza trovata"
     ]
   }
 }

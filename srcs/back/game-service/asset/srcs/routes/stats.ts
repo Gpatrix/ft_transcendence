@@ -78,6 +78,16 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
         })
         if (!players)
             return reply.status(200).send({});
+        const { wins, looses, games, noContests } = getPlayersMainStats(players, userId);
+        const averagePlayTime = getAveragePlayTime(players, userId);
+        reply.status(200).send({
+            wins,
+            looses,
+            games,
+            noContests,
+            winRate: (wins + noContests) / (games + noContests) * 100,
+            averagePlayTime: averagePlayTime,
+        });
     });
 
     interface GetPLayersStatsParams
