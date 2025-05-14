@@ -26,8 +26,6 @@ class Player extends User {
     }
 
     static findUserById(players: Player[], userId: number): Player | undefined {
-        console.log(players);
-        
         return players.find(user => user.id === userId);
       }
 }

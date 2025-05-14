@@ -29,9 +29,9 @@ export function MenuLink({link, label} : MenuLinkProps) {
     )
 }
 
-export function MenuMultiLink({ link, label }: MenuLinkProps) {
+export function MenuMultiLink({ label }: MenuLinkProps) {
     const [state, setState] = useState<boolean>(false)
-    const [fold, setFold] = useState<boolean>(true)
+    const [fold, setFold] = useState<boolean>(false)
   
     return (
       <span
@@ -72,13 +72,13 @@ export function MenuMultiLink({ link, label }: MenuLinkProps) {
           >
             <Link
               className="block ml-8 uppercase text-yellow/70 hover:text-yellow focus:text-yellow font-bold transition-colors duration-300 text-2xl"
-              to="/play/friends"
+              to="/lobby/friends"
             >
               Play with friends
             </Link>
             <Link
               className="block ml-16 uppercase text-yellow/70 hover:text-yellow focus:text-yellow font-bold transition-colors duration-300 text-2xl"
-              to="/play/matchmaking"
+              to="/lobby/matchmaking"
             >
               Matchmaking
             </Link>
@@ -90,7 +90,7 @@ export function MenuMultiLink({ link, label }: MenuLinkProps) {
 export default function Menu() {
     return (
         <BgShadow className="flex flex-col gap-8 ">
-            <MenuMultiLink link="/play/multiplayer" label="multplayer"/>
+            <MenuMultiLink label="multplayer"/>
             <MenuLink link="/play/local" label="local game"/>
             <MenuLink link="/profile" label="profile"/>
             <MenuLink link="/chat" label="social"/>

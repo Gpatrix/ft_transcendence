@@ -10,12 +10,13 @@ const useAuthChecker = () => {
                 const response = await fetch("/api/auth/status");
                 if (!response.ok) {
                     navigate("/login");
+                    return ;
                 }
             } catch (err) {
                 navigate("/login");
+                return ;
             }
         };
-
         checkAuth();
     }, [navigate]);
 };

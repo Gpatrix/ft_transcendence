@@ -19,6 +19,7 @@ import  Chat from "./pages/Chat/Chat.tsx"
 import NotFound from './pages/404/NotFound.tsx';
 import Lobby from './pages/Lobby/Lobby.tsx';
 import Menu from './pages/Lobby/Menu.tsx';
+import LobbyLayout from './pages/Lobby/LobbyLayout.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -43,6 +44,10 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/profile/:id" element={<OthersProfile />}/>
             </Route>
 
+            <Route element={<LobbyLayout />}>
+              <Route path="/lobby/friends" element={<div></div>}/>
+              <Route path="/lobby/matchmaking" element={<div></div>}/>
+            </Route>
 
 
             <Route path="/chat" element={<Chat />} />

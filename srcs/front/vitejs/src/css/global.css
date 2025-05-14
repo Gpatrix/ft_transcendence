@@ -10,6 +10,7 @@
     --color-light-yellow: #FFFFB3;  /* Texts, cta */
 
     --color-dark-red: #800B14;      /* Backgrounds, shadows, active navbar button*/
+    --color-bgred: #800B14;      /* Backgrounds, shadows, active navbar button*/
     --color-light-red: #DF2D15;     /* Notifications, errors */
 
     --color-white: #FDFDFF;         /* Chat messages */ 
