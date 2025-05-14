@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import ProfilePic from './ProfilePic.tsx';
 import arrowDown from './down-arrow-box.svg';
 import styles from './MatchResult.module.css';
-import Player from '../classes/Player.tsx';
+import HistoryPlayer from '../classes/HistoryPlayer.tsx';
 
 interface MatchResultProps {
   match: {
@@ -26,8 +26,8 @@ interface MatchResultProps {
 
 export default function MatchResult({ match }: MatchResultProps) {
   const [expendedItem, setExpendedItem] = useState(false);
-  const [users, setUsers] = useState<Player[]>([]);
-  const [mainUser, setMainUser] = useState<Player | null>(null);
+  const [users, setUsers] = useState<HistoryPlayer[]>([]);
+  const [mainUser, setMainUser] = useState<HistoryPlayer | null>(null);
   const [loading, setLoading] = useState(true);
 
   const toggleMatch = () => setExpendedItem(!expendedItem);
@@ -46,7 +46,7 @@ export default function MatchResult({ match }: MatchResultProps) {
         const sorted = [...allPlayersRaw].sort((a, b) => b.score - a.score);
 
         const userPromises = sorted.map((player, idx) =>
-          Player.fillFromApi(player.userId, player.score, match.gameId, idx + 1)
+          HistoryPlayer.fillFromApi(player.userId, player.score, match.gameId, idx + 1)
         );
 
         const players = await Promise.all(userPromises);
@@ -62,7 +62,7 @@ export default function MatchResult({ match }: MatchResultProps) {
   }, [match]);
 
   useEffect(() => {
-    const user = Player.findUserById(users, match.you.userId);
+    const user = HistoryPlayer.findUserById(users, match.you.userId);
     setMainUser(user || null);
   }, [users, match.you.userId]);
 
@@ -103,7 +103,7 @@ export default function MatchResult({ match }: MatchResultProps) {
               <span className={clsx('flex flex-col w-full', styles.users)}>
                 <div className={clsx('flex  main-cara max-h-1/1 mr-5 relative', styles.matchRecap)}>
                   <span className='w-[60px]'>
-                    <ProfilePic profileLink={`/profile/${winner?.id}`} image={winner?.imageUrl || ''} />
+                    <ProfilePic profileLink={`/profile/${winner?.id}`} image={winner?.profPicture || ''} />
                   </span>
                   <span className='separator mr-8 ml-8 text-5xl h-min self-center'>/</span>
                   <span className='otherUsers flex'>
@@ -111,7 +111,7 @@ export default function MatchResult({ match }: MatchResultProps) {
                       <ProfilePic 
                         key={i} 
                         profileLink={`/profile/${player.id}`} 
-                        image={player.imageUrl} 
+                        image={player.profPicture} 
                         className={(i === 0 ? '' : 'ml-[-20px] ') + 'inline-block w-[60px]'} 
                       />
                     ))}
@@ -128,12 +128,12 @@ export default function MatchResult({ match }: MatchResultProps) {
                         #{x.place} |
                       </span>
                       <span className='w-[60px]'>
-                        <ProfilePic profileLink={`/profile/${x.id}`} image={x.imageUrl} />
+                        <ProfilePic profileLink={`/profile/${x.id}`} image={x.profPicture} />
                       </span>
                       <span className='separator h-min self-center'>
                         {x.name}
                       </span>
-                      <span className={clsx('placement h-min self-center ml-2 ml-auto')}>
+                      <span className={clsx('placement h-min self-center ml-auto')}>
                         {x.points}pts
                       </span>
                     </div>

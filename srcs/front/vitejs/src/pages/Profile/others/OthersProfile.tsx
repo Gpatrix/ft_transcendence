@@ -11,6 +11,7 @@ export type ProfileDataType = {
     profPicture: string | null
     rank : number
     lang : number | null
+    isTwoFactorEnabled? : boolean | null
 }
 
 export default function OthersProfile() {   
@@ -20,7 +21,8 @@ export default function OthersProfile() {
         bio: null,
         profPicture: null,
         rank: 0,
-        lang : null
+        lang : null,
+        isTwoFactorEnabled : null
     })
     const { id } = useParams();
     const navigate = useNavigate()
@@ -54,6 +56,10 @@ export default function OthersProfile() {
     useEffect(()=>{
         getUserParams()
     }, [])
+
+    useEffect(()=>{
+        getUserParams()
+    }, [navigate])
 
     return (
         <div className="px-5 w-full ml-auto mr-auto h-fit flex justify-stretch z-1 lg:flex-row flex-col">

@@ -17,6 +17,7 @@ import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
 import  Chat from "./pages/Chat/Chat.tsx"
 import NotFound from './pages/404/NotFound.tsx';
+import Profile from './pages/Profile/Profile.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -35,8 +36,8 @@ createRoot(document.getElementById('root')!).render(
 
 
             <Route element={<ProfileBackground/>}>
-              <Route path="/profile" element={<MyProfile />}/>
-              <Route path="/profile/:id" element={<OthersProfile />}/>
+              <Route path="/profile/:id" element={<Profile />}/>
+              <Route path="/profile" element={<Profile />}/>
             </Route>
 
             <Route path="/chat" element={<Chat />} />
