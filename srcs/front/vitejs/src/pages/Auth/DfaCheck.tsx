@@ -32,7 +32,7 @@ export default function DfaSetup() {
     return (
         <div> 
             <h2 className="text-xl text-yellow">{gpt("2fa")}</h2>
-            <p className="text-light-yellow text-xs mt-2">{gpt("text_2fa")}</p>
+            <p className="text-light-yellow text-xs mt-2">{gpt("text_check_2fa")}</p>
             <span>
                 <form className="flex place-items-end" onSubmit={(e)=>handleSubmit(e)}>
 
