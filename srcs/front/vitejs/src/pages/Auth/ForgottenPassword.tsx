@@ -8,12 +8,21 @@ import LoginErrorMsg from "../../components/LoginErrorMsg.tsx";
 import { gpt } from "../../translations/pages_reponses.tsx";
 import AuthError from "./ErrorClass.tsx";
 import { get_server_translation } from "../../translations/server_responses.tsx";
+import { useEffect } from "react";
+import { useAuth } from "../../AuthProvider.tsx";
 
 export default function ForgottenPassword() {
     const [email, setEmail] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [formSent, setFormSent] = useState<boolean>(false);
+    const {isAuthenticated} = useAuth()
+    const navigate = useNavigate()
 
+    useEffect(()=> {
+        if (isAuthenticated) {
+            navigate("/")
+        }
+    }, [])
 
     const handleSubmit = (event : React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -38,7 +47,7 @@ export default function ForgottenPassword() {
         }
         catch (e) {
             if (e instanceof AuthError) {
-                setError(e.message)
+                setError(get_server_translation(e.message))
             }
             else
                 setError(get_server_translation("0500"))
