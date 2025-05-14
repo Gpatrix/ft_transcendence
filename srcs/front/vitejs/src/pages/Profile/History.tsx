@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import MatchHistory from "../../components/MatchHistory";
+import { gpt } from "../../translations/pages_reponses";
 
 interface GetPlayerHistoryReturnPlayer
 {
@@ -51,8 +52,8 @@ export default function History({ playerId }: { playerId: number }) {
   if (!matches || matches.length === 0) return <p className="text-yellow">No match found.</p>;
 
   return (
-    <div className="flex flex-col gap-4 h-[500px]">
-      <h2 className="text-yellow text-2xl">Match history</h2>
+    <div className="flex flex-col gap-4 h-[500px] p-4 border-yellow border-1 rounded-2xl">
+      <h2 className="text-yellow text-2xl">{gpt("match_history")}</h2>
       <span className="flex flex-col gap-4 h-[500px] overflow-scroll">
       {matches.map((match, idx) => (
         <MatchHistory
