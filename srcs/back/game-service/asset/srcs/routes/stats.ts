@@ -54,7 +54,7 @@ function getAveragePlayTime(players: Array<any>, userId: number): number
     return (totalPlayTime / gamesCount);
 }
 
-function gameRoutes(server: FastifyInstance, options: any, done: any)
+export function gameRoutes(server: FastifyInstance, options: any, done: any)
 {
     server.get(`/api/game/stats`, async ( request: any, reply: any ) => 
     {
@@ -134,5 +134,3 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
 
     done();
 }
-
-module.exports = gameRoutes;

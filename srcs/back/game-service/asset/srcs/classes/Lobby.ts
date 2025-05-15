@@ -6,7 +6,7 @@ type id = number;
 // errorCode need to be a 4 digits number
 type errorCode = number
 
-class LobbyError extends Error {
+export class LobbyError extends Error {
     errorCode?: errorCode
     constructor(errorCode: errorCode)
     {

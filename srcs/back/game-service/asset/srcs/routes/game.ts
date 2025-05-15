@@ -17,7 +17,7 @@ interface gameConnectParams {
 var users: MatchMakingMap = new MatchMakingMap();
 var activeConn: Map<number, WebSocket> = new Map();
 
-function gameRoutes (server: FastifyInstance, options: any, done: any)
+export function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
     server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
     {   
@@ -71,9 +71,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             socket.on('message', (RawData: WebSocket.RawData) => {
                 const object = JSON.parse(RawData.toString('utf8'));
                 const action = object?.action;
-                if (!action)
-                    return ;
                 const pongGame = GamesManager.findGame(gameId);
+                if (!action || !pongGame)
+                    return ;
 
                 switch (action) {
                     case 'playerMove':
@@ -151,5 +151,3 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
 
     done()
 }
-
-module.exports = gameRoutes;

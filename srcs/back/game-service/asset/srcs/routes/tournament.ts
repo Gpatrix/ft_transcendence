@@ -7,7 +7,7 @@ import { PongGame } from '../classes/PongGame';
 import { Lobby, LobbyUser, LobbyError } from '../classes/Lobby';
 import {GamesManager} from '../classes/GamesManager';
 import {isConnected} from "../validators/jsonwebtoken";
-import validateLobbyData from '../validators/lobbyData';
+import {validateLobbyData} from '../validators/lobbyData';
 import { sendLobbyData } from '../functions/sendLobbyData';
 import { send } from "process";
 
