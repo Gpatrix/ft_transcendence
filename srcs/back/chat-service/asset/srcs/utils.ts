@@ -217,7 +217,6 @@ export async function get_msg(channelId: number, toSkip: number, toTake: number)
                sentAt: true,
              },
       });
-
       return (requested_msg);
    }
    catch (error)
