@@ -1,9 +1,18 @@
 import fastify from 'fastify'
-const cookiesPlugin = require('@fastify/cookie');
+import cookiesPlugin from '@fastify/cookie';
+import multipartPlugin from '@fastify/multipart';
+import rateLimitPlugin from '@fastify/rate-limit';
+import userRoutes from "./routes/user";
+import friendsRoutes from "./routes/friends";
 
 const server = fastify();
 
-server.register(require('@fastify/multipart'), {
+server.register(rateLimitPlugin, {
+  max: 100,
+  timeWindow: '1 minute',
+  allowList: ['127.0.0.1']
+});
+server.register(multipartPlugin, {
   limits: {
     fieldNameSize: 100, // Max field name size in bytes
     fieldSize: 100,     // Max field value size in bytes
@@ -15,8 +24,8 @@ server.register(require('@fastify/multipart'), {
   }
 });
 server.register(cookiesPlugin, {});
-server.register(require("./routes/user"));
-server.register(require("./routes/friends"));
+server.register(userRoutes);
+server.register(friendsRoutes);
 
 async function main() {
   let _address;

@@ -13,7 +13,12 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         password: string,
     }
     
-    server.post<{ Body: signUpBody }>('/api/auth/signup', { preHandler:[validatePassword] }, async (req, res) => {
+    server.post<{ Body: signUpBody }>('/api/auth/signup', { preHandler:[validatePassword], config: {
+        rateLimit: {
+            max: 1,
+            timeWindow: '2 minutes'
+        }
+    } }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
             return (res.status(400).send({ error: "1007" }));
@@ -87,7 +92,14 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
       password: string
     }
     
-    server.post<{ Body: loginBody }>('/api/auth/login', async (request: any, reply: any) => {
+    server.post<{ Body: loginBody }>('/api/auth/login', { config:
+        {
+            rateLimit: {
+                max: 10,
+                timeWindow: '1 minutes'
+            } 
+        }
+        }, async (request: any, reply: any) => {
         try {
             const email = request.body.email;
             const password = request.body.password;

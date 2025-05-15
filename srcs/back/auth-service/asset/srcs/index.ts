@@ -1,6 +1,7 @@
 import fastify from 'fastify'
-const oauthPlugin = require('@fastify/oauth2')
-const cookiesPlugin = require('@fastify/cookie');
+import oauthPlugin from '@fastify/oauth2';
+import cookiesPlugin from '@fastify/cookie';
+import rateLimitPlugin from '@fastify/rate-limit';
 import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
@@ -13,6 +14,11 @@ declare module 'fastify' {
 }
 
 server.register(cookiesPlugin, {});
+server.register(rateLimitPlugin, {
+  max: 100,
+  timeWindow: '1 minute',
+  allowList: ['127.0.0.1']
+});
 server.register(require("./routes/auth"));
 server.register(require("./routes/dfa"));
 server.register(require("./routes/passwordReset"));
