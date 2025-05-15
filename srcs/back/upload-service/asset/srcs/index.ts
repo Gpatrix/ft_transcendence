@@ -1,14 +1,8 @@
 import fastify from 'fastify'
+import rateLimitPlugin from '@fastify/rate-limit';
 
 const server = fastify();
 
-declare module 'fastify' {
-  interface FastifyInstance {
-    googleOAuth2: OAuth2Namespace;
-  }
-}
-
-console.log(process.cwd() + '/../uploads')
 server.register(require('@fastify/static'), {
   root: '/usr/src/upload-service/uploads',
   prefix: '/api/upload/'
@@ -26,7 +20,16 @@ server.register(require('@fastify/multipart'), {
   }
 });
 
-server.register(require("./routes/upload"));
+server.register(rateLimitPlugin, {
+  max: 100,
+  timeWindow: '1 minute',
+  allowList: ['127.0.0.1']
+});
+
+server.register(require("./routes/upload"), { config: {
+  max: 5,
+  timeWindow: '1 minute'
+}});
 
 async function main() {
   let _address;
