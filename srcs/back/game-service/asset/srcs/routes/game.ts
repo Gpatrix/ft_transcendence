@@ -1,11 +1,11 @@
-import prisma from "../config/prisma";
+import { prisma } from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import WebSocket from 'ws';
-import PongGame from '../classes/PongGame';
+import { PongGame } from '../classes/PongGame';
 import { MatchMakingUser, MatchMakingMap } from '../classes/MatchMaking';
-import GamesManager from '../classes/GamesManager';
+import { GamesManager } from '../classes/GamesManager';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -122,7 +122,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 return (socket.close(4003));
 
             if (activeConn.get(tokenPayload.id))
-                socket.close(4002,);
+                socket.close(4002);
 
             // socket.on('message', (RawData: WebSocket.RawData) => {
             //     console.log(RawData.message);

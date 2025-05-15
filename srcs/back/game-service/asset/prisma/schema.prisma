@@ -13,7 +13,7 @@ model Player {
   userId Int
   score Int
   
-  gameId Int 
+  gameId Int
   game Game @relation("PlayerToGame", fields: [gameId], references: [id])
   createdAt DateTime @default(now())
 }

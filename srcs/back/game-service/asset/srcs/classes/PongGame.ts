@@ -75,7 +75,7 @@ class Player {
     }
 }
 
-class PongGame {
+export class PongGame {
     constructor (playerIds: Array<number>, id: number) {
         this.ball = this.initBall(playerIds);
         this.players = [

@@ -1,9 +1,9 @@
-import PongGame from './PongGame';
+import { PongGame } from './PongGame';
 import { MatchMakingUser } from './MatchMaking';
 import { LobbyUser } from './Lobby';
-import prisma from "../config/prisma";
+import { prisma } from "../config/prisma";
 
-class GamesManager {
+export class GamesManager {
     static games: Map<number, PongGame> = new Map<number, PongGame>();
 
     static async waitAndStart(game: PongGame) {
@@ -12,7 +12,6 @@ class GamesManager {
             game.start();
             console.log("GamesManger: Game successfully launched");
         } catch (error) {
-            // console.log(error);
             throw (new Error('GamesManger: PongGame cannot be started'));
         }
     }
@@ -68,5 +67,3 @@ class GamesManager {
         }
     }
 }
-
-module.exports = GamesManager;

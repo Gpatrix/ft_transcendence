@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import sendLobbyData from "../functions/sendLobbyData";
+import { sendLobbyData } from "../functions/sendLobbyData";
 
 type id = number;
 
@@ -15,7 +15,7 @@ class LobbyError extends Error {
     }
 }
 
-class LobbyUser {
+export class LobbyUser {
     constructor (userId: id, websocket: WebSocket)
     {
         this.id = userId;
@@ -25,7 +25,7 @@ class LobbyUser {
     websocket: WebSocket;
 }
 
-class Lobby
+export class Lobby
 {
     static lobbies: Map<id, Lobby> = new Map();
 
@@ -35,6 +35,7 @@ class Lobby
     title: string;
     playerCount: number;
     ownerId?: number;
+
     constructor (playerCount: number, title: string, ownerId: id)
     {
         this.id = Lobby.lobbies.size;
@@ -95,8 +96,4 @@ class Lobby
             throw (new LobbyError(4007));
         return ;
     }
-}
-
-module.exports = {
-    Lobby
 }
