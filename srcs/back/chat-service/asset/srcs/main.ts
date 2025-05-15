@@ -133,6 +133,13 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
       }
 }
 
+interface i_refresh
+{
+   friendId: number,
+   skipped: number,
+   messages: Utils.t_message[]
+}
+
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
    if (payload.skip === undefined || payload.take == undefined)
@@ -153,15 +160,19 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
       if (typeof channel !== 'object')
          return (sendError(channel, socket));
 
-
       const requested_msg: Utils.t_message[] | string = await Utils.get_msg(channel.id, payload.skip, payload.take);
       if(typeof requested_msg !== 'object')
          return (sendError(requested_msg, socket));
-      socket.send(JSON.stringify(requested_msg));
+      const to_send: i_refresh = {
+         friendId: payload.targetId,
+         messages: requested_msg,
+         skipped: payload.skip
+      };
+      socket.send(JSON.stringify(to_send));
    }
    catch (error)
    {
-      return (socket.send(`{"error": 0500}`));
+      return (socket.send(`{"error": "0500"}`));
    }
 }
 
@@ -173,7 +184,7 @@ function data_handler(
    if (payload.action === undefined || payload.targetId === undefined)
       return (socket.send('{error: 0400}'));
 
-   if (payload.targetId === token.id)
+   if (payload.targetId == token.id)
       return socket.send('{error: 3002}');
 
    switch (payload.action)
