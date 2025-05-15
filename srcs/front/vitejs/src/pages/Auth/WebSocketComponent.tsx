@@ -70,28 +70,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
     const RECONNECT_INTERVAL = 500;
 
-
-    const fetchFriends = async () => {
-        try {
-            const friends: Friend[] | undefined = await Friend.getFriends(); //socket
-            if (friends != undefined)
-            {
-                // IL FAUT MODIFIER CA !
-
-                friends.forEach(friend => {
-                    // supprimer cette ligne :
-                    friend.toggleConnected();
-                });
-                
-                setFriends(friends);
-                if (friends[0])
-                    setActivFriend(friends[0].id);
-            }
-        } catch (error) {
-            console.error("Erreur en récupérant les demandes d'ami :", error);
-        }
-    };
-
     const connectWebSocket = () => {
         const ws = new WebSocket('wss://localhost/api/chat/connect');
 
@@ -128,7 +106,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                             }
                         }
                     }
->>>>>>> Stashed changes
                } else {
                    console.warn('Socket non connectée');
                }
