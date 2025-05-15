@@ -371,7 +371,12 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         image?: string
     }
 
-    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData] }, async (request, reply) => {
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData], config: {
+        rateLimit: {
+            max: 10,
+            timeWindow: '1 minute'
+        }
+    } }, async (request, reply) => {
         const body: EditUserBody = request.body;
         if (!body)
             return (reply.status(400).send({ error: "0401" }));
