@@ -109,9 +109,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth, setLogged }}>
-      <WebSocketComponent>
+      {isAuthenticated ? <WebSocketComponent>
         {children}
       </WebSocketComponent>
+      :
+      children}
     </AuthContext.Provider>
   );
 };

@@ -6,30 +6,30 @@ import FriendRequest from "./FriendRequest";
 const MESSAGE_RECIVED = 20;
 
 class Friend extends User {
-    messages: Message[];
+    // messages: Message[];
     connected: boolean;
     nbNotifs: number;
 
 
 
     constructor(id: number, name: string, email: string, profPicture: string, bio: string, lang : string,
-            isTwoFactorEnabled : boolean, rank: number, messages: Message[] = [], connected: boolean = false, nbNotifs: number = 0) {
+            isTwoFactorEnabled : boolean, rank: number, connected: boolean = false, nbNotifs: number = 0) { // , messages: Message[] = []
         super(id, name, email, profPicture, bio, lang, isTwoFactorEnabled, rank);
         
         this.connected = connected;
-        this.messages = messages;
+        // this.messages = messages;
         this.nbNotifs = nbNotifs;
     }
 
     
-    addMessages(newMessages: Message) {
-        this.messages.splice(0, 0, newMessages);
-    }
+    // addMessages(newMessages: Message) {
+    //     this.messages.splice(0, 0, newMessages);
+    // }
     
-    removeMessages(messagesToRemove: Message) {
-        let index = this.messages.findIndex((message: Message) => message == messagesToRemove)
-        this.messages.splice(index, 0);
-    }
+    // removeMessages(messagesToRemove: Message) {
+    //     let index = this.messages.findIndex((message: Message) => message == messagesToRemove)
+    //     this.messages.splice(index, 0);
+    // }
 
     toggleConnected() {
         this.connected = !this.connected;
@@ -37,10 +37,6 @@ class Friend extends User {
 
     setNotif(newNbNotifs: number) {
         this.nbNotifs = newNbNotifs;
-    }
-    
-    getUserInfo() {
-        return `${super.getUserInfo()}, Messages: ${this.messages}, Connected ${this.connected}`;
     }
     
     static async friendRequest(name: string) : Promise<number>
@@ -100,10 +96,16 @@ class Friend extends User {
             
             console.log("Reponse HTTP :", response.status);
 
+            // console.log(response);
+            
+
             if (response.status / 100 != 2)
                 return (undefined);
             
             const dataReponse = await response.json();
+
+            // console.log(dataReponse);
+
             
             const friends : Friend[] = [];
 

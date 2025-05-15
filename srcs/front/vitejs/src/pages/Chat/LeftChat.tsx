@@ -4,26 +4,26 @@ import InputWithIco from "../../components/InputWithIco.tsx"
 import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
 import Friend from "../../classes/Friend.tsx"
 import UserContact from "../../components/UserContact.tsx";
+import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 
 type LeftChatProps = {
-    activFriend: number;
     friends: Friend[],
-    onClickFriend : React.MouseEventHandler<HTMLDivElement>;
+    setFriends: React.Dispatch<SetStateAction<Friend[]>>;
     setShowFriendPopup: React.Dispatch<SetStateAction<boolean>>;
-    // ajouter un 2eme conClick pour l'ajout d'ami
 }
 
-export default function LeftChat({activFriend, friends, onClickFriend, setShowFriendPopup} : LeftChatProps) {
+export default function LeftChat({ setShowFriendPopup, friends, setFriends } : LeftChatProps) {
 
     const [inputSearch, setInputSearch] = useState<string>("");
     const [listFriends, setListFriends] = useState<Friend[]>([]);
 
+    const { activFriend, setActivFriend } = useWebSocket();
+
 
     const handleSubmitSearch = (event : FormEvent<HTMLFormElement>) => {
-        console.log("test");
 
         const regex = new RegExp(inputSearch, 'g');
-        // paragraph.match(regex);
+
         const tempsFriends: Friend[] = friends.filter((friend) => friend.name.match(regex));
 
         if (tempsFriends.length == 0 && inputSearch.length == 0)
@@ -31,6 +31,20 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
         else
             setListFriends(tempsFriends);
         event.preventDefault();
+    }
+
+    const handleClicChangeActivFriend = (e: MouseEvent<HTMLDivElement>): void => {
+        let balise: HTMLDivElement = e.currentTarget as HTMLDivElement;
+        
+        if (balise.dataset.nb && activFriend != Number(balise.dataset.nb)) //  && balise.dataset.status && balise.dataset.status == 'online'
+        {
+            setActivFriend(Number(balise.dataset.nb))
+            const newFriend: Friend[] = [...friends];
+            const friend = newFriend.find(friend => friend.id == Number(balise.dataset.nb));
+            if (friend)
+                friend.nbNotifs = 0;
+            setFriends(newFriend);
+        }
     }
     
     const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +56,7 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
     }, [friends])
 
     return (
-        <div className="w-[270px] bg-dark border-0 border-r-1 border-yellow relative z-120 chat-pink-shadow ">
+        <div className="w-[15%] bg-dark border-0 border-r-1 border-yellow relative z-120 chat-pink-shadow ">
             <Button style="add" className="mt-3 block m-auto" onClick={() => setShowFriendPopup(true)}>Ajouter un ami</Button>
             <InputWithIco
                 className="m-3"
@@ -56,7 +70,6 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
 
             <div className="flex flex-col pt-3 gap-3 overflow-y-scroll max-h-1/1 max-h-8/10 p-3">
                 {listFriends.map((friend, id) => {
-                    console.log(friend);
                     
                     return <UserContact key={id} nb={friend.id}
                         type={friend.id==activFriend?'active':'nonactive'}
@@ -65,7 +78,7 @@ export default function LeftChat({activFriend, friends, onClickFriend, setShowFr
                         userName={friend.name}
                         image={friend.profPicture}
                         notifs={friend.nbNotifs}
-                        onClick={onClickFriend}
+                        onClick={handleClicChangeActivFriend}
                     />;
                 })}
             </div>
