@@ -15,8 +15,8 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     
     server.post<{ Body: signUpBody }>('/api/auth/signup', { preHandler:[validatePassword], config: {
         rateLimit: {
-            max: 1,
-            timeWindow: '2 minutes'
+            max: 10,
+            timeWindow: '1 minute'
         }
     } }, async (req, res) => {
         const { email, name, password } = req.body;

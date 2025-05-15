@@ -373,7 +373,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData], config: {
         rateLimit: {
-            max: 1,
+            max: 10,
             timeWindow: '1 minute'
         }
     } }, async (request, reply) => {
