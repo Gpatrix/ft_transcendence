@@ -24,7 +24,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         try
         {
             const token = request.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
             const tokenPayload = decoded.data;
             const gameId = Number(request.params.gameId);
             const tournamentId = Number(request.params.tournamentId);
@@ -81,7 +81,6 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                         break;
                 
                     default:
-                        // console.log('WS invalid action');
                         break;
                 }
             })
@@ -110,13 +109,13 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         try
         {
             const token = request.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
             const tokenPayload = decoded.data;
             const res = await axios.post(`http://user-service:3000/api/user/lookup/${tokenPayload.id}`, {
                 credential: process.env.API_CREDENTIAL
             });
             if (res.status != 200)
-                return (socket.close(4001))
+                return (socket.close(4001));
 
             if (!(res.data?.id))
                 return (socket.close(4003));
@@ -127,7 +126,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             // socket.on('message', (RawData: WebSocket.RawData) => {
             //     console.log(RawData.message);
             // })
-    
+
             socket.on('close', () => {
                 activeConn.delete(tokenPayload.id);
             });

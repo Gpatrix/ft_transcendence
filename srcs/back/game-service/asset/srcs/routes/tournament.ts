@@ -1,14 +1,14 @@
-import prisma from "../config/prisma";
+import { prisma } from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import WebSocket from 'ws';
-import PongGame from '../classes/PongGame';
+import { PongGame } from '../classes/PongGame';
 import { Lobby, LobbyUser, LobbyError } from '../classes/Lobby';
-import GamesManager from '../classes/GamesManager';
-import isConnected from "../validators/jsonwebtoken";
+import {GamesManager} from '../classes/GamesManager';
+import {isConnected} from "../validators/jsonwebtoken";
 import validateLobbyData from '../validators/lobbyData';
-import sendLobbyData from '../functions/sendLobbyData';
+import { sendLobbyData } from '../functions/sendLobbyData';
 import { send } from "process";
 
 

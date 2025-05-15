@@ -1,9 +1,9 @@
-import prisma from "../config/prisma";
+import { prisma } from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 
-import { isPlayerWinnerInGame } from "../utils.ts";
+import { isPlayerWinnerInGame } from "../utils";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
