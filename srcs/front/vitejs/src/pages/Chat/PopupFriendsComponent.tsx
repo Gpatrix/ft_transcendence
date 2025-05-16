@@ -1,20 +1,17 @@
 import Button from "../../components/Button.tsx"
 
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
+import { useState, SetStateAction } from "react";
 import Friend from "../../classes/Friend.tsx"
 import RequestFriends from "./RequestFriends.tsx";
 import AddFriends from "./AddFriends.tsx";
-import User from "../../classes/User.tsx";
+import { gpt } from "../../translations/pages_reponses.tsx";
 
 type PopupFriendsComponentProps = {
-    friends: Friend[],
     setFriends: React.Dispatch<SetStateAction<Friend[]>>;
     onClose: React.Dispatch<SetStateAction<boolean>>;
-    profileData: User;
-    // ajouter un 2eme conClick pour l'ajout d'ami
 }
 
-export default function PopupFriendsComponent({onClose, friends,setFriends, profileData} : PopupFriendsComponentProps) {
+export default function PopupFriendsComponent({onClose, setFriends} : PopupFriendsComponentProps) {
 
     const [onglet, setOnglet] = useState<"waiting" | "add">("waiting");
 
@@ -38,12 +35,11 @@ export default function PopupFriendsComponent({onClose, friends,setFriends, prof
                     <div className="h-1 w-5 bg-yellow rotate-z-[45deg] absolute rounded-full"></div>
                 </button>
                 <div className="flex justify-center">
-                    {/* ajouter une ombre */}
-                    <Button type={onglet=="waiting"?"full":"stroke"} style="popup" className={"mt-3" + (onglet=="waiting" ? " pink-shadow" : " shadow-none")} onClick={() => setOnglet("waiting")}>En attente</Button>
-                    <Button type={onglet=="add"?"full":"stroke"} style="popup" className={"mt-3" + (onglet=="add" ? " pink-shadow" : " shadow-none")} onClick={() => setOnglet("add")}>Ajouter</Button>
+                    <Button type={onglet=="waiting"?"full":"stroke"} style="popup" className={"mt-3" + (onglet=="waiting" ? " pink-shadow" : " shadow-none")} onClick={() => setOnglet("waiting")}>{gpt("pending")}</Button>
+                    <Button type={onglet=="add"?"full":"stroke"} style="popup" className={"mt-3" + (onglet=="add" ? " pink-shadow" : " shadow-none")} onClick={() => setOnglet("add")}>{gpt("add")}</Button>
                 </div>
                 {onglet=="waiting" ?
-                    <RequestFriends setFriends={setFriends} profileData={profileData as User}/>
+                    <RequestFriends setFriends={setFriends}/>
                 :
                     <AddFriends />
 

@@ -3,7 +3,7 @@ import Blur from "../../components/Blur.tsx"
 // import DropDownMenu from "../../components/DropDownMenu.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction, useRef } from "react";
+import { FormEvent, ChangeEvent, useEffect, useState, useRef } from "react";
 // import { useNavigate } from 'react-router-dom';
 import ClickableIco from "../../components/ClickableIco.tsx"
 import Friend from "../../classes/Friend.tsx"
@@ -11,6 +11,7 @@ import Message from "../../classes/Message.tsx"
 import ButtonMenu from '../../components/ButtonMenu.tsx';
 import { useWebSocket } from '../Auth/WebSocketComponent.tsx';
 import User from '../../classes/User.tsx';
+import { gpt } from "../../translations/pages_reponses"
 
 type RightChatProps = {
     friends: Friend[],
@@ -25,6 +26,9 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
     const [inputMessage, setInputMessage] = useState<string>("");
 
     const containerRef = useRef<HTMLDivElement | null>(null);;
+    const socketRef = useRef<WebSocket | null>(null);
+    const activFriendRef = useRef<number>(-1);
+    const arrayMessageLenghtRef = useRef<number>(0);
 
     const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -52,12 +56,13 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
         
         const container = containerRef.current;
         if (!container) return;
-        
+
         if (container.scrollHeight + container.scrollTop === container.clientHeight) {
-            if (socket)
-                socket.send(JSON.stringify({ action: 'refresh', targetId: activFriend, take:20, skip:arrayMessage.length}));
+            if (socketRef.current) {
+                socketRef.current.send(JSON.stringify({ action: 'refresh', targetId: activFriendRef.current, take:20, skip:arrayMessageLenghtRef.current}));
+            }
         }
-      };
+    };
 
     useEffect(() => {
         const container = containerRef.current;
@@ -65,15 +70,26 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
     
         container.addEventListener('scroll', handleScroll);
         
-        // Nettoyage de l'événement lors du démontage du composant
         return () => {
           container.removeEventListener('scroll', handleScroll);
         };
     }, [])
 
+    useEffect(() => {
+        socketRef.current = socket;
+    }, [socket]);
+
+    useEffect(() => {
+        activFriendRef.current = activFriend;
+    }, [activFriend]);
+
+    useEffect(() => {
+        arrayMessageLenghtRef.current = arrayMessage.length;
+    }, [arrayMessage]);
+
     return (
         <div className="relative w-[85%] flex flex-col justify-end gap-5 w-1/1">
-            <ButtonMenu className="top-5 right-5" setFriends={setFriends} friendId={activFriend} profileData={profileData} />
+            {friends.find(friend => friend.id == activFriend) != undefined && <ButtonMenu className="top-5 right-5" setFriends={setFriends} friendId={activFriend} profileData={profileData} />}
             <Blur />
             <div ref={containerRef} className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
@@ -93,7 +109,7 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
 
             {friends.find(friend => friend.id == activFriend) != undefined && <div className="w-1/1 bg-dark border-0 border-t-1 border-yellow flex p-3 gap-2">
                 <InputWithIco className="w-[100%] rounded-xl"
-                    placeholder={"Envoyer un message a "+ friends.find(friend => friend.id == activFriend)}
+                    placeholder={gpt("send_message")+ friends.find(friend => friend.id == activFriend)?.name}
                     iconSrc={"/icons/icon_chat.svg"}
                     value={inputMessage}
                     onChange={handleChangeMessage}

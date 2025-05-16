@@ -5,6 +5,7 @@ import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction
 import Friend from "../../classes/Friend.tsx"
 import UserContact from "../../components/UserContact.tsx";
 import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
+import { gpt } from "../../translations/pages_reponses"
 
 type LeftChatProps = {
     friends: Friend[],
@@ -57,7 +58,7 @@ export default function LeftChat({ setShowFriendPopup, friends, setFriends } : L
 
     return (
         <div className="w-[15%] bg-dark border-0 border-r-1 border-yellow relative z-120 chat-pink-shadow ">
-            <Button style="add" className="mt-3 block m-auto" onClick={() => setShowFriendPopup(true)}>Ajouter un ami</Button>
+            <Button style="add" className="mt-3 block m-auto" onClick={() => setShowFriendPopup(true)}>{gpt("add_friend")}</Button>
             <InputWithIco
                 className="m-3"
                 placeholder={"ex : Pseudo1234..."}

@@ -1,16 +1,9 @@
 import Header from "../../components/Header.tsx"
-// import DropDownMenu from "../../components/DropDownMenu.tsx"
-
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
-import Friend from "../../classes/Friend.tsx"
-import Message from "../../classes/Message.tsx"
+import { useEffect, useState } from "react";
 import RightChat from './RightChat.tsx'
 import LeftChat from './LeftChat.tsx'
 import PopupFriendsComponent from "./PopupFriendsComponent.tsx";
 import { useAuth } from "../../AuthProvider.tsx";
-// import { ProfileDataType } from "../Profile/others/OthersProfile.tsx";
-import { useNavigate, useParams } from "react-router-dom";
-import { ProfileDataType } from "../Profile/me/MyProfile.tsx";
 import User from "../../classes/User.tsx";
 import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 
@@ -43,11 +36,6 @@ export default function Chat() {
         getUserParams();
     }, []);
 
-    // useEffect(() => {
-    //     if (socket)
-    //         fetchFriends();
-    // }, [socket])
-
     return (
         <div className="chat flex flex-col h-1/1 ">
             <Header  />
@@ -58,7 +46,7 @@ export default function Chat() {
                 <RightChat friends={friends} setFriends={setFriends} profileData={profileData as User}/>
 
                 {showFriendPopup && (
-                    <PopupFriendsComponent friends={friends} setFriends={setFriends} onClose={setShowFriendPopup} profileData={profileData as User}/>
+                    <PopupFriendsComponent setFriends={setFriends} onClose={setShowFriendPopup} />
                 )}
 
             </div>

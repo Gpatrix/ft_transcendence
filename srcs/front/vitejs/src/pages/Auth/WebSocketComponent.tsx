@@ -79,53 +79,55 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         };
 
         ws.onmessage = (event) => {
-            // console.log('Message reçu:', event.data);
             if (event.data) {
-                const data = JSON.parse(event.data);
-                console.log(data);
-                
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    if (data.action)
-                    {
-                        Friend.getFriends().then((newFriends) => {
-                            if (newFriends != undefined)
-                            {
-                                // IL FAUT MODIFIER CA !
-                                newFriends.forEach(friend => {
-                                    friend.toggleConnected();
-                                });
-                                setFriends(newFriends);
-                            }
-                        })
-                    } else if (data.messages) {
-                        const newArrayMessage = [...arrayMessageRef.current];
-                        const newMessages: Message[] = (data.messages as Array<messageData>).map(message => 
-                            new Message(message.senderId, -1, new Date(message.sentAt), message.content)
-                        )
-                        newArrayMessage.splice(data.skipped, 20, ...newMessages);
-                        setArrayMessage(newArrayMessage);
-                    } else {
-                        const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
-                        if (newMessage != undefined) {
-                            if (newMessage.idSender == activFriendRef.current) {
-                                const newArrayMessage = [...arrayMessageRef.current];
-                                newArrayMessage.splice(0, 0, newMessage);
-                                setArrayMessage(newArrayMessage);
-                            } else {
-                                const newFriends = [...friendsRef.current];
-                                const friend = newFriends.find((friend) => friend.id == data.senderId);
-                                if (friend) {
-                                    friend.nbNotifs++;
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        if (data.action)
+                        {
+                            Friend.getFriends().then((newFriends) => {
+                                if (newFriends != undefined)
+                                {
+                                    // IL FAUT MODIFIER CA !
+                                    newFriends.forEach(friend => {
+                                        friend.toggleConnected();
+                                    });
                                     setFriends(newFriends);
+                                }
+                            })
+                        } else if (data.messages) {
+                            // verrifier le chanel de discution ?
+                            const newArrayMessage = [...arrayMessageRef.current];
+                            const newMessages: Message[] = (data.messages as Array<messageData>).map(message => 
+                                new Message(message.senderId, -1, new Date(message.sentAt), message.content)
+                            )
+                            newArrayMessage.splice(data.skipped, 20, ...newMessages);
+                            setArrayMessage(newArrayMessage);
+                        } else {
+                            const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
+                            if (newMessage != undefined) {
+                                if (newMessage.idSender == activFriendRef.current) {
+                                    const newArrayMessage = [...arrayMessageRef.current];
+                                    newArrayMessage.splice(0, 0, newMessage);
+                                    setArrayMessage(newArrayMessage);
+                                } else {
+                                    const newFriends = [...friendsRef.current];
+                                    const friend = newFriends.find((friend) => friend.id == data.senderId);
+                                    if (friend) {
+                                        friend.nbNotifs++;
+                                        setFriends(newFriends);
+                                    }
                                 }
                             }
                         }
+                    } else {
+                        console.warn('Socket non connectée');
                     }
-               } else {
-                   console.warn('Socket non connectée');
-               }
+                } catch (error) {
+                    console.error("Error :", error);
+                }
             }
-
         };
 
         ws.onclose = () => {
@@ -153,15 +155,19 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                 tempFriends.forEach(friend => {
                     friend.toggleConnected();
                 });
-                
+        
+                // setFriends(newFriends.map(friend => {
+                //     const updatedFriend = new Friend(friend.id, ...);
+                //     updatedFriend.toggleConnected();
+                //     return updatedFriend;
+                // }));
                 await setFriends(tempFriends);
                 if (tempFriends[0])
                     await setActivFriend(tempFriends[0].id);
                 return (tempFriends);
-                
             }
         } catch (error) {
-            console.error("Erreur en récupérant les demandes d'ami :", error);
+            console.error("Error :", error);
         }
     };
 
@@ -184,6 +190,9 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     }, [activFriend]);
 
     useEffect(() => {
+        console.log("socket");
+        console.log(socket);
+        
         if (socket)
             fetchFriends();
     }, [socket])
