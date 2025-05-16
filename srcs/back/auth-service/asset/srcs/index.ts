@@ -22,7 +22,7 @@ server.register(rateLimitPlugin, {
 server.register(require("./routes/auth"));
 server.register(require("./routes/dfa"));
 server.register(require("./routes/passwordReset"));
-
+ 
 const areCookiesSecure = process.env.NODE_ENV != 'dev';
 
 server.register(oauthPlugin, {

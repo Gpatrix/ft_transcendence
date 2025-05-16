@@ -2,7 +2,7 @@ function validatePassword(request, reply, done) {
     let { password } = request.body;
     password = (password as string);
     if (!password || password.length < 8)
-      return reply.code(400).send({ error: 'password_too_short' });
+      return reply.code(400).send({ error: '1002' });
     let hasUpperCase = false;
     let hasLowerCase = false;
     let hasDigit = false;
@@ -20,11 +20,11 @@ function validatePassword(request, reply, done) {
     }
   
     if (!hasUpperCase)
-        return reply.code(400).send({ error: 'password_no_uppercase_char' });
+        return reply.code(400).send({ error: '1001' });
     if (!hasLowerCase)
-        return reply.code(400).send({ error: 'password_no_lowercase_char' });
+        return reply.code(400).send({ error: '1001' });
     if (!hasDigit)
-        return reply.code(400).send({ error: 'password_no_digit' }); 
+        return reply.code(400).send({ error: '1001' }); 
     done();
 }
 
