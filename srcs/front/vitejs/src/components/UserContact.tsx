@@ -1,8 +1,6 @@
 import { tv, type VariantProps } from 'tailwind-variants'
 import { clsx } from 'clsx'
 import ProfilePic from './ProfilePic.tsx';
-import { Link } from 'react-router';
-import { useEffect, useState } from 'react';
 
 const statusVariants = tv({
     base: 'flex  w-full  rounded-xl  flex items-center',

@@ -1,12 +1,15 @@
 import fastify from 'fastify';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin from '@fastify/websocket';
-import jwt from 'jsonwebtoken';
+import rateLimitPlugin from '@fastify/rate-limit';
 
 const server = fastify();
 
 server.register(cookiesPlugin);
-server.register(websocketPlugin);
+server.register(rateLimitPlugin, {
+  max: 100,
+  timeWindow: '1 minute',
+  allowList: ['127.0.0.1']
+});
 server.register(require("./routes/game"));
 server.register(require("./routes/tournament"));
 server.register(require("./routes/stats"));

@@ -70,9 +70,10 @@ class User {
 		const response = await fetch(`/api/user/get_profile/${userId}`, requestData);
 
 		const dataReponse = await response.json();
-		
+    
+		dataReponse.data.id = userId;
+
 		return (dataReponse.data as User);
-		// return (dataReponse);
 
 	} catch (error) {
 		console.error("Erreur lors de l'envoi de la demande :", error);

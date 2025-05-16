@@ -108,7 +108,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         targetUserId: string;
     }
 
-    server.post<{ Params: InvitePlayerToLobbyParams }>('/api/game/invite/:lobbyId/:targetUserId', async (request: any, reply: any ) => {
+    server.post<{ Params: InvitePlayerToLobbyParams }>('/api/game/invite/:lobbyId/:targetUserId',{ config: { rateLimit: { max: 50, timeWindow: '1minute' }} }, async (request: any, reply: any ) => {
         const token = request.cookies['ft_transcendence_jw_token'];
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
         const tokenPayload = decoded?.data;

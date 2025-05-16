@@ -5,6 +5,7 @@ import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
+import { log } from 'console';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
@@ -115,22 +116,29 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
    if (!participants.some(p => p.userId === token.id))
       return (socket.send(`{"error": 0401}`));
 
-      const new_msg: Utils.t_message | string = await Utils.create_msg(channelId, token.id, payload.msg, true);
-      if(typeof new_msg === 'string')
-         return (socket.send(new_msg));
+   const new_msg: Utils.t_message | string = await Utils.create_msg(channelId, token.id, payload.msg, true);
+   if(typeof new_msg === 'string')
+      return (socket.send(new_msg));
 
-      const to_send: string = JSON.stringify(new_msg);
-      console.log(to_send);
-      let target_socket: WebSocket | undefined;
-      for (let p of participants)
-      {
-         if (p.userId === token.id)
-            continue;
+   const to_send: string = JSON.stringify(new_msg);
+   console.log(to_send);
+   let target_socket: WebSocket | undefined;
+   for (let p of participants)
+   {
+      if (p.userId === token.id)
+         continue;
 
-         target_socket = activeConn.get(p.userId)?.socket;
-         if (target_socket !== undefined)
-            target_socket.send(to_send);
-      }
+      target_socket = activeConn.get(p.userId)?.socket;
+      if (target_socket !== undefined)
+         target_socket.send(to_send);
+   }
+}
+
+interface i_refresh
+{
+   friendId: number,
+   skipped: number,
+   messages: Utils.t_message[]
 }
 
 async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
@@ -153,15 +161,53 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
       if (typeof channel !== 'object')
          return (sendError(channel, socket));
 
-
       const requested_msg: Utils.t_message[] | string = await Utils.get_msg(channel.id, payload.skip, payload.take);
       if(typeof requested_msg !== 'object')
          return (sendError(requested_msg, socket));
-      socket.send(JSON.stringify(requested_msg));
+      const to_send: i_refresh = {
+         friendId: payload.targetId,
+         messages: requested_msg,
+         skipped: payload.skip
+      };
+      socket.send(JSON.stringify(to_send));
    }
    catch (error)
    {
-      return (socket.send(`{"error": 0500}`));
+      return (socket.send(`{"error": "0500"}`));
+   }
+}
+
+
+interface i_addFriend
+{
+   action: string,
+   friendId: number,
+}
+
+async function handle_managementFriend(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
+{
+   console.log("c bon");
+   console.log(payload);
+   
+   
+   try
+   {
+
+      const to_send: i_addFriend = {
+         action: payload.action,
+         friendId: token.id,
+      };
+      let target_socket: WebSocket | undefined;
+
+      target_socket = activeConn.get(payload.targetId)?.socket;
+      if (target_socket !== undefined)
+         target_socket.send(JSON.stringify(to_send));
+      else
+         console.log(`Socket ${payload.targetId} not fined or closed`);
+   }
+   catch (error)
+   {
+      return (socket.send(`{"error": "0500"}`));
    }
 }
 
@@ -173,7 +219,7 @@ function data_handler(
    if (payload.action === undefined || payload.targetId === undefined)
       return (socket.send('{error: 0400}'));
 
-   if (payload.targetId === token.id)
+   if (payload.targetId == token.id)
       return socket.send('{error: 3002}');
 
    switch (payload.action)
@@ -188,6 +234,14 @@ function data_handler(
 
       case "refresh":
          handle_refresh(payload, token, socket);
+         break;
+
+      case "deleteFriend":
+         handle_managementFriend(payload, token, socket);
+         break;
+
+      case "acceptRequest":
+         handle_managementFriend(payload, token, socket);
          break;
 
       default:

@@ -305,7 +305,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "private_route" });
+                reply.status(401).send({ error: '0404' });
             const email = request.body.email;
             const name = request.body.name;
             const password = request.body.password;
@@ -328,23 +328,19 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.send(user);
         } catch (error) {
             console.log(error);
-            if (error instanceof Prisma.PrismaClientKnownRequestError)
-            {
-                switch (error.code) {
-                    case 'P2002':
-                        reply.status(403).send({ error: "1003"});
-                        break
-                    case 'P2003':
-                        reply.status(403).send({ error: "1011"});
-                        break
-                    case 'P2000':
-                        reply.status(403).send({ error: "1012"});
-                        break
-                    default:
-                        reply.status(403).send({ error: error.message});
-                }
+            switch ((error as Prisma.PrismaClientKnownRequestError).code) {
+                case 'P2002':
+                    reply.status(403).send({ error: "1003"});
+                    break
+                case 'P2003':
+                    reply.status(403).send({ error: "1011"});
+                    break
+                case 'P2000':
+                    reply.status(403).send({ error: "1012"});
+                    break
+                default:
+                    return reply.status(500).send({ error: "0500"});
             }
-            reply.status(500).send({ error: "0500"});
         }
     })
 
@@ -371,7 +367,12 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         image?: string
     }
 
-    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData] }, async (request, reply) => {
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData], config: {
+        rateLimit: {
+            max: 10,
+            timeWindow: '1 minute'
+        }
+    } }, async (request, reply) => {
         const body: EditUserBody = request.body;
         if (!body)
             return (reply.status(400).send({ error: "0401" }));
