@@ -1,5 +1,5 @@
-import prisma from '../config/prisma';
-import { GamesManager } from '../classes/GamesManager';
+import { prisma } from '../config/prisma';
+import WebSocket from 'ws';
 
 interface pos {
     x: number,

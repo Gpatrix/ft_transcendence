@@ -26,8 +26,8 @@ export function gameRoutes (server: FastifyInstance, options: any, done: any)
             const token = request.cookies['ft_transcendence_jw_token'];
             const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
             const tokenPayload = decoded.data;
-            const gameId = Number(request.params.gameId);
-            const tournamentId = Number(request.params.tournamentId);
+            const gameId: number = Number(request.params.gameId);
+            const tournamentId: number = Number(request.params.tournamentId);
 
             const tournament = await prisma.tournament.findFirst({
                 where: {
@@ -44,7 +44,7 @@ export function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             if (!tournament)
-                throw (new Error('Cannot find tournament in DB')); // TODO: close ws with error code
+                socket.close(5010);
 
             const game = await prisma.game.findFirst({
                 where: {
@@ -56,7 +56,7 @@ export function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             if (!game)
-                throw (new Error('Cannot find game in DB')); // TODO: close ws with error code
+                socket.close(5011);
 
             const player = await prisma.player.findFirst({
                 where: {
@@ -66,7 +66,7 @@ export function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             if (!player)
-                throw (new Error('Cannot find player in DB')); // TODO: close ws with error code
+                socket.close(5012)
 
             socket.on('message', (RawData: WebSocket.RawData) => {
                 const object = JSON.parse(RawData.toString('utf8'));
