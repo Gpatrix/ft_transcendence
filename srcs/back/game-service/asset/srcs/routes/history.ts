@@ -45,7 +45,7 @@ function getGameInfos(game: any, userId: number): GetPlayerHistoryReturn
     })
 }
 
-export function gameRoutes(server: FastifyInstance, options: any, done: any)
+function gameRoutes(server: FastifyInstance, options: any, done: any)
 {
     interface GetPlayerHistoryParams
     {
@@ -94,3 +94,5 @@ export function gameRoutes(server: FastifyInstance, options: any, done: any)
 
     done();
 }
+
+module.exports = gameRoutes;

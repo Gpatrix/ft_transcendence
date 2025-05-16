@@ -17,7 +17,7 @@ interface gameConnectParams {
 var users: MatchMakingMap = new MatchMakingMap();
 var activeConn: Map<number, WebSocket> = new Map();
 
-export function gameRoutes (server: FastifyInstance, options: any, done: any)
+function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
     server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
     {   
@@ -147,3 +147,5 @@ export function gameRoutes (server: FastifyInstance, options: any, done: any)
 
     done()
 }
+
+module.exports = gameRoutes;
