@@ -123,10 +123,6 @@ export function gameRoutes (server: FastifyInstance, options: any, done: any)
             if (activeConn.get(tokenPayload.id))
                 socket.close(4002);
 
-            // socket.on('message', (RawData: WebSocket.RawData) => {
-            //     console.log(RawData.message);
-            // })
-
             socket.on('close', () => {
                 activeConn.delete(tokenPayload.id);
             });
