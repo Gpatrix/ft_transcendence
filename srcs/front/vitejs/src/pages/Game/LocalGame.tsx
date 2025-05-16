@@ -19,8 +19,8 @@ const defaultVelocity : pos = {
 }
 
 const mapDimension : dimension = {
-    x : 700,
-    y : 300
+    x : 800,
+    y : 500
 }
 
 export default function Game() {
@@ -61,17 +61,19 @@ export default function Game() {
     }, []);
 
     return (
-        <div className="block ml-auto mr-auto w-fit h-fit">
+        <div className="block ml-auto mr-auto w-fit h-fit ">
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
                 <HitBox players={2}>
                     <RacketComponent bottom={5} id={1} left={2} />
                     <RacketComponent bottom={5} id={2} right={2} />
                 </HitBox>
 
-                <Wall id="left"   height={mapDimension.y} bottom={"0px"} />
-                <Wall id="right"  height={mapDimension.y} bottom={"0px"} right={0} />
-                <Wall id="top"    height={mapDimension.x} angle={0} left={50} bottom={"-17%"} />
-                <Wall id="bottom" height={mapDimension.x} left={50} angle={0} bottom={"-116%"} />
+                <Wall id="top"    width={mapDimension.x} height={5} top={0} />
+                <Wall id="bottom" width={mapDimension.x} height={5} bottom={`${0}`} />
+
+
+                <Wall id="left"  height={mapDimension.y} width={5} bottom={`${0}`} />
+                <Wall id="right" height={mapDimension.y} width={5} bottom={`${0}`} right={0}/>
 
 
                 <BallComponent ball={ball.current} />
