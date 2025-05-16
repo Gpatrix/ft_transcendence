@@ -133,6 +133,46 @@
       "No match found.",
       "Aucun match trouvé",
       "Nessuna corrispondenza trovata"
+    ],
+    "add_friend" : [
+      "Add Friend",
+      "Ajouter un ami",
+      "Aggiungi un amico"
+    ],
+    "send_message" : [
+      "Send a message to ",
+      "Envoyer un message a ",
+      "Invia un messaggio a "
+    ],
+    "profile" : [
+      "Profile",
+      "Profile",
+      "Profilo"
+    ],
+    "to_block" : [
+      "To block",
+      "Bloquer",
+      "Per bloccare"
+    ],
+    "delete" : [
+      "Delete",
+      "Supprimer",
+      "Eliminare"
+    ],
+    "no_invitation" : [
+      "No invitation",
+      "Aucune invitation",
+      "Nessun invito"
+    ],
+    "pending" : [
+      "Pending",
+      "En attente",
+      "In attesa"
+    ],
+    "add" : [
+      "Add",
+      "Ajouter",
+      "Aggiungere"
     ]
   }
 }

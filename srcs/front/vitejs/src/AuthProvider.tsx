@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import WebSocketComponent from "./pages/Auth/WebSocketComponent";
@@ -108,9 +109,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout, fetchWithAuth, setLogged }}>
-      <WebSocketComponent>
+      {isAuthenticated ? <WebSocketComponent>
         {children}
       </WebSocketComponent>
+      :
+      children}
     </AuthContext.Provider>
   );
 };

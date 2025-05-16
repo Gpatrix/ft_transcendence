@@ -1,19 +1,19 @@
-import Button from "../../components/Button.tsx"
-import InputWithIco from "../../components/InputWithIco.tsx"
-
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
+import { useEffect, useState, SetStateAction } from "react";
 import Friend from "../../classes/Friend.tsx"
 import UserContact from "../../components/UserContact.tsx";
 import ClickableIco from "../../components/ClickableIco.tsx";
 import FriendRequest from "../../classes/FriendRequest.tsx";
+import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
+import { gpt } from "../../translations/pages_reponses.tsx";
 
 type RequestFriendsProps = {
-    friends: Friend[]; 
     setFriends: React.Dispatch<SetStateAction<Friend[]>>;
 }
 
-export default function RequestFriends({friends, setFriends} : RequestFriendsProps) {
+export default function RequestFriends({ setFriends } : RequestFriendsProps) {
 
+    const { socket } = useWebSocket();
+    
     const [friendRequestTab, setFriendRequestTab] = useState<FriendRequest[]>([]);
 
     const handleAcceptRequest = async (friendRequest: FriendRequest, i: number) => {
@@ -23,6 +23,8 @@ export default function RequestFriends({friends, setFriends} : RequestFriendsPro
         setFriendRequestTab(newFriendRequestTab);
 
         try {
+            if (socket)
+                socket.send(JSON.stringify({ action: 'acceptRequest', targetId: friendRequest.authorId }));
             const friends: Friend[] | undefined = await Friend.getFriends();
             console.log(friends);
             if (friends != undefined)
@@ -62,15 +64,14 @@ export default function RequestFriends({friends, setFriends} : RequestFriendsPro
         const fetchFriends = async () => {
             try {
                 const friends: FriendRequest[] | undefined = await Friend.getFriendsRequest();
-                console.log(friends);
                 if (friends != undefined)
-                    setFriendRequestTab(friends); // Met à jour l'état avec les amis
+                    setFriendRequestTab(friends);
             } catch (error) {
-                console.error("Erreur en récupérant les demandes d'ami :", error);
+                console.error("Error :", error);
             }
         };
 
-        fetchFriends(); // Appelle la fonction asynchrone
+        fetchFriends();
     }, []); 
 
 
@@ -93,7 +94,7 @@ export default function RequestFriends({friends, setFriends} : RequestFriendsPro
                     else
                         return("");
                 })}
-                {friendRequestTab.length == 0 && <p className="text-yellow text-center">Aucune invitation</p>}
+                {friendRequestTab.length == 0 && <p className="text-yellow text-center">{gpt("no_invitation")}</p>}
             </div>
         </div>
     )
