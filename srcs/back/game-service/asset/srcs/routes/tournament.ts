@@ -98,7 +98,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
             if ((error as LobbyError).errorCode)
                 reply.status(400).send({ error: (error as LobbyError).errorCode });
             else
-                reply.status(500).send({ error: 'Internal server error' });
+                reply.status(500).send({ error: '0500' });
         }
     })
 
