@@ -75,14 +75,14 @@ export function gameRoutes (server: FastifyInstance, options: any, done: any)
                 if (!action || !pongGame)
                     return ;
 
-                switch (action) {
-                    case 'playerMove':
-                        pongGame.onPlayerMove(player.id);
-                        break;
+                // switch (action) {
+                //     case 'playerMove':
+                //         pongGame.onPlayerMove(player.id);
+                //         break;
                 
-                    default:
-                        break;
-                }
+                //     default:
+                //         break;
+                // }
             })
 
             socket.on('close', () => {
