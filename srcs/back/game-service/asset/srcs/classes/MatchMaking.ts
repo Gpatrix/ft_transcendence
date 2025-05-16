@@ -1,4 +1,5 @@
 import { setTimeout } from "timers";
+import WebSocket from 'ws';
 
 export class MatchMakingUser {
     constructor (id: number, rank: number, websocket: WebSocket)

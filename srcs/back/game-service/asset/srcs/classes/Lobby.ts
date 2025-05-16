@@ -1,4 +1,4 @@
-import { WebSocket } from "ws";
+import WebSocket  from "ws";
 import { sendLobbyData } from "../functions/sendLobbyData";
 
 type id = number;

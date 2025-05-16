@@ -21,7 +21,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         playersCount: number;
     }
 
-    server.post<{ Body: CreateLobbyBody }>('/api/game/lobby',{ preHandler: [isConnected, validateLobbyData] }, async (request: any, reply: any ) => {
+    server.post<{ Body: CreateLobbyBody }>('/api/game/lobby',{ preHandler: [validateLobbyData] }, async (request: any, reply: any ) => {
         const token = request.cookies['ft_transcendence_jw_token'];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
@@ -38,7 +38,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         id: string;
     }
 
-    server.get<{ Params: ConnectToLobbyParams }>('/api/game/lobby/:id', { websocket: true, preHandler:[isConnected] }, async (socket: WebSocket, request: any ) => 
+    server.get<{ Params: ConnectToLobbyParams }>('/api/game/lobby/:id', { websocket: true}, async (socket: WebSocket, request: any ) => 
     {
         try
         {
