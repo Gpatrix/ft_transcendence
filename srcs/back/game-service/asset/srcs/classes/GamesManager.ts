@@ -21,7 +21,7 @@ export class GamesManager {
         return (game);
     }
 
-    static async createGame(matchMakingUsers: MatchMakingUser[] | LobbyUser ): Promise<any>
+    static async createGame(matchMakingUsers: MatchMakingUser[] | LobbyUser[] ): Promise<any>
     {
         try {
             const tournament = await prisma.tournament.create({
