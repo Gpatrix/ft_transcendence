@@ -56,7 +56,7 @@ function getAveragePlayTime(players: Array<any>, userId: number): number
 
 function gameRoutes(server: FastifyInstance, options: any, done: any)
 {
-    server.get(`/api/game/stats`, async ( request: any, reply: any ) => 
+    server.get(`/api/game/stats`, async ( request: any, reply: any ) =>
     {
         const token = request.cookies['ft_transcendence_jw_token'];
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);

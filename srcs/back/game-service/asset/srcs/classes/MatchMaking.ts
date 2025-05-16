@@ -19,7 +19,8 @@ export class MatchMakingMap extends Array<MatchMakingUser>
 {
     private playerCount: number = 2;
 
-    private extractUsers(): MatchMakingUser[] {
+    private extractUsers(): MatchMakingUser[]
+    {
         const firstUser: MatchMakingUser = this[0];
         let result = this
         result
@@ -37,7 +38,7 @@ export class MatchMakingMap extends Array<MatchMakingUser>
         this.push(user);
         if (this.length == this.playerCount)
         {
-            await new Promise(resolve => setTimeout(resolve, 1 * 1000)); // Wait for other players to join
+            await new Promise(resolve => setTimeout(resolve, 1 * 1000));
             return (this.extractUsers());
         }
         else if (this.length > this.playerCount)
