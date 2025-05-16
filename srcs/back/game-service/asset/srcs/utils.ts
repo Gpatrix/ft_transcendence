@@ -1,4 +1,4 @@
-function isPlayerWinnerInGame(game: any, userId: number): number
+export function isPlayerWinnerInGame(game: any, userId: number): number
 {
     let playerScore = 0;
     let maxScore = 0; 
@@ -17,5 +17,3 @@ function isPlayerWinnerInGame(game: any, userId: number): number
     else
         return (-1);
 }
-
-module.exports = { isPlayerWinnerInGame };

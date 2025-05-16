@@ -30,7 +30,7 @@ interface LobbyDataStruct {
     ownerId: number;
 }
 
-module.exports = async function sendLobbyData(websocket: WebSocket, lobby: Lobby)
+export async function sendLobbyData(websocket: WebSocket, lobby: Lobby)
 {
     const lobbyUsers: Array<LobbyDataUserStruct> = await Promise.all(lobby.users.map(async (user: any) => {
         const userData = await userLookup(user.id);
