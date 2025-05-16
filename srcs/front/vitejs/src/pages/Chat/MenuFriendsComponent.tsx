@@ -4,18 +4,23 @@ import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction
 import Friend from "../../classes/Friend.tsx"
 import { useNavigate } from "react-router-dom";
 import ModalComponent from "../../components/ModalComponent.tsx";
+import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
+import User from "../../classes/User.tsx";
 
 type MenuFriendsParamComponentProps = {
     friendId: number;
     setFriends: React.Dispatch<SetStateAction<Friend[]>>;
     onClose: React.Dispatch<SetStateAction<boolean>>;
+    profileData: User; // a supp ?
     // ajouter un 2eme conClick pour l'ajout d'ami
 }
 
-export default function MenuFriendsParamComponent({onClose, friendId, setFriends} : MenuFriendsParamComponentProps) {
+export default function MenuFriendsParamComponent({onClose, friendId, setFriends, profileData} : MenuFriendsParamComponentProps) {
 
     const navigate = useNavigate();
 
+    const { socket } = useWebSocket();
+    
     const handleNavToProfile = (idFriend: number) => {
         navigate(`/profile/${idFriend}`);
     }
@@ -30,6 +35,8 @@ export default function MenuFriendsParamComponent({onClose, friendId, setFriends
         console.log("Code error : " + codeError);
         
         try {
+            if (socket)
+                socket.send(JSON.stringify({ action: 'deleteFriend', targetId: idFriend}));
             const friends: Friend[] | undefined = await Friend.getFriends();
             if (friends != undefined)
             {

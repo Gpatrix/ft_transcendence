@@ -82,14 +82,29 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
             // console.log('Message reçu:', event.data);
             if (event.data) {
                 const data = JSON.parse(event.data);
+                console.log(data);
+                
                 if (ws && ws.readyState === WebSocket.OPEN) {
-                    if (Array.isArray(data)) {
-                        const messages: Message[] = (data as Array<messageData>).map(message => 
+                    if (data.action)
+                    {
+                        Friend.getFriends().then((newFriends) => {
+                            if (newFriends != undefined)
+                            {
+                                // IL FAUT MODIFIER CA !
+                                newFriends.forEach(friend => {
+                                    friend.toggleConnected();
+                                });
+                                setFriends(newFriends);
+                            }
+                        })
+                    } else if (data.messages) {
+                        const newArrayMessage = [...arrayMessageRef.current];
+                        const newMessages: Message[] = (data.messages as Array<messageData>).map(message => 
                             new Message(message.senderId, -1, new Date(message.sentAt), message.content)
                         )
-                        setArrayMessage(messages);
-                    }
-                    else {
+                        newArrayMessage.splice(data.skipped, 20, ...newMessages);
+                        setArrayMessage(newArrayMessage);
+                    } else {
                         const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
                         if (newMessage != undefined) {
                             if (newMessage.idSender == activFriendRef.current) {
@@ -134,7 +149,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
             if (tempFriends != undefined)
             {
                 // IL FAUT MODIFIER CA !
-                // voir si les gents t'ont envoyer des messages
 
                 tempFriends.forEach(friend => {
                     friend.toggleConnected();

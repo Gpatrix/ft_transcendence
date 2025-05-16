@@ -2,14 +2,16 @@ import React, { SetStateAction, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import MenuFriendsComponent from '../pages/Chat/MenuFriendsComponent';
 import Friend from '../classes/Friend';
+import User from '../classes/User';
 
 type ButtonMenuProps = {
     className: string;
     friendId: number,
     setFriends: React.Dispatch<SetStateAction<Friend[]>>;
+    profileData: User;
 };
 
-export default function ButtonMenu({className, setFriends, friendId} : ButtonMenuProps) {
+export default function ButtonMenu({className, setFriends, friendId, profileData} : ButtonMenuProps) {
 
     const [showFriendMenu, setShowFriendMenu] = useState(false);
 
@@ -26,7 +28,7 @@ export default function ButtonMenu({className, setFriends, friendId} : ButtonMen
             </button>
 
             {showFriendMenu && (
-                <MenuFriendsComponent setFriends={setFriends} onClose={setShowFriendMenu} friendId={friendId}/>
+                <MenuFriendsComponent setFriends={setFriends} onClose={setShowFriendMenu} friendId={friendId} profileData={profileData}/>
             )}
         </div>
         

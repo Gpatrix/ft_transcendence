@@ -30,6 +30,7 @@ export default function Chat() {
         .then((response) => response.json())
         .then((json) => {
             const data = json.data
+            
             setProfileData(new User(0, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank));
             return(true);
         })
@@ -57,7 +58,7 @@ export default function Chat() {
                 <RightChat friends={friends} setFriends={setFriends} profileData={profileData as User}/>
 
                 {showFriendPopup && (
-                    <PopupFriendsComponent friends={friends} setFriends={setFriends} onClose={setShowFriendPopup}/>
+                    <PopupFriendsComponent friends={friends} setFriends={setFriends} onClose={setShowFriendPopup} profileData={profileData as User}/>
                 )}
 
             </div>

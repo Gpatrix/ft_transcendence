@@ -6,14 +6,18 @@ import Friend from "../../classes/Friend.tsx"
 import UserContact from "../../components/UserContact.tsx";
 import ClickableIco from "../../components/ClickableIco.tsx";
 import FriendRequest from "../../classes/FriendRequest.tsx";
+import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
+import User from "../../classes/User.tsx";
 
 type RequestFriendsProps = {
-    friends: Friend[]; 
     setFriends: React.Dispatch<SetStateAction<Friend[]>>;
+    profileData: User;
 }
 
-export default function RequestFriends({friends, setFriends} : RequestFriendsProps) {
+export default function RequestFriends({setFriends, profileData} : RequestFriendsProps) {
 
+    const { socket } = useWebSocket();
+    
     const [friendRequestTab, setFriendRequestTab] = useState<FriendRequest[]>([]);
 
     const handleAcceptRequest = async (friendRequest: FriendRequest, i: number) => {
@@ -23,6 +27,8 @@ export default function RequestFriends({friends, setFriends} : RequestFriendsPro
         setFriendRequestTab(newFriendRequestTab);
 
         try {
+            if (socket)
+                socket.send(JSON.stringify({ action: 'acceptRequest', targetId: friendRequest.authorId }));
             const friends: Friend[] | undefined = await Friend.getFriends();
             console.log(friends);
             if (friends != undefined)

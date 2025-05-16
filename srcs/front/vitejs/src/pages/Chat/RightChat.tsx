@@ -3,7 +3,7 @@ import Blur from "../../components/Blur.tsx"
 // import DropDownMenu from "../../components/DropDownMenu.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
+import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction, useRef } from "react";
 // import { useNavigate } from 'react-router-dom';
 import ClickableIco from "../../components/ClickableIco.tsx"
 import Friend from "../../classes/Friend.tsx"
@@ -23,6 +23,8 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
     const { socket, activFriend, arrayMessage, setArrayMessage  } = useWebSocket();
 
     const [inputMessage, setInputMessage] = useState<string>("");
+
+    const containerRef = useRef<HTMLDivElement | null>(null);;
 
     const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -46,13 +48,36 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
         setInputMessage(e.target.value);
     };
 
+    const handleScroll = () => {
+        
+        const container = containerRef.current;
+        if (!container) return;
+        
+        if (container.scrollHeight + container.scrollTop === container.clientHeight) {
+            if (socket)
+                socket.send(JSON.stringify({ action: 'refresh', targetId: activFriend, take:20, skip:arrayMessage.length}));
+        }
+      };
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+    
+        container.addEventListener('scroll', handleScroll);
+        
+        // Nettoyage de l'événement lors du démontage du composant
+        return () => {
+          container.removeEventListener('scroll', handleScroll);
+        };
+    }, [])
+
     return (
         <div className="relative w-[85%] flex flex-col justify-end gap-5 w-1/1">
-            <ButtonMenu className="top-5 right-5" setFriends={setFriends} friendId={activFriend} />
+            <ButtonMenu className="top-5 right-5" setFriends={setFriends} friendId={activFriend} profileData={profileData} />
             <Blur />
-            <div className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
+            <div ref={containerRef} className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
-                {arrayMessage.map((message, id) => {
+                {friends.find(friend => friend.id == activFriend) != undefined && arrayMessage.map((message, id) => {
                         let friend = friends.find((friend) => friend.id == activFriend) as Friend;
 
                         if (message.idSender == activFriend)
