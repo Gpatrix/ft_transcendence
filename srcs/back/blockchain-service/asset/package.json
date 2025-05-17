@@ -24,6 +24,7 @@
         "ts-node-dev": "^2.0.0"
     },
     "devDependencies": {
+        "hardhat": "^2.24.0",
         "typescript": "^5.8.3"
     }
 }

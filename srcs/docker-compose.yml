@@ -111,7 +111,6 @@ services:
     restart: on-failure
     volumes:
       - ./back/blockchain-service/asset/srcs:/usr/src/blockchain-service/srcs
-      - db-blockchain:/usr/src/blockchain-service/blockchains
     environment:
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:?}
@@ -150,18 +149,18 @@ services:
   #   networks:
   #     - router
 
-  # front_dev:
-  #   container_name: front_dev
-  #   restart: on-failure
-  #   build:
-  #       context: ./front/
-  #       dockerfile: Dockerfile
-  #   expose:
-  #     - 5173
-  #   volumes:
-  #     - ./front/vitejs:/var/www/html
-  #   networks:
-  #     - router
+  front_dev:
+    container_name: front_dev
+    restart: on-failure
+    build:
+        context: ./front/
+        dockerfile: Dockerfile
+    expose:
+      - 5173
+    volumes:
+      - ./front/vitejs:/var/www/html
+    networks:
+      - router
 
 volumes:
   db-chat:
