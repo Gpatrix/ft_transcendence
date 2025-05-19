@@ -134,11 +134,15 @@ services:
   prometheus-service:
     container_name: prometheus-service
     restart: on-failure
+    volumes:
+      - db-monitoring:/usr/src/prometheus-service/data
     build:
         context: ./back/monitoring/prometheus-service
         dockerfile: Dockerfile
     networks:
       - router
+    ports:
+      - 9090:9090
 
   front_dev:
     container_name: front_dev
@@ -158,6 +162,7 @@ volumes:
   db-user:
   db-game:
   db-upload:
+  db-monitoring:
 networks:
   router:
     driver: bridge

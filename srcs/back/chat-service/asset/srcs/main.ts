@@ -5,7 +5,6 @@ import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
-import { log } from 'console';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
@@ -186,10 +185,6 @@ interface i_addFriend
 
 async function handle_managementFriend(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   console.log("c bon");
-   console.log(payload);
-   
-   
    try
    {
 
