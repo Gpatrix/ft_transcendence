@@ -1,3 +1,5 @@
+import { pos } from "./Ball/LocalBall"
+
 type RacketArgs = {
     id: number
     keyUp: string
@@ -10,55 +12,72 @@ enum Direction {
     DOWN = 1
 }
 
-export class Racket {
-    element: HTMLElement
-    y = 0
+type RacketProperties = {
     speed: number
-    keyUp: string
-    keyDown: string
+    margin : number,
+    height: number,
+    width: number,
     limits : {
         top : number
         bottom : number
     }
+}
 
+export class Racket {
+    element: HTMLElement
+    pos : pos
+    keyUp: string
+    keyDown: string
+    properties : RacketProperties
     constructor({ id, keyUp, keyDown, speed }: RacketArgs) {
-        const el = document.getElementById(String(id))
-        if (!el) 
-            throw "Element not found"
+        const el = document.getElementById(`racket-${id}`)
+        const rect = el?.getBoundingClientRect()
+        const top_element = document.getElementById("top")?.getBoundingClientRect()
+        const bottom_element = document.getElementById("bottom")?.getBoundingClientRect()
+        const left_element  = document.getElementById("left")?.getBoundingClientRect()
+
+        if (!top_element || !bottom_element || !left_element || !el || !rect)
+            throw "ERROR";
+
         this.element = el
         this.keyUp = keyUp
         this.keyDown = keyDown
-        this.speed = speed
-
-        const top_element = document.getElementById("top")?.getBoundingClientRect()
-        const bottom_element = document.getElementById("bottom")?.getBoundingClientRect()
-        if (!top_element || !bottom_element)
-            throw "ERROR";
-        this.limits = {
-            top: top_element.y + top_element.height,
-            bottom: bottom_element.y
+        this.pos = {
+            x: rect.x - (left_element.x + left_element.width),
+            y: 0
         }
+        this.properties = {
+            speed : speed,
+            margin : rect.width / 2,
+            height : rect.height,
+            width : rect.width,
+            limits : {
+                top: top_element.y + top_element.height,
+                bottom: bottom_element.y
+            }
+        }
+
     }
 
     checkCollsions(direction : number) : boolean {
         const rect = this.element.getBoundingClientRect()
 
         if (direction == Direction.UP)
-            return (rect.y >= this.limits.top)
-        return ( rect.y + rect.height <= this.limits.bottom)
+            return (rect.y >= this.properties.limits.top)
+        return (rect.y + rect.height <= this.properties.limits.bottom)
     }
 
     update(pressedKeys: Set<string>) {
         if (pressedKeys.has(this.keyUp)) {
             if (this.checkCollsions(Direction.UP))
-                this.y -= this.speed
+                this.pos.y -= this.properties.speed
         }
         if (pressedKeys.has(this.keyDown)) {
             if (this.checkCollsions(Direction.DOWN))
-                this.y += this.speed
+                this.pos.y += this.properties.speed
         }
-        this.element.style.transform = `translateY(${this.y}px)`
-    }
+        this.element.style.transform = `translateY(${this.pos.y}px)`
+    }   
 }
 
 interface RacketComponentProps {
@@ -72,7 +91,7 @@ interface RacketComponentProps {
 export default function RacketComponent({ id, left, right, bottom, angle }: RacketComponentProps) {
     return (
         <span
-            id={String(id)}
+            id={`racket-${id}`}
             style={{
                 left: left !== undefined ? `${left}%` : undefined,
                 right: right !== undefined ? `${right}%` : undefined,
@@ -81,7 +100,7 @@ export default function RacketComponent({ id, left, right, bottom, angle }: Rack
             }}
             className={`
                 absolute
-                block w-[1%] h-[10%]
+                block w-[1%] h-[20%]
                 bg-yellow
                 rounded-full
             `}

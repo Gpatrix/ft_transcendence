@@ -1,3 +1,5 @@
+import {Racket} from "../Racket"
+
 export interface pos {
     x: number,
     y: number
@@ -11,7 +13,7 @@ export class Ball {
     constructor (   position: pos,
                     velocity: velocity,
                     radius: number = 5,
-                    mapDimensions: dimension
+                    mapDimensions: dimension,
                 ) {
         this.position = position;
         this.velocity = velocity;
@@ -50,6 +52,26 @@ export class Ball {
             this.position.x = Math.max(0, Math.min(this.position.x, maxX));
         }
     }
+
+    checkRacketCollision(rackets: Array<Racket>) {
+        rackets.forEach((racket)=> {
+            if (racket.pos.x < (this.mapDimensions.x / 2)) {    // left
+                if (this.position.x <= (racket.pos.x + (racket.properties.width / 2))) {
+                    if (this.position.y > racket.pos.y 
+                        && this.position.y < (racket.pos.y + racket.properties.height))
+                        this.velocity.x *= -1
+                }
+            }
+            else {  // right
+                if (this.position.x >= (racket.pos.x - (racket.properties.width))) {
+                    if (this.position.y > racket.pos.y 
+                        && this.position.y < (racket.pos.y + racket.properties.height))
+                        this.velocity.x *= -1
+                }
+            }
+        })
+    }
+    
 
     nextPos() {
         if (!this.isFreezed)

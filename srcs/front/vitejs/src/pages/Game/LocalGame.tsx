@@ -30,8 +30,8 @@ export default function Game() {
     const [, setTicks] = useState<number>(0)
 
     useEffect(() => {
-        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 4 });
-        const r2 = new Racket({ id: 2, keyUp: "ArrowUp", keyDown: "ArrowDown", speed: 4 });
+        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 6 });
+        const r2 = new Racket({ id: 2, keyUp: "ArrowUp", keyDown: "ArrowDown", speed: 6 });
         rackets.current = [r1, r2];
 
         const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add(e.key);
@@ -46,7 +46,7 @@ export default function Game() {
         const loop = () => {
             rackets.current.forEach(r => r.update(pressedKeys.current));
             ball.current.nextPos();
-
+            ball.current.checkRacketCollision(rackets.current)
             setTicks((t)=> t+1)
             animationFrameId = requestAnimationFrame(loop);
         };
@@ -64,8 +64,8 @@ export default function Game() {
         <div className="block ml-auto mr-auto w-fit h-fit ">
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
                 <HitBox players={2}>
-                    <RacketComponent bottom={5} id={1} left={2} />
-                    <RacketComponent bottom={5} id={2} right={2} />
+                    <RacketComponent id={1} left={2} />
+                    <RacketComponent id={2} right={2} />
                 </HitBox>
 
                 <Wall id="top"    width={mapDimension.x} height={5} top={0} />
