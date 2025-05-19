@@ -10,8 +10,8 @@
         "dev": "./srcs/*.ts"
     },
     "scripts": {
-        "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs ./srcs/index.ts",
-        "build": "tsc -p tsconfig.json",
+        "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs ./srcs/index.ts && npx hardhat test",
+        "build": "npx hardhat compile && tsc -p tsconfig.json",
         "start": "node ./srcs/index.js"
     },
     "keywords": [],
@@ -24,6 +24,9 @@
         "ts-node-dev": "^2.0.0"
     },
     "devDependencies": {
+        "@nomicfoundation/hardhat-ethers": "^3.0.8",
+        "chai": "^5.2.0",
+        "ethers": "^6.0.0",
         "hardhat": "^2.24.0",
         "typescript": "^5.8.3"
     }

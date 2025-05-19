@@ -1,11 +1,9 @@
 import fastify from 'fastify'
 
 const server = fastify();
+import saveTournamentToAvalancheRoutes from './routes/saveTournamentToAvalancheRoutes';
 
-server.register(require("./routes/upload"), { config: {
-  max: 5,
-  timeWindow: '1 minute'
-}});
+server.register(saveTournamentToAvalancheRoutes);
 
 async function main() {
   let _address;

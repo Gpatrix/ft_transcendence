@@ -7,6 +7,7 @@ RUN apk update --no-cache && \
 
 ARG NODE_ENV
 COPY ./asset/package.json .
+COPY ./asset/hardhat.config.js .
 COPY ./conf/npm_install.sh .
 RUN chmod +x npm_install.sh && ./npm_install.sh
 
