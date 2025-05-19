@@ -153,7 +153,7 @@ services:
     networks:
       - router
     ports:
-      - 5555:3000
+      - 4000:3000
 
   front_dev:
     container_name: front_dev

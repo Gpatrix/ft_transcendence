@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sleep infinity
+exec grafana server -homepath /usr/share/grafana/
