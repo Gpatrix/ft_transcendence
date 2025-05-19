@@ -141,8 +141,19 @@ services:
         dockerfile: Dockerfile
     networks:
       - router
+    expose:
+      - 9090
+
+  grafana-service:
+    container_name: grafana-service
+    restart: on-failure
+    build:
+        context: ./back/monitoring/grafana-service
+        dockerfile: Dockerfile
+    networks:
+      - router
     ports:
-      - 9090:9090
+      - 5555:3000
 
   front_dev:
     container_name: front_dev
