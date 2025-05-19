@@ -1,5 +1,5 @@
-import prisma from '../config/prisma';
-import { GamesManager } from '../classes/GamesManager';
+import { prisma } from '../config/prisma';
+import WebSocket from 'ws';
 
 interface pos {
     x: number,
@@ -75,7 +75,7 @@ class Player {
     }
 }
 
-class PongGame {
+export class PongGame {
     constructor (playerIds: Array<number>, id: number) {
         this.ball = this.initBall(playerIds);
         this.players = [

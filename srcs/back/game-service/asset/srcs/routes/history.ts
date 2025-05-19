@@ -1,8 +1,8 @@
-import prisma from "../config/prisma";
+import { prisma } from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
-import { isPlayerWinnerInGame } from "../utils.ts";
+import { isPlayerWinnerInGame } from "../utils";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -59,7 +59,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
                 if (!userId) // /me when no id is provided
                 {
                     const token = request.cookies['ft_transcendence_jw_token'];
-                    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
                     const tokenPayload = decoded.data;
                     userId = tokenPayload.id
                 }

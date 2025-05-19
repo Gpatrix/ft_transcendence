@@ -1,4 +1,4 @@
-function validateLobbyData(request, reply, done) {
+export function validateLobbyData(request, reply, done) {
     const body = request.body;
     const lobbyTitle = body?.title;
     const playersCount = body?.playersCount;
@@ -11,5 +11,3 @@ function validateLobbyData(request, reply, done) {
         return reply.status(400).send({ error: 5007 });
     done();
 }
-
-module.exports = validateLobbyData;
