@@ -3,19 +3,29 @@ import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import WebSocket from 'ws';
+import websocketPlugin from '@fastify/websocket';
 import { PongGame } from '../classes/PongGame';
 import { MatchMakingUser, MatchMakingMap } from '../classes/MatchMaking';
 import { GamesManager } from '../classes/GamesManager';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
-interface gameConnectParams {
+interface gameConnectParams
+{
     tournamentId: string,
     gameId: string
 }
 
 var users: MatchMakingMap = new MatchMakingMap();
 var activeConn: Map<number, WebSocket> = new Map();
+
+interface tokenStruct
+{
+    id: number,
+    email: string,
+    name: string,
+    isAdmin: boolean
+}
 
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -108,10 +118,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
     {
         try
         {
-            const token = request.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-            const tokenPayload = decoded.data;
-            const res = await axios.post(`http://user-service:3000/api/user/lookup/${tokenPayload.id}`, {
+            const codedtoken = request.cookies['ft_transcendence_jw_token'];
+            const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+            const res = await axios.post(`http://user-service:3000/api/user/lookup/${decoded.id}`, {
                 credential: process.env.API_CREDENTIAL
             });
             if (res.status != 200)
@@ -120,12 +129,13 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             if (!(res.data?.id))
                 return (socket.close(4003));
 
-            if (activeConn.get(tokenPayload.id))
+            if (activeConn.get(decoded.id))
                 socket.close(4002);
 
             socket.on('close', () => {
-                activeConn.delete(tokenPayload.id);
+                activeConn.delete(decoded.id);
             });
+
             const result: MatchMakingUser[] | undefined = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
             if (result != undefined && result != null)
             {
@@ -136,7 +146,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                     user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
                     user.websocket.close();
                 })
-                activeConn.set(tokenPayload.id, socket);
+                activeConn.set(decoded.id, socket);
             }
         }
         catch (error)

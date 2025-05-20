@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import cookiesPlugin from '@fastify/cookie'
 import rateLimitPlugin from '@fastify/rate-limit';
+import jwt from 'jsonwebtoken';
 
 const server = fastify();
 
@@ -15,7 +16,8 @@ server.register(require("./routes/tournament"));
 server.register(require("./routes/stats"));
 server.register(require("./routes/history"));
 
-interface tokenStruct {
+interface tokenStruct
+{
     id: number,
     email: string,
     name: string,

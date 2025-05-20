@@ -1,11 +1,10 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
+import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
-import { log } from 'console';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
