@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import Header from "../../components/Header"
 import { useNavigate, useSearchParams } from "react-router"
 
-export default function Lobby() {
+export default function FriendsLobby() {
     const [params] = useSearchParams()
     const navigate = useNavigate()
 
@@ -10,9 +10,7 @@ export default function Lobby() {
         if (params.get("gameId"))
             alert("gameID")
         else {
-            fetch("https://localhost/api/game/lobby", {
-                method: "POST"
-            })
+            navigate("/lobby/friends/create")
         }
     }
 
@@ -22,7 +20,7 @@ export default function Lobby() {
 
     return (
         <div>
-            <Header />
+
         </div>
     )
 }
