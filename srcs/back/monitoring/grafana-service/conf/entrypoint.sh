@@ -1,9 +1,5 @@
 #!/bin/sh
 
-<<<<<<< Updated upstream
-exec grafana server -homepath /usr/share/grafana/
-=======
-exec grafana server -homepath /usr/share/grafana/
+exec grafana server -homepath /usr/share/grafana/ -config ./grafana.conf
 
 # envsubst
->>>>>>> Stashed changes
