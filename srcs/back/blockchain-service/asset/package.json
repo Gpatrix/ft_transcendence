@@ -20,8 +20,11 @@
     "dependencies": {
         "@types/node": "^22.14.1",
         "fastify": "^5.3.0",
+        "fs": "0.0.1-security",
+        "solc": "0.8.30",
         "ts-node": "^10.9.2",
-        "ts-node-dev": "^2.0.0"
+        "ts-node-dev": "^2.0.0",
+        "web3": "4.16.0"
     },
     "devDependencies": {
         "@nomicfoundation/hardhat-ethers": "^3.0.8",
