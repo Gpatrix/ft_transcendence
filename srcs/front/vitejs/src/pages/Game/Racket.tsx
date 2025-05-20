@@ -1,4 +1,4 @@
-import { pos } from "./Ball/LocalBall"
+import { pos } from "./Local/LocalBall.tsx"
 
 type RacketArgs = {
     id: number
@@ -102,7 +102,7 @@ export default function RacketComponent({ id, left, right, bottom, angle }: Rack
                 absolute
                 block w-[1%] h-[20%]
                 bg-yellow
-                rounded-full
+                
             `}
         ></span>
     )

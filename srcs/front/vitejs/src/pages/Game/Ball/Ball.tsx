@@ -1,4 +1,4 @@
-import { Ball } from "./LocalBall";
+import { Ball } from "../Local/LocalBall";
 
 interface Props {
     ball: Ball;
@@ -7,7 +7,7 @@ interface Props {
 export default function BallComponent({ ball }: Props) {
     return (
         <div
-            className="top-0 absolute bg-white rounded-full"
+            className="top-0 absolute bg-yellow rounded-full"
             style={{
                 width: ball.radius * 2,
                 height: ball.radius * 2,
