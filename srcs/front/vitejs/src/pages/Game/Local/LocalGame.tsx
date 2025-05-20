@@ -3,12 +3,11 @@ import { Ball } from "./LocalBall.tsx";
 import BallComponent from "../Ball/Ball";
 import { Racket } from "../Racket";
 import RacketComponent from "../Racket";
-import HitBox from "../HitBox";
 import Wall from "../Wall";
 import { pos, dimension } from "./LocalBall.tsx"
 import StartCounter from "./StartCounter.tsx";
 import PointsCounter from "./PointsCounter.tsx";
-
+import { gpt } from "../../../translations/pages_reponses.tsx";
 
 const defaultPos : pos = {
     x : 250,
@@ -31,7 +30,7 @@ export default function Game() {
     const ball = useRef<Ball>(new Ball(defaultPos, defaultVelocity, 10, mapDimension));
     const [players, setPlayers] = useState([0, 0])
     const [, setTicks] = useState<number>(0)
-    const [counter, setCounter] = useState<string | null>("Press space to play")
+    const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"))
 
     function updateResult(result : number) {
         setPlayers(prev => {
