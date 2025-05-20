@@ -47,8 +47,11 @@ class Friend extends User {
                 credentials: 'include'
             }
             const response = await fetch(`/api/user/friends/requests/${encodeURIComponent(name)}`, requestData);
+
+            // envoyer le json error plutot
+
         
-            console.log("Reponse HTTP :", response.status);
+            // console.log("Reponse HTTP :", response.status);
 
             return (response.status);
           } catch (error) {
@@ -94,7 +97,7 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/friends`, requestData);
             
-            console.log("Reponse HTTP :", response.status);
+            // console.log("Reponse HTTP :", response.status);
 
             // console.log(response);
             

@@ -15,7 +15,7 @@ import DfaSetup from './pages/Auth/DfaSetup.tsx';
 import ProfileBackground from './pages/Profile/ProfileBackground.tsx';
 import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
-import  Chat from "./pages/Chat/Chat.tsx"
+import  ChatPage from "./pages/Chat/ChatPage.tsx"
 import NotFound from './pages/404/NotFound.tsx';
 import Lobby from './pages/Lobby/Lobby.tsx';
 import Menu from './pages/Lobby/Menu.tsx';
@@ -50,7 +50,7 @@ createRoot(document.getElementById('root')!).render(
             </Route>
 
 
-            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat" element={<ChatPage />} />
             {/* <Route path="/test" element={<App />} /> */}
 
           </Routes>

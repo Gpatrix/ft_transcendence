@@ -190,9 +190,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     }, [activFriend]);
 
     useEffect(() => {
-        console.log("socket");
-        console.log(socket);
-        
         if (socket)
             fetchFriends();
     }, [socket])

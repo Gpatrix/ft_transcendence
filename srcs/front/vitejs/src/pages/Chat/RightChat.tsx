@@ -93,7 +93,7 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
             <Blur />
             <div ref={containerRef} className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
-                {friends.find(friend => friend.id == activFriend) != undefined && arrayMessage.map((message, id) => {
+                {profileData && friends.find(friend => friend.id == activFriend) != undefined && arrayMessage.map((message, id) => {
                         let friend = friends.find((friend) => friend.id == activFriend) as Friend;
 
                         if (message.idSender == activFriend)
