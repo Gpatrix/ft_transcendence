@@ -3,6 +3,7 @@ import cookiesPlugin from '@fastify/cookie'
 import rateLimitPlugin from '@fastify/rate-limit';
 
 const server = fastify();
+const jwt = require("jsonwebtoken")
 
 server.register(cookiesPlugin);
 server.register(rateLimitPlugin, {
