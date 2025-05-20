@@ -1,15 +1,11 @@
-import prisma from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import WebSocket from 'ws';
-import PongGame from '../classes/PongGame';
 import { Lobby, LobbyUser, LobbyError } from '../classes/Lobby';
-import GamesManager from '../classes/GamesManager';
-import isConnected from "../validators/jsonwebtoken";
-import validateLobbyData from '../validators/lobbyData';
-import sendLobbyData from '../functions/sendLobbyData';
-import { send } from "process";
+import { GamesManager      } from '../classes/GamesManager';
+import { validateLobbyData } from '../validators/lobbyData';
+import { sendLobbyData     } from '../functions/sendLobbyData';
 
 
 axios.defaults.validateStatus = (status: number) => status >= 200 && status <= 500;
@@ -21,9 +17,9 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         playersCount: number;
     }
 
-    server.post<{ Body: CreateLobbyBody }>('/api/game/lobby',{ preHandler: [validateLobbyData] }, async (request: any, reply: any ) => {
+    server.post<{ Body: CreateLobbyBody }>('/api/game/lobby', { preHandler: [validateLobbyData] }, async (request: any, reply: any ) => {
         const token = request.cookies['ft_transcendence_jw_token'];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
         const tokenPayload = decoded.data;
         const userId = tokenPayload.id;
         const body = request.body;
@@ -31,14 +27,14 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         const playersCount = body?.playersCount;
         const lobby = new Lobby(playersCount, lobbyTitle, userId);
 
-        return reply.status(200).send({ message: "Game lobby created", lobbyId: lobby.id })
+        return reply.status(200).send({ lobbyId: lobby.id })
     })
 
     interface ConnectToLobbyParams {
         id: string;
     }
 
-    server.get<{ Params: ConnectToLobbyParams }>('/api/game/lobby/:id', { websocket: true, preHandler:[isConnected] }, async (socket: WebSocket, request: any ) => 
+    server.get<{ Params: ConnectToLobbyParams }>('/api/game/lobby/:id', { websocket: true}, async (socket: WebSocket, request: any ) => 
     {
         try
         {
@@ -49,11 +45,10 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
             const userId = tokenPayload?.id;
             if (!userId)
                 return (socket.close(4001));
-            console.log('1');
 
             const lobby = Lobby.lobbies.get(lobbyId);
             if (!lobby)
-                return (socket.close(4004 ));
+                return (socket.close(4004));
 
             lobby.playerJoin(userId, socket);
 
@@ -76,10 +71,10 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         id: number
     }
 
-    server.post<{ Params: LobbyLaunchGameParams }>('/api/game/lobby/launch/:id',{ preHandler: [isConnected] }, async (request: any, reply: any ) => {
+    server.post<{ Params: LobbyLaunchGameParams }>('/api/game/lobby/launch/:id', async (request: any, reply: any ) => {
         try {
             const token = request.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
             const tokenPayload = decoded.data;
             const userId = tokenPayload.id;
             const lobbyId = Number(request.params.id);
@@ -89,9 +84,9 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
                 return reply.status(404).send({ error: '0404' });
             if (!(tokenPayload?.id) || userId != lobby.ownerId)
                 return reply.status(401).send({ error: '0401' });
-            console.log('before')
+
             lobby.checkIfCanBeLaunched();
-            console.log('after')
+
             const tournament = await GamesManager.createGame(lobby.users);
             if (!tournament)
                 throw (new Error('Games manager cannot create game'));
@@ -103,18 +98,19 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
             if ((error as LobbyError).errorCode)
                 reply.status(400).send({ error: (error as LobbyError).errorCode });
             else
-                reply.status(500).send({ error: 'Internal server error' });
+                reply.status(500).send({ error: '0500' });
         }
     })
 
-    interface InvitePlayerToLobbyParams {
+    interface InvitePlayerToLobbyParams
+    {
         lobbyId: string;
         targetUserId: string;
     }
 
-    server.post<{ Params: InvitePlayerToLobbyParams }>('/api/game/invite/:lobbyId/:targetUserId',{ preHandler: [isConnected], config: { rateLimit: { max: 50, timeWindow: '1minute' }} }, async (request: any, reply: any ) => {
+    server.post<{ Params: InvitePlayerToLobbyParams }>('/api/game/invite/:lobbyId/:targetUserId',{ config: { rateLimit: { max: 50, timeWindow: '1minute' }} }, async (request: any, reply: any ) => {
         const token = request.cookies['ft_transcendence_jw_token'];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
         const tokenPayload = decoded?.data;
         const userId = tokenPayload?.id;
         const targetUserId = Number(request.params?.targetUserId);
@@ -123,18 +119,14 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         if (!lobby)
             return reply.status(404).send({ error: '0404' });
         if (!userId)
-            return (reply.status(403).send({ error: "403" }));
+            return (reply.status(403).send({ error: '0403' }));
         if (lobby.ownerId != userId)
-            return (reply.status(401).send({ error: "401" }));
+            return (reply.status(401).send({ error: '0401' }));
         lobby.invitePlayer(targetUserId);  
-        return reply.status(200).send({ message: "Player invited to lobby", lobbyId: lobbyId })
+        return reply.status(200).send({ lobbyId: lobbyId })
     })
 
     done()
 }
 
 module.exports = lobbyRoutes;
-
-function playerJoin() {
-    throw new Error("Function not implemented.");
-}

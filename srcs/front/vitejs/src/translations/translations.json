@@ -173,6 +173,36 @@
       "Add",
       "Ajouter",
       "Aggiungere"
+    ],
+    "up": [
+      "Up",
+      "Haut",
+      "Su"
+    ],
+    "down": [
+      "Down",
+      "Bas",
+      "Giù"
+    ],
+    "space": [
+      "Space",
+      "Espace",
+      "Spazio"
+    ],
+    "start": [
+      "Start",
+      "Démarrer",
+      "Avvia"
+    ],
+    "press_space_to_play": [
+      "Press space to play",
+      "Appuyez sur espace pour jouer",
+      "Premi spazio per giocare"
+    ],
+    "keyboard_controls": [
+      "Keyboard controls",
+      "Contrôles clavier",
+      "Controlli da tastiera"
     ]
   }
 }
