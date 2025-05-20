@@ -96,16 +96,13 @@ export default function Game() {
     return (
         <div className="block ml-auto mr-auto w-fit h-fit ">
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
-                <HitBox players={2}>
+
                     <RacketComponent id={1} left={5} />
                     <RacketComponent id={2} right={5} />
                 {counter && <StartCounter width={mapDimension.x} height={mapDimension.y} setCounter={setCounter} counter={counter} /> }
 
-                </HitBox>
-
                 <Wall id="top"    width={mapDimension.x} height={5} top={0} />
                 <Wall id="bottom" width={mapDimension.x} height={5} bottom={`${0}`} />
-
 
                 <Wall id="left"  height={mapDimension.y} width={5} bottom={`${0}`} />
                 <Wall id="right" height={mapDimension.y} width={5} bottom={`${0}`} right={0}/>
