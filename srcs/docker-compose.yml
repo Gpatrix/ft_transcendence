@@ -150,6 +150,16 @@ services:
     build:
         context: ./back/monitoring/grafana-service
         dockerfile: Dockerfile
+<<<<<<< Updated upstream
+=======
+        args:
+          GRAFANA_DB_USER: ${GRAFANA_DB_USER:?}
+          GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?}
+          GRAFANA_ADMIN_USER: ${GRAFANA_ADMIN_USER:?}
+          GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
+          GRAFANA_ADMIN_EMAIL: ${GRAFANA_ADMIN_EMAIL:?}
+          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+>>>>>>> Stashed changes
     networks:
       - router
     ports:
