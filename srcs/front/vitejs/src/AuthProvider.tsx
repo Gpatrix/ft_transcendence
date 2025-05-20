@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const logout = () => {
-        fetch("/api/auth/logout", { method: "POST" });
+        fetch("/api/auth/logout", { method: "DELETE" });
         setIsAuthenticated(false);
         navigate("/login");
     };
