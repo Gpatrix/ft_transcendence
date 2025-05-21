@@ -114,6 +114,11 @@ services:
     environment:
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:?}
+      SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
+      FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
+      FUJI_RPC_URL: ${FUJI_RPC_URL:?}
+      AVALANCHE_RPC_URL: ${AVALANCHE_RPC_URL:?}
+      AVALANCHE_CHAIN_ID: ${AVALANCHE_CHAIN_ID:?}
     build:
         context: ./back/blockchain-service
         dockerfile: Dockerfile

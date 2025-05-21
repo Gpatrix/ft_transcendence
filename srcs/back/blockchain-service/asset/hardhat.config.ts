@@ -1,5 +1,4 @@
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
 
 const FORK_FUJI = false;
 let forkingData = undefined;
@@ -26,9 +25,9 @@ const config: HardhatUserConfig = {
     },
     fuji: {
       url: process.env.FUJI_URL || "https://api.avax-test.network/ext/bc/C/rpc",
-      gasPrice: 225000000000,
       chainId: process.env.FUJI_CHAIN_ID || 43113,
-      accounts: [process.env.FUJI_PRIVATE_KEY || ""]
+      gasPrice: 225000000000,
+      accounts: [process.env.SIGNER_PRIVATE_KEY || ""]
     }
   }
 };
