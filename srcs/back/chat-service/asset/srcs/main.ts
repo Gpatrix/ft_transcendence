@@ -90,7 +90,6 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    }
 
    let channel: Utils.t_channel | string | null = await Utils.findChannel([token.id, target_user.id]);
-   console.log(channel);
    if (channel === null)
       channel = await Utils.CreateChannel([token.id, target_user.id], false);
    if (typeof channel !== 'object')
