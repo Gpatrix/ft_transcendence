@@ -71,7 +71,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
                 form.append(key, String(value))
             }
         }
-        const res = fetchWithAuth("https://localhost/api/user/edit", {
+        const res = fetchWithAuth("/api/user/edit", {
             method: "PUT",
             body: form,
         }).then((response)=>{

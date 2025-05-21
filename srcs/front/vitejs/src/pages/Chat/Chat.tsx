@@ -19,7 +19,7 @@ export default function Chat() {
     const [profileData, setProfileData] = useState<User | undefined>()
 
     function getUserParams() {
-        fetchWithAuth(`https://localhost/api/user/get_profile/`)
+        fetchWithAuth(`/api/user/get_profile/`)
         .then((response) => response.json())
         .then((json) => {
             const data = json.data
