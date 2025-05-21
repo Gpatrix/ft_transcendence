@@ -5,6 +5,8 @@ import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
+import { chownSync } from 'fs';
+import { makeTypedQueryFactory } from '@prisma/client/runtime/library';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
@@ -88,6 +90,7 @@ async function handle_msg(payload: payloadstruct, token: tokenStruct, socket: We
    }
 
    let channel: Utils.t_channel | string | null = await Utils.findChannel([token.id, target_user.id]);
+   console.log(channel);
    if (channel === null)
       channel = await Utils.CreateChannel([token.id, target_user.id], false);
    if (typeof channel !== 'object')
