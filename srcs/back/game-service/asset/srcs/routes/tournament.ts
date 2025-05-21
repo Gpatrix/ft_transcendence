@@ -12,7 +12,8 @@ axios.defaults.validateStatus = (status: number) => status >= 200 && status <= 5
 
 function lobbyRoutes (server: FastifyInstance, options: any, done: any)
 {
-    interface CreateLobbyBody {
+    interface CreateLobbyBody
+    {
         title: string;
         playersCount: number;
     }
@@ -30,7 +31,8 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         return reply.status(200).send({ lobbyId: lobby.id })
     })
 
-    interface ConnectToLobbyParams {
+    interface ConnectToLobbyParams
+    {
         id: string;
     }
 

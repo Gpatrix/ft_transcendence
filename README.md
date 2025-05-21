@@ -6,17 +6,14 @@
 
 ## Continuel
 
-- [x] Major module: Use a framework to build the backend.
 
-- [x] Minor module: Use a framework or a toolkit to build the frontend.
+- [x] Major module: Use a framework or a toolkit to build the backend.
 
 - [x] Minor module: Use a database for the backend.
 
-- [ ] Minor module: Support on all devices.
-
 - [ ] Minor module: Expanding browser compatibility.
 
-- [ ] Minor module: Supports multiple languages.
+- [x] Minor module: Supports multiple languages.
 
 ## debut - Milieu
 
@@ -42,6 +39,7 @@
 - [ ] Major module: Replace basic Pong with server-side Pong and implement an API.
 
 ## Fin
+
 - [ ] Major module: Store the score of a tournament in the Blockchain.
 
 - [ ] Minor module: GDPR compliance options with user anonymization, local data management, and Account Deletion.
@@ -61,6 +59,11 @@
 
 • Major module: Enabling Pong gameplay via CLI against web users with
 API integration.
+
+• Major module: Use a framework to build the backend.
+
+• Minor module: Support on all devices.
+
 
 </details>
 

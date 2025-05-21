@@ -1,7 +1,6 @@
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken';
 import { Prisma, User } from '@prisma/client';
-import isConnected from "../validators/jsonwebtoken";
 // import jwtValidator from "./validators/jsonwebtoken";
 import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
@@ -367,7 +366,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         image?: string
     }
 
-    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [isConnected, imageUpload, validateUserData], config: {
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [imageUpload, validateUserData], config: {
         rateLimit: {
             max: 10,
             timeWindow: '1 minute'
@@ -474,7 +473,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         targetId?: number,
     }
 
-    server.post<{ Body: blockUserBody }>('/api/user/blockUser', { preHandler: [isConnected] }, async (request, reply) => {
+    server.post<{ Body: blockUserBody }>('/api/user/blockUser', async (request, reply) => {
         const token = request.cookies['ft_transcendence_jw_token'];
         const body = request.body;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -508,7 +507,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         targetId?: number,
     }
 
-    server.post<{ Body: unblockUserBody }>('/api/user/unblockUser', { preHandler: [isConnected] }, async (request, reply) => {
+    server.post<{ Body: unblockUserBody }>('/api/user/unblockUser', async (request, reply) => {
         const token = request.cookies['ft_transcendence_jw_token'];
         const body = request.body;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);

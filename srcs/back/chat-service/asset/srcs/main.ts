@@ -1,11 +1,10 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
+import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
-import { log } from 'console';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
@@ -50,9 +49,9 @@ var activeConn: Map<number, i_user> = new Map();
 server.addHook('preValidation'
    , (request, reply, done) => {
       
-      const token: string | undefined = request.cookies.ft_transcendence_jw_token
       try
       {
+         const token: string | undefined = request.cookies.ft_transcendence_jw_token
          if (!token || token === undefined)
             return (reply.status(403).send({ error: "0403" }));
          const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
@@ -177,7 +176,6 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
    }
 }
 
-
 interface i_addFriend
 {
    action: string,
@@ -186,10 +184,6 @@ interface i_addFriend
 
 async function handle_managementFriend(payload: payloadstruct, token: tokenStruct, socket: WebSocket)
 {
-   console.log("c bon");
-   console.log(payload);
-   
-   
    try
    {
 
