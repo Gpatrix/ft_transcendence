@@ -40,7 +40,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }),
             });
             const data = await response.json();
-            console.log(response)
             if (!response.ok)
                 return (res.status(response.status).send({ error: data.error}))
             const user = data;
@@ -65,7 +64,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 secure: true
               }).send({ response: "successfully logged in", need2fa: false }));
         } catch (error) {
-            console.log("Unhandled error during signup:", error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
                     switch (error.code) {
@@ -82,7 +80,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                             res.status(401).send({ error: "0500"});
                     }
             }
-            console.log(error);
             return (res.status(500).send({ error: "0500"}));
         }
     });
@@ -220,7 +217,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             });
             let user;
             const lookupData = await response.json();
-            console.log(await lookupData)
             if (response.ok && !('error' in lookupData)) {
               user = lookupData;
             }
@@ -241,7 +237,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 });
                 
                 if (!createResponse.ok) {
-                    console.log(userinfo.name)
                     console.error('Failed to create user:', await createResponse.text());
                     return reply.status(createResponse.status).redirect("/register?oauth-error=1015");
                 }
@@ -282,7 +277,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         const connected = await isConnected(request, reply, ()=> {
             return (reply.status(200).send({ message: "logged_in" }));
         })
-        console.log(connected)
     });
 
     done();    

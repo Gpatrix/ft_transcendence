@@ -26,8 +26,6 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 }),
             });
             const data = await response.json();
-            console.log("ASK_DATA: ",data)
-            console.log("ASK_SECRET: ", secret.base32)
             if (!response.ok)
                 res.status(response.status).send(data);
             const data_url = await QRCode.toDataURL(secret.otpauth_url);
