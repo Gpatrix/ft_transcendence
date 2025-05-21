@@ -22,6 +22,8 @@ import LobbyLayout from './pages/Lobby/LobbyLayout.tsx';
 import FriendsLobby from './pages/Lobby/FriendsLobby/FriendsLobby.tsx';
 import PopupCreate from './pages/Lobby/FriendsLobby/PopupCreate.tsx';
 import LocalGame from './pages/Game/Local/LocalGame.tsx';
+import GameLayout from './pages/Game/GameLayout.tsx';
+import LocalGameWrapper from './pages/Game/Local/LocalGameWrapper.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -52,7 +54,11 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/lobby/matchmaking" element={<div></div>}/>
             </Route>
 
-            <Route path="test" element={<LocalGame/>}/>
+
+            <Route element={<GameLayout />}>
+              <Route path="/play/local" element={<LocalGameWrapper/>}/>
+            </Route>
+
 
 
             <Route path="/chat" element={<Chat />} />

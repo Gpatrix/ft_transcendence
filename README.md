@@ -7,7 +7,7 @@
 ## Continuel
 
 
-- [x] Minor module: Use a framework or a toolkit to build the frontend.
+- [x] Major module: Use a framework or a toolkit to build the backend.
 
 - [x] Minor module: Use a database for the backend.
 

@@ -414,7 +414,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
             if (!updatedUser)
                 throw (new Error('0500'));
-            reply.status(200).send(updatedUser);
+            reply.status(200).send("User successfully updated.");
         } catch (error) {
             console.log(error);
             if (body.image)

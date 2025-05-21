@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import websocketPlugin from '@fastify/websocket';
 
 const server = fastify();
+const jwt = require("jsonwebtoken")
 
 server.register(cookiesPlugin);
 server.register(rateLimitPlugin, {
