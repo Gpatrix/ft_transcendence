@@ -235,7 +235,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                   body: JSON.stringify({
                     email: userinfo.email,
                     profPicture: userinfo.picture,
-                    name: String(Date.now()),
+                    name: userinfo.name,
                     credential: process.env.API_CREDENTIAL
                   }),
                 });
