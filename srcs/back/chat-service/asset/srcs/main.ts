@@ -4,11 +4,14 @@ import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
+import {metrics} from './metrics'
 
 import * as Utils from './utils'
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
+
+global.activeConn = new Map<number, i_user>();
 
 interface payloadstruct
 {
@@ -42,11 +45,9 @@ const server = fastify();
 server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
+server.register(metrics);
 
 setInterval(recurrentPing, PING_INTERVAL);
-
-var activeConn: Map<number, i_user> = new Map();
-
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
@@ -318,30 +319,3 @@ function recurrentPing(): void
       }, PONG_TIMEOUT);
    });
 }
-
-import client from 'prom-client' 
-
-// client.collectDefaultMetrics();
-
-// Example custom counter
-const counter = new client.Counter({
-  name: 'chat_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'status_code'],
-});
-
-// Count all HTTP requests
-server.addHook('onResponse', (req, res, done) => {
-  counter.inc({
-    method: req.method,
-    status_code: res.statusCode,
-  });
-  done();
-});
-
-// Expose metrics
-server.get('/metrics', async (request, reply) => {
-  reply
-    .header('Content-Type', client.register.contentType)
-    .send(await client.register.metrics());
-});
