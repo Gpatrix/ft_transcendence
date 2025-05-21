@@ -11,7 +11,11 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             const token = req.cookies['ft_transcendence_jw_token'];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const tokenPayload = decoded.data;
-            const secret = speakeasy.generateSecret();
+            const secret = speakeasy.generateSecret({
+                    name: `ft_transcendance:${tokenPayload.email}`, 
+                    issuer: 'ft_transcendance'
+            }
+            );
             const response = await fetch(`http://user-service:3000/api/user/2fa/update/${tokenPayload.id}`,
             {
                 method: 'PUT',
@@ -22,6 +26,8 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
                 }),
             });
             const data = await response.json();
+            console.log("ASK_DATA: ",data)
+            console.log("ASK_SECRET: ", secret.base32)
             if (!response.ok)
                 res.status(response.status).send(data);
             const data_url = await QRCode.toDataURL(secret.otpauth_url);
@@ -39,7 +45,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
         const jsonWebToken= req.cookies['ft_transcendence_jw_token'];
         const decoded = jwt.verify(jsonWebToken, process.env.JWT_SECRET);
         const jsonWebTokenPayload = decoded.data;
-        const userToken  = req.body;
+        const userToken  = req.body.userToken;
 
         //here we ask user api for user data
         const userLookupResponse = await fetch(`http://user-service:3000/api/user/lookup/${jsonWebTokenPayload.email}`,
@@ -56,13 +62,14 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
         const user = userLookupData;
         if (!user)  
             return res.status(404).send({ error: "1006" });
-        if (!user.password)
-            return res.status(401).send({ error: "1014" });
 
         // compare the first temp token the user got for example '420420'
-        const verified = speakeasy.totp.verify({ secret: user.twoFactorSecretTemp,
+        const verified = speakeasy.totp.verify({ 
+            secret: user.twoFactorSecretTemp,
             encoding: 'base32',
-            token: userToken });
+            token: userToken,
+            window: 2
+        }); 
         if (verified)
         {
              //here we ask user api for updating user 2fa token

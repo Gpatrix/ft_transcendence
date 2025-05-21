@@ -248,36 +248,29 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 
                 user = await createResponse.json();
                 console.log('New user created:', user);
-              }
-            // console.log("JWT Payload:", {
-            //     data: {
-            //       id: user.id,
-            //       email: user.email,
-            //       name: user.name,
-            //       isAdmin: user.isAdmin,
-            //       twoFactorSecret: user.twoFactorSecret,
-            //       dfa: true
-            //     }
-            //   });
-            console.log(user)
-            const jsonwebtoken = await jwt.sign({
+            }
+            const payloadBase = {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                isAdmin: user.isAdmin,
+                twoFactorSecret: user.twoFactorSecret,
+            };
+            const jwtPayload = {
                 data: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    isAdmin: user.isAdmin,
-                    twoFactorSecret: user.twoFactorSecret,
-                    dfa: true
+                    ...payloadBase,
+                    dfa: !user.isTwoFactorEnabled
                 }
-            }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
-    
+            };
+            const jsonwebtoken = await jwt.sign(jwtPayload, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+
             if (jsonwebtoken)
                 return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken, {
                     path: "/",
                     httpOnly: true,
                     sameSite: "none",
                     secure: true
-                  }).redirect("/login?oauth=true"));
+                  }).redirect("/login?oauth=true&need2fa=${user.isTwoFactorEnabled}"));
             else
                 throw new Error("no token generated");
         } catch (error) {
