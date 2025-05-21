@@ -9,6 +9,7 @@ import LoginErrorMsg from "../../../components/LoginErrorMsg";
 import { get_server_translation } from "../../../translations/server_responses";
 import { useAuth } from "../../../AuthProvider";
 import { useNavigate } from "react-router";
+import LogoutButton from "./LogoutButton";
 
 
 interface EditParamsProps {
@@ -117,7 +118,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
                     <div className=" mt-[8px]">
                     <label className="py-2">{gpt("language")}</label>
                     <LanguageSelect setValue={(lang: number) => setFormValues((prev) => ({ ...prev, lang: lang }))} init={init} resetInit={()=>setInit(null)} lang={formValues.lang} />
-
+                    <LogoutButton/>
                     </div>
 
 
