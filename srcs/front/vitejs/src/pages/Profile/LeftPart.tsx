@@ -66,7 +66,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
             return;
         }
         const form = new FormData();
-        form.append("file", file);
+        form.append("image", file);
 
         try {
             const response = await fetchWithAuth("https://localhost/api/user/edit", {

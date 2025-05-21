@@ -1,15 +1,17 @@
-import prisma from "../config/prisma";
+import { prisma } from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import WebSocket from 'ws';
-import PongGame from '../classes/PongGame';
+import websocketPlugin from '@fastify/websocket';
+import { PongGame } from '../classes/PongGame';
 import { MatchMakingUser, MatchMakingMap } from '../classes/MatchMaking';
-import GamesManager from '../classes/GamesManager';
+import { GamesManager } from '../classes/GamesManager';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
-interface gameConnectParams {
+interface gameConnectParams
+{
     tournamentId: string,
     gameId: string
 }
@@ -17,17 +19,26 @@ interface gameConnectParams {
 var users: MatchMakingMap = new MatchMakingMap();
 var activeConn: Map<number, WebSocket> = new Map();
 
+interface tokenStruct
+{
+    id: number,
+    email: string,
+    name: string,
+    isAdmin: boolean
+}
+
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
-    server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
+    server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request ) => 
     {   
         try
         {
-            const token = request.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const tokenPayload = decoded.data;
-            const gameId = Number(request.params.gameId);
-            const tournamentId = Number(request.params.tournamentId);
+            const freshToken: string | undefined = request.cookies.ft_transcendence_jw_token
+            const decoded = jwt.verify(freshToken as string, process.env.JWT_SECRET as string);
+            const token = decoded.data;
+            const gameId: number = Number(request.params.gameId);
+            const tournamentId: number = Number(request.params.tournamentId);
+
 
             const tournament = await prisma.tournament.findFirst({
                 where: {
@@ -44,7 +55,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             if (!tournament)
-                throw (new Error('Cannot find tournament in DB')); // TODO: close ws with error code
+                socket.close(5010);
 
             const game = await prisma.game.findFirst({
                 where: {
@@ -56,34 +67,33 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             if (!game)
-                throw (new Error('Cannot find game in DB')); // TODO: close ws with error code
+                socket.close(5011);
 
             const player = await prisma.player.findFirst({
                 where: {
-                    userId: tokenPayload.id,
+                    userId: token.id,
                     gameId: gameId,
                 }
             })
 
             if (!player)
-                throw (new Error('Cannot find player in DB')); // TODO: close ws with error code
+                socket.close(5012)
 
             socket.on('message', (RawData: WebSocket.RawData) => {
                 const object = JSON.parse(RawData.toString('utf8'));
                 const action = object?.action;
-                if (!action)
-                    return ;
                 const pongGame = GamesManager.findGame(gameId);
+                if (!action || !pongGame)
+                    return ;
 
-                switch (action) {
-                    case 'playerMove':
-                        pongGame.onPlayerMove(player.id);
-                        break;
+                // switch (action) {
+                //     case 'playerMove':
+                //         pongGame.onPlayerMove(player.id);
+                //         break;
                 
-                    default:
-                        // console.log('WS invalid action');
-                        break;
-                }
+                //     default:
+                //         break;
+                // }
             })
 
             socket.on('close', () => {
@@ -101,6 +111,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         }
         catch (error)
         {
+            console.log(error);
             socket.close(4001);
         }
     });
@@ -109,28 +120,24 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
     {
         try
         {
-            const token = request.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const tokenPayload = decoded.data;
-            const res = await axios.post(`http://user-service:3000/api/user/lookup/${tokenPayload.id}`, {
+            const codedtoken = request.cookies['ft_transcendence_jw_token'];
+            const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+            const res = await axios.post(`http://user-service:3000/api/user/lookup/${decoded.id}`, {
                 credential: process.env.API_CREDENTIAL
             });
             if (res.status != 200)
-                return (socket.close(4001))
+                return (socket.close(4001));
 
             if (!(res.data?.id))
                 return (socket.close(4003));
 
-            if (activeConn.get(tokenPayload.id))
-                socket.close(4002,);
+            if (activeConn.get(decoded.id))
+                socket.close(4002);
 
-            // socket.on('message', (RawData: WebSocket.RawData) => {
-            //     console.log(RawData.message);
-            // })
-    
             socket.on('close', () => {
-                activeConn.delete(tokenPayload.id);
+                activeConn.delete(decoded.id);
             });
+
             const result: MatchMakingUser[] | undefined = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
             if (result != undefined && result != null)
             {
@@ -141,7 +148,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                     user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
                     user.websocket.close();
                 })
-                activeConn.set(tokenPayload.id, socket);
+                activeConn.set(decoded.id, socket);
             }
         }
         catch (error)

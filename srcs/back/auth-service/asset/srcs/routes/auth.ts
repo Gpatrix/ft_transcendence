@@ -178,10 +178,10 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
       }
       
     server.delete<{ Body: logoutParams }>('/api/auth/logout', async (request, reply) => {
-        const token = request.body.token;
+        const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
             return (reply.status(401).send({ error: "1016" }));
-        const decoded = verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const id = decoded.data?.id
         if (!id)
           return (reply.status(401).send({ error: "1016" }));

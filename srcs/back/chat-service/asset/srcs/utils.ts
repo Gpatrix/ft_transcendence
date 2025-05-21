@@ -71,7 +71,7 @@ export async function is_blocked(by: number, target: number): Promise<string>
 export async function CreateChannel(usersID: number[], isGame: boolean): Promise<t_channel | string>
 {
    if (usersID === undefined)
-      return ("400");
+      return ("0400");
    usersID.sort((a, b) => a - b)
 
    try
@@ -98,29 +98,37 @@ export async function CreateChannel(usersID: number[], isGame: boolean): Promise
    }
 }
 
-export async function findChannel(usersID: number[]): Promise<t_channel | string | null>
+export async function findChannel(usersID: [number, number]): Promise<t_channel | string | null>
 {
    try
    {
-      usersID.sort((a, b) => a - b)
-
-      const existingChannel = await prisma.channel.findFirst({
+      const sortedUsers = usersID.sort((a, b) => a - b);
+      const possibleChannel = await prisma.channel.findFirst({
          where: {
             isGame: false,
             participants: {
-               some: {
+               every: {
                   userId: {
-                     in: usersID,
+                     in: sortedUsers,
                   },
                },
             },
-         }, 
+         },
          include: {
             participants: true,
          },
       });
 
-      return (existingChannel);
+      if (!possibleChannel) return null;
+
+      const participantIds = possibleChannel.participants.map(p => p.userId).sort((a, b) => a - b);
+
+      const isExactPair =
+         participantIds.length === 2 &&
+         participantIds[0] === sortedUsers[0] &&
+         participantIds[1] === sortedUsers[1];
+
+      return isExactPair ? possibleChannel : null;
    }
    catch (error: AxiosError | unknown)
    {

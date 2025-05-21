@@ -1,7 +1,7 @@
 import fastify from 'fastify';
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
-import websocketPlugin, { WebsocketHandler } from '@fastify/websocket';
+import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 
 import * as Utils from './utils'
@@ -49,9 +49,9 @@ var activeConn: Map<number, i_user> = new Map();
 server.addHook('preValidation'
    , (request, reply, done) => {
       
-      const token: string | undefined = request.cookies.ft_transcendence_jw_token
       try
       {
+         const token: string | undefined = request.cookies.ft_transcendence_jw_token
          if (!token || token === undefined)
             return (reply.status(403).send({ error: "0403" }));
          const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
@@ -175,7 +175,6 @@ async function handle_refresh(payload: payloadstruct, token: tokenStruct, socket
       return (socket.send(`{"error": "0500"}`));
    }
 }
-
 
 interface i_addFriend
 {
