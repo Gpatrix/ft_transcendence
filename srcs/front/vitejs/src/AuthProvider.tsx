@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         "/forgot-password/new-password",
       ]
       try {
-        const response = await fetch("https://localhost/api/auth/status", { method: "GET" });
+        const response = await fetch("/api/auth/status", { method: "GET" });
         if (!response.ok) {
           setIsAuthenticated(false);
           const data = await response.json()

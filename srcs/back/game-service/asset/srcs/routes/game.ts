@@ -30,7 +30,7 @@ interface tokenStruct
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
     server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request ) => 
-    {   
+    {
         try
         {
             const freshToken: string | undefined = request.cookies.ft_transcendence_jw_token
@@ -153,6 +153,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         }
         catch (error)
         {
+            console.log(error)
             socket.close(4001)
         }
     });

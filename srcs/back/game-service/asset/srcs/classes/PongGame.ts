@@ -280,4 +280,4 @@ export class PongGame {
     id: number;
 }
 
-module.exports = PongGame;
+// module.exports = PongGame;
