@@ -141,6 +141,8 @@ services:
         dockerfile: Dockerfile
     networks:
       - router
+    ports:
+      - 9090:9090
     expose:
       - 9090
 

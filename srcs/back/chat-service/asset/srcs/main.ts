@@ -1,4 +1,5 @@
 import fastify from 'fastify';
+import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
@@ -46,24 +47,6 @@ setInterval(recurrentPing, PING_INTERVAL);
 
 var activeConn: Map<number, i_user> = new Map();
 
-server.addHook('preValidation'
-   , (request, reply, done) => {
-      
-      try
-      {
-         const token: string | undefined = request.cookies.ft_transcendence_jw_token
-         if (!token || token === undefined)
-            return (reply.status(403).send({ error: "0403" }));
-         const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
-         const id = decoded.id;
-         if (!id || id === undefined)
-            return (reply.status(403).send({ error: "0403" }));
-         done();
-      }
-      catch (error) {
-         return (reply.status(403).send({ error: "0403" }));
-      }
-})
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
@@ -250,9 +233,28 @@ interface newChannelBody
    usersId: number[];
 }
 
-async function chat_api()
+async function chat_api(fastify: FastifyInstance)
 {
-   server.get('/api/chat/connect', {websocket: true}, (socket: WebSocket, request) => 
+   fastify.addHook('preValidation'
+   , (request, reply, done) => {
+      
+      try
+      {
+         const token: string | undefined = request.cookies.ft_transcendence_jw_token
+         if (!token || token === undefined)
+            return (reply.status(403).send({ error: "0403" }));
+         const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
+         const id = decoded.id;
+         if (!id || id === undefined)
+            return (reply.status(403).send({ error: "0403" }));
+         done();
+      }
+      catch (error) {
+         return (reply.status(403).send({ error: "0403" }));
+      }
+   })
+
+   fastify.get('/api/chat/connect', {websocket: true}, (socket: WebSocket, request) => 
    {
       try
       {
@@ -274,7 +276,7 @@ async function chat_api()
       }
    });
 
-   server.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
+   fastify.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
       const credential = request.body?.credential;
       if (!credential || credential != process.env.API_CREDENTIAL)
          reply.status(401).send({ error: "private_route" });
@@ -316,3 +318,30 @@ function recurrentPing(): void
       }, PONG_TIMEOUT);
    });
 }
+
+import client from 'prom-client' 
+
+// client.collectDefaultMetrics();
+
+// Example custom counter
+const counter = new client.Counter({
+  name: 'chat_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'status_code'],
+});
+
+// Count all HTTP requests
+server.addHook('onResponse', (req, res, done) => {
+  counter.inc({
+    method: req.method,
+    status_code: res.statusCode,
+  });
+  done();
+});
+
+// Expose metrics
+server.get('/metrics', async (request, reply) => {
+  reply
+    .header('Content-Type', client.register.contentType)
+    .send(await client.register.metrics());
+});
