@@ -16,8 +16,8 @@ contract Tournament {
     uint256 public endedAt;
     mapping(uint256 id => uint256 score) public playersScores;
 
-    constructor(IdScorePair pairs[]) public {
-        for (uint256 i - 0; i < pairs.length; i++)
+    constructor(IdScorePair[] memory pairs) {
+        for (uint256 i = 0; i < pairs.length; i++)
         {
             playersScores[pairs[i].id] = pairs[i].score;
         }
@@ -25,12 +25,15 @@ contract Tournament {
 }
 
 contract TournamentFactory {
-    mapping(address => Tournament) public tournaments;
+    event TournamentCreated(uint256 tournamentId, address tournamentAddress);
+    mapping(uint256 => Tournament) public tournaments;
 
-    constructor() public {
+    constructor() {
     }
 
-    function deploy(IdScorePair pairs[], tournamentId) external {
+    function deploy(IdScorePair[] calldata pairs, uint256 tournamentId) external returns (Tournament) {
         tournaments[tournamentId] = new Tournament(pairs);
+        emit TournamentCreated(tournamentId, address(tournaments[tournamentId]));
+        return tournaments[tournamentId];
     }
 }
