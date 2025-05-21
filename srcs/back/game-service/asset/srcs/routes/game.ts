@@ -29,15 +29,16 @@ interface tokenStruct
 
 function gameRoutes (server: FastifyInstance, options: any, done: any)
 {
-    server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request: any ) => 
+    server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request ) => 
     {   
         try
         {
-            const token = request.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-            const tokenPayload = decoded.data;
+            const freshToken: string | undefined = request.cookies.ft_transcendence_jw_token
+            const decoded = jwt.verify(freshToken as string, process.env.JWT_SECRET as string);
+            const token = decoded.data;
             const gameId: number = Number(request.params.gameId);
             const tournamentId: number = Number(request.params.tournamentId);
+
 
             const tournament = await prisma.tournament.findFirst({
                 where: {
@@ -70,7 +71,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
 
             const player = await prisma.player.findFirst({
                 where: {
-                    userId: tokenPayload.id,
+                    userId: token.id,
                     gameId: gameId,
                 }
             })
@@ -110,6 +111,7 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
         }
         catch (error)
         {
+            console.log(error);
             socket.close(4001);
         }
     });
