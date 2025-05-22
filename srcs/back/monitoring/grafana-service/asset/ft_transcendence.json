@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -130,6 +130,10 @@
                     }
                   ]
                 }
+              },
+              {
+                "id": "unit",
+                "value": "s"
               }
             ]
           }
@@ -193,6 +197,25 @@
           "range": false,
           "refId": "scrap",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "auth:status:now{job=~\"$job\", instance=~\"$instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "auth",
+          "useBackend": false
         }
       ],
       "title": "Servce status",
@@ -200,7 +223,7 @@
         {
           "id": "seriesToColumns",
           "options": {
-            "byField": "Time",
+            "byField": "instance",
             "mode": "outer"
           }
         },
@@ -253,15 +276,19 @@
             },
             "includeByName": {},
             "indexByName": {
-              "Time": 3,
+              "Time 1": 8,
+              "Time 2": 9,
+              "Time 3": 10,
+              "Value #auth": 2,
               "Value #chat": 1,
-              "Value #scrap": 2,
+              "Value #scrap": 3,
               "__name__ 1": 4,
               "__name__ 2": 6,
-              "instance 1": 0,
-              "instance 2": 8,
+              "__name__ 3": 11,
+              "instance": 0,
               "job 1": 5,
-              "job 2": 7
+              "job 2": 7,
+              "job 3": 12
             },
             "renameByName": {
               "Time": "",
@@ -274,6 +301,7 @@
               "Value #F": "",
               "Value #G": "DNS Lookup Duration (s)",
               "Value #H": "Probe IP",
+              "Value #auth": "status",
               "Value #chat": "status",
               "Value #scrap": "scrap time",
               "instance": "Instance",
@@ -499,6 +527,6 @@
   "timezone": "",
   "title": "ft_transcendence",
   "uid": "NEzutqgErbMk",
-  "version": 4,
+  "version": 3,
   "weekStart": ""
 }
