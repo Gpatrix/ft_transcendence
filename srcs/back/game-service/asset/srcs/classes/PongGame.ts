@@ -117,15 +117,12 @@ export class PongGame {
                 x: (i % 2 == 0) ? padding // left
                                 : this.properties.size.width - padding - this.properties.racketWidth,
 
-                y: (i < 3)      ? padding
-                                : this.properties.size.height - padding
+                y: (i < 3)      ? 2
+                                : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
             }
         })
     }
 
-    sendPlayersPosition() {
-        
-    }
 
     initGame() {
         this.initPlayers()
@@ -242,11 +239,10 @@ export class PongGame {
     onPlayerMove(id: number, move: number)
     {
         const player = this.players.find(player => player.id == id) as Player;
-        const playerPos = player.position;
-        if (move + this.playerHeight / 2 >= this.height / 2)
-            return ;
-        else
-            player.position = { x: playerPos.x, y: playerPos.y };
+        const newY = player.position.y + move
+
+        if (newY >= 0 && (newY + this.properties.racketHeight) < this.properties.size.height)
+            player.position.y = newY
     }
 
     sendPlayers(message: string) {

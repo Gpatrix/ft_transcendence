@@ -96,9 +96,9 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 console.log(object)
                 console.log("ACTION:", action)
                 if (action == "up")
-                    caller.position.y -= 10
+                    pongGame.onPlayerMove(caller.id, -10)
                 if (action == "down")
-                    caller.position.y += 10
+                    pongGame.onPlayerMove(caller.id, +10)
                 console.log(caller.position)
             })
 
