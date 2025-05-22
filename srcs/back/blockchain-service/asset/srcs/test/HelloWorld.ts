@@ -1,5 +1,7 @@
 import { expect } from "chai";
 import hre from "hardhat";
+import fs from "fs";
+import path from 'path';
 var { ethers } = hre;
 
 // describe("HelloWorld contract", function () {
@@ -29,30 +31,23 @@ var { ethers } = hre;
 // });
 
 describe("TournamentFactory contract", function () {
-  let TournamentFactory: any;
   let Tournament: any;
   let tournamentFactory: BaseContract;
-  let tournament: any;
-  // it("Should get factory of TournamentFactory contract and deploy it", async function () {
-  //   TournamentFactory = await ethers.getContractFactory("TournamentFactory");
-  //   Tournament = await ethers.getContractFactory("Tournament");
-
-  //   tournamentFactory = await TournamentFactory.deploy();
-  //   expect(tournamentFactory).to.not.equal(undefined);
-  // });
+  const contractsDir = path.join(__dirname, "..", "contractData", "contract-address.json");
+  let factoryAddress: string;
+  fs.readFile(contractsDir, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading file:', err);
+      return ;
+    }
+    factoryAddress = JSON.parse(factoryAddress)?.value;
+    if (!factoryAddress)
+      return ;
+  });
 
   it("TournamentFactory contract should deploy first TournamentSmartContract and retrieve 'ChildCreated' event", async function () {
     const tournamentId = 1;
-    const tx: ContractTransactionResponse = await tournamentFactory.deploy([
-      {
-        id: 1,
-        score: 42
-      },
-      {
-        id: 2,
-        score: 42
-      }
-    ], 1);
+    const tx: ContractTransactionResponse = await tournamentFactory.deploy(1);
 
     expect(tx).to.not.equal(undefined);
 

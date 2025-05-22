@@ -1,4 +1,4 @@
-const path = require("path");
+import path from 'path';
 
 async function main() {
     // This is just a convenience check
