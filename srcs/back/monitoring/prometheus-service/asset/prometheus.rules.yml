@@ -1,0 +1,5 @@
+groups:
+- name: chat-status
+  rules:
+  - record: chat:status:now
+    expr: up{job="chat"}

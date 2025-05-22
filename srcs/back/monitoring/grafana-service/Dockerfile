@@ -17,6 +17,8 @@ COPY ./conf/config_grafana.sh .
 RUN chmod +x config_grafana.sh && ./config_grafana.sh
 
 COPY ./asset/datasources.yml /usr/share/grafana/conf/provisioning/datasources/.
+COPY ./asset/default.yaml /usr/share/grafana/conf/provisioning/dashboards/.
+COPY ./asset/ft_transcendence.json /var/lib/grafana/dashboards/.
 
 COPY ./conf/entrypoint.sh .
 RUN chmod +x entrypoint.sh 
