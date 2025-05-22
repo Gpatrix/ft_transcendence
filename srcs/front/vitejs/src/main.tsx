@@ -25,6 +25,7 @@ import LocalGame from './pages/Game/Local/LocalGame.tsx';
 import GameLayout from './pages/Game/GameLayout.tsx';
 import LocalGameWrapper from './pages/Game/Local/LocalGameWrapper.tsx';
 import MatchMaking from './pages/Lobby/MatchMaking.tsx';
+import Multi from './pages/Game/Multiplayer/Multi.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -58,6 +59,7 @@ createRoot(document.getElementById('root')!).render(
 
             <Route element={<GameLayout />}>
               <Route path="/play/local" element={<LocalGameWrapper/>}/>
+              <Route path="/play/multi" element={<Multi/>}/>
             </Route>
 
 

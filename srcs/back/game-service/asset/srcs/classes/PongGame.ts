@@ -75,34 +75,87 @@ class Player {
     }
 }
 
+type properties = {
+    size : {
+        width  : number
+        height : number
+    }
+    racketPadding: number
+    racketWidth: number
+    racketHeight: number
+    nbPlayers : number
+}
+
 export class PongGame {
+    properties : properties
     constructor (playerIds: Array<number>, id: number) {
         this.ball = this.initBall(playerIds);
-        this.players = [
-            new Player(playerIds[0], { x: (this.width / 2 ) * -1, y: 0}),
-            new Player(playerIds[1], { x: this.width / 2 , y: 0})
-        ];
+        this.players = []
+        playerIds.map((playerId)=>{
+            this.players.push(new Player(
+                playerId, 
+                { x: 0 , y: 0}
+            ))
+        })
         this.id = id;
+        this.properties = {
+            size : {
+                width : 700,    
+                height : 500
+            },
+            racketPadding : 20,
+            racketWidth : 10,
+            racketHeight : 60,
+            nbPlayers : 2
+        }
     }
 
-    start() {
-        this.interval = setInterval(() => {
-            this.managePlayerColision();
-            this.manageRoofAndFloorColision();
-            this.ball.nextPos();
-            const looserPlayerId = this.isBallColidingWall();
-            if (looserPlayerId != -1) {
-                this.ball.resetPos();
-                console.log(`Ball colided with wall`);
-                if (this.ball.lastToucher == -1)    // In case ball collide player's wall before being hit
-                    this.scoreEveryone(looserPlayerId)
-                else
-                {
-                    const winner = this.players.find(player => player.id == this.ball.lastToucher);
-                    winner?.scoreGoal();
-                }
+    initPlayers() {
+        const padding = this.properties.racketPadding 
+        this.players.map((player, i)=>{
+            player.position = {
+                x: (i % 2 == 0) ? padding // left
+                                : this.properties.size.width - padding - this.properties.racketWidth,
+
+                y: (i < 3)      ? padding
+                                : this.properties.size.height - padding
             }
+        })
+    }
+
+    sendPlayersPosition() {
+        
+    }
+
+    initGame() {
+        this.initPlayers()
+    }
+
+
+
+    start() {
+        this.initGame()
+        this.sendPlayers("start")
+    
+        this.interval = setInterval(() => {
+            this.sendPlayers("update")
+            // this.managePlayerColision();
+            // this.manageRoofAndFloorColision();
+            // this.ball.nextPos();
+            // const looserPlayerId = this.isBallColidingWall();
+            // if (looserPlayerId != -1) {
+            //     this.ball.resetPos();
+            //     console.log(`Ball colided with wall`);
+            //     if (this.ball.lastToucher == -1)    // In case ball collide player's wall before being hit
+            //         this.scoreEveryone(looserPlayerId)
+            //     else
+            //     {
+            //         const winner = this.players.find(player => player.id == this.ball.lastToucher);
+            //         winner?.scoreGoal();
+            //     }
+            // }
         }, 1000 / 60);
+
         this.timeout = setTimeout(() => {
             this.onEnd();
         }, 15 * 60 * 1000);
@@ -196,28 +249,51 @@ export class PongGame {
             player.position = { x: playerPos.x, y: playerPos.y };
     }
 
-    onPlayerJoin(id: number, ws: WebSocket) {
-        // console.log(`Player ${id} joined`);
+    sendPlayers(message: string) {
+        this.players.forEach(player => {
+            if (player.ws)
+                player.ws.send(JSON.stringify({
+                    message: message,
+                    players: this.players.map(p => ({
+                        id: p.id,
+                        score: p.score,
+                        position: p.position,
+                        isYours: p.id === player.id
+                    }))
+            }));
+        });
+    }
+
+    onPlayerJoin(id: number, ws: WebSocket) { // send user update to everyone, start if everyone is here
+        console.log(`Player ${id} joined`);
         const index = this.players.findIndex(player => player.id == id);
         if (index !== -1) {
             this.players[index].ws = ws;
         }
-        this.players.forEach(player => {
-            if (player.ws)
-                player.ws.send(JSON.stringify({ message: `playerJoined`, playerId: id }));
-        })
+        this.sendPlayers(`playerJoined`)
+        if (this.players.length == this.properties.nbPlayers) {
+            console.log("SHOULD START")
+            this.start()
+        }
     }
 
     onPlayerLeave(id: number) {
-        // console.log(`Player ${id} leaved`);
+        console.log(`Player ${id} left`);
         const index = this.players.findIndex(player => player.id == id);
         if (index === -1)
             return ;
         this.players[index].ws = undefined;
         this.players.forEach(player => {
             if (player.ws)
-                player.ws.send(JSON.stringify({ message: `playerLeft`, playerId: id }));
-        })
+                player.ws.send(JSON.stringify({ 
+                    message: `playerLeft`,
+                    players: this.players.map(p => ({
+                        id: p.id,
+                        score: p.score,
+                        position: p.position
+                    }))
+            }));
+        });
     }
 
     private isBallColidingPlayer(playerPos: pos): boolean {

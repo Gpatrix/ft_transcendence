@@ -56,10 +56,10 @@ export class GamesManager {
             if (!tournament)
                 throw('GamesManager: cannot insert game in DB');
             const playerIds : Array<number> = tournament.games[0].players.map((player: any) => {
-                return (player.id);
+                return (player.userId);
             });
             const newGame = new PongGame(playerIds, tournament.games[0].id);
-            GamesManager.waitAndStart(newGame);
+            // GamesManager.waitAndStart(newGame);
             GamesManager.games.set(tournament.games[0].id, newGame);
             return (tournament);
         } catch (error) {
