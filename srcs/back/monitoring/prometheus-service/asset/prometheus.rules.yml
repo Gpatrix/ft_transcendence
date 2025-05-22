@@ -1,9 +1,5 @@
 groups:
-- name: chat-stats
+- name: service-status
   rules:
-  - record: chat:status:now
-    expr: up{job="chat"}
-- name: auth-stats
-  rules:
-  - record: auth:status:now
-    expr: up{job="auth"}
+  - record: service:status:now
+    expr: up{job=~"chat|auth"}
