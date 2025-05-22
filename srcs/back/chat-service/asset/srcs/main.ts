@@ -192,6 +192,7 @@ async function handle_managementFriend(payload: payloadstruct, token: tokenStruc
 function data_handler(
    RawData: WebSocket.RawData, socket: WebSocket, token: tokenStruct): void
 {
+   chat_requests_total.inc({method: "WSS"});
    console.log('Received:\n', RawData.toString());
    const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
    if (payload.action === undefined || payload.targetId === undefined)
@@ -241,6 +242,7 @@ async function chat_api(fastify: FastifyInstance)
       
       try
       {
+         chat_requests_total.inc({method: request.method});
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          if (!token || token === undefined)
             return (reply.status(403).send({ error: "0403" }));

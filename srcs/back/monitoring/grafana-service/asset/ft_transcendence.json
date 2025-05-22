@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "ft_transcendence",
+  "description": "  ",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -173,7 +173,7 @@
           "useBackend": false
         }
       ],
-      "title": "HTTP Probe Overview",
+      "title": "Servce status",
       "transformations": [
         {
           "id": "seriesToColumns",

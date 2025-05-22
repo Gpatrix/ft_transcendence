@@ -3,17 +3,14 @@ import { FastifyInstance } from "fastify";
 
 export async function metrics(fastify: FastifyInstance)
 {
-    const counter = new client.Counter({
+    const chat_requests_total = new client.Counter({
       name: 'chat_requests_total',
       help: 'Total number of HTTP requests',
-      labelNames: ['method', 'status_code'],
+      labelNames: ['method'],
     });
     
     fastify.addHook('onResponse', (req, res, done) => {
-      counter.inc({
-        method: req.method,
-        status_code: res.statusCode,
-      });
+      chat_requests_total.inc({method: req.method});
       done();
     });
     
