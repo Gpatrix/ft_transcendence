@@ -12,18 +12,18 @@ import "./Tournament.sol";
 contract TournamentFactory {
     event TournamentCreated(uint tournamentId, address tournamentAddress);
 
-    mapping(uint => Tournament) public tournaments;
+    mapping(uint => address) public tournaments;
 
     function deployTournament(uint tournamentId) external {
-        tournaments[tournamentId] = new Tournament();
-        emit TournamentCreated(tournamentId, address(tournaments[tournamentId]));
+        console.log("Deploying tournament with ID: ", tournamentId);
+        Tournament newTournament = new Tournament();
+        tournaments[tournamentId] = address(newTournament);
+        console.log("Tournament deployed at address: ", address(newTournament));
+        emit TournamentCreated(tournamentId, tournaments[tournamentId]);
     }
 
-    function getTournamentAddress(uint tournamentId) external view returns (address) {
-        return address(tournaments[tournamentId]);
-    }
-
-    function getTournament(uint tournamentId) external view returns (Tournament) {
+    function getTournament(uint tournamentId) external view returns (address) {
+        // require(tournaments[tournamentId] != address(0), "Tournament not found");
         return tournaments[tournamentId];
     }
 }

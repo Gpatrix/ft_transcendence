@@ -1,14 +1,6 @@
 import path from 'path';
 
 async function main() {
-    // This is just a convenience check
-    if (network?.name === "hardhat") {
-      console.warn(
-        "You are trying to deploy a contract to the Hardhat Network, which" +
-          "gets automatically created and destroyed every time. Use the Hardhat" +
-          " option '--network localhost'"
-      );
-    }
   
     // ethers is available in the global scope
     const [deployer] = await ethers.getSigners();
@@ -18,8 +10,8 @@ async function main() {
     );
     console.log(deployer);
    
-    const TournamentFactory = await ethers.getContractFactory("TournamentFactory");
-    const tournamentFactory = await TournamentFactory.deploy();
+    const TournamentFactoryFactory = await ethers.getContractFactory("TournamentFactory");
+    const tournamentFactory = await TournamentFactoryFactory.deploy();
   
     console.log("tournamentFactory address:", tournamentFactory.target);
     saveFrontendFiles(tournamentFactory);
