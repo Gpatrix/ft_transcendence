@@ -21,6 +21,7 @@
         "@types/node": "^22.14.1",
         "fastify": "^5.3.0",
         "fs": "0.0.1-security",
+        "path": "^0.12.7",
         "solc": "0.8.30",
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0",

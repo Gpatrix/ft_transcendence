@@ -29,22 +29,21 @@ var { ethers } = hre;
 // });
 
 describe("TournamentFactory contract", function () {
-  let tournamentFactoryFactory: any;
-  let tournamentFactoryContract: any;
-  let tournamentCreationTransaction: any;
-  let tournamentContract: any
-  it("Should get factory of TournamentFactory contract and deploy it", async function () {
-    tournamentFactoryFactory = await ethers.getContractFactory("TournamentFactory");
-    expect(tournamentFactoryFactory).to.not.equal(undefined);
-    console.log('tournamentFactory signer address:', tournamentFactoryFactory.runner.address);
+  let TournamentFactory: any;
+  let Tournament: any;
+  let tournamentFactory: BaseContract;
+  let tournament: any;
+  // it("Should get factory of TournamentFactory contract and deploy it", async function () {
+  //   TournamentFactory = await ethers.getContractFactory("TournamentFactory");
+  //   Tournament = await ethers.getContractFactory("Tournament");
 
-    tournamentFactoryContract = await tournamentFactoryFactory.deploy();
-    expect(tournamentFactoryContract).to.not.equal(undefined);
-    console.log("TournamentFactory contract deployed to:", tournamentFactoryContract.target);
-  });
+  //   tournamentFactory = await TournamentFactory.deploy();
+  //   expect(tournamentFactory).to.not.equal(undefined);
+  // });
 
-  it("TournamentFactory contract should deploy first TournamentSmartContract", async function () {
-    tournamentCreationTransaction = await tournamentFactoryContract.deploy([
+  it("TournamentFactory contract should deploy first TournamentSmartContract and retrieve 'ChildCreated' event", async function () {
+    const tournamentId = 1;
+    const tx: ContractTransactionResponse = await tournamentFactory.deploy([
       {
         id: 1,
         score: 42
@@ -54,11 +53,30 @@ describe("TournamentFactory contract", function () {
         score: 42
       }
     ], 1);
-    expect(tournamentContract).to.not.equal(undefined);
-    tournamentContract = await tournamentCreationTransaction.wait();
-    tournamentContract = tournamentContract.events[0].address;
-    expect(tournamentContract).to.not.equal(undefined);
-    console.log("TournamentSmartContract transaction events[0].address:", tournamentCreationTransaction.events[0].address);
-    console.log("TournamentSmartContract deployed to:", tournamentContract);
+
+    expect(tx).to.not.equal(undefined);
+
+    const receipt: ContractTransactionReceipt = await tx.wait(1);
+
+    expect(receipt).to.not.equal(undefined);
+
+    const event = receipt.logs.find((log: any) => log.fragment.name == "TournamentCreated");
+    const data: Result = event.args;
+    const dataTournamentId = Number(data[0]);
+    const dataTournamentAddress = String(data[1]);
+
+    expect(dataTournamentId).to.equal(tournamentId);
+    expect(dataTournamentAddress).to.not.equal(undefined);
+    console.log(`Tournament created with id: ${data[0]} at address: ${data[1]}`);
+  });
+
+  it("TournamentFactory contract should return tournament by id", async function () {
+    const tournamentId = 1;
+    const tournamentAddress = await tournamentFactory.getTournament(tournamentId);
+    const tournamentContract = await Tournament.attach(tournamentAddress);
+    const nonParsedScore = await tournamentContract.getPlayerScore(1);
+    const score = Number(nonParsedScore);
+    expect(score).to.equal(42);
+    console.log(`Tournament with id: ${tournamentId} has player with id: 1 and score: ${score}`);
   });
 });

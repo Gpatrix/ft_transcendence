@@ -29,6 +29,12 @@ const config: HardhatUserConfig = {
       chainId: Number(process.env.FUJI_CHAIN_ID) || 43113,
       gasPrice: 225000000000,
       accounts: [process.env.SIGNER_PRIVATE_KEY || ""]
+    },
+    avalanche: {
+      url: process.env.AVALANCHE_URL || "https://api.avax-test.network/ext/bc/C/rpc",
+      chainId: Number(process.env.AVALANCHE_CHAIN_ID) || 43114,
+      gasPrice: 225000000000,
+      accounts: [process.env.SIGNER_PRIVATE_KEY || ""]
     }
   }
 };
