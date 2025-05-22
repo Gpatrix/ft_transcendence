@@ -14,7 +14,7 @@ contract TournamentFactory {
 
     mapping(uint => Tournament) public tournaments;
 
-    function deploy(uint tournamentId) external {
+    function deployTournament(uint tournamentId) external {
         tournaments[tournamentId] = new Tournament();
         emit TournamentCreated(tournamentId, address(tournaments[tournamentId]));
     }
