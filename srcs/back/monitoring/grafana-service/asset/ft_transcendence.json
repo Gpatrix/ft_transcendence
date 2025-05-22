@@ -101,7 +101,19 @@
               },
               {
                 "id": "custom.width",
-                "value": 76
+                "value": 84
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Instance"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 347
               }
             ]
           }
@@ -125,12 +137,7 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "SSL Cert Expiry (days)"
-          }
-        ]
+        "sortBy": []
       },
       "pluginVersion": "11.3.1",
       "targets": [
@@ -146,6 +153,24 @@
           "interval": "",
           "legendFormat": "",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "scrape_duration_seconds{job=\"$job\", instance=\"$instance\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
         }
       ],
       "title": "HTTP Probe Overview",
@@ -471,7 +496,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "ft_transcendence",
-  "uid": "NEzutrbMk",
-  "version": 5,
+  "uid": "NEzutqgErbMk",
+  "version": 2,
   "weekStart": ""
 }
