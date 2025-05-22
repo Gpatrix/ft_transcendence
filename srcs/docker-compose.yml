@@ -159,8 +159,6 @@ services:
           GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
           GRAFANA_ADMIN_EMAIL: ${GRAFANA_ADMIN_EMAIL:?}
           GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
-    volumes:
-      - ./back/monitoring/grafana-service/asset/ft_transcendence.json:/var/lib/grafana/dashboards/ft_transcendence.json
     networks:
       - router
     ports:
