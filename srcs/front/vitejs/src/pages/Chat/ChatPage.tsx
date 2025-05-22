@@ -25,8 +25,8 @@ export default function ChatPage() {
             if (json.data)
             {
                 const data = json.data
-            
-                setProfileData(new User(0, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank));
+                
+                setProfileData(new User(data.id, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank));
                 return(true);
             }
         })

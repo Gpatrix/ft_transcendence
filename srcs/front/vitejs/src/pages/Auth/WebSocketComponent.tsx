@@ -125,7 +125,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         console.warn('Socket non connectée');
                     }
                 } catch (error) {
-                    console.error("Error :", error);
+                    console.log("Error :", error);
                 }
             }
         };
@@ -139,7 +139,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         };
 
         ws.onerror = (error) => {
-            console.error('Erreur WebSocket:', error);
+            console.log('Erreur WebSocket:', error);
             ws.close(); // Forcer une fermeture pour relancer la reconnexion
         };
     };
@@ -167,7 +167,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                 return (tempFriends);
             }
         } catch (error) {
-            console.error("Error :", error);
+            console.log("Error :", error);
         }
     };
 

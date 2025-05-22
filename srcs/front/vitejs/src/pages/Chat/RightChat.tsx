@@ -3,7 +3,7 @@ import Blur from "../../components/Blur.tsx"
 // import DropDownMenu from "../../components/DropDownMenu.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, ChangeEvent, useEffect, useState, useRef } from "react";
+import { FormEvent, ChangeEvent, useEffect, useState, useRef, SetStateAction } from "react";
 // import { useNavigate } from 'react-router-dom';
 import ClickableIco from "../../components/ClickableIco.tsx"
 import Friend from "../../classes/Friend.tsx"
@@ -12,6 +12,7 @@ import ButtonMenu from '../../components/ButtonMenu.tsx';
 import { useWebSocket } from '../Auth/WebSocketComponent.tsx';
 import User from '../../classes/User.tsx';
 import { gpt } from "../../translations/pages_reponses"
+import Chat from './Chat.tsx';
 
 type RightChatProps = {
     friends: Friend[],
@@ -23,34 +24,34 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
 
     const { socket, activFriend, arrayMessage, setArrayMessage  } = useWebSocket();
 
-    const [inputMessage, setInputMessage] = useState<string>("");
+    // const [inputMessage, setInputMessage] = useState<string>("");
 
     const containerRef = useRef<HTMLDivElement | null>(null);;
     const socketRef = useRef<WebSocket | null>(null);
     const activFriendRef = useRef<number>(-1);
     const arrayMessageLenghtRef = useRef<number>(0);
 
-    const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (inputMessage != "")
-        {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                 const newMessage = Message.sendMessage(-1, activFriend, inputMessage, socket)
-                if (newMessage != undefined) {
-                    const newArrayMessage = [...arrayMessage];
-                    newArrayMessage.splice(0, 0, newMessage);
-                    setArrayMessage(newArrayMessage);
-                    setInputMessage("");
-                }
-            } else {
-                console.warn('Socket non connectée');
-            }
-        }
-    }
+    // const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
+    //     event.preventDefault();
+    //     if (inputMessage != "")
+    //     {
+    //         if (socket && socket.readyState === WebSocket.OPEN) {
+    //              const newMessage = Message.sendMessage(activFriend, inputMessage, socket)
+    //             if (newMessage != undefined) {
+    //                 const newArrayMessage = [...arrayMessage];
+    //                 newArrayMessage.splice(0, 0, newMessage);
+    //                 setArrayMessage(newArrayMessage);
+    //                 setInputMessage("");
+    //             }
+    //         } else {
+    //             console.warn('Socket non connectée');
+    //         }
+    //     }
+    // }
     
-    const handleChangeMessage = (e: ChangeEvent<HTMLInputElement>) => {
-        setInputMessage(e.target.value);
-    };
+    // const handleChangeMessage = (e: ChangeEvent<HTMLInputElement>) => {
+    //     setInputMessage(e.target.value);
+    // };
 
     const handleScroll = () => {
         
@@ -90,7 +91,7 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
     return (
         <div className="relative w-[85%] flex flex-col justify-end gap-5 w-1/1">
             {friends.find(friend => friend.id == activFriend) != undefined && <ButtonMenu className="top-5 right-5" setFriends={setFriends} friendId={activFriend} profileData={profileData} />}
-            <Blur />
+            {/* <Blur />
             <div ref={containerRef} className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
                 {profileData && friends.find(friend => friend.id == activFriend) != undefined && arrayMessage.map((message, id) => {
@@ -122,7 +123,9 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
                     } } />
 
                 </div>
-            </div>}
+            </div>} */}
+            {friends.find(friend => friend.id == activFriend) != undefined && <Chat profileData={profileData} participants={[profileData, friends.find(friend => friend.id == activFriend) as User]}
+                arrayMessage={arrayMessage} setArrayMessage={setArrayMessage} />}
         </div>
     )
 }

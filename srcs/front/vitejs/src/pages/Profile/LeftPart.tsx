@@ -66,10 +66,10 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
             return;
         }
         const form = new FormData();
-        form.append("file", file);
+        form.append("image", file);
 
         try {
-            const response = await fetchWithAuth("https://localhost/api/user/edit", {
+            const response = await fetchWithAuth("/api/user/edit", {
                 signal: AbortSignal.timeout(5000),
                 method: "PUT",
                 body: form,

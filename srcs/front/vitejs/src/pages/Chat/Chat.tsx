@@ -23,10 +23,10 @@ type ChatProps = {
     arrayMessage: Message[];
     setArrayMessage: React.Dispatch<React.SetStateAction<Message[]>>;
     // handleScroll: () => void;
-    handleSubmitMessage: (event: FormEvent<HTMLFormElement>) => void;
+    // handleSubmitMessage: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-export default function Chat({ profileData, classList, chanel, participants, arrayMessage, setArrayMessage, handleSubmitMessage} : ChatProps) {
+export default function Chat({ profileData, classList, chanel, participants, arrayMessage, setArrayMessage} : ChatProps) {
 
     const { socket } = useWebSocket();
 
@@ -40,23 +40,32 @@ export default function Chat({ profileData, classList, chanel, participants, arr
     // const activFriendRef = useRef<number>(-1);
     const arrayMessageLenghtRef = useRef<number>(0);
 
-    // const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-    //     if (inputMessage != "")
-    //     {
-    //         if (socket && socket.readyState === WebSocket.OPEN) {
-    //              const newMessage = Message.sendMessage(-1, activFriend, inputMessage, socket)
-    //             if (newMessage != undefined) {
-    //                 const newArrayMessage = [...arrayMessage];
-    //                 newArrayMessage.splice(0, 0, newMessage);
-    //                 setArrayMessage(newArrayMessage);
-    //                 setInputMessage("");
-    //             }
-    //         } else {
-    //             console.warn('Socket non connectée');
-    //         }
-    //     }
-    // }
+    const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (inputMessage != "") {
+            console.log("send mess");
+            
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                if (chanel == undefined) {
+                    const friend =  participantsRef.current.find(participant => participant.id != profileDataRef.current?.id);
+                    if (friend && profileDataRef.current) {
+                        const newMessage = Message.sendMessage(profileDataRef.current.id ,friend.id, inputMessage, socket)
+                        if (newMessage != undefined) {
+                            const newArrayMessage = [...arrayMessage];
+                            newArrayMessage.splice(0, 0, newMessage);
+                            setArrayMessage(newArrayMessage);
+                            setInputMessage("");
+                        }
+                    }
+                } else {
+                    // gestion des chat ingame
+                }
+                
+            } else {
+                console.warn('Socket non connectée');
+            }
+        }
+    }
     
     const handleChangeMessage = (e: ChangeEvent<HTMLInputElement>) => {
         setInputMessage(e.target.value);
@@ -73,14 +82,28 @@ export default function Chat({ profileData, classList, chanel, participants, arr
                     const friend = participantsRef.current.find(participant => participant.id != profileDataRef.current?.id)
                     if (friend != undefined)
                         socketRef.current.send(JSON.stringify({ action: 'refresh', targetId: friend.id, take:20, skip:arrayMessageLenghtRef.current}));
-                } else {
+                }
+                // else {
                     // trouver comment refresh les messages un game
                     // c'est possible ou on s'en fout de l'historique ?
-                }
+                // }
             }
         }
     };
 
+    // function getUserParams() {
+    //     fetchWithAuth(`/api/user/get_profile/`)
+    //     .then((response) => response.json())
+    //     .then((json) => {
+    //         const data = json.data
+            
+    //         setProfileData(new User(0, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank));
+    //         return(true);
+    //     })
+    //     .catch((error) => {
+    //         console.error("Error :", error);
+    //     });
+    // }
 
     useEffect(() => {
         const container = containerRef.current;
@@ -91,15 +114,12 @@ export default function Chat({ profileData, classList, chanel, participants, arr
         return () => {
           container.removeEventListener('scroll', handleScroll);
         };
+        
     }, [])
 
     useEffect(() => {
         socketRef.current = socket;
     }, [socket]);
-
-    // useEffect(() => {
-    //     activFriendRef.current = activFriend;
-    // }, [activFriend]);
 
     useEffect(() => {
         arrayMessageLenghtRef.current = arrayMessage.length;
@@ -113,26 +133,26 @@ export default function Chat({ profileData, classList, chanel, participants, arr
         profileDataRef.current = profileData;
     }, [profileData]);
 
-    
-
     return (
         <div className={clsx("w-1/1 flex flex-col justify-end", classList)}>
             <Blur />
             <div ref={containerRef} className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
                 {participants.length > 1 && arrayMessage.map((message, id) => {
-                    let user = participants.find((user) => user.id == message.idSender) as Friend;
-
-                    return  <ChatMessage key={id} profileIco={user.profPicture} username={user.name} hour={message.date.getHours() + ":" + message.date.getMinutes()} >
-                                {message.content}
-                            </ChatMessage>
+                    let user = participants.find((user) => user?.id == message.idSender) as Friend;
+                    if (user != undefined)
+                        return  <ChatMessage key={id} profileIco={user.profPicture} username={user.name} hour={message.date.getHours() + ":" + message.date.getMinutes()} >
+                                    {message.content}
+                                </ChatMessage>
+                    else
+                        return ""
                 })}
             </div>
 
             {profileData && participants.length > 1 && <div className="w-1/1 bg-dark border-0 border-t-1 border-yellow flex p-3 gap-2">
                 <InputWithIco className="w-[100%] rounded-xl"
                     placeholder={gpt("send_message")
-                        + (participants.length == 2 ? (participants.find(participant => participant.id != profileData.id) as User) : gpt("send_message"))
+                        + (participants.length == 2 ? (participants.find(participant =>  participant.id != profileData.id) as User) : gpt("send_message"))
                     }
                     iconSrc={"/icons/icon_chat.svg"}
                     value={inputMessage}
