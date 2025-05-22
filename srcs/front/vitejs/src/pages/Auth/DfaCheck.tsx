@@ -5,10 +5,11 @@ import Button from "../../components/Button";
 import { useNavigate } from "react-router";
 import { get_server_translation } from "../../translations/server_responses";
 import LoginErrorMsg from "../../components/LoginErrorMsg";
+import { useAuth } from "../../AuthProvider";
 
 export default function DfaSetup() {
     const [error, setError] = useState<string | null>(null)
-
+    const auth = useAuth()
     const [code, setCode] = useState<string>("")
     const navigate = useNavigate()
 
@@ -43,6 +44,10 @@ export default function DfaSetup() {
                 </form>
                 {error && <LoginErrorMsg>{error}</LoginErrorMsg> }
             </span>
+            {(code.length < 6 || error) && <span className="flex w-full">
+                <Button onClick={()=>{auth.logout()}} className="mt-8 ml-auto  mr-auto w-fit h-fit px-1 ">Logout</Button>
+            </span>
+            }
         </div>
     )
 }

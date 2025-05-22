@@ -36,7 +36,10 @@ export default function DfaSetup() {
 
         const response = await fetch("/api/auth/2fa/setup/submit", {
             method: "POST",
-            body: code
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({userToken: code})
         })
         if (response.ok) {
             navigate("/login")
