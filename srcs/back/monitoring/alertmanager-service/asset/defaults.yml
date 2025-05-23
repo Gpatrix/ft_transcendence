@@ -15,3 +15,5 @@ receivers:
       auth_password: '${ALERTMANAGER_SMTP_AUTH_PASSWORD}'
       auth_identity: '${ALERTMANAGER_SMTP_AUTH_USERNAME}'
       require_tls: true
+      headers:
+          subject: 'Prometheus Mail Alerts'

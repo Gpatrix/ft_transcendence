@@ -3,9 +3,9 @@ groups:
   rules:
   - alert: InstanceDown
     expr: up == 0
-    for: 1m
+    for: 20s
     labels:
       severity: critical
     annotations:
       summary: "Instance {{ $labels.instance }} is down"
-      description: "The instance {{ $labels.instance }} has been unreachable for more than 1 minutes."
+      description: "The instance {{ $labels.instance }} has been unreachable for more than 20 seconds."
