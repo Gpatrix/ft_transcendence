@@ -28,6 +28,7 @@
         "web3": "4.16.0"
     },
     "devDependencies": {
+        "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
         "@nomicfoundation/hardhat-ethers": "^3.0.8",
         "@types/chai": "^4.0.0",
         "chai": "^4.0.0",

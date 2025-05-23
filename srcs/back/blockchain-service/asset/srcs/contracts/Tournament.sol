@@ -38,11 +38,6 @@ contract Tournament {
         return games[gameId].state;
     }
 
-    function getGameById(uint gameId) external view returns (game memory) {
-        require(games[gameId].exist == true, "Game not found");
-        return games[gameId];
-    }
-
     function createGame(uint gameId) external {
         require(state == State.InProgress, "Tournament is finished");
         require(games[gameId].exist == false, "Game already exists");
