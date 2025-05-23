@@ -3,9 +3,10 @@ import cookiesPlugin from '@fastify/cookie'
 import rateLimitPlugin from '@fastify/rate-limit';
 import jwt from 'jsonwebtoken';
 import websocketPlugin from '@fastify/websocket';
+import { FastifyInstance } from "fastify";
+import { metrics } from './metrics'
 
 const server = fastify();
-const jwt = require("jsonwebtoken")
 
 server.register(cookiesPlugin);
 server.register(rateLimitPlugin, {
@@ -14,10 +15,8 @@ server.register(rateLimitPlugin, {
     allowList: ['127.0.0.1']
 });
 server.register(websocketPlugin);
-server.register(require("./routes/game"));
-server.register(require("./routes/tournament"));
-server.register(require("./routes/stats"));
-server.register(require("./routes/history"));
+server.register(metrics);
+
 
 interface tokenStruct
 {
@@ -27,24 +26,35 @@ interface tokenStruct
     isAdmin: boolean
 }
 
-server.addHook('preValidation', (request, reply, done) =>
+async function game_service(fastify: FastifyInstance)
 {
-    const token: string | undefined = request.cookies.ft_transcendence_jw_token
-    try
+
+    fastify.addHook('preValidation', (request, reply, done) =>
     {
-        if (!token || token === undefined)
+        const token: string | undefined = request.cookies.ft_transcendence_jw_token
+        try
+        {
+            if (!token || token === undefined)
+                return (reply.status(403).send({ error: "0403" }));
+            const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
+            const id = decoded.id;
+            if (!id || id === undefined)
+                return (reply.status(403).send({ error: "0403" }));
+            done();
+        }
+        catch (error)
+        {
             return (reply.status(403).send({ error: "0403" }));
-        const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
-        const id = decoded.id;
-        if (!id || id === undefined)
-            return (reply.status(403).send({ error: "0403" }));
-        done();
-    }
-    catch (error)
-    {
-        return (reply.status(403).send({ error: "0403" }));
-    }
-})
+        }
+    })
+
+    fastify.register(require("./routes/game"));
+    fastify.register(require("./routes/tournament"));
+    fastify.register(require("./routes/stats"));
+    fastify.register(require("./routes/history"));
+}
+
+
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
 {
