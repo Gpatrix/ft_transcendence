@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 
 export async function metrics(fastify: FastifyInstance)
 {
-    const upload_requests_total = new client.Counter(
+    const user_requests_total = new client.Counter(
     {
       name: 'auth_requests_total',
       help: 'Total number of HTTP requests',
@@ -12,7 +12,7 @@ export async function metrics(fastify: FastifyInstance)
     
     fastify.addHook('onResponse', (req, res, done) =>
     {
-      upload_requests_total.inc({method: req.method});
+      user_requests_total.inc({method: req.method});
       done();
     });
     

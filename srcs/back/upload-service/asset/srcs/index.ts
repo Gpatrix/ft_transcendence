@@ -1,5 +1,6 @@
 import fastify from 'fastify'
 import rateLimitPlugin from '@fastify/rate-limit';
+import { metrics } from './metrics'
 
 const server = fastify();
 
@@ -25,6 +26,8 @@ server.register(rateLimitPlugin, {
   timeWindow: '1 minute',
   allowList: ['127.0.0.1']
 });
+
+server.register(metrics);
 
 server.register(require("./routes/upload"), { config: {
   max: 5,
