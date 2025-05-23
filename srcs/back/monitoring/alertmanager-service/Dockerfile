@@ -7,7 +7,11 @@ RUN apk update --no-cache && \
 
 COPY ./asset/ .
 
-
+ARG ALERTMANAGER_SMTP_SMARTHOST
+ARG ALERTMANAGER_SMTP_FROM
+ARG ALERTMANAGER_SMTP_AUTH_USERNAME
+ARG ALERTMANAGER_SMTP_AUTH_PASSWORD
+ARG ALERTMANAGER_TARGET_MAIL
 COPY ./conf/config_alertmanager.sh .
 RUN chmod +x config_alertmanager.sh && ./config_alertmanager.sh
 

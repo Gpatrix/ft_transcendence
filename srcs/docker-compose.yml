@@ -106,7 +106,6 @@ services:
     networks:
       - router
 
-
   user-service:
     container_name: user-service
     restart: on-failure
@@ -164,7 +163,6 @@ services:
     ports:
       - 4000:3000
 
-
   alertmanager-service:
     container_name: alertmanager-service
     restart: on-failure
@@ -173,6 +171,11 @@ services:
         dockerfile: Dockerfile
         args:
           GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+          ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
+          ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
+          ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
+          ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
+          ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
     networks:
       - router
     ports:

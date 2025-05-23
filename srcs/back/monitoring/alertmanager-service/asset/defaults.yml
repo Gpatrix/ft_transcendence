@@ -1,9 +1,3 @@
-global:
-  smtp_smarthost: ${ALERTMANAGER_SMTP_SMARTHOST}
-  smtp_from: ${ALERTMANAGER_SMTP_FROM}
-  smtp_auth_username: ${ALERTMANAGER_SMTP_AUTH_USERNAME}
-  smtp_auth_password: ${ALERTMANAGER_SMTP_AUTH_PASSWORD}
-
 route:
   group_by: ['alertname']
   group_wait: 30s
@@ -14,5 +8,10 @@ route:
 receivers:
 - name: 'email_receiver'
   email_configs:
-    - to: ${HOSTNAME}
+    - to: '${ALERTMANAGER_TARGET_MAIL}'
+      smarthost: '${ALERTMANAGER_SMTP_SMARTHOST}'
+      from: '${ALERTMANAGER_SMTP_FROM}''
+      auth_username: '${ALERTMANAGER_SMTP_AUTH_USERNAME}'
+      auth_password: '${ALERTMANAGER_SMTP_AUTH_PASSWORD}'
+      auth_identity: '${ALERTMANAGER_SMTP_AUTH_USERNAME}'
       require_tls: true
