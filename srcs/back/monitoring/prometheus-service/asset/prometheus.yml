@@ -4,6 +4,8 @@ global:
 
 rule_files:
   - 'prometheus.rules.yml'
+  - 'prometheus.alerts.yml'
+
 
 scrape_configs:
   - job_name: 'chat'
