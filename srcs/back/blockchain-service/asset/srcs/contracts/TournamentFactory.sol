@@ -13,10 +13,20 @@ contract TournamentFactory {
     event TournamentCreated(uint tournamentId, address tournamentAddress);
 
     mapping(uint => address) public tournaments;
+    address deployer;
 
-    function deployTournament(uint tournamentId) external {
+    constructor () {
+        deployer = msg.sender;
+    }
+
+    modifier onlyOwner(address sndrId) {
+        require(sndrId == deployer, "Sender is not contract owner");
+        _;
+    }
+
+    function deployTournament(uint tournamentId) external onlyOwner(msg.sender) {
         console.log("Deploying tournament with ID: ", tournamentId);
-        Tournament newTournament = new Tournament();
+        Tournament newTournament = new Tournament(deployer);
         tournaments[tournamentId] = address(newTournament);
         console.log("Tournament deployed at address: ", address(newTournament));
         emit TournamentCreated(tournamentId, tournaments[tournamentId]);

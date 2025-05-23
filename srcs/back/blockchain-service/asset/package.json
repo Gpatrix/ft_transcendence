@@ -10,7 +10,7 @@
         "dev": "./srcs/*.ts"
     },
     "scripts": {
-        "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs/test.ts ./srcs/index.ts",
+        "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs/test/HelloWorld.ts ./srcs/index.ts",
         "build": "npx hardhat compile && tsc -p tsconfig.json",
         "start": "node ./srcs/index.js"
     },

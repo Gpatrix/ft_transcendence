@@ -19,44 +19,56 @@ contract Tournament {
     State public state;
     mapping(uint gameId => game game) public games;
     
-    event GameFinished(uint );
+    event GameFinished(uint id);
+    address deployer;
 
+    modifier onlyInProgressTournament() {
+        require(state == State.InProgress, "Tournament is finished");
+        _;
+    }
+
+    modifier onlyInProgressGame(uint gameId) {
+        require(games[gameId].state == State.InProgress, "Game is finished");
+        _;
+    }
+
+    modifier onlyOwner(address sndrId) {
+        require(sndrId == deployer, "Sender is not contract owner");
+        _;
+    }
+ 
     function getPlayerScore(uint gameId, uint id) external view returns (uint) {
         require(games[gameId].exist == true, "Game not found");
         return games[gameId].playersScores[id];
     }
 
-    function addPointToPlayer(uint gameId, uint id) external {
+    function addPointToPlayer(uint gameId, uint id) external onlyInProgressTournament onlyInProgressGame(gameId) onlyOwner(msg.sender) {
         require(games[gameId].exist == true, "Game not found");
-        require(state == State.InProgress, "Tournament is finished");
-        require(games[gameId].state == State.InProgress, "Game is finished");
         games[gameId].playersScores[id] += 1;
     }
 
-    function getGameState(uint gameId) external view returns (State) {
+    function getGameState(uint gameId) external onlyInProgressTournament view returns (State)  {
         require(games[gameId].exist == true, "Game not found");
         return games[gameId].state;
     }
 
-    function createGame(uint gameId) external {
-        require(state == State.InProgress, "Tournament is finished");
+    function createGame(uint gameId) external onlyInProgressTournament onlyOwner(msg.sender) {
         require(games[gameId].exist == false, "Game already exists");
         games[gameId].exist = true;
         games[gameId].state = State.InProgress;
     }
 
-    function finishGame(uint gameId) external {
-        require(games[gameId].state == State.InProgress, "Game is finished");
+    function finishGame(uint gameId) external onlyInProgressGame(gameId) onlyOwner(msg.sender) {
         games[gameId].state = State.Ended;
     }
 
-    function finish() external {
+    function finish() external onlyInProgressTournament onlyOwner(msg.sender) {
         require(state == State.InProgress, "Tournament is finished");
         state = State.Ended;
     }
 
-    constructor() {
-        console.log("constructor");
+    constructor(address _deployer) {
         state = State.InProgress;
+        deployer = _deployer;
     }
 }
