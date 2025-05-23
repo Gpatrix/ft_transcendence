@@ -3,6 +3,7 @@ import cookiesPlugin from '@fastify/cookie'
 import rateLimitPlugin from '@fastify/rate-limit';
 import jwt from 'jsonwebtoken';
 import websocketPlugin from '@fastify/websocket';
+import { metrics } from './metrics'
 
 const server = fastify();
 const jwt = require("jsonwebtoken")
@@ -14,6 +15,7 @@ server.register(rateLimitPlugin, {
     allowList: ['127.0.0.1']
 });
 server.register(websocketPlugin);
+server.register(metrics);
 server.register(require("./routes/game"));
 server.register(require("./routes/tournament"));
 server.register(require("./routes/stats"));

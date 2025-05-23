@@ -2,4 +2,4 @@ groups:
 - name: service-status
   rules:
   - record: service:status:now
-    expr: up{job=~"chat|auth"}
+    expr: up{job=~"chat|auth|game|upload|user"}

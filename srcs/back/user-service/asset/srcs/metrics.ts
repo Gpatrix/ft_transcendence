@@ -5,7 +5,7 @@ export async function metrics(fastify: FastifyInstance)
 {
     const user_requests_total = new client.Counter(
     {
-      name: 'auth_requests_total',
+      name: 'user_requests_total',
       help: 'Total number of HTTP requests',
       labelNames: ['method'],
     });
