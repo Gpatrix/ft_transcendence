@@ -7,7 +7,6 @@ import { FastifyInstance } from "fastify";
 import { metrics } from './metrics'
 
 const server = fastify();
-const jwt = require("jsonwebtoken")
 
 server.register(cookiesPlugin);
 server.register(rateLimitPlugin, {
