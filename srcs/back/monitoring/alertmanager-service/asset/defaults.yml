@@ -1,0 +1,18 @@
+global:
+  smtp_smarthost: ${ALERTMANAGER_SMTP_SMARTHOST}
+  smtp_from: ${ALERTMANAGER_SMTP_FROM}
+  smtp_auth_username: ${ALERTMANAGER_SMTP_AUTH_USERNAME}
+  smtp_auth_password: ${ALERTMANAGER_SMTP_AUTH_PASSWORD}
+
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 3h
+  receiver: 'email_receiver'
+
+receivers:
+- name: 'email_receiver'
+  email_configs:
+    - to: ${HOSTNAME}
+      require_tls: true

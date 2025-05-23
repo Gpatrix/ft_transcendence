@@ -164,6 +164,20 @@ services:
     ports:
       - 4000:3000
 
+
+  alertmanager-service:
+    container_name: alertmanager-service
+    restart: on-failure
+    build:
+        context: ./back/monitoring/alertmanager-service
+        dockerfile: Dockerfile
+        args:
+          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+    networks:
+      - router
+    ports:
+      - 9093:9093
+
   front_dev:
     container_name: front_dev
     restart: on-failure
