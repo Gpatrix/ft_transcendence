@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec prometheus --config.file=prometheus.yml
+exec alertmanager --config.file=alertmanager.yml

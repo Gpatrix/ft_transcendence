@@ -10,7 +10,7 @@ receivers:
   email_configs:
     - to: '${ALERTMANAGER_TARGET_MAIL}'
       smarthost: '${ALERTMANAGER_SMTP_SMARTHOST}'
-      from: '${ALERTMANAGER_SMTP_FROM}''
+      from: '${ALERTMANAGER_SMTP_FROM}'
       auth_username: '${ALERTMANAGER_SMTP_AUTH_USERNAME}'
       auth_password: '${ALERTMANAGER_SMTP_AUTH_PASSWORD}'
       auth_identity: '${ALERTMANAGER_SMTP_AUTH_USERNAME}'
