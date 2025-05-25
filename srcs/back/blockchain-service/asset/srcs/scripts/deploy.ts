@@ -12,8 +12,9 @@ async function main() {
    
     const TournamentFactoryFactory = await ethers.getContractFactory("TournamentFactory");
     const tournamentFactory = await TournamentFactoryFactory.deploy();
+
+    console.log("TournamentFactory deployed to:", tournamentFactory.target);
   
-    console.log("tournamentFactory address:", tournamentFactory.target);
     saveFrontendFiles(tournamentFactory);
 }
 
@@ -31,10 +32,16 @@ function saveFrontendFiles(tournament) {
     );
   
     const TournamentArtifact = artifacts.readArtifactSync("Tournament");
+    const TournamentFactoryArtifact = artifacts.readArtifactSync("TournamentFactory");
   
     fs.writeFileSync(
       path.join(contractsDir, "Tournament.json"),
       JSON.stringify(TournamentArtifact, null, 2)
+    );
+
+    fs.writeFileSync(
+      path.join(contractsDir, "TournamentFactory.json"),
+      JSON.stringify(TournamentFactoryArtifact, null, 2)
     );
 }
   
