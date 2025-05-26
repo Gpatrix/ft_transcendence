@@ -8,7 +8,7 @@ interface MultiPlayerRacketProps {
 
 export default function MultiPlayerRacket({player, localY}: MultiPlayerRacketProps) {
     return (
-        <span id={player.isYours ? "playerRacket" : ""} className="block ease-in-out absolute h-[60px] w-[10px] bg-yellow"
+        <span id={player.isYours ? "playerRacket" : ""} className="block ease-in-out absolute h-[70px] w-[10px] bg-yellow"
               style={{
                 top: `${localY ? localY : player.position.y}px`,
                 left: `${player.position.x}px`,

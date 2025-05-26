@@ -1,10 +1,12 @@
 import Wall from "../Wall"
-import { dimension } from "../Local/LocalBall"
+import { Ball, dimension } from "../Local/LocalBall"
 import { useEffect, useState, useRef } from "react"
-import { Player } from "./Multi"
+import Multi, { Player } from "./Multi"
 import MultiPlayerRacket from "./OthersRacket"
 import RacketComponent from "../Racket"
 import { Racket } from "../Racket"
+import MultiBallComponent from "./MultiBall"
+import MultiPointsCounter from "./MultiPointsCounter"
 
 export const mapDimension: dimension = {
   x: 700,
@@ -13,20 +15,22 @@ export const mapDimension: dimension = {
 
 export const racketDimentions : dimension = {
   x : 10,
-  y: 60
+  y: 70
 }
 
 interface MultiGameProps {
   players: Player[]
   socket: WebSocket |null
+  ball: Ball
 }
 
-export default function MultiGame({ players, socket }: MultiGameProps) {
+export default function MultiGame({ players, socket, ball }: MultiGameProps) {
     const pressedKeys = useRef(new Set<string>())
   
     const [localY, setLocalY] = useState<number>(0)
   
     const [, setTicks] = useState<number>(0)
+
   
     useEffect(() => {
         if (!socket) return;
@@ -66,15 +70,16 @@ export default function MultiGame({ players, socket }: MultiGameProps) {
               }
             }
             if (pressedKeys.current.has("down")) {
+              if (newY + racketDimentions.y + speed <= mapDimension.y) {
                   socket.send(JSON.stringify({ action: "down" }));
-                  newY -= speed;
+                  newY += speed
+              }
+                  // newY -= speed;
             }
-    
-            if (newY >= 0 && (newY + racketDimentions.y) < mapDimension.y)
-              return newY;
-            return (prev)
+            return (newY)
         });
-    
+        ball.nextPos()
+
         animationFrameId = requestAnimationFrame(loop);
     };
     loop()
@@ -96,15 +101,11 @@ export default function MultiGame({ players, socket }: MultiGameProps) {
   return (
     <div className="block ml-auto mr-auto w-fit h-fit">
       <span className="border-yellow border-2 block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
-        {/* <Wall  id="top" width={mapDimension.x} height={5} top={-5} />
-        <Wall  id="bottom" width={mapDimension.x} height={5} bottom={'-5'} />
-        <Wall  id="left" height={mapDimension.y} width={5} bottom={`${0}`} />
-        <Wall  id="right" height={mapDimension.y} width={5} bottom={`${0}`} right={0} /> */}
-
         {players.map((player, index) => {
             const isYou = player.isYours;
             return <MultiPlayerRacket localY={isYou ? localY : null} key={index} player={player} />
         })}
+        <MultiBallComponent ball={ball} />
       </span>
     </div>
   )

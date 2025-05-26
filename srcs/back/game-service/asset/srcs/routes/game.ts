@@ -28,7 +28,7 @@ var users: MatchMakingMap = new MatchMakingMap();
 
 function gameRoutes(server: FastifyInstance, options: any, done: any) {
     server.get<{ Params: gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, { websocket: true }, async (socket: WebSocket, request) => {
-        try {
+        try {   
             const freshToken: string | undefined = request.cookies.ft_transcendence_jw_token
             const decoded = jwt.verify(freshToken as string, process.env.JWT_SECRET as string);
             const token = decoded.data;
@@ -36,8 +36,13 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             const tournamentId: number = Number(request.params.tournamentId);
 
             if (activeGameConn.has(token.id)) {
-                console.log(`User ${token.id} already has an active game connection`);
-                return socket.close(4002, 'Already connected to a game');
+                const oldSocket = activeGameConn.get(token.id);
+                console.log("connected, test")
+                if (oldSocket && oldSocket.readyState === WebSocket.OPEN) {
+                    return socket.close(4002, 'Already connected to a game');
+                } else {
+                    activeGameConn.delete(token.id);
+                }
             }
 
             const tournament = await prisma.tournament.findFirst({
@@ -93,13 +98,11 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
                 const caller = pongGame.players.find((player) => player.ws === socket);
                 if (!caller) return ;
-                console.log(object)
-                console.log("ACTION:", action)
+
                 if (action == "up")
                     pongGame.onPlayerMove(caller.id, -10)
                 if (action == "down")
                     pongGame.onPlayerMove(caller.id, +10)
-                console.log(caller.position)
             })
 
             socket.on('close', () => {
@@ -112,7 +115,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             });
 
             const pongGame: PongGame | undefined = GamesManager.findGame(gameId);
-            console.log(pongGame)
             if (pongGame == undefined) {
                 activeGameConn.delete(token.id);
                 return (socket.close(4002, 'Game not found in manager'));

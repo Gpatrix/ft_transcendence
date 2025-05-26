@@ -1,59 +1,34 @@
 import { prisma } from '../config/prisma';
 import WebSocket from 'ws';
+import { Ball } from './Ball';
 
-interface pos {
+export interface pos {
     x: number,
     y: number
 }
 
-type velocity = pos;
+export type velocity = pos;
+export type dimension = pos
 
-class Ball {
-    constructor (position: pos, velocity: velocity, radius: number = 5) {
-        this.position = position;
-        this.velocity = velocity;
-        this.radius = radius;
-    }
-    position: pos;
-    velocity: velocity;
-    radius: number;
-    isFreezed: boolean = true;
-    lastToucher: number = -1;
 
-    set setVelocity(newVelocity: velocity) {
-        if (newVelocity.x < 10)
-            this.velocity.x = newVelocity.x;
-        if (newVelocity.y < 10)
-            this.velocity.y = newVelocity.y;      
-    }
 
-    set setPosition(newPosition: pos) {
-        this.position = newPosition;
-    }
-
-    nextPos() {
-        if (!this.isFreezed)
-        {
-            this.position.x += this.velocity.x;
-            this.position.y += this.velocity.y;
-        }
-    }
-
-    resetPos() {
-        this.position.x += 0;
-        this.position.y += 0;
-    }
-}
-
-class Player {
+export class Player {
     constructor(id: number, position: pos) {
         this.id = id;
         this.position = position;
+        this.properties = {
+            height:70,
+            width:10
+        }
     }
     id: number;
     position: pos;
     ws?: WebSocket;
     score: number = 0;
+    properties: {
+        width: number
+        height: number
+    }
     
     async scoreGoal() {
         const existingPlayer = await prisma.player.findUnique({
@@ -75,7 +50,7 @@ class Player {
     }
 }
 
-type properties = {
+export type properties = {
     size : {
         width  : number
         height : number
@@ -86,12 +61,48 @@ type properties = {
     nbPlayers : number
 }
 
+
+export type team = {
+    score : number
+    playersIDs : Array<number>
+}
+
+class Teams {
+    teams : Array<team>
+
+    constructor (players : Array<number>) {
+        this.teams = [
+            { score: 0, playersIDs: [] },
+            { score: 0, playersIDs: [] }
+        ];
+
+        players.map((id, i )=> {
+            if (i % 0)
+                this.teams[1].playersIDs.push(id)
+            else
+                this.teams[0].playersIDs.push(id)
+        })
+    }
+
+    getResult() {
+        return ([
+            this.teams[0].score, 
+            this.teams[1].score
+        ])
+    }
+
+    newScore(looserId : number) {
+        this.teams[looserId].score ++
+    }
+}
+
 export class PongGame {
     properties : properties
+    teams : Teams
     constructor (playerIds: Array<number>, id: number) {
-        this.ball = this.initBall(playerIds);
+        this.teams = new Teams(playerIds)
         this.players = []
-        playerIds.map((playerId)=>{
+        playerIds.map((playerId, i)=>{
             this.players.push(new Player(
                 playerId, 
                 { x: 0 , y: 0}
@@ -108,6 +119,7 @@ export class PongGame {
             racketHeight : 60,
             nbPlayers : 2
         }
+        this.ball = new Ball(this.properties)
     }
 
     initPlayers() {
@@ -123,34 +135,42 @@ export class PongGame {
         })
     }
 
-
     initGame() {
+        this.sendBall()
+        this.startedAt = Date.now() 
         this.initPlayers()
+        this.sendPlayers("start")
+        this.ball.resetPos()
+        setTimeout(()=>{
+            this.ball.unFreeze()
+            this.sendBall()
+        }, 3000)
     }
 
 
 
     start() {
         this.initGame()
-        this.sendPlayers("start")
     
         this.interval = setInterval(() => {
             this.sendPlayers("update")
-            // this.managePlayerColision();
-            // this.manageRoofAndFloorColision();
-            // this.ball.nextPos();
-            // const looserPlayerId = this.isBallColidingWall();
-            // if (looserPlayerId != -1) {
-            //     this.ball.resetPos();
-            //     console.log(`Ball colided with wall`);
-            //     if (this.ball.lastToucher == -1)    // In case ball collide player's wall before being hit
-            //         this.scoreEveryone(looserPlayerId)
-            //     else
-            //     {
-            //         const winner = this.players.find(player => player.id == this.ball.lastToucher);
-            //         winner?.scoreGoal();
-            //     }
-            // }
+            if (!this.ball.isFreezed) {
+                this.ball.checkRacketCollision(this.players)
+                this.ball.nextPos();
+
+                const looserPlayerId = this.ball.checkVerticalCollision() 
+                if (looserPlayerId != -1)
+                {
+                    this.ball.resetPos()
+                    this.sendBall()
+                    this.teams.newScore(looserPlayerId)
+                    this.sendResults()
+                    setTimeout(()=>{
+                        this.sendBall()
+                        this.ball.unFreeze()
+                    }, 1000)
+                }
+            }
         }, 1000 / 60);
 
         this.timeout = setTimeout(() => {
@@ -173,54 +193,6 @@ export class PongGame {
                 player.ws.send(JSON.stringify({ message: `gameEnded`, gameId: this.id }));
                 player.ws.close();
             }
-        })
-    }
-
-    private initBall(playerIds: Array<number>): Ball
-    {
-        const n = playerIds.length;
-        let ball: Ball;
-        if (n == 2)
-        {
-            const a = Math.floor(Math.random() * n);
-            if (a == 1)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-        }
-        else if (n == 3)
-        {
-            const a = Math.floor(Math.random() * n);
-            if (a == 1)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else if (a == 2)
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-            else
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-        }
-        else if (n == 4)
-        {
-            const a = Math.floor(Math.random() * n);
-            if (a == 1)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else if (a == 2)
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-            else if (a == 3)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-        }
-        else
-            ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-        return (ball);
-    }
-
-
-    private scoreEveryone(idToNotScore: number) {
-        this.players.forEach(player => {
-            if (player.id == idToNotScore)
-                return ;
-            player.scoreGoal();
         })
     }
 
@@ -260,6 +232,29 @@ export class PongGame {
         });
     }
 
+    sendBall() {
+        this.players.forEach(player => {
+            if (player.ws)
+                player.ws.send(JSON.stringify({
+                    message: "ball",
+                    ball: {
+                        velocity: this.ball.velocity,
+                        position: this.ball.position
+                    }
+            }));
+        });        
+    }
+
+    sendResults() {
+        this.players.forEach(player => {
+            if (player.ws)
+                player.ws.send(JSON.stringify({
+                    message: "result",
+                    result: [this.teams.getResult()]
+            }));
+        });     
+    }
+
     onPlayerJoin(id: number, ws: WebSocket) { // send user update to everyone, start if everyone is here
         console.log(`Player ${id} joined`);
         const index = this.players.findIndex(player => player.id == id);
@@ -268,76 +263,32 @@ export class PongGame {
         }
         this.sendPlayers(`playerJoined`)
         if (this.players.length == this.properties.nbPlayers) {
-            console.log("SHOULD START")
-            this.start()
+            if (this.startedAt) {// on unfreeze, after a disconnect
+                this.players.forEach(player => {
+                    if (player.ws)
+                        player.ws.send(JSON.stringify({
+                            message: "unfreeze",
+                    }));
+                });
+                this.ball.unFreeze()
+            }
+            else
+                this.start()
         }
     }
 
     onPlayerLeave(id: number) {
-        console.log(`Player ${id} left`);
-        const index = this.players.findIndex(player => player.id == id);
-        if (index === -1)
-            return ;
-        this.players[index].ws = undefined;
+        console.log("PLAYER LEAVED")
+        this.ball.freeze()
+
         this.players.forEach(player => {
             if (player.ws)
-                player.ws.send(JSON.stringify({ 
-                    message: `playerLeft`,
-                    players: this.players.map(p => ({
-                        id: p.id,
-                        score: p.score,
-                        position: p.position
-                    }))
+                player.ws.send(JSON.stringify({
+                    message: "freeze",
             }));
         });
     }
 
-    private isBallColidingPlayer(playerPos: pos): boolean {
-        let isInX = false;
-        let isInY = false;
-        const ballPos = this.ball.position;
-        if ((ballPos.x >= playerPos.x - this.playerWidth / 2) && (ballPos.x <= playerPos.x + this.playerWidth / 2))
-            isInX = true;
-        if ((ballPos.y >= playerPos.y - this.playerHeight / 2) && (ballPos.y <= playerPos.y + this.playerHeight / 2))
-            isInY = true;
-        return (isInX && isInY);
-    }
-
-    managePlayerColision(): void {
-        this.players.forEach(player => {
-            if (this.isBallColidingPlayer(player.position))
-            {
-                this.ball.lastToucher = player.id;
-                this.ball.velocity.x *= -1;
-            }
-        })
-    }
-
-    manageRoofAndFloorColision(): void {
-        const ballPos = this.ball.position;
-        if ((ballPos.y <= this.height * -1) || (ballPos.y >= this.height))
-            this.ball.velocity.y *= -1;
-    }
-
-    private isBallColidingWall(): number {
-        const ballPos: pos = this.ball.position;
-        const playerCount: number = this.players.length;
-        if (playerCount == 2)
-        {
-            if (ballPos.x <= this.width / 2 * -1)
-                return (this.players[0].id);
-            else if (ballPos.x >= this.width / 2)
-                return (this.players[1].id);
-        }
-        else
-        {
-            if (ballPos.x <= this.width / 2 * -1)
-                return (this.players[0].id);
-            else if (ballPos.x >= this.width / 2)
-                return (this.players[1].id);
-        }
-        return (-1);
-    }
 
     ball: Ball
     width: number = 200

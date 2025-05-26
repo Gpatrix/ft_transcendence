@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router";
-import { dimension } from "../Local/LocalBall";
+import { redirect, useNavigate, useSearchParams } from "react-router";
 import MultiGame from "./MultiGame";
-import StartCounter from "../Local/StartCounter";
 import { mapDimension } from "./MultiGame";
 import StartCounterMulti from "./StartCounterMulti";
-
+import { Ball } from "./Classes/Ball";
+import MultiPointsCounter from "./MultiPointsCounter";
+import Disconnected from "./Popups/Disconnected";
 
 export type Player = {
     id: number
@@ -23,9 +23,15 @@ export default function Multi() {
     
     const [players, setPlayers] = useState<Player[]>([])
     const [counter, setCounter] = useState<string | null>(null)
+    const [points, setPoints] = useState<Array<number>>([])
+
+    const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
+    const navigate = useNavigate()
 
     const [params] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
+
+    const [disconnect, setDisconnect] = useState<boolean>(false)
 
     useEffect(() => {
         const tournament = params.get("tournament");
@@ -46,23 +52,42 @@ export default function Multi() {
 
         ws.onmessage = (event) => {
             const json = JSON.parse(event.data)
-            console.log(json)
-            if (json.message == "playerJoined") { // updating players on join
-                console.log("JOIN")
-                setPlayers(json.players)     
-                console.log(players)
+
+            switch (json.message) {
+                case "playerJoined": 
+                    setPlayers(json.players)     
+                    break
+                case "start":
+                    console.log("START")
+                    ball.current.unFreeze(  )
+                    setPlayers(json.players)
+                    setCounter("3")
+                    break    
+                case "update" :
+                    setPlayers(json.players)
+                    break
+                case "ball":
+                    console.log(json.ball)
+                    ball.current.velocity = json.ball.velocity;
+                    ball.current.position = json.ball.position;
+                    break 
+                case "result":
+                    setPoints(json.result[0])
+                    break
+                case "freeze":
+                    ball.current.freeze()
+                    setDisconnect(true)
+                    break
+                case "unfreeze":
+                    ball.current.unFreeze()
+                    setDisconnect(false)
+                    break
             }
-            if (json.message == "start") { // updating players on join, start the counter
-                console.log("START")
-                setPlayers(json.players)     
-                setCounter("3")
-            }
-            if (json.message == "update") {
-                setPlayers(json.players)
-            }
+
         };
 
-        ws.onclose = () => {
+        ws.onclose = (event) => {
+            setError(event.code)
             console.log("/api/game/connect/ closed");
         };
 
@@ -80,17 +105,15 @@ export default function Multi() {
 
     return (
         <div className="relative">
-            {error && <p>{error}</p>}
-            <MultiGame players={players} socket={socket.current} />
-            {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}
-            <button className="text-yellow"
-                    onClick={()=>{
-                        if (!socket.current) return;
-                        socket.current.send(JSON.stringify({test: "test"}))
-                    }}
-            >
-                test-ws
-            </button>
+            {error && <p className="text-yellow">{error}</p>}
+            {disconnect && <Disconnected/>}
+            {!error &&
+            <span>
+                <MultiGame ball={ball.current} players={players} socket={socket.current} />
+                {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}
+                <MultiPointsCounter points={points}/>
+            </span>
+            }
         </div>
     );
 }
