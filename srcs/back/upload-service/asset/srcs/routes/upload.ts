@@ -19,18 +19,8 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
                 return (res.status(401).send({ error: "private_route" }));  // private route (:
             if (!file)
                 return (res.status(420).send({ error: "no_file_uploaded" }));
-            const fileName = Date.now();
+            const fileName = Date.now()
             const storedFile = fs.createWriteStream(`./uploads/${fileName}`);
-
-            await new Promise<void>((resolve, reject) => {
-                pump(file.file, storedFile, (err) => {
-                  if (err) {
-                    fs.unlink(fileName, () => {});
-                    return reject(err);
-                  }
-                  resolve();
-                });
-              });
             pump(file.file, storedFile);
             res.status(200).send({ fileName: fileName });
         } catch (error) {
