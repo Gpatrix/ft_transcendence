@@ -27,7 +27,7 @@ export default function OthersProfile() {
 
     const { fetchWithAuth } = useAuth();
     function getUserParams() {
-        fetchWithAuth(`https://localhost/api/user/get_profile/${id}`)
+        fetchWithAuth(`/api/user/get_profile/${id}`)
             .then((response) => {
                 if (!response.ok) 
                     throw new Error("User not found");

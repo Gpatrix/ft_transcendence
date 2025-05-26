@@ -1,0 +1,51 @@
+global:
+  scrape_interval:     10s
+  evaluation_interval: 10s
+
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager-service:9093'
+
+rule_files:
+  - 'prometheus.rules.yml'
+  - 'prometheus.alerts.yml'
+
+
+scrape_configs:
+  - job_name: 'chat'
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ['chat-service:3000']
+
+  - job_name: 'auth'
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ['auth-service:3000']
+
+  - job_name: 'game'
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ['game-service:3000']
+
+  - job_name: 'upload'
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ['upload-service:3000']
+
+  - job_name: 'user'
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ['user-service:3000']

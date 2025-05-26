@@ -1,0 +1,5 @@
+groups:
+- name: service-status
+  rules:
+  - record: service:status:now
+    expr: up

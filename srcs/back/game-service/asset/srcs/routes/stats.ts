@@ -1,9 +1,9 @@
-import prisma from "../config/prisma";
+import { prisma } from "../config/prisma";
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 
-import { isPlayerWinnerInGame } from "../utils.ts";
+import { isPlayerWinnerInGame } from "../utils";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -56,10 +56,10 @@ function getAveragePlayTime(players: Array<any>, userId: number): number
 
 function gameRoutes(server: FastifyInstance, options: any, done: any)
 {
-    server.get(`/api/game/stats`, async ( request: any, reply: any ) => 
+    server.get(`/api/game/stats`, async ( request: any, reply: any ) =>
     {
         const token = request.cookies['ft_transcendence_jw_token'];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
         const tokenPayload = decoded.data;
         const userId = tokenPayload?.id;
         if (!userId)
