@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import MatchHistory from "../../components/MatchHistory";
 import { gpt } from "../../translations/pages_reponses";
+import { ethers } from "ethers";
 
 interface GetPlayerHistoryReturnPlayer
 {
     id: number;
     userId: number;
     score: number;
+    scoreFromBlockchain: number;
 }
 
 interface GetPlayerHistoryReturn
@@ -44,6 +46,30 @@ export default function History({ playerId }: { playerId: number }) {
         setLoading(false);
       }
     }
+
+    async function getBlockchainInfos()
+    {
+      const res = await fetch(`/api/blockchain/infos`);
+    }
+    // async function fetchAllUsersFromBlockchain() {
+    //   try {
+    //     if (matches)
+    //     {
+    //       for (let i = 0; i < matches.length; i++) {
+    //         const match = matches[i];
+    //         const opponents = matches[i].opponents
+    //         for (let j = 0; j < opponents.length; j++) {
+    //           const opponent = opponents[j];
+              
+    //         }
+    //         match
+    //       }
+    //     }
+
+    //   } catch (error) {
+        
+    //   }
+    // }
     fetchHistory();
   }, [playerId]);
 
@@ -57,6 +83,7 @@ export default function History({ playerId }: { playerId: number }) {
         <MatchHistory
         key={match.gameId}
         match={match}
+        blockchainData={}
       />))}
       </span>
     </div>
