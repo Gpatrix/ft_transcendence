@@ -1,9 +1,12 @@
 import fastify from 'fastify'
+import { metrics } from './metrics'
 
 const server = fastify();
 import saveTournamentToAvalancheRoutes from './routes/saveTournamentToAvalancheRoutes';
 
 server.register(saveTournamentToAvalancheRoutes);
+server.register(metrics);
+
 
 async function main() {
   let _address;

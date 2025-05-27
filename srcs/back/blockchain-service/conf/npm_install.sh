@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ "$NODE_ENV" = "dev" ]; then
-    pnpm install;
+    npm install;
 else
-    pnpm install --omit=dev;
+    npm install --omit=dev;
     rm -f hardhat.config.ts;
     rm -rf srcs/test
 fi
