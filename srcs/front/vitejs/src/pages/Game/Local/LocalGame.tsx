@@ -28,9 +28,19 @@ export default function Game() {
     const pressedKeys = useRef(new Set<string>());
     const rackets = useRef<Racket[]>([]);
     const ball = useRef<Ball>(new Ball(defaultPos, defaultVelocity, 10, mapDimension));
-    const [players, setPlayers] = useState([0, 0])
-    const [, setTicks] = useState<number>(0)
-    const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"))
+    const [players, setPlayers] = useState([0, 0]);
+    const [, setTicks] = useState<number>(0);
+    const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
+    const isBot = true;
+
+    function predictBallLanding(ball: Ball) {
+        const distanceX = mapDimension.x - ball.position.x;
+
+        let landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
+        if (landingY < 0 || landingY > mapDimension.y)
+            landingY = landingY % mapDimension.y;
+        return (landingY);
+    }
 
     function updateResult(result : number) {
         setPlayers(prev => {
@@ -42,7 +52,7 @@ export default function Game() {
 
     useEffect(() => {
         const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 8 });
-        const r2 = new Racket({ id: 2, keyUp: "ArrowUp", keyDown: "ArrowDown", speed: 8 });
+        const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 8 });
         rackets.current = [r1, r2];
 
         const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add(e.key);
@@ -63,14 +73,33 @@ export default function Game() {
         window.addEventListener("keydown", handleUnfreeze);
 
         let animationFrameId: number;
+        let predictedLandingY: number | undefined = undefined;
         ball.current.resetPos()
 
         const loop = () => {
             rackets.current.forEach(r => r.update(pressedKeys.current));
             ball.current.nextPos();
-            ball.current.checkRacketCollision(rackets.current)
-            const result = ball.current.checkVerticalCollision()
+            ball.current.checkRacketCollision(rackets.current);
+            const result = ball.current.checkVerticalCollision();
+            if (isBot) {
+                if (predictedLandingY == undefined)
+                    predictedLandingY = predictBallLanding(ball.current);
+                console.log(predictedLandingY, ball.current.position.y);
+                if (r2.pos.y >= predictedLandingY && pressedKeys.current.has("BOT_UP") && isBot) {
+                    pressedKeys.current.delete("BOT_UP");
+                }
+                if (r2.pos.y < predictedLandingY && !pressedKeys.current.has("BOT_UP") && isBot) {
+                    pressedKeys.current.add("BOT_UP");
+                }
+                if (r2.pos.y <= predictedLandingY && pressedKeys.current.has("BOT_DOWN") && isBot) {
+                    pressedKeys.current.delete("BOT_DOWN");
+                }
+                if (r2.pos.y > predictedLandingY && !pressedKeys.current.has("BOT_DOWN") && isBot) {
+                    pressedKeys.current.add("BOT_DOWN");
+                }
+            }
             if (result != -1) {
+                predictedLandingY = undefined
                 updateResult(result)
                 ball.current.resetPos()
                 setTimeout(()=>{
