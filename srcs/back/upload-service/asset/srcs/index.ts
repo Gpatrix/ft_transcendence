@@ -1,8 +1,14 @@
 import fastify from 'fastify'
 import rateLimitPlugin from '@fastify/rate-limit';
-import { metrics } from './metrics'
+import { metrics , upload_requests_total} from './metrics'
 
 const server = fastify();
+
+server.addHook('onResponse', (req, res, done) =>
+{
+	upload_requests_total.inc({method: req.method});
+	done();
+});
 
 server.register(require('@fastify/static'), {
   root: '/usr/src/upload-service/uploads',

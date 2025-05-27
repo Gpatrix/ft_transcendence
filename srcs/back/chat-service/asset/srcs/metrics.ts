@@ -1,19 +1,15 @@
 import client from 'prom-client'
 import { FastifyInstance } from "fastify";
 
+export const chat_requests_total = new client.Counter(
+{
+	name: 'chat_requests_total',
+	help: 'Total number of HTTP requests',
+	labelNames: ['method'],
+});
+
 export async function metrics(fastify: FastifyInstance)
 {
-    const chat_requests_total = new client.Counter({
-      name: 'chat_requests_total',
-      help: 'Total number of HTTP requests',
-      labelNames: ['method'],
-    });
-    
-    fastify.addHook('onResponse', (req, res, done) => {
-      chat_requests_total.inc({method: req.method});
-      done();
-    });
-    
     new client.Gauge({
       name: 'chat_activ_conn',
       help: 'active connextion on site',

@@ -1,9 +1,9 @@
 import client from 'prom-client'
 import { FastifyInstance } from "fastify";
 
-export const user_requests_total = new client.Counter(
+export const blockchain_requests_total = new client.Counter(
 {
-	name: 'user_requests_total',
+	name: 'blockchain_requests_total',
 	help: 'Total number of HTTP requests',
 	labelNames: ['method'],
 });
