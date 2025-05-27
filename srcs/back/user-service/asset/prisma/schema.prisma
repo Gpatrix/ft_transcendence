@@ -37,7 +37,7 @@ model Friend {
 
 model User {
   id Int @id @unique @default(autoincrement())
-  name String @unique
+  name String
   email String @unique
   password String?
   profPicture String?
