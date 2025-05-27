@@ -1,26 +1,30 @@
 import fastify from 'fastify'
-import rateLimitPlugin from '@fastify/rate-limit';
+import path from 'node:path'
+import rateLimitPlugin from '@fastify/rate-limit'
+import multipartPlugin from '@fastify/multipart'
+import staticPlugin from '@fastify/static'
 import { metrics , upload_requests_total} from './metrics'
+import uploadRoutes from './routes/upload'
 
 const server = fastify();
 
-server.addHook('onResponse', (req, res, done) =>
-{
-	upload_requests_total.inc({method: req.method});
-	done();
-});
-
-server.register(require('@fastify/static'), {
-  root: '/usr/src/upload-service/uploads',
+server.register(staticPlugin, {
+  root: path.join(__dirname, '../uploads'),
   prefix: '/api/upload/'
 })
 
-server.register(require('@fastify/multipart'), {
+server.addHook('onResponse', (req, res, done) =>
+  {
+    upload_requests_total.inc({method: req.method});
+    done();
+});
+
+server.register(multipartPlugin, {
   limits: {
     fieldNameSize: 100, // Max field name size in bytes
     fieldSize: 100,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
-    fileSize: 1050000,  // For multipart forms, the max file size in bytes
+    fileSize: 10500000,  // For multipart forms, the max file size in bytes
     files: 1,           // Max number of file fields
     headerPairs: 2000,  // Max number of header key=>value pairs
     parts: 1000         // For multipart forms, the max number of parts (fields + files)
@@ -30,12 +34,12 @@ server.register(require('@fastify/multipart'), {
 server.register(rateLimitPlugin, {
   max: 100,
   timeWindow: '1 minute',
-  allowList: ['127.0.0.1']
+  // allowList: ['127.0.0.1']
 });
 
 server.register(metrics);
 
-server.register(require("./routes/upload"), { config: {
+server.register(uploadRoutes, { config: {
   max: 5,
   timeWindow: '1 minute'
 }});
