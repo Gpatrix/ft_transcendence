@@ -22,11 +22,12 @@ type ChatProps = {
     participants: User[];
     arrayMessage: Message[];
     setArrayMessage: React.Dispatch<React.SetStateAction<Message[]>>;
+    blur?: boolean;
     // handleScroll: () => void;
     // handleSubmitMessage: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-export default function Chat({ profileData, classList, chanel, participants, arrayMessage, setArrayMessage} : ChatProps) {
+export default function Chat({ profileData, classList, chanel, participants, arrayMessage, setArrayMessage, blur=true} : ChatProps) {
 
     const { socket } = useWebSocket();
 
@@ -135,7 +136,7 @@ export default function Chat({ profileData, classList, chanel, participants, arr
 
     return (
         <div className={clsx("w-1/1 flex flex-col justify-end", classList)}>
-            <Blur />
+            {blur && <Blur />}
             <div ref={containerRef} className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
                 {participants.length > 1 && arrayMessage.map((message, id) => {
