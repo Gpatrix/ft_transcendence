@@ -16,6 +16,7 @@ server.register(rateLimitPlugin, {
 });
 server.register(websocketPlugin);
 server.register(metrics);
+server.register(game_service);
 
 
 interface tokenStruct
