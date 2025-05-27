@@ -10,8 +10,6 @@ export const auth_requests_total = new client.Counter(
 
 export async function metrics(fastify: FastifyInstance)
 {
-
-    
     fastify.get('/metrics', async (request, reply) =>
     {
         reply

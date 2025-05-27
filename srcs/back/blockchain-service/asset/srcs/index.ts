@@ -1,5 +1,5 @@
 import fastify from 'fastify'
-import { metrics } from './metrics'
+import { metrics, blockchain_requests_total } from './metrics'
 
 const server = fastify();
 import saveTournamentToAvalancheRoutes from './routes/saveTournamentToAvalancheRoutes';
@@ -7,6 +7,11 @@ import saveTournamentToAvalancheRoutes from './routes/saveTournamentToAvalancheR
 server.register(saveTournamentToAvalancheRoutes);
 server.register(metrics);
 
+server.addHook('onResponse', (req, res, done) =>
+{
+	blockchain_requests_total.inc({method: req.method});
+	done();
+});
 
 async function main() {
   let _address;
