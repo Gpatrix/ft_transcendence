@@ -27,7 +27,7 @@ class Player extends User {
 
     static findUserById(players: Player[], userId: number): Player | undefined {
         return players.find(user => user.id === userId);
-      }
+    }
 }
 
 export default Player;

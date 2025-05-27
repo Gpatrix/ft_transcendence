@@ -54,7 +54,7 @@ async function game_service(fastify: FastifyInstance)
     fastify.register(require("./routes/history"));
 }
 
-
+server.register(game_service)
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
 {
