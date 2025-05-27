@@ -20,6 +20,7 @@ interface GetPlayerHistoryReturn
     you: GetPlayerHistoryReturnPlayer;
     playTime: number;
     gameId: number;
+    tournamentId?: number;
     gameDate: Date;
     isWinner: number
 }
@@ -40,6 +41,7 @@ function getGameInfos(game: any, userId: number): GetPlayerHistoryReturn
         you: you,
         playTime: game.playTime,
         gameId: game.id,
+        tournamentId: game.tournamentId,
         gameDate: game.createdAt,
         isWinner: isPlayerWinnerInGame(game, userId)
     })
