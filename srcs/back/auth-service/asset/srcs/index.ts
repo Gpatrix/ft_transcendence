@@ -4,11 +4,14 @@ import cookiesPlugin from '@fastify/cookie';
 import rateLimitPlugin from '@fastify/rate-limit';
 import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { metrics, auth_requests_total } from "./metrics";
 
 const server = fastify();
 
-declare module 'fastify' {
-  interface FastifyInstance {
+declare module 'fastify'
+{
+  interface FastifyInstance
+  {
     googleOAuth2: OAuth2Namespace;
   }
 }
@@ -19,6 +22,14 @@ server.register(rateLimitPlugin, {
   timeWindow: '1 minute',
   allowList: ['127.0.0.1']
 });
+
+server.addHook('onResponse', (req, res, done) =>
+{
+	auth_requests_total.inc({method: req.method});
+	done();
+});
+
+server.register(metrics);
 server.register(require("./routes/auth"));
 server.register(require("./routes/dfa"));
 server.register(require("./routes/passwordReset"));

@@ -15,7 +15,7 @@ export async function validateUserData(request: any, reply: any) {
             //     throw new Error("0401");
             if (email && !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
                 throw new Error("1004");
-            if (name && !name.match(/^[a-zA-Z0-9._-]+$/))
+            if (name && !name.match(/^[a-zA-Z0-9._\- ]+$/))
                 throw new Error("1005");
         } catch (error: any) {
             reply.status(400).send({ error: error.message });

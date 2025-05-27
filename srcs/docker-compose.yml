@@ -106,6 +106,28 @@ services:
     networks:
       - router
 
+  blockchain-service:
+    container_name: blockchain-service
+    restart: on-failure
+    volumes:
+      - ./back/blockchain-service/asset/srcs:/usr/src/blockchain-service/srcs
+    environment:
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+      NODE_ENV: ${NODE_ENV:?}
+      SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
+      FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
+      FUJI_RPC_URL: ${FUJI_RPC_URL:?}
+      AVALANCHE_RPC_URL: ${AVALANCHE_RPC_URL:?}
+      AVALANCHE_CHAIN_ID: ${AVALANCHE_CHAIN_ID:?}
+    build:
+        context: ./back/blockchain-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:?}
+    expose:
+      - 3000
+    networks:
+      - router
 
   user-service:
     container_name: user-service
@@ -131,6 +153,57 @@ services:
     networks:
       - router
 
+  prometheus-service:
+    container_name: prometheus-service
+    restart: on-failure
+    volumes:
+      - db-monitoring:/usr/src/prometheus-service/data
+    build:
+        context: ./back/monitoring/prometheus-service
+        dockerfile: Dockerfile
+    networks:
+      - router
+    ports:
+      - 9090:9090
+    expose:
+      - 9090
+
+  grafana-service:
+    container_name: grafana-service
+    restart: on-failure
+    build:
+        context: ./back/monitoring/grafana-service
+        dockerfile: Dockerfile
+        args:
+          GRAFANA_DB_USER: ${GRAFANA_DB_USER:?}
+          GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?}
+          GRAFANA_ADMIN_USER: ${GRAFANA_ADMIN_USER:?}
+          GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
+          GRAFANA_ADMIN_EMAIL: ${GRAFANA_ADMIN_EMAIL:?}
+          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+    networks:
+      - router
+    ports:
+      - 4000:3000
+
+  alertmanager-service:
+    container_name: alertmanager-service
+    restart: on-failure
+    build:
+        context: ./back/monitoring/alertmanager-service
+        dockerfile: Dockerfile
+        args:
+          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+          ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
+          ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
+          ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
+          ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
+          ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
+    networks:
+      - router
+    ports:
+      - 9093:9093
+
   front_dev:
     container_name: front_dev
     restart: on-failure
@@ -149,6 +222,9 @@ volumes:
   db-user:
   db-game:
   db-upload:
+  db-blockchain:
+  db-monitoring:
+
 networks:
   router:
     driver: bridge

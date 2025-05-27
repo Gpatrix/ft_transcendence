@@ -1,0 +1,13 @@
+datasources:
+  - name: prometheus
+    uid: demfsfbmta2gwa
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus-service:9090
+    basicAuth: false
+    isDefault: false
+    readOnly: false
+    jsonData:
+      httpMethod: POST
+      prometheusType: "Prometheus"
