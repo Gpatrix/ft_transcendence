@@ -3,23 +3,23 @@
 ### firstly deploy Tournament Factory on hardhat network
 
 ```sh
-npx hardhat run srcs/scripts/deploy.ts
+pnpx hardhat run srcs/scripts/deploy.ts
 ```
 
 ### run chai tests
 ```sh
-npx hardhat test
+pnpx hardhat test
 ```
 
 ## deploy smart contract on blochain
 
 ### on avalanche testnet
 ```sh
-npx hardhat run srcs/scripts/deploy.ts --network fuji
+pnpx hardhat run srcs/scripts/deploy.ts --network fuji
 ```
 
 ### on avalanche main
 ```sh
-npx hardhat run srcs/scripts/deploy.ts --network avalanche
+pnpx hardhat run srcs/scripts/deploy.ts --network avalanche
 ```
 

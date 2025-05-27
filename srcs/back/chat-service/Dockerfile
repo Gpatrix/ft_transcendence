@@ -8,8 +8,8 @@ RUN apk update --no-cache && \
 ARG DATABASE_URL
 ARG NODE_ENV
 COPY ./asset/package.json .
-COPY ./conf/npm_install.sh .
-RUN chmod +x npm_install.sh && ./npm_install.sh
+COPY ./conf/pnpm_install.sh .
+RUN chmod +x pnpm_install.sh && ./pnpm_install.sh
 
 COPY ./asset/prisma ./prisma
 COPY ./conf/prisma_install.sh .

@@ -46,7 +46,7 @@
 
 - [ ] Minor module: Server-Side Rendering (SSR) integration.
 
-- [ ] Devops
+- [x] Minor module: Monitoring system
 
 ## Bonus
 
