@@ -61,9 +61,9 @@ export default function Game() {
             if (e.key == ' ') {
                 setCounter("3")
                 setTimeout(()=>{
-                    setCounter(null)
-                    ball.current.unFreeze()          
-                    window.removeEventListener("keydown", handleUnfreeze)
+                    setCounter(null);
+                    ball.current.unFreeze();
+                    window.removeEventListener("keydown", handleUnfreeze);
                 }, 3000)
             }
         };
@@ -78,33 +78,46 @@ export default function Game() {
 
         const loop = () => {
             rackets.current.forEach(r => r.update(pressedKeys.current));
+            predictedLandingY = predictBallLanding(ball.current);
             ball.current.nextPos();
             ball.current.checkRacketCollision(rackets.current);
             const result = ball.current.checkVerticalCollision();
-            if (isBot) {
-                if (predictedLandingY == undefined)
-                    predictedLandingY = predictBallLanding(ball.current);
-                console.log(predictedLandingY, ball.current.position.y);
-                if (r2.pos.y >= predictedLandingY && pressedKeys.current.has("BOT_UP") && isBot) {
-                    pressedKeys.current.delete("BOT_UP");
-                }
-                if (r2.pos.y < predictedLandingY && !pressedKeys.current.has("BOT_UP") && isBot) {
-                    pressedKeys.current.add("BOT_UP");
-                }
-                if (r2.pos.y <= predictedLandingY && pressedKeys.current.has("BOT_DOWN") && isBot) {
-                    pressedKeys.current.delete("BOT_DOWN");
-                }
-                if (r2.pos.y > predictedLandingY && !pressedKeys.current.has("BOT_DOWN") && isBot) {
-                    pressedKeys.current.add("BOT_DOWN");
-                }
-            }
+
             if (result != -1) {
-                predictedLandingY = undefined
                 updateResult(result)
                 ball.current.resetPos()
                 setTimeout(()=>{
                     ball.current.unFreeze()
                 }, 500)
+            }
+            if (ball.current.velocity.x < 0)
+            {
+                if (r2.pos.y >= (mapDimension.y / 2) && pressedKeys.current.has("BOT_DOWN") && isBot) {
+                    pressedKeys.current.delete("BOT_DOWN");
+                }
+                if (r2.pos.y < (mapDimension.y / 2) && !pressedKeys.current.has("BOT_DOWN") && isBot) {
+                    pressedKeys.current.add("BOT_DOWN");
+                }
+                if (r2.pos.y <= (mapDimension.y / 2) && pressedKeys.current.has("BOT_UP") && isBot) {
+                    pressedKeys.current.delete("BOT_UP");
+                }
+                if (r2.pos.y > (mapDimension.y / 2) && !pressedKeys.current.has("BOT_UP") && isBot) {
+                    pressedKeys.current.add("BOT_UP");
+                }
+            }
+            else if (isBot && predictedLandingY !== undefined) {
+                if (r2.pos.y >= predictedLandingY && pressedKeys.current.has("BOT_DOWN") && isBot) {
+                    pressedKeys.current.delete("BOT_DOWN");
+                }
+                if (r2.pos.y < predictedLandingY && !pressedKeys.current.has("BOT_DOWN") && isBot) {
+                    pressedKeys.current.add("BOT_DOWN");
+                }
+                if (r2.pos.y <= predictedLandingY && pressedKeys.current.has("BOT_UP") && isBot) {
+                    pressedKeys.current.delete("BOT_UP");
+                }
+                if (r2.pos.y > predictedLandingY && !pressedKeys.current.has("BOT_UP") && isBot) {
+                    pressedKeys.current.add("BOT_UP");
+                }
             }
             setTicks((t)=> t+1)
             animationFrameId = requestAnimationFrame(loop);
