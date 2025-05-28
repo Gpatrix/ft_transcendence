@@ -9,21 +9,20 @@ import StartCounter from "./StartCounter.tsx";
 import PointsCounter from "./PointsCounter.tsx";
 import { gpt } from "../../../translations/pages_reponses.tsx";
 
-const defaultPos : pos = {
+export const defaultPos : pos = {
     x : 250,
     y : 150
 }
 
-const defaultVelocity : pos = {
+export const defaultVelocity : pos = {
     x: 4.5,
     y: 4.6
 }
 
-const mapDimension : dimension = {
+export const mapDimension : dimension = {
     x : 700,
     y : 500
 }
-
 export default function Game() {
     const pressedKeys = useRef(new Set<string>());
     const rackets = useRef<Racket[]>([]);
@@ -32,15 +31,6 @@ export default function Game() {
     const [, setTicks] = useState<number>(0);
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
     const isBot = true;
-
-    function predictBallLanding(ball: Ball) {
-        const distanceX = mapDimension.x - ball.position.x;
-
-        let landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
-        if (landingY < 0 || landingY > mapDimension.y)
-            landingY = landingY % mapDimension.y;
-        return (landingY);
-    }
 
     function updateResult(result : number) {
         setPlayers(prev => {
