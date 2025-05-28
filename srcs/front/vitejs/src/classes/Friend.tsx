@@ -46,16 +46,23 @@ class Friend extends User {
                 method :  'POST',
                 credentials: 'include'
             }
+            console.log(encodeURIComponent(name));
+            
             const response = await fetch(`/api/user/friends/requests/${encodeURIComponent(name)}`, requestData);
 
+                console.log("gfds");
+                
             // envoyer le json error plutot
 
         
             // console.log("Reponse HTTP :", response.status);
+            console.log(response);
+            
 
             return (response.status);
           } catch (error) {
             console.error("Erreur lors de l'envoi de la demande :", error);
+            
             return (500);
           }
     }

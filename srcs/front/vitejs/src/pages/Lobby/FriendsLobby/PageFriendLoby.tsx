@@ -40,7 +40,7 @@ export default function PageFriendLoby() {
     // }
 
     function getUserParams() {
-        fetchWithAuth(`https://localhost/api/user/get_profile/`)
+        fetchWithAuth(`/api/user/get_profile/`)
         .then((response) => response.json())
         .then((json) => {
             if (json.data)
@@ -55,6 +55,26 @@ export default function PageFriendLoby() {
             console.log("Error :", error);
         });
     }
+    // function getUserParams() {
+    //     fetchWithAuth(`/api/user/get_profile/`)
+    //         .then((response) => response.json())
+    //         .then((json) => {
+    //             const data = json.data
+    //             setProfileData(prev => ({
+    //                 ...prev,
+    //                 name: data.name,
+    //                 email: data.email,
+    //                 bio: data.bio,
+    //                 profPicture: data.profPicture,
+    //                 rank: data.rank,
+    //                 lang: data.lang,
+    //                 isTwoFactorEnabled : data.isTwoFactorEnabled
+    //             }));
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error :", error);
+    //         });
+    // }
 
     const handleFriendsChange = (friends: Friend[]) => {
         const newFriends: Friend[] = [...friends];
