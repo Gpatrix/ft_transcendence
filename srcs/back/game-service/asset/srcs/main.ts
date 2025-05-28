@@ -4,7 +4,7 @@ import rateLimitPlugin from '@fastify/rate-limit';
 import jwt from 'jsonwebtoken';
 import websocketPlugin from '@fastify/websocket';
 import { FastifyInstance } from "fastify";
-import { metrics } from './metrics'
+import { metrics , game_requests_total} from './metrics'
 
 const server = fastify();
 
@@ -16,7 +16,13 @@ server.register(rateLimitPlugin, {
 });
 server.register(websocketPlugin);
 server.register(metrics);
+server.register(game_service);
 
+server.addHook('onResponse', (req, res, done) =>
+{
+	game_requests_total.inc({method: req.method});
+	done();
+});
 
 interface tokenStruct
 {

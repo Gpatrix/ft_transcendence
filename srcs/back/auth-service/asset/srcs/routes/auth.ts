@@ -40,7 +40,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 }),
             });
             const data = await response.json();
-            console.log(response)
             if (!response.ok)
                 return (res.status(response.status).send({ error: data.error}))
             const user = data;
@@ -65,7 +64,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 secure: true
               }).send({ response: "successfully logged in", need2fa: false }));
         } catch (error) {
-            console.log("Unhandled error during signup:", error);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
                     switch (error.code) {
@@ -82,7 +80,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                             res.status(401).send({ error: "0500"});
                     }
             }
-            console.log(error);
             return (res.status(500).send({ error: "0500"}));
         }
     });
@@ -220,7 +217,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             });
             let user;
             const lookupData = await response.json();
-            console.log(await lookupData)
             if (response.ok && !('error' in lookupData)) {
               user = lookupData;
             }
@@ -235,49 +231,41 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                   body: JSON.stringify({
                     email: userinfo.email,
                     profPicture: userinfo.picture,
-                    name: String(Date.now()),
+                    name: userinfo.name,
                     credential: process.env.API_CREDENTIAL
                   }),
                 });
                 
                 if (!createResponse.ok) {
-                    console.log(userinfo.name)
                     console.error('Failed to create user:', await createResponse.text());
                     return reply.status(createResponse.status).redirect("/register?oauth-error=1015");
                 }
                 
                 user = await createResponse.json();
                 console.log('New user created:', user);
-              }
-            // console.log("JWT Payload:", {
-            //     data: {
-            //       id: user.id,
-            //       email: user.email,
-            //       name: user.name,
-            //       isAdmin: user.isAdmin,
-            //       twoFactorSecret: user.twoFactorSecret,
-            //       dfa: true
-            //     }
-            //   });
-            console.log(user)
-            const jsonwebtoken = await jwt.sign({
+            }
+            const payloadBase = {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                isAdmin: user.isAdmin,
+                twoFactorSecret: user.twoFactorSecret,
+            };
+            const jwtPayload = {
                 data: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    isAdmin: user.isAdmin,
-                    twoFactorSecret: user.twoFactorSecret,
-                    dfa: true
+                    ...payloadBase,
+                    dfa: !user.isTwoFactorEnabled
                 }
-            }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
-    
+            };
+            const jsonwebtoken = await jwt.sign(jwtPayload, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+
             if (jsonwebtoken)
                 return (reply.cookie("ft_transcendence_jw_token", jsonwebtoken, {
                     path: "/",
                     httpOnly: true,
                     sameSite: "none",
                     secure: true
-                  }).redirect("/login?oauth=true"));
+                  }).redirect("/login?oauth=true&need2fa=${user.isTwoFactorEnabled}"));
             else
                 throw new Error("no token generated");
         } catch (error) {
@@ -289,7 +277,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         const connected = await isConnected(request, reply, ()=> {
             return (reply.status(200).send({ message: "logged_in" }));
         })
-        console.log(connected)
     });
 
     done();    
