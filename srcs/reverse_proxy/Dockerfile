@@ -6,7 +6,6 @@ RUN apk update --no-cache
 RUN apk add nginx openssl --no-cache
 
 RUN mkdir -p /etc/nginx/ssl     \
-             /etc/nginx/ssl     \
              /var/run/nginx
 
 RUN openssl req -x509 -nodes \
