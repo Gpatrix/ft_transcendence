@@ -93,7 +93,7 @@ export default function RacketComponent({ id, left, right, bottom, angle }: Rack
         <span
             id={`racket-${id}`}
             style={{
-                left: left !== undefined ? `${left}%` : undefined,
+                left: left !== undefined ? `${left}px` : undefined,
                 right: right !== undefined ? `${right}%` : undefined,
                 bottom: bottom !== undefined ? `${bottom}%` : undefined,
                 rotate: angle !== undefined ? `${90 + angle}deg` : undefined

@@ -3,6 +3,7 @@ import { MatchMakingUser } from './MatchMaking';
 import { LobbyUser } from './Lobby';
 import { prisma } from "../config/prisma";
 
+
 export class GamesManager {
     static games: Map<number, PongGame> = new Map<number, PongGame>();
 
@@ -54,11 +55,11 @@ export class GamesManager {
             })
             if (!tournament)
                 throw('GamesManager: cannot insert game in DB');
-            const playerIds = tournament.games[0].players.map((player: any) => {
-                return (player.id);
+            const playerIds : Array<number> = tournament.games[0].players.map((player: any) => {
+                return (player.userId);
             });
             const newGame = new PongGame(playerIds, tournament.games[0].id);
-            GamesManager.waitAndStart(newGame);
+            // GamesManager.waitAndStart(newGame);
             GamesManager.games.set(tournament.games[0].id, newGame);
             return (tournament);
         } catch (error) {
