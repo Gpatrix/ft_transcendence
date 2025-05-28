@@ -7,7 +7,7 @@
 ## Continuel
 
 
-- [x] Major module: Use a framework or a toolkit to build the backend.
+- [x] Major module: Use a framework to build the backend.
 
 - [x] Minor module: Use a database for the backend.
 
@@ -60,7 +60,6 @@
 • Major module: Enabling Pong gameplay via CLI against web users with
 API integration.
 
-• Major module: Use a framework to build the backend.
 
 • Minor module: Support on all devices.
 

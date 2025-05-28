@@ -18,4 +18,6 @@ RUN chmod +x config_alertmanager.sh && ./config_alertmanager.sh
 COPY ./conf/entrypoint.sh .
 RUN chmod +x entrypoint.sh 
 
+EXPOSE 9093
+
 ENTRYPOINT ["./entrypoint.sh"]
