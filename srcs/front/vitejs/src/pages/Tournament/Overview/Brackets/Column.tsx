@@ -1,6 +1,6 @@
 import RightChat from "../../../Chat/RightChat";
 import Pair from "./Pair";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ColumnProps {
     players : Array<string>
@@ -9,58 +9,51 @@ interface ColumnProps {
 }
 
 export default function Column({players, left, right} : ColumnProps) {
-    const pairRefs = useRef<Array<HTMLDivElement | null>>([]);
+    const first = useRef<HTMLDivElement | null>(null);
+    const second = useRef<HTMLDivElement | null>(null);
     const [distance, setDistance] = useState<number>(0)
-
-    useEffect(() => {
-        if (pairRefs.current.length < 2) return;
-
-        const first = pairRefs.current[0]?.getBoundingClientRect();
-        const second = pairRefs.current[1]?.getBoundingClientRect();
-
-        if (first && second) {
-            console.log("DISTANCE:", second.top - first.top)
-            setDistance(second.top - first.top)
-        }
-    }, []);
 
     const pairs = [];
     for (let i = 0; i < players.length; i += 2) {
         pairs.push(
             <div
-                className="flex"
+                className="flex relative"
                 key={`pair-${i}`}
-                ref={(el) => (pairRefs.current[i / 2] = el)}
+                ref={i == 0 ? first : (i == 2 ? second : undefined)}
             >
                 <Pair
                     top={players[i]}
                     bottom={players[i + 1] ?? undefined}
                     left={left}
                     right={right}
+                    distance={distance}
                 />
+                {!(i % 4) &&  <span className="absolute left-[126%] top-[30px] bg-yellow w-[1px]" 
+                style={
+                    {height: `${distance}px` }
+                }></span>}
             </div>
         );
     }
     
-    const verticalBrackets = [];
-    for (let i = 0; i < players.length; i += 2) {
-        verticalBrackets.push(
-            <span key={i} className="block bg-yellow" style={{height: distance ? `${distance / 2}px` : ""}}></span>
-        );
-    }
+    useEffect(()=> {
+        const firstRect = first.current?.getBoundingClientRect()
+        const secondRect = second.current?.getBoundingClientRect()
+
+        if (!firstRect || !secondRect)
+            return ;
+        // console.log("FIRST: ", firstRect)
+        // console.log("SECOND: ", secondRect)
+
+        console.log("DISTANCE: ", secondRect.y - firstRect.y)
+        setDistance(secondRect.y - firstRect.y)
+    }, [])
 
     return (
         <div className="flex relative">
             <span className="flex  flex-col gap-[40px] justify-around mx-[40px]">
                 {pairs}
             </span>
-            {
-            left && 
-            <span className="absolute w-[1px] h-full flex flex-col gap-[40px] justify-around ">
-                {verticalBrackets}
-            </span>
-            }
-
         </div>
 
     )

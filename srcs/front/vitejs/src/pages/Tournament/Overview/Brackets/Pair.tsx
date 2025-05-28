@@ -5,9 +5,10 @@ interface PairProps {
     bottom:string
     left: boolean
     right: boolean
+    distance:number
 }
 
-export default function Pair({top, bottom, left, right}: PairProps) {
+export default function Pair({top, bottom, left, right, distance}: PairProps) {
     return (
         <div className={
             clsx("text-yellow flex flex-col justify-center border-1 \
@@ -16,8 +17,10 @@ export default function Pair({top, bottom, left, right}: PairProps) {
             <span className="h-[30px]  overflow-hidden">{top ? top : ""}</span>
             {bottom != null && <span className=" h-[30px]  overflow-hidden border-t-1">{bottom ? bottom : ""}</span>}
 
-            {right && <span className="absolute right-[-40px] bg-yellow w-[40px] h-[1px]"></span>}
-            {left && <span className="absolute left-[-40px] bg-yellow w-[40px] h-[1px]"></span>}
+            {right && <span className="absolute right-[-41px] bg-yellow w-[40px] h-[1px]"></span>}
+            {left && <span className="absolute left-[-41px] bg-yellow w-[40px] h-[1px]"></span>}
+
+
         </div>
     )
 }
