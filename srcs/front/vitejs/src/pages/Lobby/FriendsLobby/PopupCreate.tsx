@@ -40,7 +40,6 @@ export default function PopupCreate() {
 
         if ((Number(formValues.players) % 2) != 0)
             setError(get_server_translation("5003"))
-        console.log(formValues)
     }
 
     return (

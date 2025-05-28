@@ -28,7 +28,7 @@ type ProfilePicProps = {
 export default function ProfilePic({ image, className, profileLink, status='none'} : ProfilePicProps) {
     return (
         <Link to={profileLink}
-            className={clsx('relative max-w-fit h-full', className)}
+            className={clsx('relative ', className)}
         >
         { status != 'none' &&
             <span className="flex absolute right-[-10%] bottom-[10%] justify-center items-center rounded-full w-2/5 h-2/5 bg-grey">

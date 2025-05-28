@@ -78,8 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!response.ok) {
           setIsAuthenticated(false);
           const data = await response.json()
-          console.log(data)
-          if (data.error == "1020") { 
+          if (data.error == "1020") {
             navigate("/2fa-check");
             return ;
           }

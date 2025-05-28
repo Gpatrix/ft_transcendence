@@ -101,7 +101,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 const data = await res.json();
                 setStatsData(data);
             } catch (err) {
-                setError("0500");
+                setError(get_server_translation("0500"));
             }
         };
     
