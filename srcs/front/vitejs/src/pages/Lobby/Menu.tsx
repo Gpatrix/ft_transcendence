@@ -5,8 +5,12 @@ import { useState } from "react";
 import clsx from "clsx";
 
 interface MenuLinkProps {
-    link: string,
-    label: string
+    link?: string,
+    label: string,
+    first?: string
+    firstLink?: string
+    second?: string
+    secondLink?: string
 }
 
 export function MenuLink({link, label} : MenuLinkProps) {
@@ -29,7 +33,7 @@ export function MenuLink({link, label} : MenuLinkProps) {
     )
 }
 
-export function MenuMultiLink({ label }: MenuLinkProps) {
+export function MenuDropDown({ label, first, second, firstLink, secondLink }: MenuLinkProps) {
     const [state, setState] = useState<boolean>(false)
     const [fold, setFold] = useState<boolean>(false)
   
@@ -72,15 +76,15 @@ export function MenuMultiLink({ label }: MenuLinkProps) {
           >
             <Link
               className="block ml-8 uppercase text-yellow/70 hover:text-yellow focus:text-yellow font-bold transition-colors duration-300 text-2xl"
-              to="/lobby/friends"
+              to={firstLink ?? ""}
             >
-              Play with friends
+              {first}
             </Link>
             <Link
               className="block ml-16 uppercase text-yellow/70 hover:text-yellow focus:text-yellow font-bold transition-colors duration-300 text-2xl"
-              to="/lobby/matchmaking"
+              to={secondLink ?? ""}
             >
-              Matchmaking
+              {second}
             </Link>
           </div>
         </span>
@@ -90,8 +94,19 @@ export function MenuMultiLink({ label }: MenuLinkProps) {
 export default function Menu() {
     return (
         <BgShadow className="flex flex-col gap-8 ">
-            <MenuMultiLink label="multplayer"/>
-            <MenuLink link="/play/local" label="local game"/>
+            <MenuDropDown label="multiplayer" 
+                          first="play with friends"
+                          firstLink="/lobby/friends" 
+                          second="Matchmaking"
+                          secondLink="/lobby/matchmaking"/>
+
+            <MenuDropDown label="Local game" 
+                          first="1 vs 1"
+                          firstLink="/play/local" 
+                          second="Tournament"
+                          secondLink="/play/tournament"/>
+
+
             <MenuLink link="/profile" label="profile"/>
             <MenuLink link="/chat" label="social"/>
             
