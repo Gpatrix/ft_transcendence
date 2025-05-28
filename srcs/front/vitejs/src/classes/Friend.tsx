@@ -5,6 +5,9 @@ import FriendRequest from "./FriendRequest";
 
 const MESSAGE_RECIVED = 20;
 
+// pour prisma :
+// pnpx prisma studio
+
 class Friend extends User {
     // messages: Message[];
     connected: boolean;
@@ -43,14 +46,15 @@ class Friend extends User {
     {
         try {
             const requestData : RequestInit = {
-                method :  'POST',
+                method :  'GET',
                 credentials: 'include'
             }
             console.log(encodeURIComponent(name));
             
-            const response = await fetch(`/api/user/friends/requests/${encodeURIComponent(name)}`, requestData);
+            const response = await fetch(`/api/user/${encodeURIComponent(name)}`, requestData);
 
-                console.log("gfds");
+            console.log("gfds");
+            console.log(response);
                 
             // envoyer le json error plutot
 
