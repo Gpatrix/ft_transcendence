@@ -58,11 +58,10 @@ export default function CreateTournament() {
             array.push(new Array(nbPlayers).fill(""));
             nbPlayers /= 2
         }
-        array.push(new Array(1).fill(""));
 
         const json = btoa(JSON.stringify(array))
-        console.log(json)
-        navigate(`/play/tournament/overview?players=${json}`)
+        localStorage.setItem(`tournament`, json)
+        navigate(`/play/tournament/overview`)
     }
 
     return (
