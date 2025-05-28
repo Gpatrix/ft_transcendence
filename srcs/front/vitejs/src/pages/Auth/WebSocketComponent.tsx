@@ -74,7 +74,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         const ws = new WebSocket('wss://localhost/api/chat/connect');
 
         ws.onopen = () => {
-            console.log('WebSocket connecté');
             setSocket(ws);
         };
 
@@ -131,9 +130,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         };
 
         ws.onclose = () => {
-            console.log('WebSocket fermé');
             if (shouldReconnect.current) {
-                console.log(`Tentative de reconnexion dans ${RECONNECT_INTERVAL / 1000}s...`);
                 reconnectTimeout.current = setTimeout(connectWebSocket, RECONNECT_INTERVAL);
             }
         };

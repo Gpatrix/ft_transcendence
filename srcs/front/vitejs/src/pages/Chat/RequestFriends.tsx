@@ -26,7 +26,6 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
             if (socket)
                 socket.send(JSON.stringify({ action: 'acceptRequest', targetId: friendRequest.authorId }));
             const friends: Friend[] | undefined = await Friend.getFriends();
-            console.log(friends);
             if (friends != undefined)
             {
                 // IL FAUT MODIFIER CA !
@@ -45,8 +44,6 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
 
     const handleRefuseRequest = async (friendRequest: FriendRequest, i: number) => {
         const codeError = await friendRequest.refuseRequest();
-
-        console.log("Code error : " + codeError);
 
         if (codeError / 100 != 2)
         {
@@ -83,9 +80,6 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
                 {friendRequestTab.map((friendRequest, i) => {
 
                     if (friendRequest.author) {
-                        console.log(friendRequest.author);
-                        console.log(friendRequest.author.name);
-                        
                         return (<UserContact key={i} status='none'  userName={friendRequest.author.name} image={friendRequest.author.profPicture} >
                             <ClickableIco image='/icons/accept.svg' onClick={()=> handleAcceptRequest(friendRequest, i)} className="w-[30px] mr-1"/>
                             <ClickableIco image='/icons/trash.svg' onClick={()=> handleRefuseRequest(friendRequest, i)}/>

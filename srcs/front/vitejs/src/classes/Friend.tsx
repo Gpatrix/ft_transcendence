@@ -54,11 +54,6 @@ class Friend extends User {
                 
             // envoyer le json error plutot
 
-        
-            // console.log("Reponse HTTP :", response.status);
-            console.log(response);
-            
-
             return (response.status);
           } catch (error) {
             console.error("Erreur lors de l'envoi de la demande :", error);
@@ -76,7 +71,6 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/receivedFriendRequests`, requestData);
             
-            console.log("Reponse HTTP :", response.status);
             
             const dataReponse = await response.json();
 
@@ -103,8 +97,6 @@ class Friend extends User {
                 credentials: 'include'
             }
             const response = await fetch(`/api/user/friends`, requestData);
-            
-            // console.log("Reponse HTTP :", response.status);
 
             // console.log(response);
             
@@ -176,7 +168,6 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/blockUser`, requestData);
             
-            console.log("Reponse HTTP :", response.status);
             
             return (response.status);
 
@@ -197,7 +188,6 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/friends/${targetId}`, requestData);
             
-            console.log("Reponse HTTP :", response.status);
             
             return (response.status);
 

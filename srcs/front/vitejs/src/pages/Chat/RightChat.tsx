@@ -118,7 +118,6 @@ export default function RightChat({ friends, setFriends, profileData} : RightCha
                 />
                 <div className="bg-yellow rounded-xl">
                     <ClickableIco className="mx-[5px]" image={"/icons/game-alt.svg"} onClick={function (): void {
-                        console.log("Game !");
                         // navigate('/game'); + ajout utilisateur selectionne en game
                     } } />
 

@@ -26,9 +26,7 @@ export default function MatchResult({ states, className, users, idMainUser } : M
     const [expendedItem, setExpendedItem] = useState(false); // pour garder l'élément sélectionné
     
     const toggleMatch = () => {
-        console.log(expendedItem);
         setExpendedItem(!expendedItem);
-        console.log(styles);
         
     }
     const mainUser = Player.findUserById(users, idMainUser);
