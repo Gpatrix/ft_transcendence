@@ -12,7 +12,7 @@ class Player extends User {
         this.points = points;
         this.place = place;
     }
-    
+
     addPoints(newPoints: number) {
         this.points += newPoints;
     }
