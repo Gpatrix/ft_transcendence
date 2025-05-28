@@ -31,7 +31,6 @@ export default function History({ playerId }: { playerId: number }) {
 
         if (!res.ok) throw new Error("ERROR");
         const data = await res.json();
-        console.log(data)
         const parsedGames = data.games.map((match: any) => ({
           ...match,
           gameDate: new Date(match.gameDate)

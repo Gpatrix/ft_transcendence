@@ -99,7 +99,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 if (!res.ok) 
                     throw new Error("0500");
                 const data = await res.json();
-                console.log(data)
                 setStatsData(data);
             } catch (err) {
                 setError(get_server_translation("0500"));
