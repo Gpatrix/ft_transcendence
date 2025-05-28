@@ -3,8 +3,14 @@ FROM alpine:3.21.3
 WORKDIR  /usr/src/grafana-service
 
 RUN apk update --no-cache && \
-    apk add grafana envsubst --no-cache
+    apk add grafana envsubst openssl --no-cache
 
+
+RUN mkdir -p /etc/grafana/ssl     && \
+ openssl req -x509 -nodes \
+-out /etc/grafana/ssl/ft_transcendence.crt \
+-keyout /etc/grafana/ssl/ft_transcendence.key \
+-subj "/C=FR/ST=IDF/L=le havre/O=42/OU=42/CN=lchauvet.42.fr/UID=lchauvet"
 
 ARG GRAFANA_DB_USER
 ARG GRAFANA_DB_PASSWORD
