@@ -19,7 +19,7 @@ export default function CreateTournament() {
             return;
         }
         const nb = Number(getPlayers);
-        if (nb % 2 !== 0 || nb < 4 || nb > 10) {
+        if (![4, 8, 16].includes(nb)) {
             navigate("/404-error")
             return;
         }
@@ -49,7 +49,20 @@ export default function CreateTournament() {
         if (newErrors.includes(true)) {
             return;
         }
+        let array : Array<Array<string>> =[[]];
+        array[0] = playerNicknames
 
+        let nbPlayers : number = players / 2;
+        while (nbPlayers >= 2) {
+            console.log(nbPlayers)
+            array.push(new Array(nbPlayers).fill(""));
+            nbPlayers /= 2
+        }
+        array.push(new Array(1).fill(""));
+
+        const json = btoa(JSON.stringify(array))
+        console.log(json)
+        navigate(`/play/tournament/overview?players=${json}`)
     }
 
     return (

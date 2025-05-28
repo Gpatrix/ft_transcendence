@@ -12,7 +12,7 @@ export default function AskPlayers() {
             <span className="flex flex-col gap-9 w-[400px]">
             {(() => {
                 let rows = [];
-                for (let i = 4; i < 11; i+=2) {
+                for (let i = 4; i <= 16; i+= i ) {
                   rows.push(
                     <Link key={i} to={`/play/tournament/create?players=${i}`}>
                         <Button className="w-full uppercase font-title hover:bg-yellow hover:text-grey">
