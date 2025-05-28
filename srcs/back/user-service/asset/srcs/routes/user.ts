@@ -271,8 +271,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
+                selectFields.id = true,
                 selectFields.email = true,
-                selectFields.lang = true
+                selectFields.lang = true,
                 selectFields.isTwoFactorEnabled = true
             }
             const data = await prisma.user.findUnique({

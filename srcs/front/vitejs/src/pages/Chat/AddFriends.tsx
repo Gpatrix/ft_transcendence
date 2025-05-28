@@ -1,10 +1,7 @@
-import Button from "../../components/Button.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
+import { FormEvent, ChangeEvent, useState } from "react";
 import Friend from "../../classes/Friend.tsx"
-import UserContact from "../../components/UserContact.tsx";
-import ClickableIco from "../../components/ClickableIco.tsx";
 
 type AddFriendsProps = {
     // test?: React.Dispatch<SetStateAction<number>>,
@@ -48,7 +45,12 @@ export default function AddFriends({} : AddFriendsProps) {
                 }
                 {
                     Math.round(inputResponse / 100) != 2 && inputResponse != -1 &&
-                    <div className="py-2 text-light-red">Erreur {inputResponse}</div>
+                    <div className="py-2 text-light-red">{inputResponse}</div>
+                    // utiliset getServeurTranslation
+                    // 401 = vous meme
+                    // 429 = invitation deja envoye
+                    // 500 = utilisateur non existant
+                    // 404 = deja en ami
                 }
 
                 <div>
