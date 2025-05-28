@@ -223,7 +223,7 @@ volumes:
   db-game:
   db-upload:
   db-blockchain:
-  # db-monitoring:
+  db-monitoring:
 
 networks:
   router:

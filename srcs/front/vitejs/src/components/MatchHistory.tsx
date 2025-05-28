@@ -102,7 +102,7 @@ export default function MatchResult({ match }: MatchResultProps) {
       }
     };
    
-    fetchUsers();
+    fetchUsers(); 
   }, [match]);
 
   useEffect(() => {
