@@ -45,15 +45,47 @@ class IA {
 	private opponentHits: number = 0;
 	private mood: IAMood = IAMood.NEUTRAL;
 	private racket: Racket;
+	private moovingInterval: number | undefined = undefined;
+	private fixingMoveInterval: number | undefined = undefined;
 
 	constructor(racket: Racket) {
 		this.racket = racket;
 	}
 
-	public onOpponentHit(ballCoords: pos, opponentRacket: Racket) {
+	public onOpponentHit(ball: Ball, opponentRacket: Racket) {
+		const ballCoords = ball.position;
 		const hitScaleY = ballCoords.y - opponentRacket.pos.y / opponentRacket.properties.height;
 		this.opponentAverageHitY = this.opponentAverageHitY * this.opponentHits + hitScaleY;
 		this.opponentHits++;
+	}
+
+	public onRoofHit(ball: Ball): void
+	{
+		const landing = this.calculateBallLanding(ball);
+		const estimatedHitY = this.randomizeEstimated(landing[0], landing[1]);
+	}
+
+	public onRacketHit(ball: Ball): void
+	{
+		ball ;
+		this.clearIntervals();
+	}
+
+	public onStart(, ball: Ball)
+	{
+		//
+	}
+
+	private reseteData(): void
+	{
+		this.mood = IAMood.NEUTRAL;
+		this.clearIntervals();
+	}
+
+	public onGoal(ball: Ball): void
+	{
+		ball;
+		this.reseteData();
 	}
 
 	public get opponentFavoriteSide(): RacketPart
@@ -79,52 +111,90 @@ class IA {
 		}
 	}
 
-	private calculateBallLanding(ball: Ball) {
+	private calculateBallLanding(ball: Ball): Array<number> {
         const distanceX = mapDimension.x - ball.position.x;
 
         let landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
+		let colisionCount = 0;
         if (landingY < 0 || landingY > mapDimension.y)
-            landingY = landingY % mapDimension.y;
-        return (landingY);
+		{
+			colisionCount = Math.floor(Math.abs(landingY) / mapDimension.y);
+			landingY = landingY % mapDimension.y;
+		}
+        return ([landingY, colisionCount]);
     }
 
-	private randomizeEstimated(realHitY: number): number
+	private randomizeEstimated(realHitY: number, colisionCount: number, tryCount: number): number
 	{
 		// const modifiers = this.moodModifiers;
 		const random = Math.random();
-		const b = realHitY - IA.DEFAULT_ESTIMATION_ACCURACY / 2;
-		const y =   b + random * IA.DEFAULT_ESTIMATION_ACCURACY;
+		const estimationAccuracy = (IA.DEFAULT_ESTIMATION_ACCURACY + IA.DEFAULT_ESTIMATION_ACCURACY * colisionCount * IA.COLISION_ESTIMATION_ACCURACY_MULTIPLIER) / tryCount;
+		const b = realHitY - estimationAccuracy / 2;
+		const y =   b + random * estimationAccuracy;
 		return (y);
 	}
 
-	private randomizeDestY(estimatedHitY: number): number
+	private randomizeDestY(estimatedHitY: number, tryCount: number): number
 	{
 		// const modifiers = this.moodModifiers;
+		tryCount ;
 		const isHigher: number = estimatedHitY > this.racket.pos.y ? 1 : 0;
 		const random = Math.random();
 		const b  = estimatedHitY + (isHigher * this.racket.properties.height) - IA.DEFAULT_ACCURACY;
 		return (b + random * IA.DEFAULT_ACCURACY);
 	}
 
-	public goToEstimated(currentKeysRef: any, ball: Ball)
+	private async goToEstimated(pressedKeysRef: any, whereToStopY: number): Promise<void>
 	{
-		const whereToStopY = this.randomizeDestY(this.randomizeEstimated(this.calculateBallLanding(ball)));
-		const loopInterval = setInterval(() => {
+		this.moovingInterval = setInterval(() => {
 			if (this.racket.pos.y < whereToStopY)
 			{
-				if (!) // implement keyboard here 
+				if (this.racket.pos.y >= whereToStopY && pressedKeysRef.current.has("BOT_DOWN")) {
+                    pressedKeysRef.current.delete("BOT_DOWN");
+                }
+                if (this.racket.pos.y < whereToStopY && !pressedKeysRef.current.has("BOT_DOWN")) {
+                    pressedKeysRef.current.add("BOT_DOWN");
+                }
+                if (this.racket.pos.y <= whereToStopY && pressedKeysRef.current.has("BOT_UP")) {
+                    pressedKeysRef.current.delete("BOT_UP");
+                }
+                if (this.racket.pos.y > whereToStopY && !pressedKeysRef.current.has("BOT_UP")) {
+                    pressedKeysRef.current.add("BOT_UP");
+                }
 			}
-
 		}, 1);
-		consts fixPosInterval = setInterval(() => {
-				
-		}, IA.DEFAULT_REACTION_TIME);
+		return ;
 	}
 
+	private async clearIntervals(): Promise<void>
+	{
+		if (this.fixingMoveInterval !== undefined) {
+			clearInterval(this.fixingMoveInterval);
+			this.fixingMoveInterval = undefined;
+		}
+		if (this.moovingInterval !== undefined) {
+			clearInterval(this.moovingInterval);
+			this.moovingInterval = undefined;
+		}
+		return ;
+	}
 
+	private async moovingLoop(pressedKeysRef: any, ball: Ball): Promise<void>
+	{
+		let tryCount = 0;
+		if (this.fixingMoveInterval !== undefined) {
+			clearInterval(this.fixingMoveInterval);
+		}
+		if (this.moovingInterval !== undefined) {
+			clearInterval(this.moovingInterval);
+		}
+		const whereToStopY = this.randomizeDestY(this.randomizeEstimated(this.calculateBallLanding(ball)[0], this.calculateBallLanding(ball)[1], tryCount), tryCount);
 
-
-
+		this.fixingMoveInterval = setInterval(async () => {
+			await this.goToEstimated(pressedKeysRef, whereToStopY);
+		}, IA.DEFAULT_REACTION_TIME);
+		return ;
+	}
 }
 
 export default IA
