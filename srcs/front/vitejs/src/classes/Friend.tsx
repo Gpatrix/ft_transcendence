@@ -13,6 +13,8 @@ class Friend extends User {
     connected: boolean;
     nbNotifs: number;
 
+    
+
 
 
     constructor(id: number, name: string, email: string, profPicture: string, bio: string, lang : string,
@@ -42,27 +44,24 @@ class Friend extends User {
         this.nbNotifs = newNbNotifs;
     }
     
-    static async friendRequest(name: string) : Promise<number>
+    static async friendRequest(id: number) : Promise<string>
     {
         try {
             const requestData : RequestInit = {
-                method :  'GET',
+                method :  'POST',
                 credentials: 'include'
             }
-            console.log(encodeURIComponent(name));
-            
-            const response = await fetch(`/api/user/${encodeURIComponent(name)}`, requestData);
+            const response = await fetch(`/api/user/friends/requests/${id}`, requestData);
 
-            console.log("gfds");
-            console.log(response);
+            if (response.status)
+                return (String(response.status))
                 
-            // envoyer le json error plutot
-
-            return (response.status);
+			const dataReponse = await response.json();
+            return (dataReponse.error);
           } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
+            console.log("Erreur lors de l'envoi de la demande :", error);
             
-            return (500);
+            return ("500");
           }
     }
 
