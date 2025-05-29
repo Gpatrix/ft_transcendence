@@ -183,8 +183,8 @@ services:
           GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
     networks:
       - router
-    ports:
-      - 4000:3000
+    expose:
+      - 3000
 
   alertmanager-service:
     container_name: alertmanager-service
@@ -201,8 +201,8 @@ services:
           ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
     networks:
       - router
-    ports:
-      - 9093:9093
+    expose:
+      - 9093
 
   front_dev:
     container_name: front_dev
