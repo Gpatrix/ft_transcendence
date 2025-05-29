@@ -11,59 +11,77 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
         name: string
     }
 
-    // server.post<{ Params: postUserFriendRequestParams }>('/api/user/friends/requests/:name', async (request: any, reply: any) => {
-    //     try {
-    //         const targetName = request.params?.name;
-    //         const token = request.cookies['ft_transcendence_jw_token'];
-    //         if (!token)
-    //             return reply.status(403).send({ error: "0403" });
-    //         const decoded = jwt.decode(token);
-    //         const id = decoded?.data?.id;
-    //         if (!id)
-    //             return reply.status(403).send({ error: "0403" });
-    //         const user = await prisma.user.findUnique({
-    //             where: { 
-    //                 id: Number(id),
-    //             }
-    //         })
-    //         if (!user)
-    //             return reply.status(404).send({ error: "0403" });
-    //         const target = await prisma.user.findUnique({
-    //             where: { 
-    //                 name: targetName
-    //             }
-    //         })
-    //         const isAlreadyFriend = await prisma.friend.findFirst({
-    //             where: {
-    //                 userId: user.id,
-    //                 friendUserId: target.id
-    //             }
-    //         })
-    //         if (!target || isAlreadyFriend)
-    //             return reply.status(404).send({ error: "2012" });
-    //         if (target.id == user.id)
-    //             return reply.status(401).send({ error: "2011" });
-    //         const existingFriendRequest = await prisma.friendRequest.findFirst({
-    //             where: {
-    //                 authorId: user.id,
-    //                 targetId: target.id
-    //             }
-    //         })
-    //         if (existingFriendRequest)
-    //             return reply.status(429).send({ error: '2013'})
-    //         await prisma.friendRequest.create({
-    //             data: {
-    //                 author: { connect: { id: user.id } },
-    //                 target: { connect: { id: target.id } }
-    //             }
-    //         })
-    //         reply.status(201).send();
-    //     } catch (error) {
-    //         {
-    //             return reply.status(500).send({ error: "0500" });
-    //         }
-    //     }
-    // })
+    server.post<{ Params: postUserFriendRequestParams }>('/api/user/friends/requests/:id', async (request: any, reply: any) => {
+        try {
+
+            // const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
+            
+            console.log("test1");
+            
+
+            const targetId = Number(request.params?.id);
+            const token = request.cookies['ft_transcendence_jw_token'];
+            if (!token)
+                return reply.status(403).send({ error: "0403" });
+            const decoded = jwt.decode(token);
+            const id = decoded?.data?.id;
+            if (!id)
+                return reply.status(403).send({ error: "0403" });
+            const user = await prisma.user.findUnique({
+                where: { 
+                    id: Number(id),
+                }
+            })
+            if (!user)
+                return reply.status(404).send({ error: "0403" });
+
+            console.log("test2");
+
+            const target = await prisma.user.findUnique({
+                where: { 
+                    id: targetId
+                }
+            })
+
+            console.log("test2.1");
+
+            const isAlreadyFriend = await prisma.friend.findFirst({
+                where: {
+                    userId: user.id,
+                    friendUserId: target.id
+                }
+            })
+
+            console.log("test3");
+
+            if (!target || isAlreadyFriend)
+                return reply.status(404).send({ error: "2012" });
+            if (target.id == user.id)
+                return reply.status(401).send({ error: "2011" });
+            const existingFriendRequest = await prisma.friendRequest.findFirst({
+                where: {
+                    authorId: user.id,
+                    targetId: target.id
+                }
+            })
+
+            console.log("test4");
+
+            if (existingFriendRequest)
+                return reply.status(429).send({ error: '2013'})
+            await prisma.friendRequest.create({
+                data: {
+                    author: { connect: { id: user.id } },
+                    target: { connect: { id: target.id } }
+                }
+            })
+            reply.status(201).send();
+        } catch (error) {
+            {
+                return reply.status(500).send({ error: "0500" });
+            }
+        }
+    })
 
     server.get<{ Params: postUserFriendRequestParams }>('/api/user/:name', async (request: any, reply: any) => {
         try {
@@ -86,6 +104,15 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const targets : User[] = await prisma.user.findMany({
                 where: { 
                     name: targetName
+                },
+                select: {
+                    bio: true,
+                    email: true,
+                    id: true,
+                    isTwoFactorEnabled: true,
+                    name: true,
+                    profPicture: true,
+                    rank: true,
                 }
             })
             console.log("targets");

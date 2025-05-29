@@ -47,7 +47,9 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
 
         if (codeError / 100 != 2)
         {
-            alert("Erreur 200");
+            const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
+            newFriendRequestTab.splice(i, 1);
+            setFriendRequestTab(newFriendRequestTab);
         }
         else
         {
