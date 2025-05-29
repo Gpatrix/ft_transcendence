@@ -1,3 +1,4 @@
+import IA from "../../../classes/IA";
 import {Racket} from "../Racket"
 
 export interface pos {
@@ -54,7 +55,7 @@ export class Ball {
         }
     }
 
-    checkRacketCollision(rackets: Array<Racket>) {
+    checkRacketCollision(rackets: Array<Racket>, ia?: IA) {
         rackets.forEach((racket)=> {
             if (this.position.x > this.mapDimensions.x / 3 
                 && this.position.x < this.mapDimensions.x /3 * 2)
@@ -109,6 +110,9 @@ export class Ball {
                     this.velocity.x = maxSpeed * Math.sign(this.velocity.x);
                 }
                 this.lastToucher = isLeftSide ? 0 : 1;
+                if (ia !== undefined)
+                    if (this.lastToucher === 0)
+                        ia.onOpponentHit(racket);
                 return;
             }
         });

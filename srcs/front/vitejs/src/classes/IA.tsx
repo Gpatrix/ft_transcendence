@@ -1,7 +1,10 @@
 import { Racket } from '../pages/Game/Racket';
-import { pos, dimension } from "./LocalBall.tsx"
-import { mapDimension } from '../pages/Game/Local/LocalGame.tsx';
 import { Ball } from '../pages/Game/Local/LocalBall.tsx';
+
+interface dimension {
+    x: number,
+    y: number
+}
 
 type coef = number;
 
@@ -36,7 +39,10 @@ enum RacketPart {
 	UPPER
 }
 
-class IA {
+export class IA {
+	private racket: Racket;
+	private ball: Ball;
+
 	static DEFAULT_REACTION_TIME = 200;
 	static DEFAULT_ACCURACY = 1.20;      // default plage, it miss is wanted  dest (DEFAULT_ACCURACY - 1)% of the time
 	static DEFAULT_ESTIMATION_ACCURACY = 0.20; // default estimated plage, where the bot think the ball will end
@@ -44,36 +50,35 @@ class IA {
 	private opponentAverageHitY: number = 0.5;
 	private opponentHits: number = 0;
 	private mood: IAMood = IAMood.NEUTRAL;
-	private racket: Racket;
-	private moovingInterval: number | undefined = undefined;
+	private movingTimeout: number | undefined = undefined;
 	private fixingMoveInterval: number | undefined = undefined;
+	private estimatedHitY: number = 0;
+	private pressedKeys: Set<string>;            // to access value call this.pressedKeys.current because it is a ref
+	private readonly mapDimension: dimension;
 
-	constructor(racket: Racket) {
+	constructor(racket: Racket, ball: Ball, pressedKeys: Set<string>, mapDimension: mapDimension = dimension) {
 		this.racket = racket;
+		this.ball = ball;
+		this.pressedKeys = pressedKeys;
+		this.mapDimension = mapDimension;
 	}
 
-	public onOpponentHit(ball: Ball, opponentRacket: Racket) {
-		const ballCoords = ball.position;
+	public onOpponentHit(opponentRacket: Racket) {
+		const ballCoords = this.ball.position;
 		const hitScaleY = ballCoords.y - opponentRacket.pos.y / opponentRacket.properties.height;
 		this.opponentAverageHitY = this.opponentAverageHitY * this.opponentHits + hitScaleY;
 		this.opponentHits++;
+		this.tryToInterceptShot();
 	}
 
-	public onRoofHit(ball: Ball): void
+	public onRacketHit(): void
 	{
-		const landing = this.calculateBallLanding(ball);
-		const estimatedHitY = this.randomizeEstimated(landing[0], landing[1]);
-	}
-
-	public onRacketHit(ball: Ball): void
-	{
-		ball ;
 		this.clearIntervals();
 	}
 
-	public onStart(, ball: Ball)
+	public onBallLaunch()
 	{
-		//
+		this.tryToInterceptShot();
 	}
 
 	private reseteData(): void
@@ -82,9 +87,8 @@ class IA {
 		this.clearIntervals();
 	}
 
-	public onGoal(ball: Ball): void
+	public onGoal(): void
 	{
-		ball;
 		this.reseteData();
 	}
 
@@ -97,7 +101,7 @@ class IA {
 	{
 		const normalized = this.opponentAverageHitY % 0.5;
 		const distance = (0.5 - normalized) * 2;
-		return (distance);
+		return (Math.abs(distance));
 	}
 
 	public get moodModifiers(): MoodModifiers {
@@ -111,15 +115,18 @@ class IA {
 		}
 	}
 
-	private calculateBallLanding(ball: Ball): Array<number> {
-        const distanceX = mapDimension.x - ball.position.x;
+	private calculateBallLanding(ball: Ball): Array<number> | undefined {
+        const distanceX = this.mapDimension.x - ball.position.x;
+
+		if (ball.velocity.x === 0)
+			return (undefined);
 
         let landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
 		let colisionCount = 0;
-        if (landingY < 0 || landingY > mapDimension.y)
+        if (landingY < 0 || landingY > this.mapDimension.y)
 		{
-			colisionCount = Math.floor(Math.abs(landingY) / mapDimension.y);
-			landingY = landingY % mapDimension.y;
+			colisionCount = Math.floor(Math.abs(landingY) / this.mapDimension.y);
+			landingY = Math.abs(landingY % this.mapDimension.y);
 		}
         return ([landingY, colisionCount]);
     }
@@ -128,7 +135,8 @@ class IA {
 	{
 		// const modifiers = this.moodModifiers;
 		const random = Math.random();
-		const estimationAccuracy = (IA.DEFAULT_ESTIMATION_ACCURACY + IA.DEFAULT_ESTIMATION_ACCURACY * colisionCount * IA.COLISION_ESTIMATION_ACCURACY_MULTIPLIER) / tryCount;
+		const estimationAccuracy = this.moodModifiers.accuracy * IA.DEFAULT_ACCURACY;
+		// const estimationAccuracy = (IA.DEFAULT_ESTIMATION_ACCURACY + IA.DEFAULT_ESTIMATION_ACCURACY * colisionCount * IA.COLISION_ESTIMATION_ACCURACY_MULTIPLIER) / tryCount;
 		const b = realHitY - estimationAccuracy / 2;
 		const y =   b + random * estimationAccuracy;
 		return (y);
@@ -144,26 +152,23 @@ class IA {
 		return (b + random * IA.DEFAULT_ACCURACY);
 	}
 
-	private async goToEstimated(pressedKeysRef: any, whereToStopY: number): Promise<void>
+	private async goToEstimated(whereToStopY: number): Promise<void>
 	{
-		this.moovingInterval = setInterval(() => {
-			if (this.racket.pos.y < whereToStopY)
-			{
-				if (this.racket.pos.y >= whereToStopY && pressedKeysRef.current.has("BOT_DOWN")) {
-                    pressedKeysRef.current.delete("BOT_DOWN");
-                }
-                if (this.racket.pos.y < whereToStopY && !pressedKeysRef.current.has("BOT_DOWN")) {
-                    pressedKeysRef.current.add("BOT_DOWN");
-                }
-                if (this.racket.pos.y <= whereToStopY && pressedKeysRef.current.has("BOT_UP")) {
-                    pressedKeysRef.current.delete("BOT_UP");
-                }
-                if (this.racket.pos.y > whereToStopY && !pressedKeysRef.current.has("BOT_UP")) {
-                    pressedKeysRef.current.add("BOT_UP");
-                }
-			}
-		}, 1);
-		return ;
+		const timeToGo = Math.abs(whereToStopY - this.racket.pos.y) / this.racket.properties.speed;
+		// TODO time to go is broken it refers to a time but we have to refer to a tick
+		if (whereToStopY > this.racket.pos.y + this.racket.properties.height / 2)
+			this.pressedKeys.add("BOT_DOWN");
+		else if (whereToStopY < this.racket.pos.y - this.racket.properties.height / 2)
+			this.pressedKeys.add("BOT_UP");
+
+		await new Promise<void>(resolve => {
+			this.movingTimeout = setTimeout(() => {
+				this.pressedKeys.delete("BOT_UP");
+				this.pressedKeys.delete("BOT_DOWN");
+			}, timeToGo);
+			resolve();
+		})
+
 	}
 
 	private async clearIntervals(): Promise<void>
@@ -172,27 +177,35 @@ class IA {
 			clearInterval(this.fixingMoveInterval);
 			this.fixingMoveInterval = undefined;
 		}
-		if (this.moovingInterval !== undefined) {
-			clearInterval(this.moovingInterval);
-			this.moovingInterval = undefined;
+		if (this.movingTimeout !== undefined) {
+			clearInterval(this.movingTimeout);
+			this.movingTimeout = undefined;
 		}
 		return ;
 	}
 
-	private async moovingLoop(pressedKeysRef: any, ball: Ball): Promise<void>
+	private async tryToInterceptShot(): Promise<void>
 	{
 		let tryCount = 0;
 		if (this.fixingMoveInterval !== undefined) {
 			clearInterval(this.fixingMoveInterval);
 		}
-		if (this.moovingInterval !== undefined) {
-			clearInterval(this.moovingInterval);
+		if (this.movingTimeout !== undefined) {
+			clearInterval(this.movingTimeout);
 		}
-		const whereToStopY = this.randomizeDestY(this.randomizeEstimated(this.calculateBallLanding(ball)[0], this.calculateBallLanding(ball)[1], tryCount), tryCount);
+		const calculatedBallLanding: Array<number> | undefined = this.calculateBallLanding(this.ball);
+		if (calculatedBallLanding === undefined) {
+			return ;
+		}
 
-		this.fixingMoveInterval = setInterval(async () => {
-			await this.goToEstimated(pressedKeysRef, whereToStopY);
-		}, IA.DEFAULT_REACTION_TIME);
+		this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1], tryCount);
+		const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY, tryCount);
+		await this.goToEstimated(whereToStopY);
+
+
+		// this.fixingMoveInterval = setInterval(async () => {
+		// 	tryCount++;
+		// }, IA.DEFAULT_REACTION_TIME);
 		return ;
 	}
 }
