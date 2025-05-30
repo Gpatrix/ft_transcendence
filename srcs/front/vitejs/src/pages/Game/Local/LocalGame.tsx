@@ -70,8 +70,9 @@ export default function Game() {
 
         let animationFrameId: number;
         ball.current.resetPos();
-        ia.current.onBallLaunch();
-
+        setTimeout(() => {
+            ia.current?.refreshView(r1, ball.current);
+        }, 1000);
         let lastTime = performance.now();
         
         const loop = (now: any) => {
@@ -80,7 +81,7 @@ export default function Game() {
 
             rackets.current.forEach(r => r.update(pressedKeys.current, deltaTime));
             ball.current.nextPos(deltaTime);
-            ball.current.checkRacketCollision(rackets.current, isBot ? ia.current : undefined);
+            ball.current.checkRacketCollision(rackets.current);
             const result = ball.current.checkVerticalCollision();
 
             if (result != -1) {
@@ -88,7 +89,6 @@ export default function Game() {
                 ball.current.resetPos();
                 setTimeout(()=>{
                     ball.current.unFreeze();
-                    ia.current.onBallLaunch();
                 }, 500)
             }
             // setTicks((t)=> t+1);

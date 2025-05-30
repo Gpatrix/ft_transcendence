@@ -56,19 +56,18 @@ export class IA {
 	private pressedKeys: Set<string>;            // to access value call this.pressedKeys.current because it is a ref
 	private readonly mapDimension: dimension;
 
-	constructor(racket: Racket, ball: Ball, pressedKeys: Set<string>, mapDimension: mapDimension = dimension) {
+	constructor(racket: Racket, pressedKeys: Set<string>, mapDimension: mapDimension = dimension) {
 		this.racket = racket;
-		this.ball = ball;
 		this.pressedKeys = pressedKeys;
 		this.mapDimension = mapDimension;
 	}
 
-	public onOpponentHit(opponentRacket: Racket) {
-		const ballCoords = this.ball.position;
-		const hitScaleY = ballCoords.y - opponentRacket.pos.y / opponentRacket.properties.height;
-		this.opponentAverageHitY = this.opponentAverageHitY * this.opponentHits + hitScaleY;
-		this.opponentHits++;
-		this.tryToInterceptShot();
+	public refreshView(opponentRacket: Racket, ball: Ball) {
+		// const ballCoords = ball.position;
+		// const hitScaleY = ballCoords.y - opponentRacket.pos.y / opponentRacket.properties.height;
+		// this.opponentAverageHitY = this.opponentAverageHitY * this.opponentHits + hitScaleY;
+		// this.opponentHits++;
+		this.tryToInterceptShot(ball);
 	}
 
 	public onRacketHit(): void
@@ -121,14 +120,15 @@ export class IA {
 		if (ball.velocity.x === 0)
 			return (undefined);
 
-        let landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
-		let colisionCount = 0;
-        if (landingY < 0 || landingY > this.mapDimension.y)
-		{
-			colisionCount = Math.floor(Math.abs(landingY) / this.mapDimension.y);
-			landingY = Math.abs(landingY % this.mapDimension.y);
-		}
-        return ([landingY, colisionCount]);
+        const landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
+		const colisionCount = Math.floor(landingY / this.mapDimension.y);
+		const normalizedLandingY = landingY % this.mapDimension.y;
+		let result: number | undefined;
+		if (colisionCount % 2 != 0)
+			result = this.mapDimension.y - normalizedLandingY % this.mapDimension.y;
+		else
+			result = this.mapDimension.y % this.mapDimension.y
+        return ([result, colisionCount]);
     }
 
 	private randomizeEstimated(realHitY: number, colisionCount: number, tryCount: number): number
@@ -192,7 +192,7 @@ export class IA {
 		return ;
 	}
 
-	private async tryToInterceptShot(): Promise<void>
+	private async tryToInterceptShot(ball: Ball): Promise<void>
 	{
 		let tryCount = 0;
 		if (this.fixingMoveInterval !== undefined) {
@@ -201,7 +201,7 @@ export class IA {
 		if (this.movingTimeout !== undefined) {
 			clearInterval(this.movingTimeout);
 		}
-		const calculatedBallLanding: Array<number> | undefined = this.calculateBallLanding(this.ball);
+		const calculatedBallLanding: Array<number> | undefined = this.calculateBallLanding(ball);
 		if (calculatedBallLanding === undefined) {
 			return ;
 		}

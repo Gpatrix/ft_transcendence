@@ -60,7 +60,7 @@ export class Ball {
         }
     }
 
-    checkRacketCollision(rackets: Array<Racket>, ia?: IA) {
+    checkRacketCollision(rackets: Array<Racket>) {
         rackets.forEach((racket)=> {
             if (this.position.x > this.mapDimensions.x / 3 
                 && this.position.x < this.mapDimensions.x /3 * 2)
@@ -114,9 +114,6 @@ export class Ball {
                     this.velocity.x = Ball.maxSpeed * Math.sign(this.velocity.x);
                 }
                 this.lastToucher = isLeftSide ? 0 : 1;
-                if (ia !== undefined)
-                    if (this.lastToucher === 0)
-                        ia.onOpponentHit(racket);
                 return;
             }
         });
