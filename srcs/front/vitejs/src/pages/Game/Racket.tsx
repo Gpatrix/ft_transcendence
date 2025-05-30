@@ -67,14 +67,14 @@ export class Racket {
         return (rect.y + rect.height <= this.properties.limits.bottom)
     }
 
-    update(pressedKeys: Set<string>) {
+    update(pressedKeys: Set<string>, deltaTime: number) {
         if (pressedKeys.has(this.keyUp)) {
             if (this.checkCollsions(Direction.UP))
-                this.pos.y -= this.properties.speed
+                this.pos.y -= this.properties.speed * deltaTime;
         }
         if (pressedKeys.has(this.keyDown)) {
             if (this.checkCollsions(Direction.DOWN))
-                this.pos.y += this.properties.speed
+                this.pos.y += this.properties.speed * deltaTime;
         }
         this.element.style.transform = `translateY(${this.pos.y}px)`
     }   

@@ -16,8 +16,8 @@ const defaultPos : pos = {
 }
 
 const defaultVelocity : pos = {
-    x: 4.5,
-    y: 4.6
+    x: 450,
+    y: 460
 }
 
 const mapDimension : dimension = {
@@ -44,8 +44,8 @@ export default function Game() {
     }
 
     useEffect(() => {
-        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 8 });
-        const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 8 });
+        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 350 });
+        const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 350 });
         rackets.current = [r1, r2];
     
         ia.current = new IA(r2, ball.current, pressedKeys.current, mapDimension);
@@ -62,6 +62,7 @@ export default function Game() {
                 }, 3000)
             }
         };
+        console.log('re redner')
 
         window.addEventListener("keydown", handleKeyDown);
         window.addEventListener("keyup", handleKeyUp);
@@ -71,9 +72,14 @@ export default function Game() {
         ball.current.resetPos();
         ia.current.onBallLaunch();
 
-        const loop = () => {
-            rackets.current.forEach(r => r.update(pressedKeys.current));
-            ball.current.nextPos();
+        let lastTime = performance.now();
+        
+        const loop = (now: any) => {
+            const deltaTime = (now - lastTime) / 1000; // In seconds
+            lastTime = performance.now();
+
+            rackets.current.forEach(r => r.update(pressedKeys.current, deltaTime));
+            ball.current.nextPos(deltaTime);
             ball.current.checkRacketCollision(rackets.current, isBot ? ia.current : undefined);
             const result = ball.current.checkVerticalCollision();
 
@@ -85,12 +91,11 @@ export default function Game() {
                     ia.current.onBallLaunch();
                 }, 500)
             }
-            setTicks((t)=> t+1);
+            // setTicks((t)=> t+1);
             animationFrameId = requestAnimationFrame(loop);
         };
 
-        loop();
-
+        animationFrameId = requestAnimationFrame(loop);
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);

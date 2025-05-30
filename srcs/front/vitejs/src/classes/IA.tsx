@@ -154,8 +154,11 @@ export class IA {
 
 	private async goToEstimated(whereToStopY: number): Promise<void>
 	{
-		const timeToGo = Math.abs(whereToStopY - this.racket.pos.y) / this.racket.properties.speed;
+		// console.log('distance to go:', Math.abs(whereToStopY - this.racket.pos.y));
+		// console.log('speed:', this.racket.properties.speed);
+		const timeToGo = Math.abs(whereToStopY - this.racket.pos.y) / (this.racket.properties.speed / 1000); // in seconds;
 		// TODO time to go is broken it refers to a time but we have to refer to a tick
+		// console.log(`IA: going to estimated Y: ${whereToStopY} in ${timeToGo}ms`);
 		if (whereToStopY > this.racket.pos.y + this.racket.properties.height / 2)
 			this.pressedKeys.add("BOT_DOWN");
 		else if (whereToStopY < this.racket.pos.y - this.racket.properties.height / 2)
@@ -165,10 +168,9 @@ export class IA {
 			this.movingTimeout = setTimeout(() => {
 				this.pressedKeys.delete("BOT_UP");
 				this.pressedKeys.delete("BOT_DOWN");
+				resolve();
 			}, timeToGo);
-			resolve();
 		})
-
 	}
 
 	private async clearIntervals(): Promise<void>

@@ -21,9 +21,9 @@ class Ball {
     lastToucher: number = -1;
 
     set setVelocity(newVelocity: velocity) {
-        if (newVelocity.x < 10)
+        if (newVelocity.x < 1500)
             this.velocity.x = newVelocity.x;
-        if (newVelocity.y < 10)
+        if (newVelocity.y < 1500)
             this.velocity.y = newVelocity.y;      
     }
 
