@@ -6,34 +6,6 @@ interface dimension {
     y: number
 }
 
-type coef = number;
-
-interface MoodModifiers {
-	reactionTime: coef;
-	accuracy: coef;
-}
-
-const NEUTRAL_MODIFIERS: MoodModifiers = {
-	reactionTime: 1.0,
-	accuracy: 1.0
-}
-
-const ATTACK_MODIFIERS: MoodModifiers = {
-	reactionTime: 1.5,
-	accuracy: 0.7
-}
-
-const DEFEND_MODIFIERS: MoodModifiers = {
-	reactionTime: 0.5,
-	accuracy: 1.2
-}
-
-enum IAMood {
-	NEUTRAL,       // neutral
-	ATTACK,        // reaction time is a higher, accuracy is high, ia aim to score bit hitting the ball with sides to make impredictable shots
-	DEFEND         // reaction time is lower, accuracy is low, ia aim to stop the ball hitting the ball with center
-}
-
 enum RacketPart {
 	LOWER,
 	UPPER
@@ -41,7 +13,6 @@ enum RacketPart {
 
 export class IA {
 	private racket: Racket;
-	private ball: Ball;
 
 	static DEFAULT_REACTION_TIME = 200;
 	static DEFAULT_ACCURACY = 1.20;      // default plage, it miss is wanted  dest (DEFAULT_ACCURACY - 1)% of the time
@@ -49,14 +20,13 @@ export class IA {
 	static COLISION_ESTIMATION_ACCURACY_MULTIPLIER = 2; // DEFAULT_ESTIMATION_ACCURACY is multiplied by this every colision on roof
 	private opponentAverageHitY: number = 0.5;
 	private opponentHits: number = 0;
-	private mood: IAMood = IAMood.ATTACK;
 	private movingTimeout: number | undefined = undefined;
 	private fixingMoveInterval: number | undefined = undefined;
 	private estimatedHitY: number = 0;
 	private pressedKeys: Set<string>;            // to access value call this.pressedKeys.current because it is a ref
 	private readonly mapDimension: dimension;
 
-	constructor(racket: Racket, pressedKeys: Set<string>, mapDimension: mapDimension = dimension) {
+	constructor(racket: Racket, pressedKeys: Set<string>, mapDimension: dimension) {
 		this.racket = racket;
 		this.pressedKeys = pressedKeys;
 		this.mapDimension = mapDimension;
@@ -75,14 +45,8 @@ export class IA {
 		this.clearIntervals();
 	}
 
-	public onBallLaunch()
-	{
-		this.tryToInterceptShot();
-	}
-
 	private reseteData(): void
 	{
-		this.mood = IAMood.NEUTRAL;
 		this.clearIntervals();
 	}
 
@@ -103,56 +67,40 @@ export class IA {
 		return (Math.abs(distance));
 	}
 
-	public get moodModifiers(): MoodModifiers {
-		switch (this.mood) {
-			case IAMood.ATTACK:
-				return (ATTACK_MODIFIERS);
-			case IAMood.DEFEND:
-				return (DEFEND_MODIFIERS);
-			default:
-				return (NEUTRAL_MODIFIERS);
+	private calculateBallLanding(ball: Ball): Array<number> | undefined {
+		const distanceX = this.mapDimension.x - ball.position.x;
+		let landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
+		let bouceCount = 0;
+
+		while (landingY < 0 || landingY > this.mapDimension.y) {
+			if (landingY < 0) {
+				landingY = -landingY;
+			} else if (landingY > this.mapDimension.y) {
+				landingY = 2 * this.mapDimension.y - landingY;
+			}
+			bouceCount++;
 		}
+
+		console.log('landingY:', landingY, 'bouceCount:', bouceCount);
+
+		return ([landingY, bouceCount]);
 	}
 
-	private calculateBallLanding(ball: Ball): Array<number> | undefined {
-        const distanceX = this.mapDimension.x - ball.position.x;
-
-		if (ball.velocity.x === 0)
-			return (undefined);
-
-        const landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
-		const colisionCount = Math.floor(landingY / this.mapDimension.y);
-		const normalizedLandingY = landingY % this.mapDimension.y;
-		let result: number | undefined;
-		if (colisionCount % 2 != 0)
-			result = this.mapDimension.y - normalizedLandingY % this.mapDimension.y;
-		else
-			result = this.mapDimension.y % this.mapDimension.y
-        return ([result, colisionCount]);
-    }
-
-	private randomizeEstimated(realHitY: number, colisionCount: number, tryCount: number): number
+	private randomizeEstimated(realHitY: number, colisionCount: number): number
 	{
 		let racketsCoordsAiming: number = 0;
-		if (this.mood === IAMood.ATTACK) {
-			if (realHitY > this.racket.pos.y + this.racket.properties.height / 2)
-				racketsCoordsAiming = this.racket.properties.height / 4;
-			else if (realHitY < this.racket.pos.y - this.racket.properties.height / 2)
-				racketsCoordsAiming = -this.racket.properties.height / 4;
-		}
-		// const modifiers = this.moodModifiers;
+		if (realHitY > this.racket.pos.y + this.racket.properties.height / 2)
+			racketsCoordsAiming = this.racket.properties.height / 4;
+		else if (realHitY < this.racket.pos.y - this.racket.properties.height / 2)
+			racketsCoordsAiming = -this.racket.properties.height / 4;
 		const random = Math.random();
-		const estimationAccuracy = this.moodModifiers.accuracy * IA.DEFAULT_ACCURACY;
-		// const estimationAccuracy = (IA.DEFAULT_ESTIMATION_ACCURACY + IA.DEFAULT_ESTIMATION_ACCURACY * colisionCount * IA.COLISION_ESTIMATION_ACCURACY_MULTIPLIER) / tryCount;
-		const b = realHitY - estimationAccuracy / 2 + racketsCoordsAiming;
-		const y =   b + random * estimationAccuracy  - this.racket.properties.height / 2;
+		const b = realHitY - IA.DEFAULT_ACCURACY / 2 + racketsCoordsAiming;
+		const y =   b + random * IA.DEFAULT_ACCURACY  - this.racket.properties.height / 2;
 		return (y);
 	}
 
-	private randomizeDestY(estimatedHitY: number, tryCount: number): number
+	private randomizeDestY(estimatedHitY: number): number
 	{
-		// const modifiers = this.moodModifiers;
-		tryCount ;
 		const isHigher: number = estimatedHitY > this.racket.pos.y ? 1 : 0;
 		const random = Math.random();
 		const b  = estimatedHitY + (isHigher * this.racket.properties.height) - IA.DEFAULT_ACCURACY;
@@ -194,7 +142,6 @@ export class IA {
 
 	private async tryToInterceptShot(ball: Ball): Promise<void>
 	{
-		let tryCount = 0;
 		if (this.fixingMoveInterval !== undefined) {
 			clearInterval(this.fixingMoveInterval);
 		}
@@ -206,12 +153,13 @@ export class IA {
 			return ;
 		}
 
+		console.log(calculatedBallLanding)
+
 		this.fixingMoveInterval = setInterval(async () => {
-			tryCount++;
-			this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1], tryCount);
-			const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY, tryCount);
+			this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1]);
+			const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY);
 			await this.goToEstimated(whereToStopY);		
-		}, IA.DEFAULT_REACTION_TIME);
+		}, Math.random() * IA.DEFAULT_REACTION_TIME);
 		return ;
 	}
 }

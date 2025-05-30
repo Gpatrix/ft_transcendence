@@ -44,11 +44,11 @@ export default function Game() {
     }
 
     useEffect(() => {
-        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 350 });
-        const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 350 });
+        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 500 });
+        const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 500 });
         rackets.current = [r1, r2];
     
-        ia.current = new IA(r2, ball.current, pressedKeys.current, mapDimension);
+        ia.current = new IA(r2, pressedKeys.current, mapDimension);
 
         const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add(e.key);
         const handleKeyUp = (e: KeyboardEvent) => pressedKeys.current.delete(e.key);
@@ -62,7 +62,6 @@ export default function Game() {
                 }, 3000)
             }
         };
-        console.log('re redner')
 
         window.addEventListener("keydown", handleKeyDown);
         window.addEventListener("keyup", handleKeyUp);
@@ -70,7 +69,7 @@ export default function Game() {
 
         let animationFrameId: number;
         ball.current.resetPos();
-        setTimeout(() => {
+        setInterval(() => {
             ia.current?.refreshView(r1, ball.current);
         }, 1000);
         let lastTime = performance.now();

@@ -106,9 +106,11 @@ export class Ball {
             if (isCollision) {
                 const relativeImpactY = (this.position.y + this.radius - racketCenterY) / (racket.properties.height / 2);
                 
-                this.velocity.y = relativeImpactY * 400;
                 
-                this.velocity.x *= -1.1;
+                this.velocity.x = -(this.velocity.x * 1.05);
+
+                this.velocity.y = relativeImpactY * 300 - this.velocity.y * 0.2;
+
                 
                 if (Math.abs(this.velocity.x) > Ball.maxSpeed) {
                     this.velocity.x = Ball.maxSpeed * Math.sign(this.velocity.x);
