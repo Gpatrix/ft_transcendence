@@ -32,7 +32,7 @@ export default function Game() {
     const ia = useRef<IA | null>(null);
     const rackets = useRef<Racket[] | null>(null);    
     const [players, setPlayers] = useState([0, 0]);
-    const [, setTicks] = useState<number>(0);
+    // const [, setTicks] = useState<number>(0);
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
 
     function updateResult(result : number) {

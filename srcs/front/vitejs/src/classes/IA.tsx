@@ -20,12 +20,12 @@ const NEUTRAL_MODIFIERS: MoodModifiers = {
 
 const ATTACK_MODIFIERS: MoodModifiers = {
 	reactionTime: 1.5,
-	accuracy: 1.5
+	accuracy: 0.7
 }
 
 const DEFEND_MODIFIERS: MoodModifiers = {
 	reactionTime: 0.5,
-	accuracy: 0.5
+	accuracy: 1.2
 }
 
 enum IAMood {
@@ -49,7 +49,7 @@ export class IA {
 	static COLISION_ESTIMATION_ACCURACY_MULTIPLIER = 2; // DEFAULT_ESTIMATION_ACCURACY is multiplied by this every colision on roof
 	private opponentAverageHitY: number = 0.5;
 	private opponentHits: number = 0;
-	private mood: IAMood = IAMood.NEUTRAL;
+	private mood: IAMood = IAMood.ATTACK;
 	private movingTimeout: number | undefined = undefined;
 	private fixingMoveInterval: number | undefined = undefined;
 	private estimatedHitY: number = 0;
@@ -133,12 +133,19 @@ export class IA {
 
 	private randomizeEstimated(realHitY: number, colisionCount: number, tryCount: number): number
 	{
+		let racketsCoordsAiming: number = 0;
+		if (this.mood === IAMood.ATTACK) {
+			if (realHitY > this.racket.pos.y + this.racket.properties.height / 2)
+				racketsCoordsAiming = this.racket.properties.height / 4;
+			else if (realHitY < this.racket.pos.y - this.racket.properties.height / 2)
+				racketsCoordsAiming = -this.racket.properties.height / 4;
+		}
 		// const modifiers = this.moodModifiers;
 		const random = Math.random();
 		const estimationAccuracy = this.moodModifiers.accuracy * IA.DEFAULT_ACCURACY;
 		// const estimationAccuracy = (IA.DEFAULT_ESTIMATION_ACCURACY + IA.DEFAULT_ESTIMATION_ACCURACY * colisionCount * IA.COLISION_ESTIMATION_ACCURACY_MULTIPLIER) / tryCount;
-		const b = realHitY - estimationAccuracy / 2;
-		const y =   b + random * estimationAccuracy;
+		const b = realHitY - estimationAccuracy / 2 + racketsCoordsAiming;
+		const y =   b + random * estimationAccuracy  - this.racket.properties.height / 2;
 		return (y);
 	}
 
@@ -157,7 +164,6 @@ export class IA {
 		// console.log('distance to go:', Math.abs(whereToStopY - this.racket.pos.y));
 		// console.log('speed:', this.racket.properties.speed);
 		const timeToGo = Math.abs(whereToStopY - this.racket.pos.y) / (this.racket.properties.speed / 1000); // in seconds;
-		// TODO time to go is broken it refers to a time but we have to refer to a tick
 		// console.log(`IA: going to estimated Y: ${whereToStopY} in ${timeToGo}ms`);
 		if (whereToStopY > this.racket.pos.y + this.racket.properties.height / 2)
 			this.pressedKeys.add("BOT_DOWN");
@@ -200,14 +206,12 @@ export class IA {
 			return ;
 		}
 
-		this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1], tryCount);
-		const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY, tryCount);
-		await this.goToEstimated(whereToStopY);
-
-
-		// this.fixingMoveInterval = setInterval(async () => {
-		// 	tryCount++;
-		// }, IA.DEFAULT_REACTION_TIME);
+		this.fixingMoveInterval = setInterval(async () => {
+			tryCount++;
+			this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1], tryCount);
+			const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY, tryCount);
+			await this.goToEstimated(whereToStopY);		
+		}, IA.DEFAULT_REACTION_TIME);
 		return ;
 	}
 }
