@@ -86,13 +86,17 @@ export class IA {
 		return ([landingY, bouceCount]);
 	}
 
-	private randomizeEstimated(realHitY: number, colisionCount: number): number
+	private randomizeEstimated(realHitY: number, tryCount: number): number
 	{
 		let racketsCoordsAiming: number = 0;
-		if (realHitY > this.racket.pos.y + this.racket.properties.height / 2)
-			racketsCoordsAiming = this.racket.properties.height / 4;
-		else if (realHitY < this.racket.pos.y - this.racket.properties.height / 2)
-			racketsCoordsAiming = -this.racket.properties.height / 4;
+		if (tryCount > 0) {
+			if (realHitY > this.racket.pos.y + this.racket.properties.height / 2)
+				racketsCoordsAiming = this.racket.properties.height / 4;
+			else if (realHitY < this.racket.pos.y - this.racket.properties.height / 2)
+				racketsCoordsAiming = -this.racket.properties.height / 4;
+		}
+		else
+			racketsCoordsAiming = this.racket.properties.height / 2;
 		const random = Math.random();
 		const b = realHitY - IA.DEFAULT_ACCURACY / 2 + racketsCoordsAiming;
 		const y =   b + random * IA.DEFAULT_ACCURACY  - this.racket.properties.height / 2;
@@ -142,6 +146,7 @@ export class IA {
 
 	private async tryToInterceptShot(ball: Ball): Promise<void>
 	{
+		let tryCount = 0;
 		if (this.fixingMoveInterval !== undefined) {
 			clearInterval(this.fixingMoveInterval);
 		}
@@ -158,7 +163,8 @@ export class IA {
 		this.fixingMoveInterval = setInterval(async () => {
 			this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1]);
 			const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY);
-			await this.goToEstimated(whereToStopY);		
+			await this.goToEstimated(whereToStopY);
+			tryCount++;
 		}, Math.random() * IA.DEFAULT_REACTION_TIME);
 		return ;
 	}
