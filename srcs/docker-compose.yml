@@ -40,29 +40,29 @@ services:
     networks:
       - router
 
-   chat-service:
-     container_name: chat-service
-     restart: on-failure
-     volumes:
-       - ./back/chat-service/asset/srcs:/usr/src/chat-service/srcs
-       - db-chat:/usr/src/chat-service/asset/prisma/db
-     environment:
-       NODE_ENV: ${NODE_ENV:?}
-       JWT_SECRET: ${JWT_SECRET:?}
-       DATABASE_URL: ${DATABASE_URL:?}
-       API_CREDENTIAL: ${API_CREDENTIAL:?}
-     build:
-         context: ./back/chat-service
-         dockerfile: Dockerfile
-         args:
-           NODE_ENV: ${NODE_ENV:?}
-           DATABASE_URL: ${DATABASE_URL:?}
-     expose:
-       - 3000
-     ports:
-       - 9874:5555
-     networks:
-       - router
+  chat-service:
+    container_name: chat-service
+    restart: on-failure
+    volumes:
+      - ./back/chat-service/asset/srcs:/usr/src/chat-service/srcs
+      - db-chat:/usr/src/chat-service/asset/prisma/db
+    environment:
+      NODE_ENV: ${NODE_ENV:?}
+      JWT_SECRET: ${JWT_SECRET:?}
+      DATABASE_URL: ${DATABASE_URL:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+    build:
+        context: ./back/chat-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:?}
+          DATABASE_URL: ${DATABASE_URL:?}
+    expose:
+      - 3000
+    ports:
+      - 9874:5555
+    networks:
+      - router
 
   game-service:
     container_name: game-service
@@ -86,48 +86,48 @@ services:
     networks:
       - router
 
-   upload-service:
-     container_name: upload-service
-     restart: on-failure
-     volumes:
-       - ./back/upload-service/asset/srcs:/usr/src/upload-service/srcs
-       - db-upload:/usr/src/upload-service/uploads
-     environment:
-       DATABASE_URL: ${DATABASE_URL:?}
-       API_CREDENTIAL: ${API_CREDENTIAL:?}
-       NODE_ENV: ${NODE_ENV:?}
-     build:
-         context: ./back/upload-service
-         dockerfile: Dockerfile
-         args:
-           NODE_ENV: ${NODE_ENV:?}
-     expose:
-       - 3000
-     networks:
-       - router
+  upload-service:
+    container_name: upload-service
+    restart: on-failure
+    volumes:
+      - ./back/upload-service/asset/srcs:/usr/src/upload-service/srcs
+      - db-upload:/usr/src/upload-service/uploads
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+      NODE_ENV: ${NODE_ENV:?}
+    build:
+        context: ./back/upload-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:?}
+    expose:
+      - 3000
+    networks:
+      - router
 
-   blockchain-service:
-     container_name: blockchain-service
-     restart: on-failure
-     volumes:
-       - ./back/blockchain-service/asset/srcs:/usr/src/blockchain-service/srcs
-     environment:
-       API_CREDENTIAL: ${API_CREDENTIAL:?}
-       NODE_ENV: ${NODE_ENV:?}
-       SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
-       FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
-       FUJI_RPC_URL: ${FUJI_RPC_URL:?}
-       AVALANCHE_RPC_URL: ${AVALANCHE_RPC_URL:?}
-       AVALANCHE_CHAIN_ID: ${AVALANCHE_CHAIN_ID:?}
-     build:
-         context: ./back/blockchain-service
-         dockerfile: Dockerfile
-         args:
-           NODE_ENV: ${NODE_ENV:?}
-     expose:
-       - 3000
-     networks:
-       - router
+  blockchain-service:
+    container_name: blockchain-service
+    restart: on-failure
+    volumes:
+      - ./back/blockchain-service/asset/srcs:/usr/src/blockchain-service/srcs
+    environment:
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+      NODE_ENV: ${NODE_ENV:?}
+      SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
+      FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
+      FUJI_RPC_URL: ${FUJI_RPC_URL:?}
+      AVALANCHE_RPC_URL: ${AVALANCHE_RPC_URL:?}
+      AVALANCHE_CHAIN_ID: ${AVALANCHE_CHAIN_ID:?}
+    build:
+        context: ./back/blockchain-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:?}
+    expose:
+      - 3000
+    networks:
+      - router
 
   user-service:
     container_name: user-service
@@ -152,7 +152,7 @@ services:
       - 3000
     networks:
       - router
-  
+
   grafana-service:
     container_name: grafana-service
     restart: on-failure
