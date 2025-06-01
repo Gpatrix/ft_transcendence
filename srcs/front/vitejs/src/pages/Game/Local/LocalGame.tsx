@@ -8,6 +8,7 @@ import { pos, dimension } from "./LocalBall.tsx"
 import StartCounter from "./StartCounter.tsx";
 import PointsCounter from "./PointsCounter.tsx";
 import { gpt } from "../../../translations/pages_reponses.tsx";
+import IA from "../../../classes/IA.tsx";
 
 const defaultPos : pos = {
     x : 250,
@@ -15,22 +16,24 @@ const defaultPos : pos = {
 }
 
 const defaultVelocity : pos = {
-    x: 4.5,
-    y: 4.6
+    x: 450,
+    y: 460
 }
 
 const mapDimension : dimension = {
     x : 700,
     y : 500
 }
-
 export default function Game() {
+    const isBot = true;
+
     const pressedKeys = useRef(new Set<string>());
-    const rackets = useRef<Racket[]>([]);
     const ball = useRef<Ball>(new Ball(defaultPos, defaultVelocity, 10, mapDimension));
-    const [players, setPlayers] = useState([0, 0])
-    const [, setTicks] = useState<number>(0)
-    const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"))
+    const ia = useRef<IA | null>(null);
+    const rackets = useRef<Racket[] | null>(null);    
+    const [players, setPlayers] = useState([0, 0]);
+    // const [, setTicks] = useState<number>(0);
+    const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
 
     function updateResult(result : number) {
         setPlayers(prev => {
@@ -41,9 +44,11 @@ export default function Game() {
     }
 
     useEffect(() => {
-        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 8 });
-        const r2 = new Racket({ id: 2, keyUp: "ArrowUp", keyDown: "ArrowDown", speed: 8 });
+        const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 500 });
+        const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 500 });
         rackets.current = [r1, r2];
+    
+        ia.current = new IA(r2, pressedKeys.current, mapDimension);
 
         const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add(e.key);
         const handleKeyUp = (e: KeyboardEvent) => pressedKeys.current.delete(e.key);
@@ -51,9 +56,9 @@ export default function Game() {
             if (e.key == ' ') {
                 setCounter("3")
                 setTimeout(()=>{
-                    setCounter(null)
-                    ball.current.unFreeze()          
-                    window.removeEventListener("keydown", handleUnfreeze)
+                    setCounter(null);
+                    ball.current.unFreeze();
+                    window.removeEventListener("keydown", handleUnfreeze);
                 }, 3000)
             }
         };
@@ -63,26 +68,33 @@ export default function Game() {
         window.addEventListener("keydown", handleUnfreeze);
 
         let animationFrameId: number;
-        ball.current.resetPos()
+        ball.current.resetPos();
+        setInterval(() => {
+            ia.current?.refreshView(r1, ball.current);
+        }, 1000);
+        let lastTime = performance.now();
+        
+        const loop = (now: any) => {
+            const deltaTime = (now - lastTime) / 1000; // In seconds
+            lastTime = performance.now();
 
-        const loop = () => {
-            rackets.current.forEach(r => r.update(pressedKeys.current));
-            ball.current.nextPos();
-            ball.current.checkRacketCollision(rackets.current)
-            const result = ball.current.checkVerticalCollision()
+            rackets.current.forEach(r => r.update(pressedKeys.current, deltaTime));
+            ball.current.nextPos(deltaTime);
+            ball.current.checkRacketCollision(rackets.current);
+            const result = ball.current.checkVerticalCollision();
+
             if (result != -1) {
-                updateResult(result)
-                ball.current.resetPos()
+                updateResult(result);
+                ball.current.resetPos();
                 setTimeout(()=>{
-                    ball.current.unFreeze()
+                    ball.current.unFreeze();
                 }, 500)
             }
-            setTicks((t)=> t+1)
+            // setTicks((t)=> t+1);
             animationFrameId = requestAnimationFrame(loop);
         };
 
-        loop();
-
+        animationFrameId = requestAnimationFrame(loop);
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);

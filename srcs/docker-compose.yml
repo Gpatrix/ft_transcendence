@@ -153,21 +153,6 @@ services:
     networks:
       - router
 
-  prometheus-service:
-    container_name: prometheus-service
-    restart: on-failure
-    volumes:
-      - db-monitoring:/usr/src/prometheus-service/data
-    build:
-        context: ./back/monitoring/prometheus-service
-        dockerfile: Dockerfile
-    networks:
-      - router
-    ports:
-      - 9090:9090
-    expose:
-      - 9090
-
   grafana-service:
     container_name: grafana-service
     restart: on-failure

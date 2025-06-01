@@ -12,8 +12,8 @@ COPY ./conf/pnpm_install.sh .
 RUN chmod +x pnpm_install.sh && ./pnpm_install.sh
 
 COPY ./asset/prisma ./prisma
-COPY ./conf/prisma_install.sh .
 COPY ./asset/tsconfig.json .
+COPY ./conf/prisma_install.sh .
 RUN chmod +x prisma_install.sh && ./prisma_install.sh
 
 COPY ./conf/entrypoint.sh .

@@ -14,7 +14,7 @@
     "dependencies": {
         "@fastify/cookie": "^11.0.2",
         "@fastify/websocket": "^11.0.2",
-        "@prisma/client": "^6.6.0",
+        "@prisma/client": "^6.8.2",
         "@types/jsonwebtoken": "^9.0.9",
         "@types/node": "^22.14.1",
         "@types/ws": "^8.18.1",

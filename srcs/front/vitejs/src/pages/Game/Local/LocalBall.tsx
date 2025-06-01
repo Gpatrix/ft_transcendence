@@ -1,3 +1,4 @@
+import IA from "../../../classes/IA";
 import {Racket} from "../Racket"
 
 export interface pos {
@@ -19,6 +20,8 @@ export class Ball {
         this.velocity = velocity;
         this.radius = radius;
         this.mapDimensions = mapDimensions
+
+        console.log('create Ball')
     }
     position: pos;
     velocity: velocity;
@@ -27,12 +30,15 @@ export class Ball {
     lastToucher: number = -1;
     mapDimensions: dimension
     previousPosition: pos = {x: 0, y: 0};
+    static readonly maxSpeed: number = 1200;
 
     set setVelocity(newVelocity: velocity) {
-        if (newVelocity.x < 10)
+        if (newVelocity.x < Ball.maxSpeed)
             this.velocity.x = newVelocity.x;
-        if (newVelocity.y < 10)
-            this.velocity.y = newVelocity.y;      
+        if (newVelocity.y < Ball.maxSpeed)
+            this.velocity.y = newVelocity.y;
+        else
+            console.log('setvelocity too high y')
     }
 
     set setPosition(newPosition: pos) {
@@ -100,13 +106,14 @@ export class Ball {
             if (isCollision) {
                 const relativeImpactY = (this.position.y + this.radius - racketCenterY) / (racket.properties.height / 2);
                 
-                this.velocity.y = relativeImpactY * 5;
                 
-                this.velocity.x *= -1.1;
+                this.velocity.x = -(this.velocity.x * 1.05);
+
+                this.velocity.y = relativeImpactY * 300 - this.velocity.y * 0.2;
+
                 
-                const maxSpeed = 12;
-                if (Math.abs(this.velocity.x) > maxSpeed) {
-                    this.velocity.x = maxSpeed * Math.sign(this.velocity.x);
+                if (Math.abs(this.velocity.x) > Ball.maxSpeed) {
+                    this.velocity.x = Ball.maxSpeed * Math.sign(this.velocity.x);
                 }
                 this.lastToucher = isLeftSide ? 0 : 1;
                 return;
@@ -124,12 +131,12 @@ export class Ball {
         return (-1)
     }
 
-    nextPos() {
+    nextPos(deltaTime: number) {
         if (!this.isFreezed)
         {
             this.previousPosition = { x: this.position.x, y: this.position.y };
-            this.position.x += this.velocity.x;
-            this.position.y += this.velocity.y;
+            this.position.x += this.velocity.x * deltaTime;
+            this.position.y += this.velocity.y * deltaTime;
             this.processWallCollision();
         }
     }
@@ -143,7 +150,7 @@ export class Ball {
         this.position.x = (this.mapDimensions.x / 2) - this.radius;
         this.position.y = (this.mapDimensions.y / 2) - this.radius;
         this.previousPosition = { x: this.position.x, y: this.position.y };
-        this.velocity.x = Math.random() > 0.5 ? 5 : -5;
-        this.velocity.y = Math.random() > 0.5 ? -3 : -1;
+        this.velocity.x = Math.random() > 0.5 ? 300 : -300;
+        this.velocity.y = Math.random() > 0.5 ? -100 : -70;
     }
 }

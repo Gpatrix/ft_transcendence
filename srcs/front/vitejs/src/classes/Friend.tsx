@@ -202,6 +202,4 @@ class Friend extends User {
     }
 }
 
-
-
 export default Friend;
