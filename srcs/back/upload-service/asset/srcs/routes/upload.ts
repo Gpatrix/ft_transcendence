@@ -1,6 +1,9 @@
 import { FastifyInstance } from "fastify";
 import fs from 'fs';
-import pump from 'pump';
+import util from 'util'
+import { pipeline } from 'stream'
+
+const pump = util.promisify(pipeline)
 
 function uploadRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -12,18 +15,27 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
     
     server.post<{ Body: uploadPostBody }>('/api/upload/', async (req: any, res: any) => {
         try {
-            const file = await req.file();
+            console.log('trying to upload file');
             const parts = await req.parts();
-            const credential = file.fields.credential.value;
+            let credential: string | undefined;
+            let file: any;
+            for await (const part of parts) {
+                if (part.type === 'file')
+                    file = part;
+                if (part.fieldname === 'credential') {
+                    credential = part.value;
+                }
+            }
             if (credential != process.env.API_CREDENTIAL)
                 return (res.status(401).send({ error: "private_route" }));  // private route (:
             if (!file)
                 return (res.status(420).send({ error: "no_file_uploaded" }));
-            const fileName = `${Date.now()}_${file.filename}`;
-            const storedFile = fs.createWriteStream(`../uploads/${fileName}`);
+            const fileName = Date.now()
+            const storedFile = fs.createWriteStream(`./uploads/${fileName}`);
             pump(file.file, storedFile);
             res.status(200).send({ fileName: fileName });
         } catch (error) {
+            console.error('Error during file upload:', error);
             res.status(500).send({ error: "0500" });
         }
     });

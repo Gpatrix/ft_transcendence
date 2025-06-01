@@ -271,8 +271,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
+                selectFields.id = true,
                 selectFields.email = true,
-                selectFields.lang = true
+                selectFields.lang = true,
                 selectFields.isTwoFactorEnabled = true
             }
             const data = await prisma.user.findUnique({
@@ -393,8 +394,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 updateData.lang = body.lang;
             if (body.newPassword)
                 updateData.newPassword = body.newPassword;
-            if (body.image)
+            if (body.image) {
+                console.log("IMAGE: ", body.image)
                 updateData.profPicture = body.image;
+            }
             if (body.isTwoFactorEnabled)
                 updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
             const foundUser = await prisma.user.findUnique({
