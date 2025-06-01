@@ -1,8 +1,7 @@
 import { FastifyInstance } from "fastify";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validatePassword  from "../validators/password";
-import { Prisma } from "@prisma/client";
 const isConnected = require('../validators/jsonwebtoken'); 
 
 function authRoutes (server: FastifyInstance, options: any, done: any)

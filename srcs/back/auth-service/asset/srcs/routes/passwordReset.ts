@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken';
 import sendMail from '../mail';
-var bcrypt = require("bcrypt");
+import bcrypt from 'bcryptjs';
 
 const expireIn = 5;
 
