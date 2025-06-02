@@ -152,7 +152,7 @@ services:
       - 3000
     networks:
       - router
-  
+
   grafana-service:
     container_name: grafana-service
     restart: on-failure
