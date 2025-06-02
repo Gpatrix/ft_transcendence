@@ -39,6 +39,7 @@ export class Racket {
         if (!top_element || !bottom_element || !left_element || !el || !rect)
             throw "ERROR";
 
+
         this.element = el
         this.keyUp = keyUp
         this.keyDown = keyDown
@@ -52,29 +53,30 @@ export class Racket {
             height : rect.height,
             width : rect.width,
             limits : {
-                top: top_element.y + top_element.height,
-                bottom: bottom_element.y
+                top: 0,
+                bottom: bottom_element.top
             }
         }
 
     }
 
-    checkCollsions(direction : number) : boolean {
-        const rect = this.element.getBoundingClientRect()
-
-        if (direction == Direction.UP)
-            return (rect.y >= this.properties.limits.top)
-        return (rect.y + rect.height <= this.properties.limits.bottom)
+    checkCollisions(direction: Direction, deltaTime: number): boolean {
+        const dy = this.properties.speed * deltaTime;
+    
+        if (direction === Direction.UP)
+            return (this.pos.y - dy >= 0)
+        return (this.pos.y + dy <= 400  )
     }
+    
 
-    update(pressedKeys: Set<string>) {
+    update(pressedKeys: Set<string>, deltaTime: number) {
         if (pressedKeys.has(this.keyUp)) {
-            if (this.checkCollsions(Direction.UP))
-                this.pos.y -= this.properties.speed
+            if (this.checkCollisions(Direction.UP, deltaTime))
+                this.pos.y -= this.properties.speed * deltaTime;
         }
         if (pressedKeys.has(this.keyDown)) {
-            if (this.checkCollsions(Direction.DOWN))
-                this.pos.y += this.properties.speed
+            if (this.checkCollisions(Direction.DOWN, deltaTime))
+                this.pos.y += this.properties.speed * deltaTime;
         }
         this.element.style.transform = `translateY(${this.pos.y}px)`
     }   

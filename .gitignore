@@ -2,8 +2,8 @@
 **/node_modules
 *.log
 **/migrations
+**/*.js
 **/db*
-*.js
 **/prisma_client
 **/package-lock.json
 docker.debug

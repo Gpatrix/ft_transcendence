@@ -17,7 +17,6 @@ export default function PopupFriendsComponent({onClose, setFriends} : PopupFrien
 
     const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") {
-            console.log("test");
             window.removeEventListener("keydown", handleKeyDown);
             onClose(false);
         }

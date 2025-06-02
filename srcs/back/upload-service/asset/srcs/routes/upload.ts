@@ -1,6 +1,19 @@
 import { FastifyInstance } from "fastify";
 import fs from 'fs';
-import pump from 'pump';
+import path from 'path';
+import util from 'util'
+import { pipeline } from 'stream'
+
+const pump = util.promisify(pipeline);
+
+function isMimeTypeAllowed(file: any): boolean {
+      const allowedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+
+    if (allowedMimeTypes.includes(file.mimetype))
+        return (true);
+    else
+        return (false);
+}
 
 function uploadRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -12,18 +25,29 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
     
     server.post<{ Body: uploadPostBody }>('/api/upload/', async (req: any, res: any) => {
         try {
-            const file = await req.file();
+            console.log('trying to upload file');
             const parts = await req.parts();
-            const credential = file.fields.credential.value;
+            let credential: string | undefined;
+            let file: any;
+            for await (const part of parts) {
+                if (part.type === 'file')
+                    file = part;
+                if (part.fieldname === 'credential') {
+                    credential = part.value;
+                }
+            }
             if (credential != process.env.API_CREDENTIAL)
-                return (res.status(401).send({ error: "private_route" }));  // private route (:
+                return (res.status(401).send({ error: "0401" }));  // private route (:
             if (!file)
-                return (res.status(420).send({ error: "no_file_uploaded" }));
-            const fileName = `${Date.now()}_${file.filename}`;
-            const storedFile = fs.createWriteStream(`../uploads/${fileName}`);
+                return (res.status(420).send({ error: "0420" }));
+            if (!isMimeTypeAllowed(file))
+                return (res.status(415).send({ error: "0415" }));
+            const fileName = Date.now() + path.extname(file.filename);
+            const storedFile = fs.createWriteStream(`./uploads/${fileName}`);
             pump(file.file, storedFile);
             res.status(200).send({ fileName: fileName });
         } catch (error) {
+            console.error('Error during file upload:', error);
             res.status(500).send({ error: "0500" });
         }
     });

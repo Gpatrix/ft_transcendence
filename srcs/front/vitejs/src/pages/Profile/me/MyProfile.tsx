@@ -27,7 +27,7 @@ export default function MyProfile() {
 
     const { fetchWithAuth } = useAuth();
     function getUserParams() {
-        fetchWithAuth(`https://localhost/api/user/get_profile/`)
+        fetchWithAuth(`/api/user/get_profile/`)
             .then((response) => response.json())
             .then((json) => {
                 const data = json.data
