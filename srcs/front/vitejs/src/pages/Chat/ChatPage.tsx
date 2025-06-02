@@ -14,8 +14,6 @@ export default function ChatPage() {
 
     const [showFriendPopup, setShowFriendPopup] = useState(false);
 
-    // const navigate = useNavigate()
-
     const [profileData, setProfileData] = useState<User | undefined>(undefined)
 
     function getUserParams() {

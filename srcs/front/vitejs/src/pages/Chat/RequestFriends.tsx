@@ -5,6 +5,7 @@ import ClickableIco from "../../components/ClickableIco.tsx";
 import FriendRequest from "../../classes/FriendRequest.tsx";
 import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 import { gpt } from "../../translations/pages_reponses.tsx";
+import { get_server_translation } from "../../translations/server_responses.tsx";
 
 type RequestFriendsProps = {
     setFriends: React.Dispatch<SetStateAction<Friend[]>>;
@@ -15,58 +16,74 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
     const { socket } = useWebSocket();
     
     const [friendRequestTab, setFriendRequestTab] = useState<FriendRequest[]>([]);
+    const [errorCode, setErrorCode] = useState<string>("");
+
+    
 
     const handleAcceptRequest = async (friendRequest: FriendRequest, i: number) => {
-        await friendRequest.accepteRequest();
+        const res = await friendRequest.accepteRequest();
+        if (res != "201") {
+            setErrorCode(res);
+            return ;
+        }
         const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
         newFriendRequestTab.splice(i, 1);
         setFriendRequestTab(newFriendRequestTab);
 
         try {
             if (socket)
-                socket.send(JSON.stringify({ action: 'acceptRequest', targetId: friendRequest.authorId }));
-            const friends: Friend[] | undefined = await Friend.getFriends();
-            if (friends != undefined)
             {
-                // IL FAUT MODIFIER CA !
+                socket.send(JSON.stringify({ action: 'acceptRequest', targetId: friendRequest.authorId }));
+                const response: Friend[] | string = await Friend.getFriends();
+                if (typeof response != "string")
+                {
+                    // IL FAUT MODIFIER CA !
 
-                friends.forEach(friend => {
-                    friend.toggleConnected();
-                    // il faut recuperer tout les messages
-                });
-                
-                setFriends(friends);
+                    response.forEach(friend => {
+                        friend.toggleConnected();
+                    });
+                    
+                    setFriends(response);
+                    setErrorCode("");   
+                } else {
+                    setErrorCode(response);   
+                }
+            } else {
+                console.warn('Socket non connectée');
+                setErrorCode("0500");
             }
         } catch (error) {
-            console.error("Erreur en récupérant les demandes d'ami :", error);
+            setErrorCode("0500");   
         }
     }
 
     const handleRefuseRequest = async (friendRequest: FriendRequest, i: number) => {
         const codeError = await friendRequest.refuseRequest();
 
-        if (codeError / 100 != 2)
+        if (codeError == "201")
         {
             const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
             newFriendRequestTab.splice(i, 1);
             setFriendRequestTab(newFriendRequestTab);
+            setErrorCode("")
+            return ;
         }
-        else
-        {
-            const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
-            newFriendRequestTab.splice(i, 1);
-            setFriendRequestTab(newFriendRequestTab);
-        }
+        setErrorCode(codeError)
     }
 
     useEffect(() => {
         const fetchFriends = async () => {
             try {
-                const friends: FriendRequest[] | undefined = await Friend.getFriendsRequest();
-                if (friends != undefined)
-                    setFriendRequestTab(friends);
+                const response: FriendRequest[] | string = await Friend.getFriendsRequest();
+                if (typeof response == "string")
+                    setErrorCode(response)
+                else
+                {
+                    setErrorCode("");   
+                    setFriendRequestTab(response);
+                }
             } catch (error) {
-                console.error("Error :", error);
+                setErrorCode("0500");   
             }
         };
 
@@ -91,6 +108,7 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
                         return("");
                 })}
                 {friendRequestTab.length == 0 && <p className="text-yellow text-center">{gpt("no_invitation")}</p>}
+                {friendRequestTab.length == 0 && errorCode && <p className="text-light-red text-center">{get_server_translation(errorCode)}</p>}
             </div>
         </div>
     )

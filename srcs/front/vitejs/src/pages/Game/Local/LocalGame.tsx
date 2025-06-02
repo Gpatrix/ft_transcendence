@@ -39,7 +39,7 @@ export default function Game({userNames}: GameProps) {
     const [players, setPlayers] = useState([0, 0]);
     const [params] = useSearchParams()
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
-    const [userNames, setUserNames] = useState<Array<string> | null>(null)
+    // const [userNames, setUserNames] = useState<Array<string> | null>(null)
     const [winPopup, setWinPopup] = useState<boolean>(false)
 
     function updateResult(result : number) {

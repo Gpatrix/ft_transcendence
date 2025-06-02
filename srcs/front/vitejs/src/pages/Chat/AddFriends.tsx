@@ -5,38 +5,31 @@ import Friend from "../../classes/Friend.tsx"
 import User from "../../classes/User.tsx";
 import UserContact from "../../components/UserContact.tsx";
 import ClickableIco from "../../components/ClickableIco.tsx";
+import { get_server_translation } from "../../translations/server_responses.tsx";
+import { gpt } from "../../translations/pages_reponses.tsx";
 
-type AddFriendsProps = {
-    // test?: React.Dispatch<SetStateAction<number>>,
-    // ajouter un 2eme conClick pour l'ajout d'ami
-}
+type AddFriendsProps = {}
 
 export default function AddFriends({} : AddFriendsProps) {
 
     const [inputSearch, setInputSearch] = useState<string>("");
-    const [inputResponse, setInputResponse] = useState<number>(-1);
+    const [inputResponse, setInputResponse] = useState<string>("");
     const [usersSearched, setUsersSearched] = useState<User[] | undefined>([]);
 
     const handleSubmitSearch = async (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // faire l'affichage de toutes les erreurs 
-        const users: User[] | undefined | string = await User.searchUserByName(inputSearch)
+        const response: User[] | undefined | string = await User.searchUserByName(inputSearch)
 
-        // ajouter les codes d'erreurs
-        if (typeof users == 'string') {
-            setInputResponse(Number(users))
+        if (typeof response == 'string') {
+            setInputResponse(response)
             setUsersSearched([]);
-            console.log("log cette erreur sur la page");
         }
         else {
-            setUsersSearched(users);
-            setInputResponse(-1)
+            setUsersSearched(response);
+            setInputResponse("")
         }
-            
-        // setInputResponse(await Friend.friendRequest(inputSearch));
         setInputSearch("");
-
     }
 
     const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
@@ -44,10 +37,10 @@ export default function AddFriends({} : AddFriendsProps) {
     };
 
     const handleSendFriendRequest = async (id: number) => {
-        const users = await Friend.friendRequest(id)
+        const response = await Friend.friendRequest(id)
 
         setUsersSearched([]);
-        setInputResponse(Number(users))
+        setInputResponse(response)
     }
 
     return (
@@ -70,17 +63,12 @@ export default function AddFriends({} : AddFriendsProps) {
                 })}
 
                 {
-                    Math.round(inputResponse / 100) == 2 &&
-                    <div className="py-2 text-green">Requete envoyée</div>
+                    Math.round(Number(inputResponse) / 100) == 2 &&
+                    <div className="py-2 text-green">{gpt("Request_sent")}</div>
                 }
                 {
-                    Math.round(inputResponse / 100) != 2 && inputResponse != -1 &&
-                    <div className="py-2 text-light-red">{inputResponse}</div>
-                    // utiliset getServeurTranslation
-                    // 401 = vous meme
-                    // 429 = invitation deja envoye
-                    // 500 = utilisateur non existant
-                    // 404 = deja en ami
+                    Math.round(Number(inputResponse) / 100) != 2 && inputResponse != "" &&
+                    <div className="py-2 text-light-red">{get_server_translation((inputResponse))}</div>
                 }
 
                 <div>

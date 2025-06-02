@@ -4,6 +4,11 @@
     "Requête invalide",
     "Richiesta non valida"
   ],
+  "0401": [
+    "Forbidden",
+    "Interdit",
+    "Prohibido"
+  ],
   "0413": [
     "Argument is too long",
     "L'argument est trop long",
@@ -13,6 +18,11 @@
     "User not logged in",
     "Utilisateur non connecté",
     "Utente non connesso"
+  ],
+  "0404": [
+    "Not found",
+    "Non trouvé",
+    "Extraviado"
   ],
   "0500": [
     "Internal server error",
