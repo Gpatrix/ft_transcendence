@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 
 async function main() {
   
@@ -19,7 +20,6 @@ async function main() {
 }
 
 function saveFrontendFiles(tournament) {
-    const fs = require("fs");
     const contractsDir = path.join(__dirname, "..", "contractData");
   
     if (!fs.existsSync(contractsDir)) {

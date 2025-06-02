@@ -24,7 +24,11 @@ import PopupCreate from './pages/Lobby/FriendsLobby/PopupCreate.tsx';
 import LocalGame from './pages/Game/Local/LocalGame.tsx';
 import GameLayout from './pages/Game/GameLayout.tsx';
 import LocalGameWrapper from './pages/Game/Local/LocalGameWrapper.tsx';
+import AskPlayers from './pages/Tournament/AskPlayers.tsx';
+import CreateTournament from './pages/Tournament/CreateTournament.tsx';
+import Overview from './pages/Tournament/Overview/Overview.tsx';
 import PageFriendLoby from './pages/Lobby/FriendsLobby/PageFriendLoby.tsx';
+
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -59,6 +63,9 @@ createRoot(document.getElementById('root')!).render(
 
             <Route element={<GameLayout />}>
               <Route path="/play/local" element={<LocalGameWrapper/>}/>
+              <Route path="/play/tournament" element={<AskPlayers/>}/>
+              <Route path="/play/tournament/create" element={<CreateTournament/>}/>
+              <Route path="/play/tournament/overview" element={<Overview/>}/>
             </Route>
 
 

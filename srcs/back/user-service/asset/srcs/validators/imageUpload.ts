@@ -2,7 +2,6 @@ import FormData from 'form-data';
 import axios from 'axios';
 
 export async function imageUpload(request: any, reply: any) {
-    console.log('imageUpload called');
     try {
         const parts = request.parts();
         let file: any = null;
@@ -20,9 +19,8 @@ export async function imageUpload(request: any, reply: any) {
 
         if (file)
         {
-            console.log('file', file);
             const form = new FormData();
-            const fileBuffer = await file.toBuffer(); // méthode dispo avec fastify-multipart
+            const fileBuffer = await file.toBuffer();
 
             form.append('credential', process.env.API_CREDENTIAL);
             form.append('file', fileBuffer, {
@@ -42,7 +40,6 @@ export async function imageUpload(request: any, reply: any) {
             // }
 
             //upload the new pp
-            console.log('before upload');
             const res = await axios.post('http://upload-service:3000/api/upload/', form, {
                 headers: form.getHeaders()
             });

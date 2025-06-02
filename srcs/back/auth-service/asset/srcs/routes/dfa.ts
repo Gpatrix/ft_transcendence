@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
-var speakeasy = require("speakeasy");
-var QRCode = require('qrcode');
-var jwt = require('jsonwebtoken');
+import speakeasy from "speakeasy";
+import QRCode from 'qrcode';
+import jwt from 'jsonwebtoken';
 
 function dfaRoutes (server: FastifyInstance, options: any, done: any)
 {

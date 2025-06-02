@@ -4,7 +4,16 @@ import path from 'path';
 import util from 'util'
 import { pipeline } from 'stream'
 
-const pump = util.promisify(pipeline)
+const pump = util.promisify(pipeline);
+
+function isMimeTypeAllowed(file: any): boolean {
+      const allowedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+
+    if (allowedMimeTypes.includes(file.mimetype))
+        return (true);
+    else
+        return (false);
+}
 
 function uploadRoutes (server: FastifyInstance, options: any, done: any)
 {
