@@ -1,40 +1,18 @@
 
 import User from "./User";
-import Message from "./Message";
 import FriendRequest from "./FriendRequest";
 
-const MESSAGE_RECIVED = 20;
-
-// pour prisma :
-// pnpx prisma studio
-
 class Friend extends User {
-    // messages: Message[];
     connected: boolean;
     nbNotifs: number;
 
-    
-
-
-
     constructor(id: number, name: string, email: string, profPicture: string, bio: string, lang : string,
-            isTwoFactorEnabled : boolean, rank: number, connected: boolean = false, nbNotifs: number = 0) { // , messages: Message[] = []
+            isTwoFactorEnabled : boolean, rank: number, connected: boolean = false, nbNotifs: number = 0) {
         super(id, name, email, profPicture, bio, lang, isTwoFactorEnabled, rank);
         
         this.connected = connected;
-        // this.messages = messages;
         this.nbNotifs = nbNotifs;
     }
-
-    
-    // addMessages(newMessages: Message) {
-    //     this.messages.splice(0, 0, newMessages);
-    // }
-    
-    // removeMessages(messagesToRemove: Message) {
-    //     let index = this.messages.findIndex((message: Message) => message == messagesToRemove)
-    //     this.messages.splice(index, 0);
-    // }
 
     toggleConnected() {
         this.connected = !this.connected;
@@ -53,14 +31,12 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/friends/requests/${id}`, requestData);
 
-            if (response.status)
+            if (response.status == 201)
                 return (String(response.status))
                 
 			const dataReponse = await response.json();
             return (dataReponse.error);
           } catch (error) {
-            console.log("Erreur lors de l'envoi de la demande :", error);
-            
             return ("500");
           }
     }
@@ -85,12 +61,12 @@ class Friend extends User {
             );
     
             for (const req of friendRequests) {
-                await req.getAuthorRequest();
+                const res = await req.getAuthorRequest();
+                if (res != "200")
+                    return (res);
             }
-
-            return (friendRequests)
+            return (friendRequests);
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande des requetes :", error);
             return ("0500");
         }
     }
@@ -126,8 +102,7 @@ class Friend extends User {
         }
     }
 
-
-    static async blockFriends(targetId: number) {
+    static async blockFriends(targetId: number) : Promise<string>  {
 
         try {
             const requestData : RequestInit = {
@@ -140,18 +115,18 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/blockUser`, requestData);
             
+            if (response.status == 200)
+                return "200"
+            const dataReponse = await response.json();
             
-            return (response.status);
+            return (dataReponse.error);
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande des requetes :", error);
-            return (500);
+            return ("0500");
         }
     }
 
-    // /api/user/friends/:id
-
-    static async deleteFriends(targetId: number) {
+    static async deleteFriends(targetId: number) : Promise<string> {
 
         try {
             const requestData : RequestInit = {
@@ -159,13 +134,15 @@ class Friend extends User {
                 credentials: 'include',
             }
             const response = await fetch(`/api/user/friends/${targetId}`, requestData);
+            if (response.status == 201)
+                return ("201")
+            const dataReponse = await response.json();
             
-            
-            return (response.status);
+
+            return (dataReponse.status);
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande des requetes :", error);
-            return (500);
+            return ("0500");
         }
     }
 }

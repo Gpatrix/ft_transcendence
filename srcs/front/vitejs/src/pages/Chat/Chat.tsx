@@ -11,6 +11,7 @@ import { useWebSocket } from '../Auth/WebSocketComponent.tsx';
 import User from '../../classes/User.tsx';
 import { gpt } from "../../translations/pages_reponses.tsx"
 import clsx from 'clsx';
+import { get_server_translation } from '../../translations/server_responses.tsx';
 
 type ChatProps = {
     // friends: Friend[],
@@ -32,6 +33,7 @@ export default function Chat({ profileData, classList, chanel, participants, arr
     const { socket } = useWebSocket();
 
     const [inputMessage, setInputMessage] = useState<string>("");
+    const [errorCode, setErrorCode] = useState<string>("");
 
     const containerRef = useRef<HTMLDivElement | null>(null);;
     const socketRef = useRef<WebSocket | null>(null);
@@ -51,19 +53,24 @@ export default function Chat({ profileData, classList, chanel, participants, arr
                     const friend =  participantsRef.current.find(participant => participant.id != profileDataRef.current?.id);
                     if (friend && profileDataRef.current) {
                         const newMessage = Message.sendMessage(profileDataRef.current.id ,friend.id, inputMessage, socket)
-                        if (newMessage != undefined) {
+                        if (typeof newMessage != 'string') {
                             const newArrayMessage = [...arrayMessage];
                             newArrayMessage.splice(0, 0, newMessage);
                             setArrayMessage(newArrayMessage);
                             setInputMessage("");
+                            setErrorCode("")
+                        } else {
+                            setErrorCode(newMessage)
                         }
                     }
                 } else {
                     // gestion des chat ingame
+                    // setErrorCode(newMessage)
                 }
                 
             } else {
                 console.warn('Socket non connectée');
+                setErrorCode("0500")
             }
         }
     }
@@ -148,6 +155,7 @@ export default function Chat({ profileData, classList, chanel, participants, arr
                     else
                         return ""
                 })}
+                {errorCode != "" && <div className='text-light-red text-center'>{get_server_translation(errorCode)}</div>}
             </div>
 
             {profileData && participants.length > 1 && <div className="w-1/1 bg-dark border-0 border-t-1 border-yellow flex p-3 gap-2">

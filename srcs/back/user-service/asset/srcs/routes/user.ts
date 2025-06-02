@@ -487,8 +487,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
 
             // ajouter les erreurs dans le wiki
-
-           // je reverrifiais toutes les erreurs de mon code 
+            // et dans le ficher de gestion d'erreur
 
             if (body.targetId == tokenPayload.id)
                 return (reply.status(403).send({ error: "2003" }));

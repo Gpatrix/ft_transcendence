@@ -3,6 +3,7 @@ import { createContext, ReactNode, useContext, useEffect, useRef, useState } fro
 import Friend from '../../classes/Friend';
 import Message from '../../classes/Message';
 import { useLocation } from 'react-router-dom';
+import { get_server_translation } from '../../translations/server_responses';
 // import { WebSocketContext } from './WebSocketContext';
 
 
@@ -86,13 +87,15 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         if (data.action)
                         {
                             Friend.getFriends().then((newFriends) => {
-                                if (newFriends != undefined)
+                                if (typeof newFriends != 'string')
                                 {
                                     // IL FAUT MODIFIER CA !
                                     newFriends.forEach(friend => {
                                         friend.toggleConnected();
                                     });
                                     setFriends(newFriends);
+                                } else {
+                                    console.log("Error : ", get_server_translation(newFriends));
                                 }
                             })
                         } else if (data.messages) {
@@ -144,27 +147,24 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
     const fetchFriends = async () => {
         try {
-            const tempFriends: Friend[] | undefined = await Friend.getFriends();
-            if (tempFriends != undefined)
+            const tempFriends: Friend[] | string = await Friend.getFriends();
+            if (typeof tempFriends != 'string')
             {
                 // IL FAUT MODIFIER CA !
 
                 tempFriends.forEach(friend => {
                     friend.toggleConnected();
                 });
-        
-                // setFriends(newFriends.map(friend => {
-                //     const updatedFriend = new Friend(friend.id, ...);
-                //     updatedFriend.toggleConnected();
-                //     return updatedFriend;
-                // }));
-                await setFriends(tempFriends);
+
+                setFriends(tempFriends);
                 if (tempFriends[0])
-                    await setActivFriend(tempFriends[0].id);
+                    setActivFriend(tempFriends[0].id);
                 return (tempFriends);
+            } else {
+                console.log("Error : ", get_server_translation(tempFriends));
             }
         } catch (error) {
-            console.log("Error :", error);
+            console.log("Error :", get_server_translation("0500"));
         }
     };
 

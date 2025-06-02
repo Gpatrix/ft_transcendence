@@ -80,7 +80,7 @@ class User {
 		}
 	}
 
-	static async searchUserByName(name: string): Promise<User[] | undefined | string> {
+	static async searchUserByName(name: string): Promise<User[] | string> {
 		try {
 			const requestData : RequestInit = {
 				method :  'GET',
@@ -89,14 +89,13 @@ class User {
 			const response = await fetch(`/api/user/${name}`, requestData);
 
 			const dataReponse = await response.json();
-			// console.log(dataReponse);
+
 			if (dataReponse.error)
 				return (dataReponse.error);
 			return (dataReponse);
 
 		} catch (error) {
-			console.log("Erreur lors de l'envoi de la demande :", error);
-			return (undefined)
+			return ("0500")
 		}
 	}
 }

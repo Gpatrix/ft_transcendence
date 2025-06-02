@@ -3,6 +3,7 @@ import Friend from "../../classes/Friend.tsx"
 import { useNavigate } from "react-router-dom";
 import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 import { gpt } from "../../translations/pages_reponses"
+import { get_server_translation } from "../../translations/server_responses.tsx";
 
 type MenuFriendsParamComponentProps = {
     friendId: number;
@@ -22,18 +23,23 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
     }
 
     const handleBlockFriend = async (idFriend: number) => {
-        const codeError = await Friend.blockFriends(idFriend);
+        const codeError : string = await Friend.blockFriends(idFriend);
+        if (codeError != "200")
+            console.log("Error :", get_server_translation(codeError));
     }
 
     const handleSupFriend = async (idFriend: number) => {
         const codeError = await Friend.deleteFriends(idFriend);
-        console.log("Code error : " + codeError);
+        if (codeError != "201") {
+            console.log("Error :", get_server_translation(codeError));
+            return ;
+        }
         
         try {
             if (socket)
                 socket.send(JSON.stringify({ action: 'deleteFriend', targetId: idFriend}));
-            const friends: Friend[] | undefined = await Friend.getFriends();
-            if (friends != undefined)
+            const friends: Friend[] | string = await Friend.getFriends();
+            if (typeof friends != 'string')
             {
                 // IL FAUT MODIFIER CA !
 
@@ -42,9 +48,11 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
                 });
                 
                 setFriends(friends);
+            } else {
+                console.log("Error :", get_server_translation(friends));
             }
         } catch (error) {
-            console.error("Erreur en récupérant les demandes d'ami :", error);
+            console.log("Error :", get_server_translation("0500"));
         }
     }
 

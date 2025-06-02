@@ -21,54 +21,54 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
     
 
     const handleAcceptRequest = async (friendRequest: FriendRequest, i: number) => {
-        try {
-            const test = await friendRequest.accepteRequest();
-            console.log("test" + test);
-            
-        } catch (error) {
-            console.log("Error :", error);
+        const res = await friendRequest.accepteRequest();
+        if (res != "201") {
+            setErrorCode(res);
             return ;
         }
-        // faire une verrif ici ?
         const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
         newFriendRequestTab.splice(i, 1);
         setFriendRequestTab(newFriendRequestTab);
 
         try {
             if (socket)
-                socket.send(JSON.stringify({ action: 'acceptRequest', targetId: friendRequest.authorId }));
-            const friends: Friend[] | undefined = await Friend.getFriends();
-            if (friends != undefined)
             {
-                // IL FAUT MODIFIER CA !
+                socket.send(JSON.stringify({ action: 'acceptRequest', targetId: friendRequest.authorId }));
+                const response: Friend[] | string = await Friend.getFriends();
+                if (typeof response != "string")
+                {
+                    // IL FAUT MODIFIER CA !
 
-                friends.forEach(friend => {
-                    friend.toggleConnected();
-                    // il faut recuperer tout les messages
-                });
-                
-                setFriends(friends);
+                    response.forEach(friend => {
+                        friend.toggleConnected();
+                    });
+                    
+                    setFriends(response);
+                    setErrorCode("");   
+                } else {
+                    setErrorCode(response);   
+                }
+            } else {
+                console.warn('Socket non connectée');
+                setErrorCode("0500");
             }
         } catch (error) {
-            console.error("Erreur en récupérant les demandes d'ami :", error);
+            setErrorCode("0500");   
         }
     }
 
     const handleRefuseRequest = async (friendRequest: FriendRequest, i: number) => {
         const codeError = await friendRequest.refuseRequest();
 
-        if (codeError / 100 != 2)
+        if (codeError == "201")
         {
             const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
             newFriendRequestTab.splice(i, 1);
             setFriendRequestTab(newFriendRequestTab);
+            setErrorCode("")
+            return ;
         }
-        else
-        {
-            const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
-            newFriendRequestTab.splice(i, 1);
-            setFriendRequestTab(newFriendRequestTab);
-        }
+        setErrorCode(codeError)
     }
 
     useEffect(() => {
@@ -78,9 +78,12 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
                 if (typeof response == "string")
                     setErrorCode(response)
                 else
+                {
+                    setErrorCode("");   
                     setFriendRequestTab(response);
+                }
             } catch (error) {
-                console.log("Error :", error);
+                setErrorCode("0500");   
             }
         };
 
@@ -105,7 +108,7 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
                         return("");
                 })}
                 {friendRequestTab.length == 0 && <p className="text-yellow text-center">{gpt("no_invitation")}</p>}
-                {friendRequestTab.length == 0 && <p className="text-light-redyellow text-center">{get_server_translation(errorCode)}</p>}
+                {friendRequestTab.length == 0 && errorCode && <p className="text-light-red text-center">{get_server_translation(errorCode)}</p>}
             </div>
         </div>
     )
