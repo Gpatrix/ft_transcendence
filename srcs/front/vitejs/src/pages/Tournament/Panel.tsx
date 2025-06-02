@@ -25,7 +25,7 @@ export default function Panel() {
     }, [])
 
     return (
-    <div className="absolute bg-grey-2 left-0 w-1/4 ml-10 h-[200px] border-1 flex flex-col border-yellow rounded-sm p-10">
+    <div className="absolute bg-grey-2 right-0 w-1/4 ml-10 h-[200px] border-1 flex flex-col border-yellow rounded-sm p-10">
         <h2 className="text-yellow font-title ml-auto mr-auto">{`${nextP1} VS ${nextP2}`}</h2>
         <Link className="w-full ml-auto mr-auto mt-auto" to={`/play/local?tournament=1&p1=${nextP1}&p2=${nextP2}`}>
             <Button className="w-full" type="full">Start</Button>

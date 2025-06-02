@@ -113,6 +113,11 @@ export class Ball {
                 if (Math.abs(this.velocity.x) > Ball.maxSpeed) {
                     this.velocity.x = Ball.maxSpeed * Math.sign(this.velocity.x);
                 }
+                if (isLeftSide) {
+                    this.position.x = racketRight + 1;
+                } else {
+                    this.position.x = racketLeft - (this.radius * 2) - 1;
+                }
                 this.lastToucher = isLeftSide ? 0 : 1;
                 return;
             }
