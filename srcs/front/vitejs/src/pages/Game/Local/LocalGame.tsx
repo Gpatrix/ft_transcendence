@@ -26,7 +26,12 @@ const mapDimension : dimension = {
     x : 700,
     y : 500
 }
-export default function Game() {
+
+interface GameProps {
+    userNames : Array<string> | null
+}
+
+export default function Game({userNames}: GameProps) {
     const pressedKeys = useRef(new Set<string>());
     const ball = useRef<Ball>(new Ball(defaultPos, defaultVelocity, 10, mapDimension));
     const ia = useRef<IA | null>(null);
@@ -41,8 +46,8 @@ export default function Game() {
         setPlayers(prev => {
             const updated = [...prev];
             updated[result] += 1;
-        
-            if (updated[result] >= 1) {
+
+            if (updated[result] >= 10) {
                 setWinPopup(true);
             }
         
@@ -60,6 +65,8 @@ export default function Game() {
             return ([p1, p2])
         })
     }, [params])
+
+
 
 
 
