@@ -20,10 +20,12 @@ export async function imageUpload(request: any, reply: any) {
         if (file)
         {
             const form = new FormData();
+            const fileBuffer = await file.toBuffer();
+
             form.append('credential', process.env.API_CREDENTIAL);
-            form.append('file', file.file, {
-                filename: file.filename,
-                contentType: file.mimetype
+            form.append('file', fileBuffer, {
+                filename: file.filename || 'file.txt',
+                contentType: file.mimetype || 'application/octet-stream'
             });
             
             //delete the old pp
@@ -38,16 +40,15 @@ export async function imageUpload(request: any, reply: any) {
             // }
 
             //upload the new pp
-            console.log('before upload');
             const res = await axios.post('http://upload-service:3000/api/upload/', form, {
                 headers: form.getHeaders()
             });
-            if (res.statusText != "OK" && res.status != 200)
-                throw(new Error("0500"));
+            if (res.status != 200)
+                return (reply.status(res.status).send({ error: res.data.error || "0500" }));
             const result = res.data;
             if (!request.body)
                 request.body = {};
-            request.body.image = `https://localhost/api/upload/${result.fileName}`;
+            request.body.image = `https://localhost:${process.env.PUBLIC_PORT || 3000}/api/upload/${result.fileName}`;
         }
     } catch (error) {
         console.error("Error in image upload:", error);

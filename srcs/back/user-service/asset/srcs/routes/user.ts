@@ -395,7 +395,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             if (body.newPassword)
                 updateData.newPassword = body.newPassword;
             if (body.image) {
-                console.log("IMAGE: ", body.image)
                 updateData.profPicture = body.image;
             }
             if (body.isTwoFactorEnabled)
@@ -407,7 +406,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
             if (!foundUser)
                 reply.status(404).send({ error: "1006" });
-            console.log("body", body);
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
