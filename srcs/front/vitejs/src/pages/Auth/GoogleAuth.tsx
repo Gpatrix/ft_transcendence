@@ -17,7 +17,7 @@ const GoogleAuth: React.FC = () => {
 
     const params = new URLSearchParams({
       client_id: '126523871891-i2jnhvg2mgo847mbbkpmio7nj4ikepdp.apps.googleusercontent.com',
-      redirect_uri: 'https://localhost/api/auth/login/google/callback',
+      redirect_uri: 'https://localhost:3000/api/auth/login/google/callback',
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
       include_granted_scopes: 'true',

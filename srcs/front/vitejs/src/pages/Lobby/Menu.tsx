@@ -91,7 +91,7 @@ export function MenuDropDown({ label, first, second, firstLink, secondLink, thir
             {
               thirdLink && 
               <Link
-              className="block ml-22 uppercase text-yellow/70 hover:text-yellow focus:text-yellow font-bold transition-colors duration-300 text-2xl"
+              className="block ml-24 uppercase text-yellow/70 hover:text-yellow focus:text-yellow font-bold transition-colors duration-300 text-2xl"
               to={thirdLink ?? ""}
             >
               {third}

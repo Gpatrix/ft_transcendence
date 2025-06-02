@@ -47,7 +47,7 @@ export async function imageUpload(request: any, reply: any) {
             const result = res.data;
             if (!request.body)
                 request.body = {};
-            request.body.image = `https://localhost/api/upload/${result.fileName}`;
+            request.body.image = `https://localhost:3000/api/upload/${result.fileName}`;
         }
     } catch (error) {
         console.error("Error in image upload:", error);
