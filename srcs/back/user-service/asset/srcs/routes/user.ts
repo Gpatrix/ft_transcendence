@@ -271,8 +271,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
+                selectFields.id = true,
                 selectFields.email = true,
-                selectFields.lang = true
+                selectFields.lang = true,
                 selectFields.isTwoFactorEnabled = true
             }
             const data = await prisma.user.findUnique({
@@ -526,6 +527,59 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.status(200).send({ message: "user_successfully_unblocked" });
         } catch (error) {
             reply.status(500).send({ error: "0500"});
+        }
+    })
+
+    interface getUsersByNameRequestParams 
+    {
+        id: number
+    }
+
+    server.get<{ Params: getUsersByNameRequestParams }>('/api/user/:name', async (request: any, reply: any) => {
+        try {
+            // changer les erreurs dans le wiki
+            const targetName = request.params?.name;
+            const token = request.cookies['ft_transcendence_jw_token'];
+            if (!token)
+                return reply.status(403).send({ error: "0403" });
+            const decoded = jwt.decode(token);
+            const id = decoded?.data?.id;
+            if (!id)
+                return reply.status(403).send({ error: "0403" });
+            const user = await prisma.user.findUnique({
+                where: { 
+                    id: Number(id),
+                }
+            })
+            if (!user)
+                return reply.status(404).send({ error: "0403" });
+            const targets : User[] = await prisma.user.findMany({
+                where: { 
+                    name: targetName
+                },
+                select: {
+                    bio: true,
+                    email: true,
+                    id: true,
+                    isTwoFactorEnabled: true,
+                    name: true,
+                    profPicture: true,
+                    rank: true,
+                }
+            })
+            console.log("targets");
+            if (!targets)
+                return reply.status(404).send({ error: "2012" });
+            const indexUser = targets.findIndex(target => target.id == user.id);
+            if (indexUser != -1)
+                targets.splice(indexUser, 1);
+            if (targets.length == 0)
+                return reply.status(401).send({ error: "2011" });
+            reply.status(201).send(targets);
+        } catch (error) {
+            {
+                return reply.status(500).send({ error: "0500" });
+            }
         }
     })
 

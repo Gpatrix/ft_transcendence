@@ -4,5 +4,5 @@ if [ "$NODE_ENV" = "dev" ]; then
     exec pnpm dev
 else
     pnpm build;
-    exec pnpm build start;
+    exec pnpm start;
 fi

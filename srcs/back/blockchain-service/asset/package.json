@@ -3,9 +3,6 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
-    "prisma": {
-        "seed": "ts-node --transpile-only ./prisma/seed.ts"
-    },
     "watch": {
         "dev": "./srcs/*.ts"
     },

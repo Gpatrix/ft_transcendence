@@ -1,8 +1,8 @@
-import Button from "../../components/Button.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
+import { FormEvent, ChangeEvent, useState } from "react";
 import Friend from "../../classes/Friend.tsx"
+import User from "../../classes/User.tsx";
 import UserContact from "../../components/UserContact.tsx";
 import ClickableIco from "../../components/ClickableIco.tsx";
 
@@ -15,13 +15,26 @@ export default function AddFriends({} : AddFriendsProps) {
 
     const [inputSearch, setInputSearch] = useState<string>("");
     const [inputResponse, setInputResponse] = useState<number>(-1);
+    const [usersSearched, setUsersSearched] = useState<User[] | undefined>([]);
 
     const handleSubmitSearch = async (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         // faire l'affichage de toutes les erreurs 
+        const users: User[] | undefined | string = await User.searchUserByName(inputSearch)
 
-        setInputResponse(await Friend.friendRequest(inputSearch));
+        // ajouter les codes d'erreurs
+        if (typeof users == 'string') {
+            setInputResponse(Number(users))
+            setUsersSearched([]);
+            console.log("log cette erreur sur la page");
+        }
+        else {
+            setUsersSearched(users);
+            setInputResponse(-1)
+        }
+            
+        // setInputResponse(await Friend.friendRequest(inputSearch));
         setInputSearch("");
 
     }
@@ -29,6 +42,13 @@ export default function AddFriends({} : AddFriendsProps) {
     const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
         setInputSearch(e.target.value);
     };
+
+    const handleSendFriendRequest = async (id: number) => {
+        const users = await Friend.friendRequest(id)
+
+        setUsersSearched([]);
+        setInputResponse(Number(users))
+    }
 
     return (
         <div className="w-[100%]">
@@ -42,13 +62,25 @@ export default function AddFriends({} : AddFriendsProps) {
             />
 
             <div className="flex flex-col gap-2">
+
+                {usersSearched && usersSearched.map(user => {
+                    return <UserContact key={user.id} status='none'  userName={user.name} image={user.profPicture} >
+                                <ClickableIco image='/icons/circle-plus.svg' onClick={()=> handleSendFriendRequest(user.id)} className="w-[30px] mr-1"/>
+                            </UserContact>
+                })}
+
                 {
                     Math.round(inputResponse / 100) == 2 &&
                     <div className="py-2 text-green">Requete envoyée</div>
                 }
                 {
                     Math.round(inputResponse / 100) != 2 && inputResponse != -1 &&
-                    <div className="py-2 text-light-red">Erreur {inputResponse}</div>
+                    <div className="py-2 text-light-red">{inputResponse}</div>
+                    // utiliset getServeurTranslation
+                    // 401 = vous meme
+                    // 429 = invitation deja envoye
+                    // 500 = utilisateur non existant
+                    // 404 = deja en ami
                 }
 
                 <div>

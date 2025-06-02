@@ -8,7 +8,7 @@ services:
         context: ./reverse_proxy
         dockerfile: Dockerfile
     ports:
-        - 443:443
+        - 3000:443
     networks:
       - router
 
@@ -153,21 +153,6 @@ services:
     networks:
       - router
 
-  prometheus-service:
-    container_name: prometheus-service
-    restart: on-failure
-    volumes:
-      - db-monitoring:/usr/src/prometheus-service/data
-    build:
-        context: ./back/monitoring/prometheus-service
-        dockerfile: Dockerfile
-    networks:
-      - router
-    ports:
-      - 9090:9090
-    expose:
-      - 9090
-
   grafana-service:
     container_name: grafana-service
     restart: on-failure
@@ -183,8 +168,8 @@ services:
           GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
     networks:
       - router
-    ports:
-      - 4000:3000
+    expose:
+      - 3000
 
   alertmanager-service:
     container_name: alertmanager-service
@@ -201,8 +186,8 @@ services:
           ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
     networks:
       - router
-    ports:
-      - 9093:9093
+    expose:
+      - 9093
 
   front_dev:
     container_name: front_dev
