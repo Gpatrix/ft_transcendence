@@ -1,5 +1,13 @@
 groups:
-- name: service-status
-  rules:
-  - record: service:status:now
-    expr: up
+  - name: service-status
+    rules:
+    - record: service:status:now
+      expr: up
+
+  - name: fused-service-metrics
+    rules:
+      - record: service_requests_total
+        expr: |
+          sum by (job) (
+            {__name__=~"(auth|chat|game|upload|user|blockchain)_requests_total"}
+          )

@@ -4,12 +4,13 @@ import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
-import {metrics} from './metrics'
+import {metrics, chat_requests_total} from './metrics'
 
 import * as Utils from './utils'
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
+
 
 global.activeConn = new Map<number, i_user>();
 
@@ -46,6 +47,12 @@ server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
 server.register(metrics);
+
+server.addHook('onResponse', (req, res, done) =>
+{
+	chat_requests_total.inc({method: req.method});
+	done();
+});
 
 setInterval(recurrentPing, PING_INTERVAL);
 

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import ProfilePic from './ProfilePic.tsx';
 import arrowDown from './down-arrow-box.svg';
 import styles from './MatchResult.module.css';
-import Player from '../classes/Player.tsx';
 
 interface MatchResultProps {
   match: {
@@ -26,10 +25,55 @@ interface MatchResultProps {
   };
 }
 
+export class MatchPlayer {
+  id: number;
+  userId: number;
+  score: number;
+  place: number;
+  name: string;
+  imageUrl: string;
+  points: number;
+
+  constructor( userId: number, score: number, name: string, imageUrl: string, place : number) 
+  {
+    this.userId = userId;
+    this.score = score;
+    this.name = name;
+    this.imageUrl = imageUrl;
+    this.points = score;
+    this.place = place;
+  }
+
+  static async fillFromApi(
+    userId: number,
+    score: number,
+    gameId: number,
+    place: number
+  ): Promise<MatchPlayer> {
+    const res = await fetch(`/api/user/get_profile/${userId}`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch user with ID ${userId}`);
+    }
+
+    const data = await res.json()
+    return new MatchPlayer(
+      userId,
+      score,
+      data.data.name,
+      data.data.profPicture,
+      place,
+    );
+  } 
+
+  static findUserById(players: MatchPlayer[], userId: number): MatchPlayer | undefined {
+    return players.find(player => player.userId === userId);
+  }
+}
+
 export default function MatchResult({ match }: MatchResultProps) {
   const [expendedItem, setExpendedItem] = useState(false);
-  const [users, setUsers] = useState<Player[]>([]);
-  const [mainUser, setMainUser] = useState<Player | null>(null);
+  const [users, setUsers] = useState<MatchPlayer[]>([]);
+  const [mainUser, setMainUser] = useState<MatchPlayer | null>(null);
   const [loading, setLoading] = useState(true);
 
   const toggleMatch = () => setExpendedItem(!expendedItem);
@@ -40,40 +84,40 @@ export default function MatchResult({ match }: MatchResultProps) {
 
     const fetchUsers = async () => {
       try {
-        const allPlayersRaw = [
+        const allMatchPlayersRaw = [
           { userId: match.you.userId, score: match.you.score },
           ...match.opponents.map(o => ({ userId: o.userId, score: o.score }))
         ];
 
-        const sorted = [...allPlayersRaw].sort((a, b) => b.score - a.score);
+        const sorted = [...allMatchPlayersRaw].sort((a, b) => b.score - a.score);
 
-        const userPromises = sorted.map((player, idx) =>
-          Player.fillFromApi(player.userId, player.score, match.gameId, idx + 1)
-        );
+        const userPromises = sorted.map(async (player, idx) => {
+          return MatchPlayer.fillFromApi(player.userId, player.score, match.gameId, idx + 1)
+        });
 
-        const players = await Promise.all(userPromises);
-        setUsers(players);
+        const MatchPlayers = await Promise.all(userPromises);
+        setUsers(MatchPlayers);
       } catch (error) {
-        console.error("Error fetching player data:", error);
+        console.error("Error fetching MatchPlayer data:", error);
       } finally {
         setLoading(false);
       }
     };
    
-    fetchUsers();
+    fetchUsers(); 
   }, [match]);
 
   useEffect(() => {
-    const user = Player.findUserById(users, match.you.userId);
+    const user = MatchPlayer.findUserById(users, match.you.userId);
     setMainUser(user || null);
   }, [users, match.you.userId]);
 
   useEffect(()=> {
     match.gameDate = new Date(match.gameDate)
-  })
+  }, [match])
 
   const winner = users.find(user => user.place === 1);
-  const otherPlayers = users.filter(user => user.place !== 1);
+  const otherMatchPlayers = users.filter(user => user.place !== 1);
 
   if (loading) {
     return (
@@ -105,16 +149,16 @@ export default function MatchResult({ match }: MatchResultProps) {
               <span className={clsx('flex flex-col w-full', styles.users)}>
                 <div className={clsx('flex  main-cara max-h-1/1 mr-5 relative', styles.matchRecap)}>
                   <span className='w-[60px]'>
-                    <ProfilePic profileLink={`/profile/${winner?.id}`} image={winner?.imageUrl || ''} />
+                    <ProfilePic profileLink={`/profile/${winner?.userId}`} className='inline-block w-[60px] h-[60px]' image={winner?.imageUrl || ''} />
                   </span>
                   <span className='separator mr-8 ml-8 text-5xl h-min self-center'>/</span>
                   <span className='otherUsers flex'>
-                    {otherPlayers.map((player, i) => (
+                    {otherMatchPlayers.map((MatchPlayer, i) => (
                       <ProfilePic 
                         key={i} 
-                        profileLink={`/profile/${player.id}`} 
-                        image={player.imageUrl} 
-                        className={(i === 0 ? '' : 'ml-[-20px] ') + 'inline-block w-[60px]'} 
+                        profileLink={`/profile/${MatchPlayer.userId}`} 
+                        image={MatchPlayer.imageUrl} 
+                        className={(i === 0 ? '' : 'ml-[-20px] ') + 'inline-block w-[60px] h-[60px]'} 
                       />
                     ))}
                   </span>
@@ -130,7 +174,7 @@ export default function MatchResult({ match }: MatchResultProps) {
                         #{x.place} |
                       </span>
                       <span className='w-[60px]'>
-                        <ProfilePic profileLink={`/profile/${x.id}`} image={x.imageUrl} />
+                        <ProfilePic profileLink={`/profile/${x.userId}`} className='inline-block w-[60px] h-[60px]' image={x.imageUrl} />
                       </span>
                       <span className='separator h-min self-center'>
                         {x.name}

@@ -1,4 +1,4 @@
-import { PrismaClient } from "../prisma/prisma_client";
+import { PrismaClient } from "@prisma/client";
 import axios, { AxiosError } from 'axios';
 
 const prisma = new PrismaClient();

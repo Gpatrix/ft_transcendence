@@ -5,10 +5,15 @@ import FriendRequest from "./FriendRequest";
 
 const MESSAGE_RECIVED = 20;
 
+// pour prisma :
+// pnpx prisma studio
+
 class Friend extends User {
     // messages: Message[];
     connected: boolean;
     nbNotifs: number;
+
+    
 
 
 
@@ -39,21 +44,24 @@ class Friend extends User {
         this.nbNotifs = newNbNotifs;
     }
     
-    static async friendRequest(name: string) : Promise<number>
+    static async friendRequest(id: number) : Promise<string>
     {
         try {
             const requestData : RequestInit = {
                 method :  'POST',
                 credentials: 'include'
             }
-            const response = await fetch(`/api/user/friends/requests/${encodeURIComponent(name)}`, requestData);
-        
-            console.log("Reponse HTTP :", response.status);
+            const response = await fetch(`/api/user/friends/requests/${id}`, requestData);
 
-            return (response.status);
+            if (response.status)
+                return (String(response.status))
+                
+			const dataReponse = await response.json();
+            return (dataReponse.error);
           } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
-            return (500);
+            console.log("Erreur lors de l'envoi de la demande :", error);
+            
+            return ("500");
           }
     }
 
@@ -66,7 +74,6 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/receivedFriendRequests`, requestData);
             
-            console.log("Reponse HTTP :", response.status);
             
             const dataReponse = await response.json();
 
@@ -93,8 +100,6 @@ class Friend extends User {
                 credentials: 'include'
             }
             const response = await fetch(`/api/user/friends`, requestData);
-            
-            console.log("Reponse HTTP :", response.status);
 
             // console.log(response);
             
@@ -166,7 +171,6 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/blockUser`, requestData);
             
-            console.log("Reponse HTTP :", response.status);
             
             return (response.status);
 
@@ -187,7 +191,6 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/friends/${targetId}`, requestData);
             
-            console.log("Reponse HTTP :", response.status);
             
             return (response.status);
 
@@ -197,7 +200,5 @@ class Friend extends User {
         }
     }
 }
-
-
 
 export default Friend;

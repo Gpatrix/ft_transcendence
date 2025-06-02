@@ -4,8 +4,8 @@ if [ "$NODE_ENV" = "dev" ]; then
     npx hardhat node &
     sleep 5
     npx hardhat run srcs/scripts/deploy.ts --network localhost
-    exec pnpm dev
+    exec npm run dev
 else
-    pnpm build
-    exec pnpm start;
+    npm run build
+    exec npm run start;
 fi

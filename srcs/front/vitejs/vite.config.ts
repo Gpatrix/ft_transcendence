@@ -25,5 +25,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/rpc/, ''),
       },
     },
+    host: true,
+    watch: {
+      usePolling: true,
+    }
   }
 })

@@ -47,7 +47,6 @@ class FriendRequest {
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
 
-            console.log(response.status);
             return (response.status); // return le status ?
 
         } catch (error) {
@@ -65,7 +64,6 @@ class FriendRequest {
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
 
-            console.log(response);
             // const dataReponse = await response.json();
             // console.log(dataReponse);
             

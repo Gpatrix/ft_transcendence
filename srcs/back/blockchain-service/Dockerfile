@@ -1,9 +1,8 @@
-FROM node:18-alpine
+FROM node:24-alpine
 
 WORKDIR  /usr/src/blockchain-service
 
-RUN apk update --no-cache && \
-    apk add pnpm --no-cache
+RUN apk update --no-cache
 
 ARG NODE_ENV
 COPY ./asset/package.json .

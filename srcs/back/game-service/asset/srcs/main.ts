@@ -4,7 +4,11 @@ import rateLimitPlugin from '@fastify/rate-limit';
 import jwt from 'jsonwebtoken';
 import websocketPlugin from '@fastify/websocket';
 import { FastifyInstance } from "fastify";
-import { metrics } from './metrics'
+import { metrics , game_requests_total} from './metrics'
+import gameRoutes from './routes/game';
+import tounramentRoutes from './routes/tournament';
+import statsRoutes from './routes/stats';
+import historyRoutes from './routes/history';
 
 const server = fastify();
 
@@ -16,7 +20,13 @@ server.register(rateLimitPlugin, {
 });
 server.register(websocketPlugin);
 server.register(metrics);
+server.register(game_service);
 
+server.addHook('onResponse', (req, res, done) =>
+{
+	game_requests_total.inc({method: req.method});
+	done();
+});
 
 interface tokenStruct
 {
@@ -48,13 +58,11 @@ async function game_service(fastify: FastifyInstance)
         }
     })
 
-    fastify.register(require("./routes/game"));
-    fastify.register(require("./routes/tournament"));
-    fastify.register(require("./routes/stats"));
-    fastify.register(require("./routes/history"));
+    fastify.register(gameRoutes);
+    fastify.register(tounramentRoutes);
+    fastify.register(statsRoutes);
+    fastify.register(historyRoutes);
 }
-
-
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
 {

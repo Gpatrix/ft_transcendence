@@ -12,7 +12,6 @@ export default function LanguageSelect({setValue, lang, init, resetInit} : Langu
     const keys =    ["great-britain",
                      "france",
                      "italy",]
-    console.log(`init : ${init}`)
     return (
         <span className="flex  ml-auto mr-auto mt-5 w-fit">
             {keys.map((key, i) => 

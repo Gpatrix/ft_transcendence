@@ -71,10 +71,9 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     const RECONNECT_INTERVAL = 500;
 
     const connectWebSocket = () => {
-        const ws = new WebSocket('wss://localhost/api/chat/connect');
+        const ws = new WebSocket('wss://localhost:3000/api/chat/connect');
 
         ws.onopen = () => {
-            console.log('WebSocket connecté');
             setSocket(ws);
         };
 
@@ -125,21 +124,19 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         console.warn('Socket non connectée');
                     }
                 } catch (error) {
-                    console.error("Error :", error);
+                    console.log("Error :", error);
                 }
             }
         };
 
         ws.onclose = () => {
-            console.log('WebSocket fermé');
             if (shouldReconnect.current) {
-                console.log(`Tentative de reconnexion dans ${RECONNECT_INTERVAL / 1000}s...`);
                 reconnectTimeout.current = setTimeout(connectWebSocket, RECONNECT_INTERVAL);
             }
         };
 
         ws.onerror = (error) => {
-            console.error('Erreur WebSocket:', error);
+            console.log('Erreur WebSocket:', error);
             ws.close(); // Forcer une fermeture pour relancer la reconnexion
         };
     };
@@ -167,7 +164,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                 return (tempFriends);
             }
         } catch (error) {
-            console.error("Error :", error);
+            console.log("Error :", error);
         }
     };
 
@@ -190,9 +187,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     }, [activFriend]);
 
     useEffect(() => {
-        console.log("socket");
-        console.log(socket);
-        
         if (socket)
             fetchFriends();
     }, [socket])

@@ -1,6 +1,7 @@
 import { tv, type VariantProps } from 'tailwind-variants'
 import { clsx } from 'clsx'
 import ProfilePic from './ProfilePic.tsx';
+import ClickableIco from './ClickableIco.tsx';
 
 const statusVariants = tv({
     base: 'flex  w-full  rounded-xl  flex items-center',
@@ -41,14 +42,16 @@ type UserContactProps = {
     image?: string
     nb?: number;
     onClick?: React.MouseEventHandler<HTMLDivElement>;
+    onClickIcone?: React.MouseEventHandler<HTMLButtonElement>;
+    iconeType?: "supp" | "add";
 
   } & VariantProps<typeof statusVariants> & VariantProps<typeof typeVariants>;
 
-export default function UserContact({className, userName, status='online', notifs = 0, type, image, children, nb, onClick} : UserContactProps) {
-
+export default function UserContact({className, userName, status='online', notifs = 0, type, image, children, nb, onClick, onClickIcone, iconeType = "add"} : UserContactProps) {
+    
     return (
         <div data-nb={nb} data-status={status}
-            className={clsx('userContact h-[50px] p-[4px] pink-shadow bg-grey', statusVariants( {status} ), typeVariants( {type} ) , className)} onClick={onClick}>
+            className={clsx('userContact h-[50px] p-[4px] pink-shadow bg-grey relative', statusVariants( {status} ), typeVariants( {type} ) , className)} onClick={onClick}>
             <span className='flex items-center h-1/1'>
                 <ProfilePic profileLink='test.jpg' image={image} status={status} className={'h-1/3 min-w-[42px]'}/>
                 <p className={clsx('w-fit font-bold ml-[8px]', typeVariants( {type} ) )}>{userName}</p>
@@ -57,6 +60,8 @@ export default function UserContact({className, userName, status='online', notif
                                      h-[30px] w-[30px] shadow-sm  shadow-purple 
                                      font-bold rounded-full 
                                      flex items-center justify-center'>{notifs}</p>}
+            {onClickIcone && <ClickableIco image={iconeType == 'add' ? '/icons/circle-plus.svg' : '/icons/error.svg'} onClick={onClickIcone} className="absolute right-1"/>}
+
 
             {children  &&
                 <span className='ml-auto mr-[4px]'>

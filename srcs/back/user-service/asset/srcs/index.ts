@@ -4,9 +4,15 @@ import multipartPlugin from '@fastify/multipart';
 import rateLimitPlugin from '@fastify/rate-limit';
 import userRoutes from "./routes/user";
 import friendsRoutes from "./routes/friends";
-import { metrics } from './metrics'
+import { metrics , user_requests_total} from './metrics'
 
 const server = fastify();
+
+server.addHook('onResponse', (req, res, done) =>
+{
+	user_requests_total.inc({method: req.method});
+	done();
+});
 
 server.register(rateLimitPlugin, {
   max: 100,
