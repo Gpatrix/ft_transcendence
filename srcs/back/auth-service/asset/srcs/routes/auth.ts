@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validatePassword  from "../validators/password";
-const isConnected = require('../validators/jsonwebtoken'); 
+import isConnected from '../validators/jsonwebtoken';
 
 function authRoutes (server: FastifyInstance, options: any, done: any)
 {
