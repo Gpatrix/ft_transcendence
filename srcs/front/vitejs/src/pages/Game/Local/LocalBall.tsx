@@ -72,7 +72,7 @@ export class Ball {
             const ballBottom = this.position.y + (this.radius * 2);
         
             const racketLeft = racket.pos.x;
-            const racketRight = racket.pos.x + racket.properties.width;
+            const racketRight = racket.pos.x + racket.properties.width * 2;
             const racketTop = racket.pos.y;
             const racketBottom = racket.pos.y + racket.properties.height;
             const racketCenterY = (racketTop + racketBottom) / 2;
@@ -84,9 +84,7 @@ export class Ball {
             let isCollision = false;
             
             if (isLeftSide) {
-                isCollision = isVerticalY && 
-                    (ballRight >= racketLeft && ballLeft <= racketRight) && 
-                    this.velocity.x < 0;
+                isCollision = isVerticalY && (ballRight >= racketLeft && ballLeft <= racketRight)
             } else {
                 isCollision = isVerticalY && 
                     (ballRight >= racketLeft && ballLeft <= racketRight) && 
