@@ -6,6 +6,7 @@ import StartCounterMulti from "./StartCounterMulti";
 import { Ball } from "./Classes/Ball";
 import MultiPointsCounter from "./MultiPointsCounter";
 import Disconnected from "./Popups/Disconnected";
+import { gpt } from "../../../translations/pages_reponses";
 
 export type Player = {
     id: number
@@ -42,7 +43,7 @@ export default function Multi() {
             return;
         }
 
-        const ws = new WebSocket(`wss://localhost/api/game/connect/${tournament}/${game}`);
+        const ws = new WebSocket(`wss://localhost:3000/api/game/connect/${tournament}/${game}`);
         if (!ws)
             return ;
         socket.current = ws
@@ -105,7 +106,7 @@ export default function Multi() {
 
     return (
         <div className="relative">
-            {error && <p className="text-yellow">{error}</p>}
+            {error && <p className="text-yellow">{gpt(error)}</p>}
             {disconnect && <Disconnected/>}
             {!error &&
             <span>

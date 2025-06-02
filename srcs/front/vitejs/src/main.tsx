@@ -57,24 +57,18 @@ createRoot(document.getElementById('root')!).render(
             <Route element={<LobbyLayout />}>
               <Route path="/lobby/friends" element={<FriendsLobby />}/>
               <Route path="/lobby/friends/create" element={<PopupCreate />}/>
-<<<<<<< HEAD
               <Route path="/lobby/matchmaking" element={<MatchMaking/>}/>
-=======
-              <Route path="/lobby/matchmaking" element={<div></div>}/>
               <Route path="/lobby/friendLoby" element={<PageFriendLoby />}/>
->>>>>>> main
+
             </Route>
 
 
             <Route element={<GameLayout />}>
               <Route path="/play/local" element={<LocalGameWrapper/>}/>
-<<<<<<< HEAD
               <Route path="/play/multi" element={<Multi/>}/>
-=======
               <Route path="/play/tournament" element={<AskPlayers/>}/>
               <Route path="/play/tournament/create" element={<CreateTournament/>}/>
               <Route path="/play/tournament/overview" element={<Overview/>}/>
->>>>>>> main
             </Route>
 
 
