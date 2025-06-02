@@ -10,6 +10,7 @@ import PointsCounter from "./PointsCounter.tsx";
 import { gpt } from "../../../translations/pages_reponses.tsx";
 import IA from "../../../classes/IA.tsx";
 import { useSearchParams } from "react-router";
+import WinPopUp from "./WinPopup.tsx";
 
 const defaultPos : pos = {
     x : 250,
@@ -34,14 +35,15 @@ export default function Game() {
     const [params] = useSearchParams()
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
     const [userNames, setUserNames] = useState<Array<string> | null>(null)
+    const [winPopup, setWinPopup] = useState<boolean>(false)
 
     function updateResult(result : number) {
         setPlayers(prev => {
             const updated = [...prev];
             updated[result] += 1;
         
-            if (updated[result] >= 10) {
-                setCounter("HEYYY");
+            if (updated[result] >= 1) {
+                setWinPopup(true);
             }
         
             return updated;
@@ -143,8 +145,9 @@ export default function Game() {
                 <Wall id="left"  height={mapDimension.y} width={5} bottom={`${0}`} />
                 <Wall id="right" height={mapDimension.y} width={5} bottom={`${0}`} right={0}/>
 
-                {!counter && <BallComponent ball={ball.current} />}
-                {!counter && <PointsCounter points={players}/>}
+                {!winPopup && <BallComponent ball={ball.current} />}
+                {!winPopup && <PointsCounter points={players}/>}
+                {winPopup && <WinPopUp userNames={userNames} scores={players}/>}
             </span>
         </div>
     );
