@@ -11,6 +11,8 @@ interface MenuLinkProps {
     firstLink?: string
     second?: string
     secondLink?: string
+    third?: string
+    thirdLink?: string
 }
 
 export function MenuLink({link, label} : MenuLinkProps) {
@@ -33,7 +35,7 @@ export function MenuLink({link, label} : MenuLinkProps) {
     )
 }
 
-export function MenuDropDown({ label, first, second, firstLink, secondLink }: MenuLinkProps) {
+export function MenuDropDown({ label, first, second, firstLink, secondLink, third, thirdLink }: MenuLinkProps) {
     const [state, setState] = useState<boolean>(false)
     const [fold, setFold] = useState<boolean>(false)
   
@@ -86,6 +88,15 @@ export function MenuDropDown({ label, first, second, firstLink, secondLink }: Me
             >
               {second}
             </Link>
+            {
+              thirdLink && 
+              <Link
+              className="block ml-22 uppercase text-yellow/70 hover:text-yellow focus:text-yellow font-bold transition-colors duration-300 text-2xl"
+              to={thirdLink ?? ""}
+            >
+              {third}
+            </Link>
+            }
           </div>
         </span>
       </span>
@@ -103,8 +114,11 @@ export default function Menu() {
             <MenuDropDown label="Local game" 
                           first="1 vs 1"
                           firstLink="/play/local" 
-                          second="Tournament"
-                          secondLink="/play/tournament"/>
+                          second="Player vs AI"
+                          secondLink="/play/local?isBot=1"
+                          third="Tournament"
+                          thirdLink="/play/tournament"
+                          />
 
 
             <MenuLink link="/profile" label="profile"/>
