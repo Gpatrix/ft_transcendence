@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+import jwt from 'jsonwebtoken';
 
 export function isConnected(request, reply, done) {
     const token = request.cookies.ft_transcendence_jw_token;
