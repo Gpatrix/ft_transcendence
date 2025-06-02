@@ -9,6 +9,7 @@ import StartCounter from "./StartCounter.tsx";
 import PointsCounter from "./PointsCounter.tsx";
 import { gpt } from "../../../translations/pages_reponses.tsx";
 import IA from "../../../classes/IA.tsx";
+import { useSearchParams } from "react-router";
 
 const defaultPos : pos = {
     x : 250,
@@ -25,14 +26,12 @@ const mapDimension : dimension = {
     y : 500
 }
 export default function Game() {
-    const isBot = true;
-
     const pressedKeys = useRef(new Set<string>());
     const ball = useRef<Ball>(new Ball(defaultPos, defaultVelocity, 10, mapDimension));
     const ia = useRef<IA | null>(null);
     const rackets = useRef<Racket[] | null>(null);    
     const [players, setPlayers] = useState([0, 0]);
-    // const [, setTicks] = useState<number>(0);
+    const [params] = useSearchParams()
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
 
     function updateResult(result : number) {
@@ -43,7 +42,10 @@ export default function Game() {
         });
     }
 
+
     useEffect(() => {
+        const isBot = params.get("isBot") === "1";
+        
         const r1 = new Racket({ id: 1, keyUp: "w", keyDown: "s", speed: 500 });
         const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 500 });
         rackets.current = [r1, r2];
@@ -90,7 +92,6 @@ export default function Game() {
                     ball.current.unFreeze();
                 }, 500)
             }
-            // setTicks((t)=> t+1);
             animationFrameId = requestAnimationFrame(loop);
         };
 
