@@ -33,14 +33,32 @@ export default function Game() {
     const [players, setPlayers] = useState([0, 0]);
     const [params] = useSearchParams()
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
+    const [userNames, setUserNames] = useState<Array<string> | null>(null)
 
     function updateResult(result : number) {
         setPlayers(prev => {
             const updated = [...prev];
-            updated[result]++;
+            updated[result] += 1;
+        
+            if (updated[result] >= 10) {
+                setCounter("HEYYY");
+            }
+        
             return updated;
-        });
+        }); 
     }
+
+    useEffect(()=> { // tournament
+        const p1 = params.get("p1")
+        const p2 = params.get("p2")
+
+        if (!p1 || !p2)
+            return ;
+        setUserNames(()=> {
+            return ([p1, p2])
+        })
+    }, [params])
+
 
 
     useEffect(() => {
@@ -107,10 +125,16 @@ export default function Game() {
 
     return (
         <div className="block ml-auto mr-auto w-fit h-fit ">
+            { userNames && 
+            <span className="w-full relative text-yellow flex">
+                <h1 className="w-[234px] truncate overflow-hidden">{userNames[0]}</h1>
+                <h1 className="w-[234px] truncate text-center overflow-hidden">{`VS`}</h1>
+                <h1 className="w-[234px] truncate overflow-hidden text-right">{userNames[1]}</h1>
+            </span>
+            }
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
-
-                    <RacketComponent id={1} left={5} />
-                    <RacketComponent id={2} right={5} />
+                <RacketComponent id={1} left={5} />
+                <RacketComponent id={2} right={5} />
                 {counter && <StartCounter width={mapDimension.x} height={mapDimension.y} setCounter={setCounter} counter={counter} /> }
 
                 <Wall id="top"    width={mapDimension.x} height={5} top={0} />
@@ -119,8 +143,8 @@ export default function Game() {
                 <Wall id="left"  height={mapDimension.y} width={5} bottom={`${0}`} />
                 <Wall id="right" height={mapDimension.y} width={5} bottom={`${0}`} right={0}/>
 
-                <BallComponent ball={ball.current} />
-                <PointsCounter points={players}/>
+                {!counter && <BallComponent ball={ball.current} />}
+                {!counter && <PointsCounter points={players}/>}
             </span>
         </div>
     );

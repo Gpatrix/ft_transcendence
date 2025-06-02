@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import Pair from "./Brackets/Pair"
 import Column from "./Brackets/Column"
+import Panel from "../Panel"
 
 
 export default function Overview() {
@@ -23,13 +24,13 @@ export default function Overview() {
             navigate("/play/tournament")
             return ;
         }
-
     }, [])
 
 
 
     return (
         <div className="flex">
+            <Panel />
             {
                 placedPlayers.map((column, i)=>{
                     return (
