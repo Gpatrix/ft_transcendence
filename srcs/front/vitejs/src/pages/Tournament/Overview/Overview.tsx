@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router"
+import { NavigationType, useNavigate, useSearchParams } from "react-router"
 import Pair from "./Brackets/Pair"
 import Column from "./Brackets/Column"
 import Panel from "../Panel"
+import Winner from "../Winner"
 
 
 export default function Overview() {
     const [params] = useSearchParams()
     const navigate = useNavigate()
     const [placedPlayers, setPlacedPlayers] = useState<Array<Array<string>>>([]) 
+    const [winner, setWinner] = useState<string | null>(null)
 
     useEffect(()=> {
         try {
@@ -26,11 +28,22 @@ export default function Overview() {
         }
     }, [])
 
-
+    useEffect(()=> {
+        if (!placedPlayers)
+            return ;
+        const cWinner = placedPlayers[placedPlayers.length - 1]
+        if (!cWinner)
+            return ;
+        setWinner(cWinner[0])
+    }, [placedPlayers])
 
     return (
         <div className="flex">
-            <Panel />
+            {!winner ? 
+                <Panel />
+            :   <Winner  name={winner}/>
+            }
+
             {
                 placedPlayers.map((column, i)=>{
                     return (

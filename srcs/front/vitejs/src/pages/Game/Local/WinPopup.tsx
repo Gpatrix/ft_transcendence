@@ -39,12 +39,10 @@ export default function WinPopUp({userNames, scores}: WinPopUpProperties) {
     return (
         <div className="text-yellow font-title relative flex  backdrop-blur-xs z-100 h-[500px]  shadow-yellow flex-col" style={{
         }}>
-            <span   className="font-title ml-auto mr-auto mb-auto mt-auto text-center truncate w-[700px] px-10"
+            <span   className="font-title ml-auto mr-auto mb-auto mt-auto text-center flex flex-col truncate w-[700px] px-10"
                     style={{fontSize : "200%"}}>
-            {
-                userNames != null ? userNames[winnerIndex] : `P${winnerIndex + 1}`
-            }
-            {` `} won the game
+            <span className="font-title w-full truncate">{ userNames != null ? userNames[winnerIndex] : `P${winnerIndex + 1}`}</span>
+            <span className="font-title w-full ">Won the game!</span>
             </span>
 
 
@@ -65,6 +63,6 @@ export default function WinPopUp({userNames, scores}: WinPopUpProperties) {
                     <Button type="full" className="w-1/2 ml-auto mr-auto mb-2">Continue</Button>            
                 </Link>
             </span>}
-            
+                
         </div>)
 }

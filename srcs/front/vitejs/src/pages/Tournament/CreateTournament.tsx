@@ -58,6 +58,7 @@ export default function CreateTournament() {
             array.push(new Array(nbPlayers).fill(""));
             nbPlayers /= 2
         }
+        array.push([""])
 
         const json = btoa(JSON.stringify(array))
         localStorage.setItem(`tournament`, json)
