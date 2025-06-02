@@ -27,7 +27,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "private_route" });
+                reply.status(401).send({ error: "0404" });
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
@@ -77,7 +77,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.post<{ Params: isBlockedByParams, Body: isBlockedByBody }>('/api/user/isBlockedBy/:target/:by', async (request, reply) => {
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            reply.status(401).send({ error: "private_route" });
+            reply.status(401).send({ error: "0404" });
         const target_user = await prisma.user.findUnique({
             where: {
                 id: Number(request.params.target)
@@ -131,7 +131,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const credential = request.body?.credential;
             const password = request.body?.password;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "private_route" });
+                reply.status(401).send({ error: "0404" });
             let user = await prisma.user.update({
                 where: { 
                     email: request.params.email
@@ -171,7 +171,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "private_route" });
+                reply.status(401).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
             let put: dfaUpdateBody = {};
@@ -379,7 +379,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const bodyId = body?.id;
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
-            reply.status(401).send({ error: "1019" });
+            reply.status(401).send({ error: "0403" });
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (tokenPayload?.isAdmin && bodyId)
@@ -453,11 +453,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.delete<{ Params: deleteUserParams }>('/delete/:email', async (request, reply) => {
         const token = request.cookies.ft_transcendence_jw_token;
         if (!token)
-            return (reply.status(401).send({ error: "1019"}));
+            return (reply.status(401).send({ error: "0403"}));
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (!tokenPayload?.isAdmin && !tokenPayload?.id)
-            return (reply.status(401).send({ error: "1019"}));
+            return (reply.status(401).send({ error: "0403"}));
         const dfa = tokenPayload?.dfa;
         if (!dfa)
             return (reply.status(403).send({ error: "1020" }));
@@ -487,6 +487,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     id: body.targetId
                 }
             })
+
+            // ajouter les erreurs dans le wiki
+
+           // je reverrifiais toutes les erreurs de mon code 
+
             if (body.targetId == tokenPayload.id)
                 return (reply.status(403).send({ error: "2003" }));
             if (!targetUser)

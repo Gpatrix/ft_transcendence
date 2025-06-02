@@ -5,6 +5,7 @@ import ClickableIco from "../../components/ClickableIco.tsx";
 import FriendRequest from "../../classes/FriendRequest.tsx";
 import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 import { gpt } from "../../translations/pages_reponses.tsx";
+import { get_server_translation } from "../../translations/server_responses.tsx";
 
 type RequestFriendsProps = {
     setFriends: React.Dispatch<SetStateAction<Friend[]>>;
@@ -15,9 +16,20 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
     const { socket } = useWebSocket();
     
     const [friendRequestTab, setFriendRequestTab] = useState<FriendRequest[]>([]);
+    const [errorCode, setErrorCode] = useState<string>("");
+
+    
 
     const handleAcceptRequest = async (friendRequest: FriendRequest, i: number) => {
-        await friendRequest.accepteRequest();
+        try {
+            const test = await friendRequest.accepteRequest();
+            console.log("test" + test);
+            
+        } catch (error) {
+            console.log("Error :", error);
+            return ;
+        }
+        // faire une verrif ici ?
         const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
         newFriendRequestTab.splice(i, 1);
         setFriendRequestTab(newFriendRequestTab);
@@ -62,11 +74,13 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
     useEffect(() => {
         const fetchFriends = async () => {
             try {
-                const friends: FriendRequest[] | undefined = await Friend.getFriendsRequest();
-                if (friends != undefined)
-                    setFriendRequestTab(friends);
+                const response: FriendRequest[] | string = await Friend.getFriendsRequest();
+                if (typeof response == "string")
+                    setErrorCode(response)
+                else
+                    setFriendRequestTab(response);
             } catch (error) {
-                console.error("Error :", error);
+                console.log("Error :", error);
             }
         };
 
@@ -91,6 +105,7 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
                         return("");
                 })}
                 {friendRequestTab.length == 0 && <p className="text-yellow text-center">{gpt("no_invitation")}</p>}
+                {friendRequestTab.length == 0 && <p className="text-light-redyellow text-center">{get_server_translation(errorCode)}</p>}
             </div>
         </div>
     )

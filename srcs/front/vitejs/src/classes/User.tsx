@@ -58,26 +58,25 @@ class User {
 		return users.find(user => user.id === userId);
 	}
 
-	static async getUserById(userId: number): Promise<User | undefined> {
-		
-		// return (user)
-
+	static async getUserById(userId: number): Promise<User | string> {
 		try {
-		const requestData : RequestInit = {
-			method :  'GET',
-			credentials: 'include'
-		}
-		const response = await fetch(`/api/user/get_profile/${userId}`, requestData);
+			const requestData : RequestInit = {
+				method :  'GET',
+				credentials: 'include'
+			}
+			const response = await fetch(`/api/user/get_profile/${userId}`, requestData);
 
-		const dataReponse = await response.json();
-		
-		dataReponse.data.id = userId;
+			const dataReponse = await response.json();
 
-		return (dataReponse.data as User);
+			if (dataReponse.error)
+				return (dataReponse.error)
+			
+			dataReponse.data.id = userId;
+
+			return (dataReponse.data as User);
 
 		} catch (error) {
-		console.log("Erreur lors de l'envoi de la demande :", error);
-		return (undefined)
+			return ("0500")
 		}
 	}
 

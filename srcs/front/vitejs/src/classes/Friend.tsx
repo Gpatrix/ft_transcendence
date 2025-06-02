@@ -65,7 +65,7 @@ class Friend extends User {
           }
     }
 
-    static async getFriendsRequest() : Promise<FriendRequest[] | undefined> {
+    static async getFriendsRequest() : Promise<FriendRequest[] | string> {
 
         try {
             const requestData : RequestInit = {
@@ -76,6 +76,9 @@ class Friend extends User {
             
             
             const dataReponse = await response.json();
+
+            if (dataReponse.error)
+                return dataReponse.error
 
             const friendRequests: FriendRequest[] = dataReponse.map((req: any) =>
                 new FriendRequest(req.authorId, new Date(req.createdAt), req.id, req.targetId)
@@ -88,11 +91,11 @@ class Friend extends User {
             return (friendRequests)
         } catch (error) {
             console.error("Erreur lors de l'envoi de la demande des requetes :", error);
-            return (undefined);
+            return ("0500");
         }
     }
 
-    static async getFriends() : Promise<Friend[] | undefined> { //socket: WebSocket | null
+    static async getFriends() : Promise<Friend[] | string> { //socket: WebSocket | null
 
         try {
             const requestData : RequestInit = {
@@ -101,59 +104,25 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/friends`, requestData);
 
-            // console.log(response);
-            
-
-            if (response.status / 100 != 2)
-                return (undefined);
-            
             const dataReponse = await response.json();
-
-            // console.log(dataReponse);
-
+            
+            if (dataReponse.error)
+                return (dataReponse.error)
             
             const friends : Friend[] = [];
 
             for (const req of dataReponse) {
-                const user : User | undefined = await Friend.getUserById(req.friendUserId);
+                const userRes : User | string = await Friend.getUserById(req.friendUserId);
 
-                // action: string;
-                // targetId: number;
-                // skip?: number;
-                // take?: number;
-                // msg?: string;
-
-                // chercher ici tout les messages
-                // console.log("debut de la recuperation de messge...");
-                // if (user && socket && socket.readyState === WebSocket.OPEN) {
-                //     try {
-                //         let i = 0;
-                //         let buffer = [];
-                //         // console.log(user);
-                //         do {
-                //             console.log("recuperation de messge...");
-                            
-                            
-                //             socket.send(JSON.stringify({ action: 'refresh', targetId: user.id, take: MESSAGE_RECIVED, skip: i * MESSAGE_RECIVED}));
-                //             i++;
-                //         } while (condition);
-            
-                //         // return (new Message(idSender, targetId, new Date(), message));
-                //     } catch (error) {
-                //         console.error("Erreur lors de l'envoi de la demande des requetes :", error);
-                //     }
-                // }
-                
-                if (user != undefined)
-                    friends.push(new Friend(req.friendUserId, user.name, user.email, user.profPicture, user.bio, user.lang, user.isTwoFactorEnabled, user.rank));
+                if (typeof userRes == "string")
+                    return (userRes)
+                else
+                    friends.push(new Friend(req.friendUserId, userRes.name, userRes.email, userRes.profPicture, userRes.bio, userRes.lang, userRes.isTwoFactorEnabled, userRes.rank));
             }
-            
-
             return (friends);
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande des requetes :", error);
-            return (undefined);
+            return ("0500");
         }
     }
 

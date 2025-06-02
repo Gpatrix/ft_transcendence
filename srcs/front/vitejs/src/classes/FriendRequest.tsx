@@ -32,7 +32,7 @@ class FriendRequest {
             // return (dataReponse);
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
+            console.log("Erreur lors de l'envoi de la demande :", error);
             this.author = undefined;
             // return (undefined);
         }
@@ -50,7 +50,7 @@ class FriendRequest {
             return (response.status); // return le status ?
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
+            console.log("Erreur lors de l'envoi de la demande :", error);
             this.author = undefined;
             return (500);
         }
@@ -64,17 +64,15 @@ class FriendRequest {
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
 
-            // const dataReponse = await response.json();
-            // console.log(dataReponse);
-            
-            
-            // this.author = dataReponse.data as User;
-            // return (dataReponse);
-
+            console.log(response);
+            if (response.status == 201)
+                    return ("201")
+            const dataReponse = await response.json();
+            return (dataReponse.error)
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
+            console.log("Erreur lors de l'envoi de la demande :", error);
             this.author = undefined;
-            // return (undefined);
+            return ("500")
         }
     }
 

@@ -27,6 +27,9 @@ export default function PageFriendLoby() {
     
     const [arrayFriends, setArrayFriends] = useState<Friend[]>([])
     const arrayFriendsRef = useRef<Friend[]>([]);
+
+    const [errorMessage, setErrorMessage] = useState<string>("")
+
     
     // const [arrayPlayers, setArrayPlayers] = useState<User[]>([])
 
@@ -96,6 +99,9 @@ export default function PageFriendLoby() {
 
     // const handleClickIcone = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const handleAddFriend: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+
+        if (arrayPlayersRef.current.length >= 4)
+            return ;
         
         let balise: HTMLButtonElement = e.currentTarget.parentElement as HTMLButtonElement;
         const newArrayFriends: Friend[] = [...arrayFriendsRef.current];
@@ -129,7 +135,20 @@ export default function PageFriendLoby() {
                 setArrayPlayers(newArrayPlayers)
             }
         }
-    } 
+    }
+
+    const handlePlayGame = () => {
+        if (arrayPlayersRef.current.length != 2
+            && arrayPlayersRef.current.length != 4) {
+            setErrorMessage("Vous devez etre 2 ou 4 pour lancer une partie"); // traduire cette merde !
+            return ;
+        } else {
+            setErrorMessage("");
+        }
+
+        // inviter les gents et attendre qu'ils rejoingne la game
+
+    }
 
     useEffect(() => {
         getUserParams()
@@ -222,7 +241,10 @@ export default function PageFriendLoby() {
                 </div> */}
             </div>
 
-            <Button className="mt-auto w-fit" style={location.pathname=="/profil"?'selected':'header'}>Lancer la partie</Button>
+
+            {/* traduite cette chose */}
+            <Button onClick={handlePlayGame} className="mt-auto w-fit" style={location.pathname=="/profil"?'selected':'header'}>Lancer la partie</Button>
+            {errorMessage && <div className="text-light-red">{errorMessage}</div>}
         </div>
     )
 }
