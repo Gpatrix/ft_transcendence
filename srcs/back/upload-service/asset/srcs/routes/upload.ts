@@ -25,11 +25,12 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
     
     server.post<{ Body: uploadPostBody }>('/api/upload/', async (req: any, res: any) => {
         try {
-            console.log('trying to upload file');
+            console.log('upload')
             const parts = await req.parts();
             let credential: string | undefined;
             let file: any;
             for await (const part of parts) {
+                console.log('part', part);
                 if (part.type === 'file')
                     file = part;
                 if (part.fieldname === 'credential') {
@@ -38,11 +39,13 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
             }
             if (credential != process.env.API_CREDENTIAL)
                 return (res.status(401).send({ error: "0401" }));  // private route (:
+            console.log(file);
+            const extName = path.extname(file.filename);
+            if (extName !== '.png' && extName !== '.jpeg' && extName !== '.jpg')
+                return (res.status(415).send({ error: "6001" }));
             if (!file)
-                return (res.status(420).send({ error: "0420" }));
-            if (!isMimeTypeAllowed(file))
-                return (res.status(415).send({ error: "0415" }));
-            const fileName = Date.now() + path.extname(file.filename);
+                return (res.status(420).send({ error: "6002" }));
+            const fileName = Date.now();
             const storedFile = fs.createWriteStream(`./uploads/${fileName}`);
             pump(file.file, storedFile);
             res.status(200).send({ fileName: fileName });
