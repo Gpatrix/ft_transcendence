@@ -39,13 +39,14 @@ export default function Game({userNames}: GameProps) {
     const [players, setPlayers] = useState([0, 0]);
     const [params] = useSearchParams()
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
+    const [userNames, setUserNames] = useState<Array<string> | null>(null)
     const [winPopup, setWinPopup] = useState<boolean>(false)
 
     function updateResult(result : number) {
         setPlayers(prev => {
             const updated = [...prev];
             updated[result] += 1;
-        
+
             if (updated[result] >= 10) {
                 setWinPopup(true);
             }
@@ -53,6 +54,18 @@ export default function Game({userNames}: GameProps) {
             return updated;
         }); 
     }
+
+    useEffect(()=> { // tournament
+        const p1 = params.get("p1")
+        const p2 = params.get("p2")
+
+        if (!p1 || !p2)
+            return ;
+        setUserNames(()=> {
+            return ([p1, p2])
+        })
+    }, [params])
+
 
 
 
@@ -121,6 +134,13 @@ export default function Game({userNames}: GameProps) {
 
     return (
         <div className="block ml-auto mr-auto w-fit h-fit ">
+            { userNames && 
+            <span className="w-full relative text-yellow flex">
+                <h1 className="w-[234px] truncate overflow-hidden">{userNames[0]}</h1>
+                <h1 className="w-[234px] truncate text-center overflow-hidden">{`VS`}</h1>
+                <h1 className="w-[234px] truncate overflow-hidden text-right">{userNames[1]}</h1>
+            </span>
+            }
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
                 <RacketComponent id={1} left={5} />
                 <RacketComponent id={2} right={5} />
