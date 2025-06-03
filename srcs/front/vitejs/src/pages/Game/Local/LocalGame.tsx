@@ -98,10 +98,6 @@ export default function Game({userNames}: GameProps) {
 
         let animationFrameId: number;
         ball.current.resetPos();
-        setInterval(() => {
-            ia.current?.refreshView(r1, ball.current);
-        }, 1000);
-        let lastTime = performance.now();
         
         const loop = (now: any) => {
             const deltaTime = (now - lastTime) / 1000; // In seconds
@@ -121,6 +117,12 @@ export default function Game({userNames}: GameProps) {
             }
             animationFrameId = requestAnimationFrame(loop);
         };
+
+        const REFRESH_VIEW_INTERVAL = 1000; // 1 second
+        setInterval(() => {
+            ia.current?.refreshView(r1, ball.current);
+        }, REFRESH_VIEW_INTERVAL);
+        let lastTime = performance.now();
 
         animationFrameId = requestAnimationFrame(loop);
 

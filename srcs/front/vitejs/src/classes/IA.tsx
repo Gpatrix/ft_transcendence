@@ -1,5 +1,5 @@
 import { Racket } from '../pages/Game/Racket';
-import { Ball } from '../pages/Game/Local/LocalBall.tsx';
+import { Ball, pos } from '../pages/Game/Local/LocalBall.tsx';
 
 interface dimension {
     x: number,
@@ -14,17 +14,16 @@ enum RacketPart {
 export class IA {
 	private racket: Racket;
 
-	static DEFAULT_REACTION_TIME = 200;
-	static DEFAULT_ACCURACY = 1.20;      // default plage, it miss is wanted  dest (DEFAULT_ACCURACY - 1)% of the time
-	static DEFAULT_ESTIMATION_ACCURACY = 0.20; // default estimated plage, where the bot think the ball will end
-	static COLISION_ESTIMATION_ACCURACY_MULTIPLIER = 2; // DEFAULT_ESTIMATION_ACCURACY is multiplied by this every colision on roof
+	static readonly DEFAULT_ADJUST_INTERVAL = 100;
+	static readonly DEFAULT_ACCURACY = 1.05;      // default plage, it miss is wanted  dest (DEFAULT_ACCURACY - 1)% of the time
 	private opponentAverageHitY: number = 0.5;
-	private opponentHits: number = 0;
+	// private opponentHits: number = 0;
 	private movingTimeout: number | undefined = undefined;
 	private fixingMoveInterval: number | undefined = undefined;
 	private estimatedHitY: number = 0;
 	private pressedKeys: Set<string>;            // to access value call this.pressedKeys.current because it is a ref
 	private readonly mapDimension: dimension;
+	private lastBall: Ball | undefined = undefined;
 
 	constructor(racket: Racket, pressedKeys: Set<string>, mapDimension: dimension) {
 		this.racket = racket;
@@ -33,11 +32,11 @@ export class IA {
 	}
 
 	public refreshView(opponentRacket: Racket, ball: Ball) {
-		// const ballCoords = ball.position;
-		// const hitScaleY = ballCoords.y - opponentRacket.pos.y / opponentRacket.properties.height;
-		// this.opponentAverageHitY = this.opponentAverageHitY * this.opponentHits + hitScaleY;
-		// this.opponentHits++;
-		this.tryToInterceptShot(ball);
+		// if (this.lastBall && this.lastBall.velocity.x != ball.velocity.x && this.lastBall.velocity.y != ball.velocity.y) {
+		// 	opponentHits++;
+		// }
+		this.lastBall = JSON.parse(JSON.stringify(ball));
+		this.tryToInterceptShot(ball, opponentRacket);
 	}
 
 	public onRacketHit(): void
@@ -67,9 +66,11 @@ export class IA {
 		return (Math.abs(distance));
 	}
 
-	private calculateBallLanding(ball: Ball): Array<number> | undefined {
-		const distanceX = this.mapDimension.x - ball.position.x;
-		let landingY = distanceX * (ball.velocity.y / ball.velocity.x) + ball.position.y;
+	private calculateBallLanding(ball: Ball, racketPos: pos, pos?: pos, velocity?: pos): Array<number> | undefined {
+		const ballPos = pos || ball.position;
+		const ballVelocity = velocity || ball.velocity;
+		let distanceX = Math.abs(ballPos.x - racketPos.x);
+		let landingY = distanceX * (ballVelocity.y / ballVelocity.x) + ballPos.y;
 		let bouceCount = 0;
 
 		while (landingY < 0 || landingY > this.mapDimension.y) {
@@ -86,17 +87,44 @@ export class IA {
 		return ([landingY, bouceCount]);
 	}
 
+	private calculateBallShooting(ball: Ball, oponnentRacket: Racket): Array<number> | undefined {
+		const ballLandingResult = this.calculateBallLanding(ball, oponnentRacket.pos);
+		if (ballLandingResult === undefined) {
+			return undefined;
+		}
+		const ballLandingY = ballLandingResult[0];
+		if (oponnentRacket.y - oponnentRacket.properties.height / 2 <= ballLandingY &&
+			ballLandingY <= oponnentRacket.y + oponnentRacket.properties.height / 2) {
+			const racketHitY = ballLandingY - oponnentRacket.pos.y;
+			const racketHalfHeight = oponnentRacket.properties.height / 2;
+			const relativeImpactY = (racketHitY + ball.radius - oponnentRacket.pos.y + racketHalfHeight) / racketHalfHeight;
+			const homeBalLanding = this.calculateBallLanding(ball, this.racket.pos, { x: oponnentRacket.pos.x, y: ballLandingY }, { x: -(ball.velocity.x), y: relativeImpactY});
+			if (homeBalLanding === undefined)
+				return ([0, 0]);
+			console.log('shootingY:', homeBalLanding[0], 'bouceCount:', homeBalLanding[1]);
+			return ([homeBalLanding[0], homeBalLanding[1]]);
+		}
+		else
+		{
+			const homeBalLanding = this.calculateBallLanding(ball, this.racket.pos, { x: oponnentRacket.pos.x, y: ballLandingY }, { x: -(ball.velocity.x), y: -(ball.velocity.y)});
+			if (homeBalLanding === undefined)
+				return ([0, 0]);
+			console.log('shootingY:', homeBalLanding[0], 'bouceCount:', homeBalLanding[1]);
+			return ([homeBalLanding[0], homeBalLanding[1]]);
+		}
+	}
+
 	private randomizeEstimated(realHitY: number, tryCount: number): number
 	{
 		let racketsCoordsAiming: number = 0;
 		if (tryCount > 0) {
-			if (realHitY > this.racket.pos.y + this.racket.properties.height / 2)
-				racketsCoordsAiming = this.racket.properties.height / 4;
-			else if (realHitY < this.racket.pos.y - this.racket.properties.height / 2)
-				racketsCoordsAiming = -this.racket.properties.height / 4;
+			if (realHitY > this.racket.pos.y) //  + this.racket.properties.height / 2
+				racketsCoordsAiming = this.racket.properties.height / 2; // /4
+			else if (realHitY < this.racket.pos.y) //  - this.racket.properties.height / 2
+				racketsCoordsAiming = -this.racket.properties.height / 2; // /4
 		}
-		else
-			racketsCoordsAiming = this.racket.properties.height / 2;
+		// else
+		// 	racketsCoordsAiming = this.racket.properties.height / 2;
 		const random = Math.random();
 		const b = realHitY - IA.DEFAULT_ACCURACY / 2 + racketsCoordsAiming;
 		const y =   b + random * IA.DEFAULT_ACCURACY  - this.racket.properties.height / 2;
@@ -144,7 +172,7 @@ export class IA {
 		return ;
 	}
 
-	private async tryToInterceptShot(ball: Ball): Promise<void>
+	private async tryToInterceptShot(ball: Ball, opponentRacket: Racket): Promise<void>
 	{
 		let tryCount = 0;
 		if (this.fixingMoveInterval !== undefined) {
@@ -153,19 +181,26 @@ export class IA {
 		if (this.movingTimeout !== undefined) {
 			clearInterval(this.movingTimeout);
 		}
-		const calculatedBallLanding: Array<number> | undefined = this.calculateBallLanding(ball);
-		if (calculatedBallLanding === undefined) {
-			return ;
-		}
 
-		console.log(calculatedBallLanding)
+		let calculatedBallLanding: Array<number> | undefined = undefined;
+		if (ball.velocity.x <= 0) {
+			calculatedBallLanding = this.calculateBallShooting(ball, opponentRacket);
+			if (calculatedBallLanding === undefined)
+				return ;
+		}
+		else
+		{
+			calculatedBallLanding = this.calculateBallLanding(ball, this.racket.pos);
+			if (calculatedBallLanding === undefined)
+				return ;
+		}
 
 		this.fixingMoveInterval = setInterval(async () => {
 			this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1]);
 			const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY);
 			await this.goToEstimated(whereToStopY);
 			tryCount++;
-		}, Math.random() * IA.DEFAULT_REACTION_TIME);
+		}, Math.random() * IA.DEFAULT_ADJUST_INTERVAL);
 		return ;
 	}
 }
