@@ -96,7 +96,7 @@ export default function RacketComponent({ id, left, right, bottom, angle }: Rack
             id={`racket-${id}`}
             style={{
                 left: left !== undefined ? `${left}px` : undefined,
-                right: right !== undefined ? `${right}%` : undefined,
+                right: right !== undefined ? `${right}px` : undefined,
                 bottom: bottom !== undefined ? `${bottom}%` : undefined,
                 rotate: angle !== undefined ? `${90 + angle}deg` : undefined
             }}
