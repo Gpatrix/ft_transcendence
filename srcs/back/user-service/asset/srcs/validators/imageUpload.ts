@@ -48,7 +48,7 @@ export async function imageUpload(request: any, reply: any) {
             const result = res.data;
             if (!request.body)
                 request.body = {};
-            request.body.image = `https://localhost:${process.env.PUBLIC_PORT || 3000}/api/upload/${result.fileName}`;
+            request.body.image = `https://${process.env.HOST}:${process.env.PORT}/api/upload/${result.fileName}`;
         }
     } catch (error) {
         console.error("Error in image upload:", error);

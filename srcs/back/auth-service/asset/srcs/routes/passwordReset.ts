@@ -36,7 +36,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 email
             }
             }, process.env.JWT_SECRET as string, { expiresIn: expireIn * 60 * 1000 });
-            const link : string = `https://localhost/forgot-password/new-password?token=${passwordResetToken}`
+            const link : string = `https://${process.env.HOST}:${process.env.PORT}/forgot-password/new-password?token=${passwordResetToken}`
             if (userLookupData)
                 await sendMail(email, 'Password reset', `You asked for a password reset, here is your link ${link}\nIt will expire at ${expireIn} minutes`);
             // console.log(`Retrieve-link : ${link}`)
