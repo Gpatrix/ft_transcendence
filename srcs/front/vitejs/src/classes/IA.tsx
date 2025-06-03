@@ -15,7 +15,8 @@ export class IA {
 	private racket: Racket;
 
 	static readonly DEFAULT_ADJUST_INTERVAL = 100;
-	static readonly DEFAULT_ACCURACY = 1.05;      // default plage, it miss is wanted  dest (DEFAULT_ACCURACY - 1)% of the time
+	static readonly DEFAULT_ADJUST_INTERVAL_RANGE = 0.50;
+	static readonly DEFAULT_ACCURACY = 0.001;      // default plage, it miss is wanted  dest (DEFAULT_ACCURACY - 1)% of the time
 	private opponentAverageHitY: number = 0.5;
 	// private opponentHits: number = 0;
 	private movingTimeout: number | undefined = undefined;
@@ -93,50 +94,36 @@ export class IA {
 			return undefined;
 		}
 		const ballLandingY = ballLandingResult[0];
-		if (oponnentRacket.y - oponnentRacket.properties.height / 2 <= ballLandingY &&
-			ballLandingY <= oponnentRacket.y + oponnentRacket.properties.height / 2) {
+
+		// if (playerRacket will catch the shot)
+		if (ballLandingY <= oponnentRacket.pos.y + oponnentRacket.properties.height &&
+			ballLandingY >= oponnentRacket.pos.y) {
 			const racketHitY = ballLandingY - oponnentRacket.pos.y;
 			const racketHalfHeight = oponnentRacket.properties.height / 2;
 			const relativeImpactY = (racketHitY + ball.radius - oponnentRacket.pos.y + racketHalfHeight) / racketHalfHeight;
 			const homeBalLanding = this.calculateBallLanding(ball, this.racket.pos, { x: oponnentRacket.pos.x, y: ballLandingY }, { x: -(ball.velocity.x), y: relativeImpactY});
+			console.log('IA see the player will hit at Y:', ballLandingY, 'relativeImpactY:', relativeImpactY);
 			if (homeBalLanding === undefined)
-				return ([0, 0]);
-			console.log('shootingY:', homeBalLanding[0], 'bouceCount:', homeBalLanding[1]);
+				return (undefined);
 			return ([homeBalLanding[0], homeBalLanding[1]]);
 		}
-		else
-		{
-			const homeBalLanding = this.calculateBallLanding(ball, this.racket.pos, { x: oponnentRacket.pos.x, y: ballLandingY }, { x: -(ball.velocity.x), y: -(ball.velocity.y)});
-			if (homeBalLanding === undefined)
-				return ([0, 0]);
-			console.log('shootingY:', homeBalLanding[0], 'bouceCount:', homeBalLanding[1]);
-			return ([homeBalLanding[0], homeBalLanding[1]]);
-		}
+		return (undefined)
+		
 	}
 
 	private randomizeEstimated(realHitY: number, tryCount: number): number
 	{
 		let racketsCoordsAiming: number = 0;
 		if (tryCount > 0) {
-			if (realHitY > this.racket.pos.y) //  + this.racket.properties.height / 2
-				racketsCoordsAiming = this.racket.properties.height / 2; // /4
-			else if (realHitY < this.racket.pos.y) //  - this.racket.properties.height / 2
-				racketsCoordsAiming = -this.racket.properties.height / 2; // /4
+			if (realHitY > this.racket.pos.y + this.racket.properties.height / 2)
+				racketsCoordsAiming = (this.racket.properties.height / 4); // /4
+			else if (realHitY < this.racket.pos.y)
+				racketsCoordsAiming = -(this.racket.properties.height / 4); // /4
 		}
-		// else
-		// 	racketsCoordsAiming = this.racket.properties.height / 2;
-		const random = Math.random();
-		const b = realHitY - IA.DEFAULT_ACCURACY / 2 + racketsCoordsAiming;
-		const y =   b + random * IA.DEFAULT_ACCURACY  - this.racket.properties.height / 2;
-		return (y);
-	}
 
-	private randomizeDestY(estimatedHitY: number): number
-	{
-		const isHigher: number = estimatedHitY > this.racket.pos.y ? 1 : 0;
-		const random = Math.random();
-		const b  = estimatedHitY + (isHigher * this.racket.properties.height) - IA.DEFAULT_ACCURACY;
-		return (b + random * IA.DEFAULT_ACCURACY);
+		const noise = Math.floor(Math.min(Math.max(-300, ((Math.random() - 0.5) * (IA.DEFAULT_ACCURACY * this.racket.properties.height))), 300));
+		const y = realHitY + (noise != Infinity ? noise : 0) + racketsCoordsAiming;
+		return (y);
 	}
 
 	private async goToEstimated(whereToStopY: number): Promise<void>
@@ -175,6 +162,7 @@ export class IA {
 	private async tryToInterceptShot(ball: Ball, opponentRacket: Racket): Promise<void>
 	{
 		let tryCount = 0;
+		let temp: Array<number> | undefined = undefined;
 		if (this.fixingMoveInterval !== undefined) {
 			clearInterval(this.fixingMoveInterval);
 		}
@@ -183,24 +171,54 @@ export class IA {
 		}
 
 		let calculatedBallLanding: Array<number> | undefined = undefined;
-		if (ball.velocity.x <= 0) {
-			calculatedBallLanding = this.calculateBallShooting(ball, opponentRacket);
-			if (calculatedBallLanding === undefined)
-				return ;
+		let calculatedBallShooting: Array<number> | undefined = undefined;
+		let oppositeBallLanding: Array<number> | undefined = undefined;
+		if (ball.velocity.x >= 0) {
+			calculatedBallLanding = this.calculateBallLanding(ball, this.racket.pos);
+			console.log('IA see the ball will land at Y:', calculatedBallLanding?.[0]);
 		}
 		else
 		{
-			calculatedBallLanding = this.calculateBallLanding(ball, this.racket.pos);
-			if (calculatedBallLanding === undefined)
-				return ;
+			temp = this.calculateBallShooting(ball, opponentRacket);
+			if (temp != undefined) {
+				calculatedBallShooting = temp;
+				console.log('IA see the ball will shoot at Y:', calculatedBallShooting?.[0]);
+			}
+			else
+			{
+				oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
+			}				
 		}
-
+		let goToEstimatedMutex = false;
 		this.fixingMoveInterval = setInterval(async () => {
-			this.estimatedHitY = this.randomizeEstimated(calculatedBallLanding[0], calculatedBallLanding[1]);
-			const whereToStopY: number | undefined = this.randomizeDestY(this.estimatedHitY);
-			await this.goToEstimated(whereToStopY);
-			tryCount++;
-		}, Math.random() * IA.DEFAULT_ADJUST_INTERVAL);
+			if (!goToEstimatedMutex) {
+				if (ball.velocity.x <= 0) {
+					temp = this.calculateBallShooting(ball, opponentRacket);
+					if (temp != undefined) {
+						calculatedBallShooting = temp;
+						console.log('IA see the ball will shoot at Y:', calculatedBallShooting?.[0]);
+					}
+					else
+					{
+						oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
+					}				
+				}
+				let estimated: number | undefined = undefined;
+				if (calculatedBallLanding != undefined)
+					estimated = calculatedBallLanding[0];
+				else if (calculatedBallShooting != undefined)
+					estimated = calculatedBallShooting[0];
+				else if (oppositeBallLanding !== undefined)
+					estimated = oppositeBallLanding[0];
+				else
+					return ;
+				this.estimatedHitY = this.randomizeEstimated(estimated, tryCount);
+				goToEstimatedMutex = true ;
+				await this.goToEstimated(this.estimatedHitY);
+				goToEstimatedMutex = false;
+				tryCount++;
+			}
+		}, ((Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL);
 		return ;
 	}
 }
