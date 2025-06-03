@@ -13,7 +13,6 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
 
     server.post<{ Body: passwordResetAskBody }>('/api/auth/passwordReset/ask', {}, async (req, res) => {
         try {
-            console.log("AAA")
             const email = req.body.email;
             if (!email)
                 return res.status(400).send({ error: "missing_key" });
@@ -26,22 +25,18 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                     credential: process.env.API_CREDENTIAL
                 }),
             });
-            console.log("AAA")
             const userLookupData = await userLookupResponse.json();
             if (!userLookupResponse.ok)
                 return res.status(userLookupResponse.status).send({ error: userLookupData.error})
-            console.log("AAA")
             const user = userLookupData;
             if (!user)
                 return res.status(404).send({ error: "1006" });
-            console.log("AAA")
             const passwordResetToken = await jwt.sign({
             data: {
                 email
             }
             }, process.env.JWT_SECRET as string, { expiresIn: expireIn * 60 * 1000 });
-            const link : string = `https://localhost:3000/forgot-password/new-password?token=${passwordResetToken}`
-            console.log(link)
+            const link : string = `https://${process.env.HOST}:${process.env.PORT}/forgot-password/new-password?token=${passwordResetToken}`
             if (userLookupData)
                 await sendMail(email, 'Password reset', `You asked for a password reset, here is your link ${link}\nIt will expire at ${expireIn} minutes`);
             // console.log(`Retrieve-link : ${link}`)

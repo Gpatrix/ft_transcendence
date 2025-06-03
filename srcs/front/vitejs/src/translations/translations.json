@@ -203,6 +203,11 @@
       "Keyboard controls",
       "Contrôles clavier",
       "Controlli da tastiera"
+    ],
+    "Request_sent": [
+      "Request sent",
+      "requete envoyé",
+      "Solicitud enviada"
     ]
   }
 }

@@ -97,6 +97,12 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             })
             if (!existingFriendRequest)
                 return reply.status(404).send({ error: '0404'});
+            const existingReverseFriendRequest = await prisma.friendRequest.findFirst({
+                where: {
+                    authorId: existingFriendRequest.targetId,
+                    targetId: existingFriendRequest.authorId
+                }
+            })
             let author = await prisma.user.findUnique({
                 where: { 
                     id: existingFriendRequest.authorId
@@ -114,6 +120,13 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                     id: existingFriendRequest.id
                 },
             });
+            if (existingReverseFriendRequest) {
+                await prisma.friendRequest.delete({
+                    where: {
+                        id: existingReverseFriendRequest.id
+                    },
+                });
+            }
 
             await prisma.friend.create({
                 data: {
@@ -130,6 +143,9 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             });
             reply.status(201).send();
         } catch (error) {
+                console.log("error");
+                console.log(error);
+                
             return reply.status(500).send({ error: "0500" });
         }
     })

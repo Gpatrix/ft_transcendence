@@ -18,7 +18,7 @@ class FriendRequest {
 
     }
 
-    async getAuthorRequest() {
+    async getAuthorRequest() : Promise<string>  {
         try {
             const requestData : RequestInit = {
                 method :  'GET',
@@ -27,19 +27,21 @@ class FriendRequest {
             const response = await fetch(`/api/user/get_profile/${this.authorId}`, requestData);
 
             const dataReponse = await response.json();
+
+            if (dataReponse.error)
+                return (dataReponse.error)
             
             this.author = dataReponse.data as User;
-            // return (dataReponse);
+            
+            return ("200");
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
             this.author = undefined;
-            // return (undefined);
+            return ("0500");
         }
     }
     
-    // '/api/user/friends/requests/:id' delete
-    async refuseRequest() {
+    async refuseRequest() : Promise<string> {
         try {
             const requestData : RequestInit = {
                 method :  'DELETE',
@@ -47,12 +49,15 @@ class FriendRequest {
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
 
-            return (response.status); // return le status ?
+            if (response.status == 201)
+                return ("201")
+
+            const dataReponse = await response.json();
+
+            return (dataReponse.error);
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
-            this.author = undefined;
-            return (500);
+            return ("0500");
         }
     }
 
@@ -64,17 +69,14 @@ class FriendRequest {
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
 
-            // const dataReponse = await response.json();
-            // console.log(dataReponse);
-            
-            
-            // this.author = dataReponse.data as User;
-            // return (dataReponse);
-
+            console.log(response);
+            if (response.status == 201)
+                    return ("0201")
+            const dataReponse = await response.json();
+            return (dataReponse.error)
         } catch (error) {
-            console.error("Erreur lors de l'envoi de la demande :", error);
             this.author = undefined;
-            // return (undefined);
+            return ("500")
         }
     }
 

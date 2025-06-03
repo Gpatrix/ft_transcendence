@@ -28,14 +28,14 @@ class Message {
 		return `ID: ${this.id}, Nom: ${this.date}, Contenu: ${this.content}`;
 	}
 
-	static sendMessage =  (idSender:number, targetId: number, message: string, socket: WebSocket) => {
+	static sendMessage =  (idSender:number, targetId: number, message: string, socket: WebSocket) : Message | string => {
 		
 		try {
 			socket.send(JSON.stringify({ action: 'msg', targetId: targetId, msg: message}));
 
-		return (new Message(idSender, targetId, new Date(), message));
+			return (new Message(idSender, targetId, new Date(), message));
 		} catch (error) {
-			console.error("Erreur lors de l'envoi de la demande des requetes :", error);
+			return ("0500");
 		}
 	}
 }

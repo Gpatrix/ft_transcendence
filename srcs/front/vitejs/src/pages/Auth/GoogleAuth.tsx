@@ -15,6 +15,13 @@ const GoogleAuth: React.FC = () => {
       httpOnly: false,
     });
 
+    if (!import.meta.env.VITE_HOST || !import.meta.env.VITE_PORT) {
+      console.error("Environment variables HOST and PORT are not set.");
+      return;
+    }
+
+    console.log(import.meta.env.VITE_HOST, import.meta.env.VITE_PORT);
+
     const params = new URLSearchParams({
       client_id: '126523871891-i2jnhvg2mgo847mbbkpmio7nj4ikepdp.apps.googleusercontent.com',
       redirect_uri: `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/auth/login/google/callback`,
