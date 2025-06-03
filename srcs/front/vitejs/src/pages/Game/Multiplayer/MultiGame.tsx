@@ -58,7 +58,13 @@ export default function MultiGame({ players, socket, ball }: MultiGameProps) {
 
 
       let animationFrameId: number;
-      const loop = () => {
+      let lastTime = performance.now();
+
+      const loop = (now: any) => {
+        const deltaTime = (now - lastTime) / 1000; // In seconds
+        lastTime = performance.now();
+
+
         setLocalY((prev) => {
             let newY = prev;
             const speed = 10
@@ -74,15 +80,16 @@ export default function MultiGame({ players, socket, ball }: MultiGameProps) {
                   socket.send(JSON.stringify({ action: "down" }));
                   newY += speed
               }
-                  // newY -= speed;
             }
+            // ball.checkVerticalCollision()
+            // ball.nextPos(deltaTime)
             return (newY)
         });
-        ball.nextPos()
+        // ball.nextPos()
 
         animationFrameId = requestAnimationFrame(loop);
     };
-    loop()
+    animationFrameId = requestAnimationFrame(loop);
 
 
       return () => {

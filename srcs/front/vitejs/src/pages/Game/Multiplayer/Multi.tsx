@@ -43,7 +43,7 @@ export default function Multi() {
             return;
         }
 
-        const ws = new WebSocket(`wss://localhost:3000/api/game/connect/${tournament}/${game}`);
+        const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
         if (!ws)
             return ;
         socket.current = ws
@@ -63,8 +63,8 @@ export default function Multi() {
                     ball.current.unFreeze(  )
                     setPlayers(json.players)
                     setCounter("3")
-                    break    
-                case "update" :
+                    break
+                case "update":
                     setPlayers(json.players)
                     break
                 case "ball":

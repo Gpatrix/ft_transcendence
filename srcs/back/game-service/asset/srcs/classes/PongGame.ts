@@ -77,7 +77,7 @@ class Teams {
         ];
 
         players.map((id, i )=> {
-            if (i % 0)
+            if (i % 2)
                 this.teams[1].playersIDs.push(id)
             else
                 this.teams[0].playersIDs.push(id)
@@ -116,7 +116,7 @@ export class PongGame {
             },
             racketPadding : 20,
             racketWidth : 10,
-            racketHeight : 60,
+            racketHeight : 70,
             nbPlayers : 2
         }
         this.ball = new Ball(this.properties)
@@ -136,58 +136,88 @@ export class PongGame {
     }
 
     initGame() {
+        this.sendResults();
         this.sendBall()
         this.startedAt = Date.now() 
         this.initPlayers()
-        this.sendPlayers("start")
-        this.ball.resetPos()
+
+        setTimeout(()=> {
+            this.sendPlayers("start")
+        }, 1000)
+
+        
         setTimeout(()=>{
+            this.ball.resetPos()
             this.ball.unFreeze()
             this.sendBall()
-        }, 3000)
+        }, 4100)
     }
 
 
 
     start() {
         this.initGame()
+        let lastTime = performance.now();
     
         this.interval = setInterval(() => {
-            this.sendPlayers("update")
+            const now = performance.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
+    
+            this.sendBall();
+    
+            this.sendPlayers("update");
+            this.ball.checkRacketCollision(this.players);
             if (!this.ball.isFreezed) {
-                this.ball.checkRacketCollision(this.players)
-                this.ball.nextPos();
 
-                const looserPlayerId = this.ball.checkVerticalCollision() 
-                if (looserPlayerId != -1)
-                {
-                    this.ball.resetPos()
-                    this.sendBall()
-                    this.teams.newScore(looserPlayerId)
-                    this.sendResults()
-                    setTimeout(()=>{
-                        this.sendBall()
-                        this.ball.unFreeze()
-                    }, 1000)
+                this.ball.nextPos(deltaTime);
+    
+                const looserPlayerId = this.ball.checkVerticalCollision();
+                if (looserPlayerId != -1) {
+                    this.ball.resetPos();
+                    this.sendBall();
+                    this.teams.newScore(looserPlayerId);
+                    this.sendResults();
+                    if (this.teams.getResult().find((e)=> e >= 2)) {
+                        this.endGame()
+                    }
+
+                    setTimeout(() => {
+                        this.sendBall();
+                        this.ball.unFreeze();
+                    }, 1000);
                 }
             }
         }, 1000 / 60);
-
+    
         this.timeout = setTimeout(() => {
             this.onEnd();
         }, 15 * 60 * 1000);
     }
+    
 
-    onEnd() {
-        prisma.game.update({
-            where: {
-                id: this.id
-            },
-            data: {
-                playTime: this.getDuration() / 1000,
-                closedAt: new Date()
+    async onEnd() {
+        await Promise.all(this.players.map(async player => {
+            const teamIndex = this.teams.teams.findIndex(t => t.playersIDs.includes(player.id));
+            const score = this.teams.teams[teamIndex ^ 1].score;
+
+            console.log("PLAYER:", player)
+            const playerEntry = await prisma.player.findFirst({
+              where: {
+                userId: player.id,
+                gameId: this.id
+              }
+            });
+    
+            if (playerEntry) {
+              await prisma.player.update({
+                where: { id: playerEntry.id },
+                data: { score: score }
+              });
             }
-        })
+          }));
+
+
         this.players.forEach(player => {
             if (player.ws) {
                 player.ws.send(JSON.stringify({ message: `gameEnded`, gameId: this.id }));
@@ -211,10 +241,19 @@ export class PongGame {
     onPlayerMove(id: number, move: number)
     {
         const player = this.players.find(player => player.id == id) as Player;
-        const newY = player.position.y + move
+        let newY : number = player.position.y + move
 
-        if (newY >= 0 && (newY + this.properties.racketHeight) < this.properties.size.height)
-            player.position.y = newY
+        if (move < 0) {  // up
+            if (newY <= 0) {
+                newY = 0
+            }
+        }
+        else { // down
+            if (newY + this.properties.racketHeight > this.properties.size.height) {
+                newY = this.properties.size.height - this.properties.racketHeight - 3
+            }
+        }
+        player.position.y = newY    
     }
 
     sendPlayers(message: string) {
@@ -252,7 +291,7 @@ export class PongGame {
                     message: "result",
                     result: [this.teams.getResult()]
             }));
-        });     
+        });
     }
 
     onPlayerJoin(id: number, ws: WebSocket) { // send user update to everyone, start if everyone is here
@@ -270,6 +309,7 @@ export class PongGame {
                             message: "unfreeze",
                     }));
                 });
+                this.sendResults()
                 this.ball.unFreeze()
             }
             else

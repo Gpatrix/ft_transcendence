@@ -8,7 +8,7 @@ export default function MatchMaking() {
     const navigate = useNavigate()
 
     const wsHandler = () => {
-        let ws : WebSocket = new WebSocket('wss://localhost:3000/api/game/matchmaking');
+        let ws : WebSocket = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/matchmaking`);
 
         ws.onopen = () => {
             setSocket(ws);

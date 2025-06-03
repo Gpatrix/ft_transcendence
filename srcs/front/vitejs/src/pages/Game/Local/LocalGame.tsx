@@ -122,8 +122,8 @@ export default function Game({userNames}: GameProps) {
     return (
         <div className="block ml-auto mr-auto w-fit h-fit ">
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
-                <RacketComponent id={1}  left={15} />
-                <RacketComponent id={2} right={15} />
+                <RacketComponent id={1}  left={10} />
+                <RacketComponent id={2} right={10} />
                 {counter && <StartCounter width={mapDimension.x} height={mapDimension.y} setCounter={setCounter} counter={counter} /> }
 
                 <Wall id="top"    width={mapDimension.x} height={5} top={0} />

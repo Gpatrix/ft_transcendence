@@ -71,7 +71,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     const RECONNECT_INTERVAL = 500;
 
     const connectWebSocket = () => {
-        const ws = new WebSocket('wss://localhost:3000/api/chat/connect');
+        const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/chat/connect`);
 
         ws.onopen = () => {
             setSocket(ws);
