@@ -55,19 +55,6 @@ export default function Game({userNames}: GameProps) {
         }); 
     }
 
-    useEffect(()=> { // tournament
-        const p1 = params.get("p1")
-        const p2 = params.get("p2")
-
-        if (!p1 || !p2)
-            return ;
-        setUserNames(()=> {
-            return ([p1, p2])
-        })
-    }, [params])
-
-
-
 
 
     useEffect(() => {
@@ -134,16 +121,9 @@ export default function Game({userNames}: GameProps) {
 
     return (
         <div className="block ml-auto mr-auto w-fit h-fit ">
-            { userNames && 
-            <span className="w-full relative text-yellow flex">
-                <h1 className="w-[234px] truncate overflow-hidden">{userNames[0]}</h1>
-                <h1 className="w-[234px] truncate text-center overflow-hidden">{`VS`}</h1>
-                <h1 className="w-[234px] truncate overflow-hidden text-right">{userNames[1]}</h1>
-            </span>
-            }
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
-                <RacketComponent id={1} left={5} />
-                <RacketComponent id={2} right={5} />
+                <RacketComponent id={1}  left={10} />
+                <RacketComponent id={2} right={10} />
                 {counter && <StartCounter width={mapDimension.x} height={mapDimension.y} setCounter={setCounter} counter={counter} /> }
 
                 <Wall id="top"    width={mapDimension.x} height={5} top={0} />

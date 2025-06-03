@@ -18,9 +18,10 @@ function App()
 {
 
   const players: Player[] = [];
-  players.push(new Player(0, "user1", "user1@gmail.com", "https://localhost/test.jpeg", 1200, 0, 1))
-  players.push(new Player(1, "user2", "user2@gmail.com", "https://localhost/test.jpeg", 800, 0, 2))
-  players.push(new Player(2, "user3", "user3@gmail.com", "https://localhost/test.jpeg", 400, 0, 3))
+  const testJpegUrl = `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/test.jpeg`;
+  players.push(new Player(0, "user1", "user1@gmail.com", testJpegUrl, 1200, 0, 1))
+  players.push(new Player(1, "user2", "user2@gmail.com", testJpegUrl, 800, 0, 2))
+  players.push(new Player(2, "user3", "user3@gmail.com", testJpegUrl, 400, 0, 3))
   players.push(new Player(3, "user4", "user4@gmail.com", "https://famille-de-geek.com/wp-content/uploads/2021/12/pyjama-bebe-bob-eponge.jpg", 100, 0, 4))
 
   return (
@@ -32,8 +33,8 @@ function App()
         <Input value="" type='error' placeholder="Entrez votre nom d'utilisateur" />
       </div>
       <div className='flex justify-between items-center my-5 mr-auto ml-auto w-1/2 h-[50px] align-center'>
-        <ProfilePic status='online' profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
-        <ProfilePic status='offline' profileLink='https://www.google.com' image='https://localhost/test.jpeg'/>
+        <ProfilePic status='online' profileLink='https://www.google.com' image={testJpegUrl}/>
+        <ProfilePic status='offline' profileLink='https://www.google.com' image={testJpegUrl}/>
         <ProfilePic status='online' profileLink='https://www.google.com' />
         <ProfilePic status='offline' profileLink='https://www.google.com' className='opacity-30'/>
       </div>
