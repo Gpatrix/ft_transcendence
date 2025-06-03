@@ -3,6 +3,7 @@ import { createContext, ReactNode, useContext, useEffect, useRef, useState } fro
 import Friend from '../../classes/Friend';
 import Message from '../../classes/Message';
 import { useLocation } from 'react-router-dom';
+import { get_server_translation } from '../../translations/server_responses';
 // import { WebSocketContext } from './WebSocketContext';
 
 
@@ -71,10 +72,9 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     const RECONNECT_INTERVAL = 500;
 
     const connectWebSocket = () => {
-        const ws = new WebSocket('wss://localhost/api/chat/connect');
+        const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/chat/connect`);
 
         ws.onopen = () => {
-            console.log('WebSocket connecté');
             setSocket(ws);
         };
 
@@ -87,13 +87,15 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         if (data.action)
                         {
                             Friend.getFriends().then((newFriends) => {
-                                if (newFriends != undefined)
+                                if (typeof newFriends != 'string')
                                 {
                                     // IL FAUT MODIFIER CA !
                                     newFriends.forEach(friend => {
                                         friend.toggleConnected();
                                     });
                                     setFriends(newFriends);
+                                } else {
+                                    console.log("Error : ", get_server_translation(newFriends));
                                 }
                             })
                         } else if (data.messages) {
@@ -125,21 +127,19 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         console.warn('Socket non connectée');
                     }
                 } catch (error) {
-                    console.error("Error :", error);
+                    console.log("Error :", error);
                 }
             }
         };
 
         ws.onclose = () => {
-            console.log('WebSocket fermé');
             if (shouldReconnect.current) {
-                console.log(`Tentative de reconnexion dans ${RECONNECT_INTERVAL / 1000}s...`);
                 reconnectTimeout.current = setTimeout(connectWebSocket, RECONNECT_INTERVAL);
             }
         };
 
         ws.onerror = (error) => {
-            console.error('Erreur WebSocket:', error);
+            console.log('Erreur WebSocket:', error);
             ws.close(); // Forcer une fermeture pour relancer la reconnexion
         };
     };
@@ -147,27 +147,24 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
     const fetchFriends = async () => {
         try {
-            const tempFriends: Friend[] | undefined = await Friend.getFriends();
-            if (tempFriends != undefined)
+            const tempFriends: Friend[] | string = await Friend.getFriends();
+            if (typeof tempFriends != 'string')
             {
                 // IL FAUT MODIFIER CA !
 
                 tempFriends.forEach(friend => {
                     friend.toggleConnected();
                 });
-        
-                // setFriends(newFriends.map(friend => {
-                //     const updatedFriend = new Friend(friend.id, ...);
-                //     updatedFriend.toggleConnected();
-                //     return updatedFriend;
-                // }));
-                await setFriends(tempFriends);
+
+                setFriends(tempFriends);
                 if (tempFriends[0])
-                    await setActivFriend(tempFriends[0].id);
+                    setActivFriend(tempFriends[0].id);
                 return (tempFriends);
+            } else {
+                console.log("Error : ", get_server_translation(tempFriends));
             }
         } catch (error) {
-            console.error("Error :", error);
+            console.log("Error :", get_server_translation("0500"));
         }
     };
 
@@ -190,9 +187,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     }, [activFriend]);
 
     useEffect(() => {
-        console.log("socket");
-        console.log(socket);
-        
         if (socket)
             fetchFriends();
     }, [socket])

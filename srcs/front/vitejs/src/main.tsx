@@ -15,7 +15,7 @@ import DfaSetup from './pages/Auth/DfaSetup.tsx';
 import ProfileBackground from './pages/Profile/ProfileBackground.tsx';
 import MyProfile from './pages/Profile/me/MyProfile.tsx';
 import OthersProfile from './pages/Profile/others/OthersProfile.tsx';
-import  Chat from "./pages/Chat/Chat.tsx"
+import  ChatPage from "./pages/Chat/ChatPage.tsx"
 import NotFound from './pages/404/NotFound.tsx';
 import Menu from './pages/Lobby/Menu.tsx';
 import LobbyLayout from './pages/Lobby/LobbyLayout.tsx';
@@ -24,6 +24,11 @@ import PopupCreate from './pages/Lobby/FriendsLobby/PopupCreate.tsx';
 import LocalGame from './pages/Game/Local/LocalGame.tsx';
 import GameLayout from './pages/Game/GameLayout.tsx';
 import LocalGameWrapper from './pages/Game/Local/LocalGameWrapper.tsx';
+import AskPlayers from './pages/Tournament/AskPlayers.tsx';
+import CreateTournament from './pages/Tournament/CreateTournament.tsx';
+import Overview from './pages/Tournament/Overview/Overview.tsx';
+import PageFriendLoby from './pages/Lobby/FriendsLobby/PageFriendLoby.tsx';
+
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -52,16 +57,20 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/lobby/friends" element={<FriendsLobby />}/>
               <Route path="/lobby/friends/create" element={<PopupCreate />}/>
               <Route path="/lobby/matchmaking" element={<div></div>}/>
+              <Route path="/lobby/friendLoby" element={<PageFriendLoby />}/>
             </Route>
 
 
             <Route element={<GameLayout />}>
               <Route path="/play/local" element={<LocalGameWrapper/>}/>
+              <Route path="/play/tournament" element={<AskPlayers/>}/>
+              <Route path="/play/tournament/create" element={<CreateTournament/>}/>
+              <Route path="/play/tournament/overview" element={<Overview/>}/>
             </Route>
 
 
 
-            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat" element={<ChatPage />} />
             {/* <Route path="/test" element={<App />} /> */}
 
           </Routes>

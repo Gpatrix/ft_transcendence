@@ -27,7 +27,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "private_route" });
+                reply.status(401).send({ error: "0404" });
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
@@ -77,7 +77,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.post<{ Params: isBlockedByParams, Body: isBlockedByBody }>('/api/user/isBlockedBy/:target/:by', async (request, reply) => {
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            reply.status(401).send({ error: "private_route" });
+            reply.status(401).send({ error: "0404" });
         const target_user = await prisma.user.findUnique({
             where: {
                 id: Number(request.params.target)
@@ -131,7 +131,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const credential = request.body?.credential;
             const password = request.body?.password;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "private_route" });
+                reply.status(401).send({ error: "0404" });
             let user = await prisma.user.update({
                 where: { 
                     email: request.params.email
@@ -171,7 +171,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "private_route" });
+                reply.status(401).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
             let put: dfaUpdateBody = {};
@@ -271,8 +271,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
+                selectFields.id = true,
                 selectFields.email = true,
-                selectFields.lang = true
+                selectFields.lang = true,
                 selectFields.isTwoFactorEnabled = true
             }
             const data = await prisma.user.findUnique({
@@ -378,7 +379,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         const bodyId = body?.id;
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
-            reply.status(401).send({ error: "1019" });
+            reply.status(401).send({ error: "0403" });
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (tokenPayload?.isAdmin && bodyId)
@@ -393,8 +394,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 updateData.lang = body.lang;
             if (body.newPassword)
                 updateData.newPassword = body.newPassword;
-            if (body.image)
+            if (body.image) {
                 updateData.profPicture = body.image;
+            }
             if (body.isTwoFactorEnabled)
                 updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
             const foundUser = await prisma.user.findUnique({
@@ -404,7 +406,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
             if (!foundUser)
                 reply.status(404).send({ error: "1006" });
-            console.log("body", body);
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
@@ -450,11 +451,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.delete<{ Params: deleteUserParams }>('/delete/:email', async (request, reply) => {
         const token = request.cookies.ft_transcendence_jw_token;
         if (!token)
-            return (reply.status(401).send({ error: "1019"}));
+            return (reply.status(401).send({ error: "0403"}));
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (!tokenPayload?.isAdmin && !tokenPayload?.id)
-            return (reply.status(401).send({ error: "1019"}));
+            return (reply.status(401).send({ error: "0403"}));
         const dfa = tokenPayload?.dfa;
         if (!dfa)
             return (reply.status(403).send({ error: "1020" }));
@@ -484,6 +485,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     id: body.targetId
                 }
             })
+
+            // ajouter les erreurs dans le wiki
+            // et dans le ficher de gestion d'erreur
+
             if (body.targetId == tokenPayload.id)
                 return (reply.status(403).send({ error: "2003" }));
             if (!targetUser)
@@ -524,6 +529,59 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.status(200).send({ message: "user_successfully_unblocked" });
         } catch (error) {
             reply.status(500).send({ error: "0500"});
+        }
+    })
+
+    interface getUsersByNameRequestParams 
+    {
+        id: number
+    }
+
+    server.get<{ Params: getUsersByNameRequestParams }>('/api/user/:name', async (request: any, reply: any) => {
+        try {
+            // changer les erreurs dans le wiki
+            const targetName = request.params?.name;
+            const token = request.cookies['ft_transcendence_jw_token'];
+            if (!token)
+                return reply.status(403).send({ error: "0403" });
+            const decoded = jwt.decode(token);
+            const id = decoded?.data?.id;
+            if (!id)
+                return reply.status(403).send({ error: "0403" });
+            const user = await prisma.user.findUnique({
+                where: { 
+                    id: Number(id),
+                }
+            })
+            if (!user)
+                return reply.status(404).send({ error: "0403" });
+            const targets : User[] = await prisma.user.findMany({
+                where: { 
+                    name: targetName
+                },
+                select: {
+                    bio: true,
+                    email: true,
+                    id: true,
+                    isTwoFactorEnabled: true,
+                    name: true,
+                    profPicture: true,
+                    rank: true,
+                }
+            })
+            console.log("targets");
+            if (!targets)
+                return reply.status(404).send({ error: "2012" });
+            const indexUser = targets.findIndex(target => target.id == user.id);
+            if (indexUser != -1)
+                targets.splice(indexUser, 1);
+            if (targets.length == 0)
+                return reply.status(401).send({ error: "2011" });
+            reply.status(201).send(targets);
+        } catch (error) {
+            {
+                return reply.status(500).send({ error: "0500" });
+            }
         }
     })
 

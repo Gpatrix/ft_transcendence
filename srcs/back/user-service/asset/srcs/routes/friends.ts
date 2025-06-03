@@ -8,12 +8,12 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
 {
     interface postUserFriendRequestParams 
     {
-        name: string
+        id: number
     }
 
-    server.post<{ Params: postUserFriendRequestParams }>('/api/user/friends/requests/:name', async (request: any, reply: any) => {
+    server.post<{ Params: postUserFriendRequestParams }>('/api/user/friends/requests/:id', async (request: any, reply: any) => {
         try {
-            const targetName = request.params?.name;
+            const targetId = Number(request.params?.id);
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return reply.status(403).send({ error: "0403" });
@@ -30,7 +30,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 return reply.status(404).send({ error: "0403" });
             const target = await prisma.user.findUnique({
                 where: { 
-                    name: targetName
+                    id: targetId
                 }
             })
             const isAlreadyFriend = await prisma.friend.findFirst({
@@ -59,7 +59,9 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             })
             reply.status(201).send();
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+            {
+                return reply.status(500).send({ error: "0500" });
+            }
         }
     })
 
@@ -95,6 +97,12 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             })
             if (!existingFriendRequest)
                 return reply.status(404).send({ error: '0404'});
+            const existingReverseFriendRequest = await prisma.friendRequest.findFirst({
+                where: {
+                    authorId: existingFriendRequest.targetId,
+                    targetId: existingFriendRequest.authorId
+                }
+            })
             let author = await prisma.user.findUnique({
                 where: { 
                     id: existingFriendRequest.authorId
@@ -112,6 +120,13 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                     id: existingFriendRequest.id
                 },
             });
+            if (existingReverseFriendRequest) {
+                await prisma.friendRequest.delete({
+                    where: {
+                        id: existingReverseFriendRequest.id
+                    },
+                });
+            }
 
             await prisma.friend.create({
                 data: {
@@ -128,6 +143,9 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             });
             reply.status(201).send();
         } catch (error) {
+                console.log("error");
+                console.log(error);
+                
             return reply.status(500).send({ error: "0500" });
         }
     })

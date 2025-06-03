@@ -45,10 +45,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
     const { fetchWithAuth } = useAuth();
     const navigate = useNavigate()
 
-      useEffect(()=>{
-        console.log(formValues)
-      }, [formValues])
-
+ 
     function createNullSetter<K extends keyof FormType>(key: K, isNumber = false) {
         return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
           let value: string | number | null = e.target.value;
@@ -71,7 +68,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
                 form.append(key, String(value))
             }
         }
-        const res = fetchWithAuth("https://localhost/api/user/edit", {
+        const res = fetchWithAuth("/api/user/edit", {
             method: "PUT",
             body: form,
         }).then((response)=>{

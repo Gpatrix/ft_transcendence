@@ -4,11 +4,17 @@ import cookiesPlugin from '@fastify/cookie';
 import rateLimitPlugin from '@fastify/rate-limit';
 import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { metrics, auth_requests_total } from "./metrics";
+import authRoutes from "./routes/auth";
+import passwordResetRoutes from "./routes/passwordReset";
+import dfaRoutes from "./routes/dfa";
 
 const server = fastify();
 
-declare module 'fastify' {
-  interface FastifyInstance {
+declare module 'fastify'
+{
+  interface FastifyInstance
+  {
     googleOAuth2: OAuth2Namespace;
   }
 }
@@ -19,9 +25,17 @@ server.register(rateLimitPlugin, {
   timeWindow: '1 minute',
   allowList: ['127.0.0.1']
 });
-server.register(require("./routes/auth"));
-server.register(require("./routes/dfa"));
-server.register(require("./routes/passwordReset"));
+
+server.addHook('onResponse', (req, res, done) =>
+{
+	auth_requests_total.inc({method: req.method});
+	done();
+});
+
+server.register(metrics);
+server.register(authRoutes);
+server.register(dfaRoutes);
+server.register(passwordResetRoutes);
  
 const areCookiesSecure = process.env.NODE_ENV != 'dev';
 
@@ -39,7 +53,7 @@ server.register(oauthPlugin, {
     sameSite: 'lax'
   },
   startRedirectPath: '/api/auth/login/google',
-  callbackUri: 'https://localhost/api/auth/login/google/callback',
+  callbackUri: `https://${process.env.HOST}:${process.env.PORT}/api/auth/login/google/callback`,
   discovery: {
     issuer: 'https://accounts.google.com'
   },

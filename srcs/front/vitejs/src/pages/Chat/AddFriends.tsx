@@ -1,34 +1,47 @@
-import Button from "../../components/Button.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
+import { FormEvent, ChangeEvent, useState } from "react";
 import Friend from "../../classes/Friend.tsx"
+import User from "../../classes/User.tsx";
 import UserContact from "../../components/UserContact.tsx";
 import ClickableIco from "../../components/ClickableIco.tsx";
+import { get_server_translation } from "../../translations/server_responses.tsx";
+import { gpt } from "../../translations/pages_reponses.tsx";
 
-type AddFriendsProps = {
-    // test?: React.Dispatch<SetStateAction<number>>,
-    // ajouter un 2eme conClick pour l'ajout d'ami
-}
+type AddFriendsProps = {}
 
 export default function AddFriends({} : AddFriendsProps) {
 
     const [inputSearch, setInputSearch] = useState<string>("");
-    const [inputResponse, setInputResponse] = useState<number>(-1);
+    const [inputResponse, setInputResponse] = useState<string>("");
+    const [usersSearched, setUsersSearched] = useState<User[] | undefined>([]);
 
     const handleSubmitSearch = async (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // faire l'affichage de toutes les erreurs 
+        const response: User[] | undefined | string = await User.searchUserByName(inputSearch)
 
-        setInputResponse(await Friend.friendRequest(inputSearch));
+        if (typeof response == 'string') {
+            setInputResponse(response)
+            setUsersSearched([]);
+        }
+        else {
+            setUsersSearched(response);
+            setInputResponse("")
+        }
         setInputSearch("");
-
     }
 
     const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
         setInputSearch(e.target.value);
     };
+
+    const handleSendFriendRequest = async (id: number) => {
+        const response = await Friend.friendRequest(id)
+
+        setUsersSearched([]);
+        setInputResponse(response)
+    }
 
     return (
         <div className="w-[100%]">
@@ -42,13 +55,20 @@ export default function AddFriends({} : AddFriendsProps) {
             />
 
             <div className="flex flex-col gap-2">
+
+                {usersSearched && usersSearched.map(user => {
+                    return <UserContact key={user.id} status='none'  userName={user.name} image={user.profPicture} >
+                                <ClickableIco image='/icons/circle-plus.svg' onClick={()=> handleSendFriendRequest(user.id)} className="w-[30px] mr-1"/>
+                            </UserContact>
+                })}
+
                 {
-                    Math.round(inputResponse / 100) == 2 &&
-                    <div className="py-2 text-green">Requete envoyée</div>
+                    Math.round(Number(inputResponse) / 100) == 2 &&
+                    <div className="py-2 text-green">{gpt("Request_sent")}</div>
                 }
                 {
-                    Math.round(inputResponse / 100) != 2 && inputResponse != -1 &&
-                    <div className="py-2 text-light-red">Erreur {inputResponse}</div>
+                    Math.round(Number(inputResponse) / 100) != 2 && inputResponse != "" &&
+                    <div className="py-2 text-light-red">{get_server_translation((inputResponse))}</div>
                 }
 
                 <div>

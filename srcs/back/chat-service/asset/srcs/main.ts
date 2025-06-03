@@ -1,13 +1,18 @@
 import fastify from 'fastify';
+import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
+import {metrics, chat_requests_total} from './metrics'
 
 import * as Utils from './utils'
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
+
+
+global.activeConn = new Map<number, i_user>();
 
 interface payloadstruct
 {
@@ -41,29 +46,15 @@ const server = fastify();
 server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
+server.register(metrics);
+
+server.addHook('onResponse', (req, res, done) =>
+{
+	chat_requests_total.inc({method: req.method});
+	done();
+});
 
 setInterval(recurrentPing, PING_INTERVAL);
-
-var activeConn: Map<number, i_user> = new Map();
-
-server.addHook('preValidation'
-   , (request, reply, done) => {
-      
-      try
-      {
-         const token: string | undefined = request.cookies.ft_transcendence_jw_token
-         if (!token || token === undefined)
-            return (reply.status(403).send({ error: "0403" }));
-         const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
-         const id = decoded.id;
-         if (!id || id === undefined)
-            return (reply.status(403).send({ error: "0403" }));
-         done();
-      }
-      catch (error) {
-         return (reply.status(403).send({ error: "0403" }));
-      }
-})
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
@@ -208,6 +199,7 @@ async function handle_managementFriend(payload: payloadstruct, token: tokenStruc
 function data_handler(
    RawData: WebSocket.RawData, socket: WebSocket, token: tokenStruct): void
 {
+   chat_requests_total.inc({method: "WSS"});
    console.log('Received:\n', RawData.toString());
    const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
    if (payload.action === undefined || payload.targetId === undefined)
@@ -250,9 +242,29 @@ interface newChannelBody
    usersId: number[];
 }
 
-async function chat_api()
+async function chat_api(fastify: FastifyInstance)
 {
-   server.get('/api/chat/connect', {websocket: true}, (socket: WebSocket, request) => 
+   fastify.addHook('preValidation'
+   , (request, reply, done) => {
+      
+      try
+      {
+         chat_requests_total.inc({method: request.method});
+         const token: string | undefined = request.cookies.ft_transcendence_jw_token
+         if (!token || token === undefined)
+            return (reply.status(403).send({ error: "0403" }));
+         const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
+         const id = decoded.id;
+         if (!id || id === undefined)
+            return (reply.status(403).send({ error: "0403" }));
+         done();
+      }
+      catch (error) {
+         return (reply.status(403).send({ error: "0403" }));
+      }
+   })
+
+   fastify.get('/api/chat/connect', {websocket: true}, (socket: WebSocket, request) => 
    {
       try
       {
@@ -274,7 +286,7 @@ async function chat_api()
       }
    });
 
-   server.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
+   fastify.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
       const credential = request.body?.credential;
       if (!credential || credential != process.env.API_CREDENTIAL)
          reply.status(401).send({ error: "private_route" });
