@@ -42,6 +42,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
             // console.log(`Retrieve-link : ${link}`)
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
+            console.log(error)
             res.status(500).send({ error: "0500" });
         }
     });

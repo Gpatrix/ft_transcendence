@@ -17,7 +17,7 @@ export default defineConfig({
     }
   },
   server: {
-    allowedHosts: ["*"],
+    allowedHosts: ["c1r6p12.42lehavre.fr"],
     host: true,
     watch: {
       usePolling: true,
