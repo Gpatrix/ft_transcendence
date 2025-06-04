@@ -20,7 +20,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     interface lookupBody
     {
-        credential: string
+        credential: string,
+        provider?: string
     }
 
     server.post<{ Params: lookupParams, Body: lookupBody }>('/api/user/lookup/:email', async (request, reply) => {
@@ -42,7 +43,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             else if (isId)
             {
                 user = await prisma.user.findUnique({
-                    where: { 
+                    where: {
                         id: Number(value)
                     }
                 })
@@ -297,7 +298,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         name: string,
         password?: string,
         isAdmin?: boolean,
-        profPicture?: string
+        profPicture?: string,
+        provider?: string,
         credential: string
     }
 
@@ -312,6 +314,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const profPicture = request.body.profPicture;
             const isAdmin = request.body.isAdmin;
             const lang = request.body.lang;
+            const provider = request.body.provider;
             let user = await prisma.user.create({
                 data: {
                     email,
@@ -319,7 +322,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     password,
                     profPicture,
                     isAdmin,
-                    lang
+                    lang,
+                    provider
                 }
             })
             if (!user) {
