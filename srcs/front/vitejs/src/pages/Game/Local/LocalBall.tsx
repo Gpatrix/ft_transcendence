@@ -10,13 +10,11 @@ export type dimension = pos;
 
 
 export class Ball {
-    constructor (   position: pos,
-                    velocity: velocity,
-                    radius: number = 5,
+    constructor (   radius: number = 5,
                     mapDimensions: dimension,
                 ) {
-        this.position = position;
-        this.velocity = velocity;
+        this.position = {x: 0, y: 0};
+        this.velocity = {x: 0, y: 0};
         this.radius = radius;
         this.mapDimensions = mapDimensions
 
@@ -40,20 +38,18 @@ export class Ball {
             console.log('setvelocity too high y')
     }
 
-    set setPosition(newPosition: pos) {
-        this.position = newPosition;
-    }
-
     processWallCollision() {
         const maxX = this.mapDimensions.x - this.radius * 2;
         const maxY = this.mapDimensions.y - this.radius * 2;
 
-        if (this.position.y <= 0 || this.position.y >= maxY) {
+        if (this.position.y <= 0 || this.position.y >= maxY)
+        {
             this.velocity.y *= -1;
             this.position.y = Math.max(0, Math.min(this.position.y, maxY));
         }
 
-        if (this.position.x <= 0 || this.position.x >= maxX) {
+        if (this.position.x <= 0 || this.position.x >= maxX)
+        {
             this.velocity.x *= -1;
             this.position.x = Math.max(0, Math.min(this.position.x, maxX));
         }
