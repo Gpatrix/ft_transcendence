@@ -101,14 +101,14 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
 
    const participants: Utils.t_game_participants[] | string = await Utils.findGameChannel(channelId);
    if (typeof participants === 'string')
-      return (socket.send(participants));
+      return (sendError(participants, socket));
 
    if (!participants.some(p => p.userId === token.id))
       return (socket.send(`{"error": 0401}`));
 
    const new_msg: Utils.t_message | string = await Utils.create_msg(channelId, token.id, payload.msg, true);
    if(typeof new_msg === 'string')
-      return (socket.send(new_msg));
+      return (sendError(new_msg, socket));
 
    const to_send: string = JSON.stringify(new_msg);
    console.log(to_send);
