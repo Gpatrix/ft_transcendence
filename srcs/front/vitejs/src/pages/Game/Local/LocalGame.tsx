@@ -110,7 +110,7 @@ export default function Game({userNames}: GameProps) {
         if (isBot)
         {
             ia.current = new IA(r2, pressedKeys.current, mapDimension);
-            const REFRESH_VIEW_INTERVAL = 205; // 1 second
+            const REFRESH_VIEW_INTERVAL = 1000; // 1 second
             setInterval(() => {
                 ia.current?.refreshView(r1, ball.current);
             }, REFRESH_VIEW_INTERVAL);
