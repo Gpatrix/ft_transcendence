@@ -408,8 +408,13 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     id: tokenPayload.id
                 }
             })
+
             if (!foundUser)
                 reply.status(404).send({ error: "1006" });
+
+            if (foundUser.provider && (updateData.newPassword || body.isTwoFactorEnabled))
+                return reply.status(401).send({ error: "2017" });
+
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
