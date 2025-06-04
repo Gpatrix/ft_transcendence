@@ -77,17 +77,16 @@ export default function Game({userNames}: GameProps) {
         const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 500 });
         rackets.current = [r1, r2];
     
-        ia.current = new IA(r2, pressedKeys.current, mapDimension);
 
         const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add(e.key);
         const handleKeyUp = (e: KeyboardEvent) => pressedKeys.current.delete(e.key);
         const handleUnfreeze = (e: KeyboardEvent) => {
             if (e.key == ' ') {
+				window.removeEventListener("keydown", handleUnfreeze);
                 setCounter("3")
                 setTimeout(()=>{
                     setCounter(null);
                     ball.current.unFreeze();
-                    window.removeEventListener("keydown", handleUnfreeze);
                 }, 3000)
             }
         };
@@ -118,10 +117,14 @@ export default function Game({userNames}: GameProps) {
             animationFrameId = requestAnimationFrame(loop);
         };
 
-        const REFRESH_VIEW_INTERVAL = 1000; // 1 second
-        setInterval(() => {
-            ia.current?.refreshView(r1, ball.current);
-        }, REFRESH_VIEW_INTERVAL);
+        if (isBot)
+        {
+            ia.current = new IA(r2, pressedKeys.current, mapDimension);
+            const REFRESH_VIEW_INTERVAL = 1000; // 1 second
+            setInterval(() => {
+                ia.current?.refreshView(r1, ball.current);
+            }, REFRESH_VIEW_INTERVAL);
+        }
         let lastTime = performance.now();
 
         animationFrameId = requestAnimationFrame(loop);

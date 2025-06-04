@@ -1,4 +1,3 @@
-import IA from "../../../classes/IA";
 import {Racket} from "../Racket"
 
 export interface pos {

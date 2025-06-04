@@ -11,7 +11,7 @@ enum RacketPart {
 	UPPER
 }
 
-export class IA {
+class IA {
 	private racket: Racket;
 
 	static readonly DEFAULT_ADJUST_INTERVAL = 100;
@@ -26,13 +26,15 @@ export class IA {
 	private readonly mapDimension: dimension;
 	private lastBall: Ball | undefined = undefined;
 
-	constructor(racket: Racket, pressedKeys: Set<string>, mapDimension: dimension) {
+	constructor(racket: Racket, pressedKeys: Set<string>, mapDimension: dimension)
+	{
 		this.racket = racket;
 		this.pressedKeys = pressedKeys;
 		this.mapDimension = mapDimension;
 	}
 
-	public refreshView(opponentRacket: Racket, ball: Ball) {
+	public refreshView(opponentRacket: Racket, ball: Ball)
+	{
 		this.lastBall = JSON.parse(JSON.stringify(ball));
 		if (this.lastBall)
 			this.tryToInterceptShot(this.lastBall, opponentRacket);
