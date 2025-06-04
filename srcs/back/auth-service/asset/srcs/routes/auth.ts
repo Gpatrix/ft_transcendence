@@ -224,9 +224,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             }
             else 
             {
-                console.log(`User ${userinfo.name} not found, creating new user`);
-
-                console.log('Parsed name:', userinfo.given_name.trim());
+                const translatedName= userinfo.given_name.trim().replace(/[^a-zA-Z0-9 ]/g, '_');
 
                 const createResponse = await fetch(`http://user-service:3000/api/user/create`, {
                   method: 'POST',
@@ -234,11 +232,13 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                   body: JSON.stringify({
                     email: userinfo.email,
                     profPicture: userinfo.picture,
-                    name: userinfo.given_name.trim(),
+                    name: translatedName,
                     provider: 'google',
                     credential: process.env.API_CREDENTIAL
                   }),
                 });
+
+                
                 
                 if (!createResponse.ok) {
                     const errorData = await createResponse.json();
