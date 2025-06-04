@@ -53,7 +53,7 @@ export default function Multi() {
 
         ws.onmessage = (event) => {
             const json = JSON.parse(event.data)
-
+            console.log(json)
             switch (json.message) {
                 case "playerJoined": 
                     setPlayers(json.players)     
@@ -66,6 +66,7 @@ export default function Multi() {
                     break
                 case "update":
                     setPlayers(json.players)
+                    console.log(json.players)
                     break
                 case "ball":
                     console.log(json.ball)

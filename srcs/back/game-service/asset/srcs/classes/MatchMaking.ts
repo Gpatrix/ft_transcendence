@@ -13,6 +13,7 @@ export class MatchMakingUser {
     rank: number;
     waitFrom: Date;
     websocket: WebSocket;
+    public desiredPlayersCount: number = 2 
 }
 
 export interface MatchResult {

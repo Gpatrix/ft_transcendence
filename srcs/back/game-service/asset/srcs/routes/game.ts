@@ -24,7 +24,9 @@ interface tokenStruct {
 
 var activeMatchmakingConn: Map<number, WebSocket> = new Map(); // lobby connections
 var activeGameConn: Map<number, WebSocket> = new Map(); // match connection
-var users: MatchMakingMap = new MatchMakingMap();
+
+var users1v1: MatchMakingMap = new MatchMakingMap(2);
+var users2v2: MatchMakingMap = new MatchMakingMap(4);
 
 function gameRoutes(server: FastifyInstance, options: any, done: any) {
     server.get<{ Params: gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, { websocket: true }, async (socket: WebSocket, request) => {
@@ -138,9 +140,9 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             userId = decoded.id;
 
             if (activeMatchmakingConn.has(userId)) {
-                console.log(`User ${userId} already has an active matchmaking connection`);
-                return socket.close(4002, 'Already connected to matchmaking');
+                activeMatchmakingConn.delete(userId);
             }
+
 
             if (activeGameConn.has(userId)) {
                 console.log(`User ${userId} is already in a game`);
@@ -159,12 +161,19 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 return socket.close(4004, 'Invalid user data');
             }
 
+            const mode = parseInt(request.query.mode || '2');
+            const users = (mode === 4) ? users2v2 : users1v1;
+            if (!mode) {
+                return socket.close(4004, 'Invalid user data');
+            }
+
             activeMatchmakingConn.set(userId, socket);
 
             socket.on('close', () => {
                 if (userId) {
                     activeMatchmakingConn.delete(userId);
-                    users.removeUserFromQueue(userId);
+                    users1v1.removeUserFromQueue(userId);
+                    users2v2.removeUserFromQueue(userId);
                 }
             });
 
@@ -172,14 +181,15 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 console.log('WebSocket error:', error);
                 if (userId) {
                     activeMatchmakingConn.delete(userId);
-                    users.removeUserFromQueue(userId);
+                    users1v1.removeUserFromQueue(userId);
+                    users2v2.removeUserFromQueue(userId);
                 }
             });
-
+            
             const matchResult = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
             
-            if (matchResult && matchResult.users) {
-                const tournament = await GamesManager.createGame(matchResult.users);
+            if (matchResult && matchResult.users && matchResult.users.length == mode) {
+                const tournament = await GamesManager.createGame(matchResult.users, mode);
                 if (!tournament) {
                     throw new Error('Games manager cannot create game');
                 }
@@ -207,7 +217,8 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             console.log('Matchmaking error:', error);
             if (userId) {
                 activeMatchmakingConn.delete(userId);
-                users.removeUserFromQueue(userId);
+                users1v1.removeUserFromQueue(userId);
+                users2v2.removeUserFromQueue(userId);
             }
             socket.close(4001, 'Authentication or server error');
         }

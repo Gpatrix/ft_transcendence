@@ -99,7 +99,7 @@ class Teams {
 export class PongGame {
     properties : properties
     teams : Teams
-    constructor (playerIds: Array<number>, id: number) {
+    constructor (playerIds: Array<number>, id: number, nbPlayers: number) {
         this.teams = new Teams(playerIds)
         this.players = []
         playerIds.map((playerId, i)=>{
@@ -117,22 +117,23 @@ export class PongGame {
             racketPadding : 20,
             racketWidth : 10,
             racketHeight : 70,
-            nbPlayers : 2
+            nbPlayers : nbPlayers
         }
         this.ball = new Ball(this.properties)
     }
 
     initPlayers() {
-        const padding = this.properties.racketPadding 
-        this.players.map((player, i)=>{
+        this.players.map((player, i) => {
             player.position = {
-                x: (i % 2 == 0) ? padding // left
-                                : this.properties.size.width - padding - this.properties.racketWidth,
-
-                y: (i < 3)      ? 2
-                                : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
+                x: (i % 2 === 0) 
+                    ? this.properties.racketPadding
+                    : this.properties.size.width - this.properties.racketPadding - this.properties.racketWidth,
+        
+                y: (i < 2)
+                    ? 2
+                    : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
             }
-        })
+        });
     }
 
     initGame() {
@@ -243,6 +244,9 @@ export class PongGame {
         const player = this.players.find(player => player.id == id) as Player;
         let newY : number = player.position.y + move
 
+        console.log(`${player.id}: ${move}`)
+
+
         if (move < 0) {  // up
             if (newY <= 0) {
                 newY = 0
@@ -253,7 +257,7 @@ export class PongGame {
                 newY = this.properties.size.height - this.properties.racketHeight - 3
             }
         }
-        player.position.y = newY    
+        player.position.y = newY
     }
 
     sendPlayers(message: string) {
