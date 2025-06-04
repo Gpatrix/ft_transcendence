@@ -81,7 +81,7 @@ export default function Multi() {
                         break
                     case "freeze":
                         ball.current.freeze()
-                        setDisconnect(true)
+                        setDisconnect(true) 
                         break
                     case "gameEnded":
                         setEnd(true)
