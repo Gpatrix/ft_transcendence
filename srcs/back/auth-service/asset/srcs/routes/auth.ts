@@ -20,11 +20,11 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     } }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
-            return (res.status(400).send({ error: "1007" }));
+            return (res.status(230).send({ error: "1007" }));
         if (!name)
-            return (res.status(400).send({ error: "1008" }));
+            return (res.status(230).send({ error: "1008" }));
         if (!password)
-            return (res.status(400).send({ error: "1009" }));
+            return (res.status(230).send({ error: "1009" }));
         try {
             const hashedPassword = await bcrypt.hash(password, 12);
             const response = await fetch(`http://user-service:3000/api/user/create`,
@@ -67,19 +67,19 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 {
                     switch (error.code) {
                         case 'P2002':
-                            res.status(401).send({ error: "1003"});
+                            res.status(230).send({ error: "1003"});
                             break
                         case 'P2003':
-                            res.status(401).send({ error: "1011"});
+                            res.status(230).send({ error: "1011"});
                           break
                         case 'P2000':
-                            res.status(401).send({ error: "1012"});
+                            res.status(230).send({ error: "1012"});
                           break
                         default:
-                            res.status(401).send({ error: "0500"});
+                            res.status(230).send({ error: "0500"});
                     }
             }
-            return (res.status(500).send({ error: "0500"}));
+            return (res.status(230).send({ error: "0500"}));
         }
     });
 
@@ -100,7 +100,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             const email = request.body.email;
             const password = request.body.password;
             if (!email || !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
-                return (reply.status(400).send({ error: "1007" }));
+                return (reply.status(230).send({ error: "1007" }));
             const response = await fetch(`http://user-service:3000/api/user/lookup/${email}`,
             {
                 method: 'POST',
@@ -116,14 +116,14 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
             if (!user)
-                return reply.status(404).send({ error: "1006" });
+                return reply.status(230).send({ error: "1006" });
             if (!user.password)
-                return reply.status(401).send({ error: "1014" });
+                return reply.status(230).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
             if (!isCorrect)
-                return reply.status(401).send({ error: "1006"});
+                return reply.status(230).send({ error: "1006"});
             if (user.isBanned)
-                return reply.status(403).send({ error: "1013" });
+                return reply.status(230).send({ error: "1013" });
             if (user.isTwoFactorEnabled) {
                 const token = await jwt.sign({
                     data: {
@@ -165,7 +165,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                   }).send({ response: "successfully logged in", need2fa: false }));
             }
         } catch (error) {
-            reply.status(500).send({ error:"0500" });
+            reply.status(230).send({ error:"0500" });
         }
     })
 
@@ -176,11 +176,11 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     server.delete<{ Body: logoutParams }>('/api/auth/logout', async (request, reply) => {
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
-            return (reply.status(401).send({ error: "1016" }));
+            return (reply.status(230).send({ error: "1016" }));
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const id = decoded.data?.id
         if (!id)
-          return (reply.status(401).send({ error: "1016" }));
+          return (reply.status(230).send({ error: "1016" }));
         reply.clearCookie('ft_transcendence_jw_token', {}).send({ response: "logout_success" });
     })
 

@@ -40,7 +40,7 @@ export default function NewPassword() {
             fetch('/api/auth/passwordReset/submit', requestData)
             .then(response=> {
                 if (response) {
-                    if (response.ok) {
+                    if (response.status == 200) {
                         navigate("/")
                     }
                     else {

@@ -31,7 +31,7 @@ class Friend extends User {
             }
             const response = await fetch(`/api/user/friends/requests/${id}`, requestData);
 
-            if (response.status == 201)
+            if (response.status == 200)
                 return (String(response.status))
                 
 			const dataReponse = await response.json();
@@ -134,8 +134,8 @@ class Friend extends User {
                 credentials: 'include',
             }
             const response = await fetch(`/api/user/friends/${targetId}`, requestData);
-            if (response.status == 201)
-                return ("201")
+            if (response.status == 200)
+                return ("200")
             const dataReponse = await response.json();
             
 

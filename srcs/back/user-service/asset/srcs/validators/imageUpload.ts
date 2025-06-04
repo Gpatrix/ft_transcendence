@@ -52,7 +52,7 @@ export async function imageUpload(request: any, reply: any) {
         }
     } catch (error) {
         console.error("Error in image upload:", error);
-        reply.status(500).send({ error: "0500" });
+        reply.status(230).send({ error: "0500" });
     }
 }
 

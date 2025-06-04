@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const response = await fetch("/api/auth/login", requestData);
         const json = await response.json();
-        if (!response.ok) {
+        if (response.status != 200) {
             throw new Error(json.error || "0500");
         }
         if (json.need2fa) {
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       ]
       try {
         const response = await fetch("/api/auth/status", { method: "GET" });
-        if (!response.ok) {
+        if (response.status != 200) {
           setIsAuthenticated(false);
           const data = await response.json()
           if (data.error == "1020") {

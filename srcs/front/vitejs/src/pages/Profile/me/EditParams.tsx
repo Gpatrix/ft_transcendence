@@ -72,7 +72,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
             method: "PUT",
             body: form,
         }).then((response)=>{
-            if (response.ok) {
+            if (response.status == 200) {
                 setFormValues(initialFormValues)
                 formValues.lang != null && localStorage.setItem('LANGUAGE', JSON.stringify(formValues.lang));
                 if (formValues.isTwoFactorEnabled == true) {

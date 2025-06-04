@@ -65,7 +65,7 @@ export default function Register() {
             }
             fetch('/api/auth/signup', requestData)
             .then(response => {
-                if (response.ok)
+                if (response.status == 200)
                     login(email, password)
                 else
                 {

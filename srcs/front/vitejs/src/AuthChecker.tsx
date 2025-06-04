@@ -8,7 +8,7 @@ const useAuthChecker = () => {
         const checkAuth = async () => {
             try {
                 const response = await fetch("/api/auth/status");
-                if (!response.ok) {
+                if (response.status != 200) {
                     navigate("/login");
                     return ;
                 }

@@ -64,7 +64,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
                     userId = tokenPayload.id
                 }
                 if (!userId)
-                    return reply.status(403).send({ error: '0403' });
+                    return reply.status(230).send({ error: '0403' });
                 const players = await prisma.player.findMany({
                     where: {
                         userId: userId
@@ -87,7 +87,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
                 reply.status(200).send({ games: games });
             } catch (error) {
                 console.log(error);
-                return reply.status(500).send({ error: '0500' });
+                return reply.status(230).send({ error: '0500' });
             }
         }
     );

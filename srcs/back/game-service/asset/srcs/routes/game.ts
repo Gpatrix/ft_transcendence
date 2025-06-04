@@ -244,7 +244,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 totalInQueue: users.length
             };
         } catch (error) {
-            reply.code(401).send({ error: 'Invalid token' });
+            reply.code(230).send({ error: 'Invalid token' });
         }
     });
 
