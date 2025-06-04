@@ -37,6 +37,9 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             const gameId: number = Number(request.params.gameId);
             const tournamentId: number = Number(request.params.tournamentId);
 
+            if (!gameId || !tournamentId)
+                return socket.close(4510, 'Tournament not found');
+
             if (activeGameConn.has(token.id)) {
                 const oldSocket = activeGameConn.get(token.id);
                 console.log("connected, test")
@@ -62,7 +65,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             })
 
             if (!tournament) {
-                return socket.close(5010, 'Tournament not found');
+                return socket.close(4510, 'Tournament not found');
             }
 
             const game = await prisma.game.findFirst({
@@ -75,7 +78,11 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             })
 
             if (!game) {
-                return socket.close(5011, 'Game not found');
+                return socket.close(4511, 'Game not found');
+            }
+
+            if (game.closedAt) {
+                return socket.close(4511, 'Game not found');
             }
 
             const player = await prisma.player.findFirst({
@@ -86,7 +93,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             })
 
             if (!player) {
-                return socket.close(5012, 'Player not authorized for this game');
+                return socket.close(4512, 'Player not authorized for this game');
             }
 
             activeGameConn.set(token.id, socket);

@@ -7,6 +7,8 @@ import { Ball } from "./Classes/Ball";
 import MultiPointsCounter from "./MultiPointsCounter";
 import Disconnected from "./Popups/Disconnected";
 import { gpt } from "../../../translations/pages_reponses";
+import EndPopup from "./Popups/EndPopup";
+import { get_server_translation } from "../../../translations/server_responses";
 
 export type Player = {
     id: number
@@ -31,77 +33,82 @@ export default function Multi() {
 
     const [params] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
+    const [end, setEnd] = useState<boolean>(false)
 
     const [disconnect, setDisconnect] = useState<boolean>(false)
+
 
     useEffect(() => {
         const tournament = params.get("tournament");
         const game = params.get("game");
 
         if (!game || !tournament) {
-            setError("PARAMS ERROR"); // todo translations
+            setError(get_server_translation("4511"));
             return;
         }
-
-        const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
-        if (!ws)
-            return ;
-        socket.current = ws
-        ws.onopen = () => {
-            console.log("/api/game/connect/ opened");
-        };
-
-        ws.onmessage = (event) => {
-            const json = JSON.parse(event.data)
-            console.log(json)
-            switch (json.message) {
-                case "playerJoined": 
-                    setPlayers(json.players)     
-                    break
-                case "start":
-                    console.log("START")
-                    ball.current.unFreeze(  )
-                    setPlayers(json.players)
-                    setCounter("3")
-                    break
-                case "update":
-                    setPlayers(json.players)
-                    console.log(json.players)
-                    break
-                case "ball":
-                    console.log(json.ball)
-                    ball.current.velocity = json.ball.velocity;
-                    ball.current.position = json.ball.position;
-                    break 
-                case "result":
-                    setPoints(json.result[0])
-                    break
-                case "freeze":
-                    ball.current.freeze()
-                    setDisconnect(true)
-                    break
-                case "unfreeze":
-                    ball.current.unFreeze()
-                    setDisconnect(false)
-                    break
+        try {
+            const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
+            if (!ws) {
+                throw ("err")
             }
+            socket.current = ws
 
-        };
+            ws.onopen = () => {
+            };
 
-        ws.onclose = (event) => {
-            setError(event.code)
-            console.log("/api/game/connect/ closed");
-        };
+            ws.onmessage = (event) => {
+                const json = JSON.parse(event.data)
+                if (!json)
+                    return ;
+                switch (json.message) {
+                    case "playerJoined": 
+                        setPlayers(json.players)     
+                        break
+                    case "start":
+                        ball.current.unFreeze(  )
+                        setPlayers(json.players)
+                        setCounter("3")
+                        break
+                    case "update":
+                        setPlayers(json.players)
+                        break
+                    case "ball":
+                        ball.current.velocity = json.ball.velocity;
+                        ball.current.position = json.ball.position;
+                        break 
+                    case "result":
+                        setPoints(json.result[0])
+                        break
+                    case "freeze":
+                        ball.current.freeze()
+                        setDisconnect(true)
+                        break
+                    case "gameEnded":
+                        setEnd(true)
+                        break
+                    case "unfreeze":
+                        ball.current.unFreeze()
+                        setDisconnect(false)
+                        break
+                }
+            };
 
-        ws.onerror = (err) => {
-            console.error("WebSocket error:", err);
-            setError("WebSocket error");
-        };
+            ws.onclose = (event) => {
+                setEnd(true)
+            };
 
-        return () => {
-            ws.close();
-        };
+            ws.onerror = (err : Event) => {
+                alert("error")
+            };
 
+            return () => {
+                ws.close();
+            };
+
+            }
+        catch {
+            return ;
+        }
     }, [params]);
 
 
@@ -109,7 +116,8 @@ export default function Multi() {
         <div className="relative">
             {error && <p className="text-yellow">{gpt(error)}</p>}
             {disconnect && <Disconnected/>}
-            {!error &&
+            {end && !error && <EndPopup/>}
+            {(!error && !end) &&
             <span>
                 <MultiGame ball={ball.current} players={players} socket={socket.current} />
                 {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}

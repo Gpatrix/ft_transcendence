@@ -198,11 +198,29 @@ export class PongGame {
     
 
     async onEnd() {
+        await prisma.game.update({
+            where: {
+                id: this.id,
+            },
+            data: {
+                closedAt: new Date(),
+            }
+        })
+
+        const game =  await prisma.game.findFirst({
+            where: {
+                id: this.id,
+            },
+        })
+
+        console.log("GAME: ", game)
+
+
+
         await Promise.all(this.players.map(async player => {
             const teamIndex = this.teams.teams.findIndex(t => t.playersIDs.includes(player.id));
             const score = this.teams.teams[teamIndex ^ 1].score;
 
-            console.log("PLAYER:", player)
             const playerEntry = await prisma.player.findFirst({
               where: {
                 userId: player.id,
@@ -217,7 +235,6 @@ export class PongGame {
               });
             }
           }));
-
 
         this.players.forEach(player => {
             if (player.ws) {
