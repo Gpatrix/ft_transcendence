@@ -34,6 +34,7 @@ class IA {
 
 	public refreshView(opponentRacket: Racket, ball: Ball)
 	{
+		console.log("IA refreshView called");
         this.tryToInterceptShot(JSON.parse(JSON.stringify(ball)), opponentRacket);
 	}
 
@@ -42,7 +43,7 @@ class IA {
 		this.clearIntervals();
 	}
 
-	private reseteData(): void
+	public reseteData(): void
 	{
 		this.clearIntervals();
 	}
@@ -68,7 +69,7 @@ class IA {
 	{
 		const ballPos = pos || ball.position;
 		const ballVelocity = velocity || ball.velocity;
-		let distanceX = Math.abs(ballPos.x - racketPos.x);
+		const distanceX = Math.abs(ballPos.x - racketPos.x);
 		let landingY = distanceX * (ballVelocity.y / ballVelocity.x) + ballPos.y;
 		let bouceCount = 0;
 
@@ -105,19 +106,24 @@ class IA {
 		return undefined;
 	}
 
-	private randomizeEstimated(realHitY: number, tryCount: number): number
+	private randomizeEstimated(realHitY: number, tryCount: number): number | null
 	{
-		let racketsCoordsAiming: number = 0;
-		if (tryCount > 0) {
-			if (realHitY < this.racket.pos.y + this.racket.properties.height / 2)
-				racketsCoordsAiming = (this.racket.properties.height / 4); // /4
-			else
-				racketsCoordsAiming = -(this.racket.properties.height / 4); // /4
+		if (tryCount < 2)
+		{
+			let racketsCoordsAiming: number = 0;
+			if (tryCount > 0) {
+				if (realHitY < this.racket.pos.y + this.racket.properties.height / 2)
+					racketsCoordsAiming = (this.racket.properties.height / 4); // /4
+				else
+					racketsCoordsAiming = -(this.racket.properties.height / 4); // /4
+			}
+	
+			const noise = Math.floor(Math.min(Math.max(-300, ((Math.random() - 0.5) * (IA.DEFAULT_ACCURACY * this.racket.properties.height))), 300));
+			const y = realHitY + (noise != Infinity ? noise : 0) + racketsCoordsAiming;
+			return (y);
 		}
-
-		const noise = Math.floor(Math.min(Math.max(-300, ((Math.random() - 0.5) * (IA.DEFAULT_ACCURACY * this.racket.properties.height))), 300));
-		const y = realHitY + (noise != Infinity ? noise : 0) + racketsCoordsAiming;
-		return (y);
+		else
+			return (null);
 	}
 
 	private async goToEstimated(whereToStopY: number): Promise<void>
@@ -156,7 +162,10 @@ class IA {
 
     private async interceptBall(estimated: number, tryCount: number) : Promise<void>
     {
-        this.estimatedHitY = this.randomizeEstimated(estimated, tryCount);
+		const tmp = this.randomizeEstimated(estimated, tryCount);
+		if (tmp === null)
+			return ;
+        this.estimatedHitY = tmp;
         await this.goToEstimated(this.estimatedHitY);
     }
 
@@ -194,6 +203,7 @@ class IA {
         // this.interceptBall(estimated, tryCount);
 		this.fixingMoveInterval = setInterval(async () =>
 		{
+			console.log('fixingMove interval called');
             this.interceptBall(estimated, tryCount);
             tryCount++;
 		}, ((Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL);
