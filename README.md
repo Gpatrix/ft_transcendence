@@ -34,7 +34,7 @@
 
 - [x] Major module: Live chat.
 
-- [ ] Major module: Introduce an AI opponent.
+- [x] Major module: Introduce an AI opponent.
 
 - [ ] Major module: Replace basic Pong with server-side Pong and implement an API.
 
