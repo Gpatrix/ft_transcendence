@@ -51,10 +51,6 @@ export const useWebSocket = () => useContext(WebSocketContext);
 
 const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
-    // on gere ici toutes les modifications dont on a besoin
-    // mettre ici tout les amis avec tout les messages ???
-    const location = useLocation();
-
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     const [activFriend, setActivFriend] = useState<number>(0)
@@ -72,6 +68,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     const RECONNECT_INTERVAL = 500;
 
     const connectWebSocket = () => {
+
         const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/chat/connect`);
 
         ws.onopen = () => {
@@ -79,6 +76,8 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         };
 
         ws.onmessage = (event) => {
+            console.log(event);
+            
             if (event.data) {
                 try {
                     const data = JSON.parse(event.data);

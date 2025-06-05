@@ -30,7 +30,9 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
 
     const handleSupFriend = async (idFriend: number) => {
         const codeError = await Friend.deleteFriends(idFriend);
-        if (codeError != "201") {
+        console.log(codeError);
+        
+        if (codeError != "200") {
             console.log("Error :", get_server_translation(codeError));
             return ;
         }

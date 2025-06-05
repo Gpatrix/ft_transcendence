@@ -69,9 +69,8 @@ class FriendRequest {
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
 
-            console.log(response);
             if (response.status == 201)
-                    return ("0201")
+                    return ("201")
             const dataReponse = await response.json();
             return (dataReponse.error)
         } catch (error) {
