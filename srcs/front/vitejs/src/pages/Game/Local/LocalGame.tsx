@@ -123,9 +123,9 @@ export default function Game({userNames}: GameProps) {
                 <h1 className="w-[234px] truncate overflow-hidden text-right">{userNames[1]}</h1>
             </span>
             }
-            <span id="debug_marker" className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
-                <RacketComponent id={1} left={5} />
-                <RacketComponent id={2} right={5} />
+            <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
+                <RacketComponent id={1}  left={10} />
+                <RacketComponent id={2} right={10} />
                 {counter && <StartCounter width={mapDimension.x} height={mapDimension.y} setCounter={setCounter} counter={counter} /> }
 
                 <Wall id="top"    width={mapDimension.x} height={5} top={0} />

@@ -17,6 +17,9 @@ interface MenuLinkProps {
 
 export function MenuLink({link, label} : MenuLinkProps) {
     const [state, setState] = useState<boolean>(false)
+
+
+    console.log(import.meta.env.VITE_PORT)
     return (
         <Link to={link} 
             onMouseEnter={()=>setState(true)} 

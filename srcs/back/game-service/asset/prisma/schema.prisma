@@ -11,10 +11,12 @@ model Player {
   id Int @id @unique @default(autoincrement())
   userId Int
   score Int
-  
+
   gameId Int
   game Game @relation("PlayerToGame", fields: [gameId], references: [id])
   createdAt DateTime @default(now())
+
+  @@unique([userId, gameId])
 }
 
 model Game {

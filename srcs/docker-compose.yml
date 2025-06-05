@@ -18,6 +18,8 @@ services:
     volumes:
       - ./back/auth-service/asset/srcs:/usr/src/auth-service/asset/srcs
     environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
@@ -47,6 +49,8 @@ services:
       - ./back/chat-service/asset/srcs:/usr/src/chat-service/srcs
       - db-chat:/usr/src/chat-service/asset/prisma/db
     environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
       NODE_ENV: ${NODE_ENV:?}
       JWT_SECRET: ${JWT_SECRET:?}
       DATABASE_URL: ${DATABASE_URL:?}
@@ -71,6 +75,8 @@ services:
       - ./back/game-service/asset/srcs:/usr/src/game-service/srcs
       - db-game:/usr/src/game-service/prisma/db
     environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:?}
@@ -93,6 +99,8 @@ services:
       - ./back/upload-service/asset/srcs:/usr/src/upload-service/srcs
       - db-upload:/usr/src/upload-service/uploads
     environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:?}
@@ -112,6 +120,8 @@ services:
     volumes:
       - ./back/blockchain-service/asset/srcs:/usr/src/blockchain-service/srcs
     environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:?}
       SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
@@ -136,6 +146,8 @@ services:
       - ./back/user-service/asset/srcs:/usr/src/user-service/srcs
       - db-user:/usr/src/user-service/asset/prisma/db
     environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
       NODE_ENV: ${NODE_ENV:?}
@@ -208,6 +220,9 @@ services:
     build:
         context: ./front/
         dockerfile: Dockerfile
+    environment:
+      VITE_HOST: ${HOST:?}
+      VITE_PORT: ${PORT:?}
     expose:
       - 5173
     volumes:

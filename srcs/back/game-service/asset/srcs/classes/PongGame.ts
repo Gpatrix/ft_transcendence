@@ -1,59 +1,34 @@
 import { prisma } from '../config/prisma';
 import WebSocket from 'ws';
+import { Ball } from './Ball';
 
-interface pos {
+export interface pos {
     x: number,
     y: number
 }
 
-type velocity = pos;
+export type velocity = pos;
+export type dimension = pos
 
-class Ball {
-    constructor (position: pos, velocity: velocity, radius: number = 5) {
-        this.position = position;
-        this.velocity = velocity;
-        this.radius = radius;
-    }
-    position: pos;
-    velocity: velocity;
-    radius: number;
-    isFreezed: boolean = true;
-    lastToucher: number = -1;
 
-    set setVelocity(newVelocity: velocity) {
-        if (newVelocity.x < 1500)
-            this.velocity.x = newVelocity.x;
-        if (newVelocity.y < 1500)
-            this.velocity.y = newVelocity.y;      
-    }
 
-    set setPosition(newPosition: pos) {
-        this.position = newPosition;
-    }
-
-    nextPos() {
-        if (!this.isFreezed)
-        {
-            this.position.x += this.velocity.x;
-            this.position.y += this.velocity.y;
-        }
-    }
-
-    resetPos() {
-        this.position.x += 0;
-        this.position.y += 0;
-    }
-}
-
-class Player {
+export class Player {
     constructor(id: number, position: pos) {
         this.id = id;
         this.position = position;
+        this.properties = {
+            height:70,
+            width:10
+        }
     }
     id: number;
     position: pos;
     ws?: WebSocket;
     score: number = 0;
+    properties: {
+        width: number
+        height: number
+    }
     
     async scoreGoal() {
         const existingPlayer = await prisma.player.findUnique({
@@ -75,102 +50,179 @@ class Player {
     }
 }
 
-export class PongGame {
-    constructor (playerIds: Array<number>, id: number) {
-        this.ball = this.initBall(playerIds);
-        this.players = [
-            new Player(playerIds[0], { x: (this.width / 2 ) * -1, y: 0}),
-            new Player(playerIds[1], { x: this.width / 2 , y: 0})
+export type properties = {
+    size : {
+        width  : number
+        height : number
+    }
+    racketPadding: number
+    racketWidth: number
+    racketHeight: number
+    nbPlayers : number
+}
+
+
+export type team = {
+    score : number
+    playersIDs : Array<number>
+}
+
+class Teams {
+    teams : Array<team>
+
+    constructor (players : Array<number>) {
+        this.teams = [
+            { score: 0, playersIDs: [] },
+            { score: 0, playersIDs: [] }
         ];
-        this.id = id;
+
+        players.map((id, i )=> {
+            if (i % 2)
+                this.teams[1].playersIDs.push(id)
+            else
+                this.teams[0].playersIDs.push(id)
+        })
     }
 
+    getResult() {
+        return ([
+            this.teams[0].score, 
+            this.teams[1].score
+        ])
+    }
+
+    newScore(looserId : number) {
+        this.teams[looserId].score ++
+    }
+}
+
+export class PongGame {
+    properties : properties
+    teams : Teams
+    constructor (playerIds: Array<number>, id: number) {
+        this.teams = new Teams(playerIds)
+        this.players = []
+        playerIds.map((playerId, i)=>{
+            this.players.push(new Player(
+                playerId, 
+                { x: 0 , y: 0}
+            ))
+        })
+        this.id = id;
+        this.properties = {
+            size : {
+                width : 700,    
+                height : 500
+            },
+            racketPadding : 20,
+            racketWidth : 10,
+            racketHeight : 70,
+            nbPlayers : 2
+        }
+        this.ball = new Ball(this.properties)
+    }
+
+    initPlayers() {
+        const padding = this.properties.racketPadding 
+        this.players.map((player, i)=>{
+            player.position = {
+                x: (i % 2 == 0) ? padding // left
+                                : this.properties.size.width - padding - this.properties.racketWidth,
+
+                y: (i < 3)      ? 2
+                                : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
+            }
+        })
+    }
+
+    initGame() {
+        this.sendResults();
+        this.sendBall()
+        this.startedAt = Date.now() 
+        this.initPlayers()
+
+        setTimeout(()=> {
+            this.sendPlayers("start")
+        }, 1000)
+
+        
+        setTimeout(()=>{
+            this.ball.resetPos()
+            this.ball.unFreeze()
+            this.sendBall()
+        }, 4100)
+    }
+
+
+
     start() {
+        this.initGame()
+        let lastTime = performance.now();
+    
         this.interval = setInterval(() => {
-            this.managePlayerColision();
-            this.manageRoofAndFloorColision();
-            this.ball.nextPos();
-            const looserPlayerId = this.isBallColidingWall();
-            if (looserPlayerId != -1) {
-                this.ball.resetPos();
-                console.log(`Ball colided with wall`);
-                if (this.ball.lastToucher == -1)    // In case ball collide player's wall before being hit
-                    this.scoreEveryone(looserPlayerId)
-                else
-                {
-                    const winner = this.players.find(player => player.id == this.ball.lastToucher);
-                    winner?.scoreGoal();
+            const now = performance.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
+    
+            this.sendBall();
+    
+            this.sendPlayers("update");
+            this.ball.checkRacketCollision(this.players);
+            if (!this.ball.isFreezed) {
+
+                this.ball.nextPos(deltaTime);
+    
+                const looserPlayerId = this.ball.checkVerticalCollision();
+                if (looserPlayerId != -1) {
+                    this.ball.resetPos();
+                    this.sendBall();
+                    this.teams.newScore(looserPlayerId);
+                    this.sendResults();
+                    if (this.teams.getResult().find((e)=> e >= 2)) {
+                        this.endGame()
+                    }
+
+                    setTimeout(() => {
+                        this.sendBall();
+                        this.ball.unFreeze();
+                    }, 1000);
                 }
             }
         }, 1000 / 60);
+    
         this.timeout = setTimeout(() => {
             this.onEnd();
         }, 15 * 60 * 1000);
     }
+    
 
-    onEnd() {
-        prisma.game.update({
-            where: {
-                id: this.id
-            },
-            data: {
-                playTime: this.getDuration() / 1000,
-                closedAt: new Date()
+    async onEnd() {
+        await Promise.all(this.players.map(async player => {
+            const teamIndex = this.teams.teams.findIndex(t => t.playersIDs.includes(player.id));
+            const score = this.teams.teams[teamIndex ^ 1].score;
+
+            console.log("PLAYER:", player)
+            const playerEntry = await prisma.player.findFirst({
+              where: {
+                userId: player.id,
+                gameId: this.id
+              }
+            });
+    
+            if (playerEntry) {
+              await prisma.player.update({
+                where: { id: playerEntry.id },
+                data: { score: score }
+              });
             }
-        })
+          }));
+
+
         this.players.forEach(player => {
             if (player.ws) {
                 player.ws.send(JSON.stringify({ message: `gameEnded`, gameId: this.id }));
                 player.ws.close();
             }
-        })
-    }
-
-    private initBall(playerIds: Array<number>): Ball
-    {
-        const n = playerIds.length;
-        let ball: Ball;
-        if (n == 2)
-        {
-            const a = Math.floor(Math.random() * n);
-            if (a == 1)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-        }
-        else if (n == 3)
-        {
-            const a = Math.floor(Math.random() * n);
-            if (a == 1)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else if (a == 2)
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-            else
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-        }
-        else if (n == 4)
-        {
-            const a = Math.floor(Math.random() * n);
-            if (a == 1)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else if (a == 2)
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-            else if (a == 3)
-                ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-            else
-                ball = new Ball({ x: (this.width / 2) * -1, y: 0 }, { x: 1, y: 0 });
-        }
-        else
-            ball = new Ball({ x: this.width / 2, y: 0 }, { x: -1, y: 0 });
-        return (ball);
-    }
-
-
-    private scoreEveryone(idToNotScore: number) {
-        this.players.forEach(player => {
-            if (player.id == idToNotScore)
-                return ;
-            player.scoreGoal();
         })
     }
 
@@ -189,83 +241,94 @@ export class PongGame {
     onPlayerMove(id: number, move: number)
     {
         const player = this.players.find(player => player.id == id) as Player;
-        const playerPos = player.position;
-        if (move + this.playerHeight / 2 >= this.height / 2)
-            return ;
-        else
-            player.position = { x: playerPos.x, y: playerPos.y };
+        let newY : number = player.position.y + move
+
+        if (move < 0) {  // up
+            if (newY <= 0) {
+                newY = 0
+            }
+        }
+        else { // down
+            if (newY + this.properties.racketHeight > this.properties.size.height) {
+                newY = this.properties.size.height - this.properties.racketHeight - 3
+            }
+        }
+        player.position.y = newY    
     }
 
-    onPlayerJoin(id: number, ws: WebSocket) {
-        // console.log(`Player ${id} joined`);
+    sendPlayers(message: string) {
+        this.players.forEach(player => {
+            if (player.ws)
+                player.ws.send(JSON.stringify({
+                    message: message,
+                    players: this.players.map(p => ({
+                        id: p.id,
+                        score: p.score,
+                        position: p.position,
+                        isYours: p.id === player.id
+                    }))
+            }));
+        });
+    }
+
+    sendBall() {
+        this.players.forEach(player => {
+            if (player.ws)
+                player.ws.send(JSON.stringify({
+                    message: "ball",
+                    ball: {
+                        velocity: this.ball.velocity,
+                        position: this.ball.position
+                    }
+            }));
+        });        
+    }
+
+    sendResults() {
+        this.players.forEach(player => {
+            if (player.ws)
+                player.ws.send(JSON.stringify({
+                    message: "result",
+                    result: [this.teams.getResult()]
+            }));
+        });
+    }
+
+    onPlayerJoin(id: number, ws: WebSocket) { // send user update to everyone, start if everyone is here
+        console.log(`Player ${id} joined`);
         const index = this.players.findIndex(player => player.id == id);
         if (index !== -1) {
             this.players[index].ws = ws;
         }
-        this.players.forEach(player => {
-            if (player.ws)
-                player.ws.send(JSON.stringify({ message: `playerJoined`, playerId: id }));
-        })
+        this.sendPlayers(`playerJoined`)
+        if (this.players.length == this.properties.nbPlayers) {
+            if (this.startedAt) {// on unfreeze, after a disconnect
+                this.players.forEach(player => {
+                    if (player.ws)
+                        player.ws.send(JSON.stringify({
+                            message: "unfreeze",
+                    }));
+                });
+                this.sendResults()
+                this.ball.unFreeze()
+            }
+            else
+                this.start()
+        }
     }
 
     onPlayerLeave(id: number) {
-        // console.log(`Player ${id} leaved`);
-        const index = this.players.findIndex(player => player.id == id);
-        if (index === -1)
-            return ;
-        this.players[index].ws = undefined;
+        console.log("PLAYER LEAVED")
+        this.ball.freeze()
+
         this.players.forEach(player => {
             if (player.ws)
-                player.ws.send(JSON.stringify({ message: `playerLeft`, playerId: id }));
-        })
+                player.ws.send(JSON.stringify({
+                    message: "freeze",
+            }));
+        });
     }
 
-    private isBallColidingPlayer(playerPos: pos): boolean {
-        let isInX = false;
-        let isInY = false;
-        const ballPos = this.ball.position;
-        if ((ballPos.x >= playerPos.x - this.playerWidth / 2) && (ballPos.x <= playerPos.x + this.playerWidth / 2))
-            isInX = true;
-        if ((ballPos.y >= playerPos.y - this.playerHeight / 2) && (ballPos.y <= playerPos.y + this.playerHeight / 2))
-            isInY = true;
-        return (isInX && isInY);
-    }
-
-    managePlayerColision(): void {
-        this.players.forEach(player => {
-            if (this.isBallColidingPlayer(player.position))
-            {
-                this.ball.lastToucher = player.id;
-                this.ball.velocity.x *= -1;
-            }
-        })
-    }
-
-    manageRoofAndFloorColision(): void {
-        const ballPos = this.ball.position;
-        if ((ballPos.y <= this.height * -1) || (ballPos.y >= this.height))
-            this.ball.velocity.y *= -1;
-    }
-
-    private isBallColidingWall(): number {
-        const ballPos: pos = this.ball.position;
-        const playerCount: number = this.players.length;
-        if (playerCount == 2)
-        {
-            if (ballPos.x <= this.width / 2 * -1)
-                return (this.players[0].id);
-            else if (ballPos.x >= this.width / 2)
-                return (this.players[1].id);
-        }
-        else
-        {
-            if (ballPos.x <= this.width / 2 * -1)
-                return (this.players[0].id);
-            else if (ballPos.x >= this.width / 2)
-                return (this.players[1].id);
-        }
-        return (-1);
-    }
 
     ball: Ball
     width: number = 200
@@ -280,4 +343,4 @@ export class PongGame {
     id: number;
 }
 
-module.exports = PongGame;
+// module.exports = PongGame;
