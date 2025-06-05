@@ -12,30 +12,21 @@ import IA from "../../../classes/IA.tsx";
 import { useSearchParams } from "react-router";
 import WinPopUp from "./WinPopup.tsx";
 
-const defaultPos : pos = {
-    x : 250,
-    y : 150
-}
-
-const defaultVelocity : pos = {
-    x: 450,
-    y: 460
-}
-
 const mapDimension : dimension = {
     x : 700,
     y : 500
 }
 
-interface GameProps {
+interface GameProps
+{
     userNames : Array<string> | null
 }
 
 export default function Game({userNames}: GameProps) {
     const pressedKeys = useRef(new Set<string>());
-    const ball = useRef<Ball>(new Ball(defaultPos, defaultVelocity, 10, mapDimension));
+    const ball = useRef<Ball>(new Ball(10, mapDimension));
     const ia = useRef<IA | null>(null);
-    const rackets = useRef<Racket[] | null>(null);    
+    const rackets = useRef<Racket[] | null>(null);
     const [players, setPlayers] = useState([0, 0]);
     const [params] = useSearchParams()
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
@@ -55,8 +46,6 @@ export default function Game({userNames}: GameProps) {
         }); 
     }
 
-
-
     useEffect(() => {
         const isBot = params.get("isBot") === "1";
         
@@ -64,17 +53,16 @@ export default function Game({userNames}: GameProps) {
         const r2 = new Racket({ id: 2, keyUp: isBot ? "BOT_UP" : "ArrowUp", keyDown: isBot ? "BOT_DOWN" : "ArrowDown", speed: 500 });
         rackets.current = [r1, r2];
     
-        ia.current = new IA(r2, pressedKeys.current, mapDimension);
 
         const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add(e.key);
         const handleKeyUp = (e: KeyboardEvent) => pressedKeys.current.delete(e.key);
         const handleUnfreeze = (e: KeyboardEvent) => {
             if (e.key == ' ') {
+				window.removeEventListener("keydown", handleUnfreeze);
                 setCounter("3")
                 setTimeout(()=>{
                     setCounter(null);
                     ball.current.unFreeze();
-                    window.removeEventListener("keydown", handleUnfreeze);
                 }, 3000)
             }
         };
@@ -85,10 +73,6 @@ export default function Game({userNames}: GameProps) {
 
         let animationFrameId: number;
         ball.current.resetPos();
-        setInterval(() => {
-            ia.current?.refreshView(r1, ball.current);
-        }, 1000);
-        let lastTime = performance.now();
         
         const loop = (now: any) => {
             const deltaTime = (now - lastTime) / 1000; // In seconds
@@ -104,10 +88,21 @@ export default function Game({userNames}: GameProps) {
                 ball.current.resetPos();
                 setTimeout(()=>{
                     ball.current.unFreeze();
+                    ia.current?.refreshView(r1, ball.current);
                 }, 500)
             }
             animationFrameId = requestAnimationFrame(loop);
         };
+
+        if (isBot)
+        {
+            ia.current = new IA(r2, pressedKeys.current, mapDimension);
+            const REFRESH_VIEW_INTERVAL = 1000; // 1 second
+            setInterval(() => {
+                ia.current?.refreshView(r1, ball.current);
+            }, REFRESH_VIEW_INTERVAL);
+        }
+        let lastTime = performance.now();
 
         animationFrameId = requestAnimationFrame(loop);
 
@@ -121,6 +116,13 @@ export default function Game({userNames}: GameProps) {
 
     return (
         <div className="block ml-auto mr-auto w-fit h-fit ">
+            { userNames && 
+            <span className="w-full relative text-yellow flex">
+                <h1 className="w-[234px] truncate overflow-hidden">{userNames[0]}</h1>
+                <h1 className="w-[234px] truncate text-center overflow-hidden">{`VS`}</h1>
+                <h1 className="w-[234px] truncate overflow-hidden text-right">{userNames[1]}</h1>
+            </span>
+            }
             <span className="block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
                 <RacketComponent id={1}  left={10} />
                 <RacketComponent id={2} right={10} />
