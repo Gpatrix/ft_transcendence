@@ -17,8 +17,6 @@ export class Ball {
         this.velocity = {x: 0, y: 0};
         this.radius = radius;
         this.mapDimensions = mapDimensions
-
-        console.log('create Ball')
     }
     position: pos;
     velocity: velocity;
@@ -143,7 +141,8 @@ export class Ball {
         this.isFreezed = false;
     }
 
-    resetPos() {
+    resetPos()
+    {
         this.isFreezed = true;
         this.position.x = (this.mapDimensions.x / 2) - this.radius;
         this.position.y = (this.mapDimensions.y / 2) - this.radius;

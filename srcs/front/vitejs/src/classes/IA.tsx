@@ -123,19 +123,14 @@ class IA {
 
 	private async goToEstimated(whereToStopY: number): Promise<void>
 	{
-        let correction: number;
-        
-        if (whereToStopY > this.racket.pos.y)
-            correction = this.racket.properties.height / 2;
-        else
-            correction = -this.racket.properties.height / 2;
+        const racketCenter: number = this.racket.pos.y + (this.racket.properties.height / 2);
 
-        const distance =  Math.abs(whereToStopY - (this.racket.pos.y + correction));
+        const distance =  Math.abs(whereToStopY - racketCenter);
 
 		const timeToGo = distance / (this.racket.properties.speed / 1000); // in seconds;
-		if (whereToStopY > this.racket.pos.y + this.racket.properties.height / 2)
+		if (whereToStopY > racketCenter)
 			this.pressedKeys.add("BOT_DOWN");
-		else if (whereToStopY < this.racket.pos.y - this.racket.properties.height / 2)
+		else
 			this.pressedKeys.add("BOT_UP");
 
 		await new Promise<void>(resolve => {
@@ -186,18 +181,18 @@ class IA {
 			calculatedBallLanding = this.calculateBallLanding(ball, this.racket.pos);
 			// console.log('IA see the ball will land at Y:', calculatedBallLanding?.[0]);
 		}
-		else
-		{
-			temp = this.calculateBallShooting(ball, opponentRacket);
-			if (temp != undefined) {
-				calculatedBallShooting = temp;
-				console.log('IA see the ball will shoot at Y:', calculatedBallShooting?.[0]);
-			}
-			else
-			{
-				oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
-			}
-		}
+		// else
+		// {
+		// 	temp = this.calculateBallShooting(ball, opponentRacket);
+		// 	if (temp != undefined) {
+		// 		calculatedBallShooting = temp;
+		// 		console.log('IA see the ball will shoot at Y:', calculatedBallShooting?.[0]);
+		// 	}
+		// 	else
+		// 	{
+		// 		oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
+		// 	}
+		// }
 
         let estimated: number | undefined = undefined;
         if (calculatedBallLanding != undefined)
@@ -210,11 +205,11 @@ class IA {
             return ;
 
         this.interceptBall(estimated, tryCount);
-		this.fixingMoveInterval = setInterval(async () =>
-		{
-            this.interceptBall(estimated, tryCount);
-            tryCount++;
-		}, (500/* (Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL */));
+		// this.fixingMoveInterval = setInterval(async () =>
+		// {
+            // this.interceptBall(estimated, tryCount);
+            // tryCount++;
+		// }, (500/* (Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL */));
 		return ;
 	}
 }
