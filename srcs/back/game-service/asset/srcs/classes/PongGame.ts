@@ -329,6 +329,38 @@ export class PongGame {
         });
     }
 
+    hasPlayer(userId: number): boolean {
+        return this.players.some(player => player.id === userId);
+    }
+    
+    isReady(): boolean {
+        return this.players.every(player => player.ws);
+    }
+
+    addSocket(userId: number, ws: WebSocket): boolean {
+        const player = this.players.find(p => p.id === userId);
+        if (!player) {
+            console.warn(`addSocket: No player found with ID ${userId}`);
+            return false;
+        }
+    
+        player.ws = ws;
+        this.onPlayerJoin(userId, ws);
+        return true;
+    }
+
+    removePlayer(userId: number): void {
+        const player = this.players.find(p => p.id === userId);
+        if (!player) {
+            console.warn(`removePlayer: No player found with ID ${userId}`);
+            return;
+        }
+    
+        player.ws = undefined;
+        this.onPlayerLeave(userId);
+    }
+    
+
 
     ball: Ball
     width: number = 200

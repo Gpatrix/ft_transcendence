@@ -63,11 +63,11 @@ export default function AddFriends({} : AddFriendsProps) {
                 })}
 
                 {
-                    Math.round(Number(inputResponse) / 100) == 2 &&
+                    inputResponse == "201" &&
                     <div className="py-2 text-green">{gpt("Request_sent")}</div>
                 }
                 {
-                    Math.round(Number(inputResponse) / 100) != 2 && inputResponse != "" &&
+                    inputResponse != "201" && inputResponse != "" &&
                     <div className="py-2 text-light-red">{get_server_translation((inputResponse))}</div>
                 }
 

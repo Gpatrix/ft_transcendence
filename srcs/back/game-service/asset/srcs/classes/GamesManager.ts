@@ -67,4 +67,14 @@ export class GamesManager {
             return (null);
         }
     }
+
+    static async getGameById(gameId: number): Promise<PongGame | null> {
+        const game = await  GamesManager.games.get(gameId);
+        if (!game) {
+            console.log(`GamesManager: No game found with ID ${gameId}`);
+            return null;
+        }
+        return game;
+    }
+    
 }

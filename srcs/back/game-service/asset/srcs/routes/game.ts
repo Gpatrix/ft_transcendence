@@ -147,7 +147,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 return socket.close(4003, 'Already in a game');
             }
 
-            const res = await axios.post(`http://user-service:3000/api/user/lookup/${userId}`, {
+            const res = await axios.post(`http://user-service:${import.meta.env.VITE_PORT}/api/user/lookup/${userId}`, {
                 credential: process.env.API_CREDENTIAL
             });
             
@@ -212,6 +212,286 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             socket.close(4001, 'Authentication or server error');
         }
     });
+
+
+    // server.post('/api/game/friendsGame', { websocket: true }, async (socket: WebSocket, request: any) => {
+    //     let userId: number | null = null;
+
+    //     // donner des paramettres :
+    //     // string create or join
+    //     // id match ?
+        
+    //     try {
+    //         const codedtoken = request.cookies['ft_transcendence_jw_token'];
+    //         const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+    //         userId = decoded.id;
+
+    //         if (activeMatchmakingConn.has(userId)) { // verrification si il est pas deja en game
+    //             console.log(`User ${userId} already has an active matchmaking connection`);
+    //             return socket.close(4002, 'Already connected to matchmaking');
+    //         }
+    //         // creer un autre socket ?
+
+    //         if (activeGameConn.has(userId)) {
+    //             console.log(`User ${userId} is already in a game`);
+    //             return socket.close(4003, 'Already in a game');
+    //         }
+
+    //         const res = await axios.post(`http://user-service:${import.meta.env.VITE_PORT}/api/user/lookup/${userId}`, { // recuperation utilisateur
+    //             credential: process.env.API_CREDENTIAL
+    //         });
+            
+    //         if (res.status != 200) {
+    //             return socket.close(4001, 'User lookup failed');
+    //         }
+
+    //         if (!(res.data?.id)) {
+    //             return socket.close(4004, 'Invalid user data');
+    //         }
+
+    //         // connexion matchmaking
+    //         // il faut enlever ca
+    //         activeMatchmakingConn.set(userId, socket);
+
+    //         socket.on('close', () => {
+    //             if (userId) {
+    //                 activeMatchmakingConn.delete(userId);
+    //                 users.removeUserFromQueue(userId);
+    //             }
+    //         });
+
+    //         socket.on('error', (error) => {
+    //             console.log('WebSocket error:', error);
+    //             if (userId) {
+    //                 activeMatchmakingConn.delete(userId);
+    //                 users.removeUserFromQueue(userId);
+    //             }
+    //         });
+
+    //         // gestion du matchmaking :
+    //         // changer tout ca !
+    //         const matchResult = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
+            
+    //         if (matchResult && matchResult.users) {
+    //             const tournament = await GamesManager.createGame(matchResult.users);
+    //             if (!tournament) {
+    //                 throw new Error('Games manager cannot create game');
+    //             }
+
+    //             matchResult.users.forEach(user => {
+    //                 try {
+    //                     user.websocket.send(JSON.stringify({ 
+    //                         message: 'gameLaunched',
+    //                         gameId: tournament.games[0].id,
+    //                         tournamentId: tournament.id,
+    //                         roomId: matchResult.roomId 
+    //                     }));
+    //                     activeMatchmakingConn.delete(user.id);
+                        
+    //                     user.websocket.close(1000, 'Game found');
+    //                 } catch (error) {
+    //                     console.log(`Error notifying user ${user.id}:`, error);
+    //                 }
+    //             });
+    //         } else {
+    //             socket.send(JSON.stringify({ message: 'waitingForMatch' }));
+    //         }
+    //     }
+    //     catch (error) {
+    //         console.log('Matchmaking error:', error);
+    //         if (userId) {
+    //             activeMatchmakingConn.delete(userId);
+    //             users.removeUserFromQueue(userId);
+    //         }
+    //         socket.close(4001, 'Authentication or server error');
+    //     }
+    // });
+
+
+
+
+    // server.post('/api/game/friend-match', async (request, reply) => {
+    //     const body = request.body as { userIds: number[] };
+    //     const userIds = body.userIds;
+    
+    //     if (!Array.isArray(userIds) || userIds.length < 2) {
+    //         return reply.status(230).send({ error: '4008' }); // format invalid // ajouter cette erreur au wiki
+    //     }
+    
+    //     const connectedUsers: MatchMakingUser[] = [];
+    
+    //     for (const userId of userIds) {
+    //         if (activeGameConn.has(userId)) {
+    //             console.log(`User ${userId} is already in a game`);
+    //             return reply.status(230).send({ error: `4002` }); // 4002, 'Already connected to a game' // ajouter aux erreurs
+    //         }
+    
+    //         if (activeMatchmakingConn.has(userId)) {
+    //             users.removeUserFromQueue(userId);
+    //             activeMatchmakingConn.delete(userId);
+    //         }
+    
+    //         const socket = activeMatchmakingConn.get(userId) || null;
+    
+    //         try {
+    //             const res = await axios.post(`http://user-service:${import.meta.env.VITE_PORT}/api/user/lookup/${userId}`, {
+    //                 credential: process.env.API_CREDENTIAL
+    //             });
+
+
+    //             if (res.status != 200) {
+    //                 return reply.status(230).send({ error: `4001` });
+    //             //     return socket.close(4001, 'User lookup failed'); // ajouter 4001, 'User lookup failed' dans les erreurs
+    //             }
+    
+    //             if (!res.data?.id) {
+    //                 return reply.status(230).send({ error: `4004` });
+    //                 //     return socket.close(4004, 'Invalid user data'); //ajouter aux erreurs
+    //             }
+
+
+    
+    //             const user = new MatchMakingUser(userId, res.data.rank, socket);
+    //             connectedUsers.push(user);
+    
+    //         } catch (err) {
+    //             console.log(`Error looking up user ${userId}:`, err);
+    //             return reply.status(500).send({ error: `0500` });
+    //         }
+    //     }
+
+    //     // separer la logique en 2 ?
+    
+    //     try {
+    //         const tournament = await GamesManager.createGame(connectedUsers);
+    //         if (!tournament) {
+    //             return reply.status(500).send({ error: '0500' });
+    //         }
+    
+    //         for (const user of connectedUsers) {
+    //             try {
+    //                 if (user.websocket) {
+    //                     user.websocket.send(JSON.stringify({
+    //                         message: 'gameLaunched',
+    //                         gameId: tournament.games[0].id,
+    //                         tournamentId: tournament.id,
+    //                         roomId: `${tournament.id}`
+    //                     }));
+    //                     user.websocket.close(1000, 'Game started with friends');
+    //                 }
+    //                 activeMatchmakingConn.delete(user.id);
+    //             } catch (err) {
+    //                 console.log(`Failed to notify user ${user.id}`, err);
+    //             }
+    //         }
+    
+    //         return reply.send({ success: true, gameId: tournament.games[0].id, tournamentId: tournament.id });
+    
+    //     } catch (err) {
+    //         console.log('Game creation error:', err);
+    //         return reply.status(500).send({ error: '0500' });
+    //     }
+    // });
+    
+    // creer la game :
+    server.post('/api/game/friendMatch/create', async (request, reply) => {
+        const body = request.body as { userIds: number[] };
+        const userIds = body.userIds;
+    
+        if (!Array.isArray(userIds) || userIds.length < 2) {
+            return reply.status(230).send({ error: '4008' }); // format invalid // ajouter cette erreur au wiki
+        }
+    
+        const matchUsers: MatchMakingUser[] = [];
+    
+        for (const userId of userIds) {
+            try {
+                const res = await axios.post(`http://user-service:${import.meta.env.VITE_PORT}/api/user/lookup/${userId}`, {
+                    credential: process.env.API_CREDENTIAL
+                });
+
+
+                if (res.status != 200) {
+                    return reply.status(230).send({ error: `4001` });
+                //     (4001, 'User lookup failed') // ajouter 4001, 'User lookup failed' dans les erreurs
+                }
+    
+                if (!res.data?.id) {
+                    return reply.status(230).send({ error: `4004` });
+                    //     (4004, 'Invalid user data') //ajouter aux erreurs
+                }
+
+    
+                matchUsers.push(new MatchMakingUser(userId, res.data.rank, null)); // pas de websocket ici
+            } catch (err) {
+                console.log(`Error looking up user ${userId}:`, err);
+                return reply.status(500).send({ error: `0500` });
+            }
+        }
+    
+        try {
+            const tournament = await GamesManager.createGame(matchUsers);
+            if (!tournament) {
+                console.log('Game creation failed');
+                return reply.status(500).send({ error: 'Game creation failed' });
+            }
+    
+            return reply.send({ 
+                success: true, 
+                gameId: tournament.games[0].id, 
+                tournamentId: tournament.id 
+            });
+    
+        } catch (err) {
+            console.log('Game creation error:', err);
+            return reply.status(500).send({ error: '0500' });
+        }
+    });
+
+    // joindre la game :
+    server.get('/api/game/join', { websocket: true }, async (socket: WebSocket, request: any) => {
+        let userId: number | null = null;
+    
+        try {
+            const codedtoken = request.cookies['ft_transcendence_jw_token'];
+            const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+            userId = decoded.id;
+    
+            const url = new URL(request.url, `http://${request.headers.host}`);
+            const gameId = url.searchParams.get('gameId');
+    
+            if (!gameId) {
+                return socket.close(4001, 'Missing gameId');
+            }
+    
+            if (activeGameConn.has(userId)) {
+                return socket.close(4002, 'Already in a game');
+            }
+    
+            const game = await GamesManager.getGameById(Number(gameId));
+            if (!game || !game.hasPlayer(userId)) {
+                return socket.close(4003, 'Not allowed to join this game');
+            }
+    
+            activeGameConn.set(userId, socket);
+            game.addSocket(userId, socket);
+    
+            socket.on('close', () => {
+                if (userId != null) {
+                    activeGameConn.delete(userId);
+                    game.removePlayer(userId);
+                }
+            });
+    
+            socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
+    
+        } catch (err) {
+            console.log('Error during game join:', err);
+            socket.close(4000, 'Error joining game');
+        }
+    });
+    
+    
 
     server.get('/api/game/status', async (request, reply) => {
         try {
