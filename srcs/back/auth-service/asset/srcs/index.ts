@@ -53,7 +53,7 @@ server.register(oauthPlugin, {
     sameSite: 'lax'
   },
   startRedirectPath: '/api/auth/login/google',
-  callbackUri: 'https://localhost:3000/api/auth/login/google/callback',
+  callbackUri: `https://${process.env.HOST}:${process.env.PORT}/api/auth/login/google/callback`,
   discovery: {
     issuer: 'https://accounts.google.com'
   },

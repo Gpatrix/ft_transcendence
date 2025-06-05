@@ -184,21 +184,23 @@ export async function create_msg(channelId: number, senderId: number, content: s
 {
     try
     {
+        if (content.length > 200)
+            return ("3005"as string)
         const new_msg: t_message = await prisma.message.create(
-            {
-               data: {
-                  channelId: channelId,
-                  senderId: senderId,
-                  content: content
-               },
-               select: {
-                  channelId: true,
-                  senderId: true,
-                  content: true,
-                  sentAt: true,
-                },
-            });
-      
+        {
+            data: {
+                channelId: channelId,
+                senderId: senderId,
+                content: content
+            },
+            select: {
+                channelId: true,
+                senderId: true,
+                content: true,
+                sentAt: true,
+            },
+        });
+
         new_msg.isGame = isGame;
         return (new_msg);
     }

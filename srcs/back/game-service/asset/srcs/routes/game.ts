@@ -10,35 +10,40 @@ import { GamesManager } from '../classes/GamesManager';
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
-interface gameConnectParams
-{
+interface gameConnectParams {
     tournamentId: string,
     gameId: string
 }
 
-var users: MatchMakingMap = new MatchMakingMap();
-var activeConn: Map<number, WebSocket> = new Map();
-
-interface tokenStruct
-{
+interface tokenStruct {
     id: number,
     email: string,
     name: string,
     isAdmin: boolean
 }
 
-function gameRoutes (server: FastifyInstance, options: any, done: any)
-{
-    server.get<{ Params :gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, {websocket: true}, async (socket: WebSocket, request ) => 
-    {   
-        try
-        {
+var activeMatchmakingConn: Map<number, WebSocket> = new Map(); // lobby connections
+var activeGameConn: Map<number, WebSocket> = new Map(); // match connection
+var users: MatchMakingMap = new MatchMakingMap();
+
+function gameRoutes(server: FastifyInstance, options: any, done: any) {
+    server.get<{ Params: gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, { websocket: true }, async (socket: WebSocket, request) => {
+        try {   
             const freshToken: string | undefined = request.cookies.ft_transcendence_jw_token
             const decoded = jwt.verify(freshToken as string, process.env.JWT_SECRET as string);
             const token = decoded.data;
             const gameId: number = Number(request.params.gameId);
             const tournamentId: number = Number(request.params.tournamentId);
 
+            if (activeGameConn.has(token.id)) {
+                const oldSocket = activeGameConn.get(token.id);
+                console.log("connected, test")
+                if (oldSocket && oldSocket.readyState === WebSocket.OPEN) {
+                    return socket.close(4002, 'Already connected to a game');
+                } else {
+                    activeGameConn.delete(token.id);
+                }
+            }
 
             const tournament = await prisma.tournament.findFirst({
                 where: {
@@ -54,8 +59,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
 
-            if (!tournament)
-                socket.close(5010);
+            if (!tournament) {
+                return socket.close(5010, 'Tournament not found');
+            }
 
             const game = await prisma.game.findFirst({
                 where: {
@@ -66,8 +72,9 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
 
-            if (!game)
-                socket.close(5011);
+            if (!game) {
+                return socket.close(5011, 'Game not found');
+            }
 
             const player = await prisma.player.findFirst({
                 where: {
@@ -76,88 +83,154 @@ function gameRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
 
-            if (!player)
-                socket.close(5012)
+            if (!player) {
+                return socket.close(5012, 'Player not authorized for this game');
+            }
+
+            activeGameConn.set(token.id, socket);
 
             socket.on('message', (RawData: WebSocket.RawData) => {
                 const object = JSON.parse(RawData.toString('utf8'));
+
                 const action = object?.action;
                 const pongGame = GamesManager.findGame(gameId);
-                if (!action || !pongGame)
-                    return ;
+                if (!action || !pongGame) return;
 
-                // switch (action) {
-                //     case 'playerMove':
-                //         pongGame.onPlayerMove(player.id);
-                //         break;
-                
-                //     default:
-                //         break;
-                // }
+                const caller = pongGame.players.find((player) => player.ws === socket);
+                if (!caller) return ;
+
+                if (action == "up")
+                    pongGame.onPlayerMove(caller.id, -10)
+                if (action == "down")
+                    pongGame.onPlayerMove(caller.id, +10)
             })
 
             socket.on('close', () => {
+                activeGameConn.delete(token.id);
+                
                 const pongGame = GamesManager.findGame(gameId);
-                if (!pongGame)
-                    return ;
-                pongGame.onPlayerLeave(player.id);
+                if (!pongGame)  
+                    return;
+                pongGame.onPlayerLeave(player.userId);
             });
 
             const pongGame: PongGame | undefined = GamesManager.findGame(gameId);
-            if (pongGame == undefined)
-                return (socket.close(4002));
+            if (pongGame == undefined) {
+                activeGameConn.delete(token.id);
+                return (socket.close(4002, 'Game not found in manager'));
+            }
 
-            pongGame.onPlayerJoin(player.id, socket);
+            pongGame.onPlayerJoin(player.userId, socket);
         }
-        catch (error)
-        {
+        catch (error) {
             console.log(error);
-            socket.close(4001);
+            activeGameConn.delete(token?.id);
+            socket.close(4001, 'Authentication or server error');
         }
     });
 
-    server.get('/api/game/matchmaking', {websocket: true}, async (socket: WebSocket, request: any ) => 
-    {
-        try
-        {
+    server.get('/api/game/matchmaking', { websocket: true }, async (socket: WebSocket, request: any) => {
+        let userId: number | null = null;
+        
+        try {
             const codedtoken = request.cookies['ft_transcendence_jw_token'];
             const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
-            const res = await axios.post(`http://user-service:3000/api/user/lookup/${decoded.id}`, {
+            userId = decoded.id;
+
+            if (activeMatchmakingConn.has(userId)) {
+                console.log(`User ${userId} already has an active matchmaking connection`);
+                return socket.close(4002, 'Already connected to matchmaking');
+            }
+
+            if (activeGameConn.has(userId)) {
+                console.log(`User ${userId} is already in a game`);
+                return socket.close(4003, 'Already in a game');
+            }
+
+            const res = await axios.post(`http://user-service:3000/api/user/lookup/${userId}`, {
                 credential: process.env.API_CREDENTIAL
             });
-            if (res.status != 200)
-                return (socket.close(4001));
+            
+            if (res.status != 200) {
+                return socket.close(4001, 'User lookup failed');
+            }
 
-            if (!(res.data?.id))
-                return (socket.close(4003));
+            if (!(res.data?.id)) {
+                return socket.close(4004, 'Invalid user data');
+            }
 
-            if (activeConn.get(decoded.id))
-                socket.close(4002);
+            activeMatchmakingConn.set(userId, socket);
 
             socket.on('close', () => {
-                activeConn.delete(decoded.id);
+                if (userId) {
+                    activeMatchmakingConn.delete(userId);
+                    users.removeUserFromQueue(userId);
+                }
             });
 
-            const result: MatchMakingUser[] | undefined = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
-            if (result != undefined && result != null)
-            {
-                const tournament = await GamesManager.createGame(result);
-                if (!tournament)
-                    throw (new Error('Games manager cannot create game'));
-                result.forEach(user => {
-                    user.websocket.send(JSON.stringify({ message: 'gameLaunched', gameId: tournament.games[0].id, tournamentId: tournament.id}));
-                    user.websocket.close();
-                })
-                activeConn.set(decoded.id, socket);
+            socket.on('error', (error) => {
+                console.log('WebSocket error:', error);
+                if (userId) {
+                    activeMatchmakingConn.delete(userId);
+                    users.removeUserFromQueue(userId);
+                }
+            });
+
+            const matchResult = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
+            
+            if (matchResult && matchResult.users) {
+                const tournament = await GamesManager.createGame(matchResult.users);
+                if (!tournament) {
+                    throw new Error('Games manager cannot create game');
+                }
+
+                matchResult.users.forEach(user => {
+                    try {
+                        user.websocket.send(JSON.stringify({ 
+                            message: 'gameLaunched', 
+                            gameId: tournament.games[0].id, 
+                            tournamentId: tournament.id,
+                            roomId: matchResult.roomId 
+                        }));
+                        activeMatchmakingConn.delete(user.id);
+                        
+                        user.websocket.close(1000, 'Game found');
+                    } catch (error) {
+                        console.log(`Error notifying user ${user.id}:`, error);
+                    }
+                });
+            } else {
+                socket.send(JSON.stringify({ message: 'waitingForMatch' }));
             }
         }
-        catch (error)
-        {
-            socket.close(4001)
+        catch (error) {
+            console.log('Matchmaking error:', error);
+            if (userId) {
+                activeMatchmakingConn.delete(userId);
+                users.removeUserFromQueue(userId);
+            }
+            socket.close(4001, 'Authentication or server error');
         }
     });
 
-    done()
+    server.get('/api/game/status', async (request, reply) => {
+        try {
+            const codedtoken = request.cookies['ft_transcendence_jw_token'];
+            const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+            
+            return {
+                userId: decoded.id,
+                inMatchmaking: activeMatchmakingConn.has(decoded.id),
+                inGame: activeGameConn.has(decoded.id),
+                queuePosition: users.findIndex(user => user.id === decoded.id),
+                totalInQueue: users.length
+            };
+        } catch (error) {
+            reply.code(401).send({ error: 'Invalid token' });
+        }
+    });
+
+    done();
 }
 
 module.exports = gameRoutes;
