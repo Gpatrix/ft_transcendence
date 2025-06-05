@@ -24,8 +24,8 @@ export default function Header({className} : HeaderProps) {
                 <Button style={location.pathname=="/profil"?'selected':'header'}>Profil</Button>
             </Link>
 
-            <Link to="/play">
-                <Button type="full" style='play'>Jouer</Button>
+            <Link to="/">
+                <Button type="full" style='play'>Home</Button>
             </Link>
         </div>
     );
