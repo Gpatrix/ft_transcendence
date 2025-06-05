@@ -41,6 +41,8 @@ services:
       - 3000
     networks:
       - router
+    labels:
+      - "com.example.service=auth"
 
   chat-service:
     container_name: chat-service
@@ -214,19 +216,22 @@ services:
     expose:
       - 9093
 
-  front_dev:
-    container_name: front_dev
+  front-service:
+    container_name: front-service
     restart: on-failure
     build:
         context: ./front/
         dockerfile: Dockerfile
+        args:
+          NODE_ENV: ${NODE_ENV:?}
     environment:
       VITE_HOST: ${HOST:?}
       VITE_PORT: ${PORT:?}
+      NODE_ENV: ${NODE_ENV:?}
     expose:
       - 5173
     volumes:
-      - ./front/vitejs:/var/www/html
+      - ./front/asset/src:/var/www/html/src
     networks:
       - router
 
