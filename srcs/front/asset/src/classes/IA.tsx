@@ -42,7 +42,7 @@ class IA {
 		this.clearIntervals();
 	}
 
-	private reseteData(): void
+	public reseteData(): void
 	{
 		this.clearIntervals();
 	}
@@ -68,7 +68,7 @@ class IA {
 	{
 		const ballPos = pos || ball.position;
 		const ballVelocity = velocity || ball.velocity;
-		let distanceX = Math.abs(ballPos.x - racketPos.x);
+		const distanceX = Math.abs(ballPos.x - racketPos.x);
 		let landingY = distanceX * (ballVelocity.y / ballVelocity.x) + ballPos.y;
 		let bouceCount = 0;
 
@@ -163,37 +163,43 @@ class IA {
 	private async tryToInterceptShot(ball: Ball, opponentRacket: Racket): Promise<void>
 	{
 		let tryCount = 0;
-		let temp: Array<number> | undefined = undefined;
 		
         this.clearIntervals();
 
 		let calculatedBallLanding: Array<number> | undefined = undefined;
 		let calculatedBallShooting: Array<number> | undefined = undefined;
 		let oppositeBallLanding: Array<number> | undefined = undefined;
-		if (ball.velocity.x >= 0)
-			calculatedBallLanding = this.calculateBallLanding(ball, this.racket.pos);
-		else
-		{
-			temp = this.calculateBallShooting(ball, opponentRacket);
-			if (temp != undefined)
-				calculatedBallShooting = temp;
-			else
-				oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
-		}
 
-        let estimated: number | undefined = undefined;
-        if (calculatedBallLanding != undefined)
-            estimated = calculatedBallLanding[0];
-        else if (calculatedBallShooting != undefined)
-            estimated = calculatedBallShooting[0];
-        else if (oppositeBallLanding !== undefined)
-            estimated = oppositeBallLanding[0];
-        else
-            return ;
 
         // this.interceptBall(estimated, tryCount);
 		this.fixingMoveInterval = setInterval(async () =>
 		{
+			if (ball.velocity.x >= 0)
+			{
+				let temp: Array<number> | undefined = undefined;
+				temp = this.calculateBallLanding(ball, this.racket.pos);
+				if (temp != undefined)
+					calculatedBallLanding = temp;
+				temp = undefined;
+			}
+			else
+			{
+				let temp: Array<number> | undefined = undefined;
+				temp = this.calculateBallShooting(ball, opponentRacket);
+				if (temp != undefined)
+					calculatedBallShooting = temp;
+				else
+					oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
+			}
+			let estimated: number | undefined = undefined;
+			if (calculatedBallLanding != undefined)
+				estimated = calculatedBallLanding[0];
+			else if (calculatedBallShooting != undefined)
+				estimated = calculatedBallShooting[0];
+			else if (oppositeBallLanding !== undefined)
+				estimated = oppositeBallLanding[0];
+			else
+				return ;
             this.interceptBall(estimated, tryCount);
             tryCount++;
 		}, ((Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL);

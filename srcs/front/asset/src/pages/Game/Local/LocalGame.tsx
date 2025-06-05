@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { Ball } from "./LocalBall.tsx";
 import BallComponent from "../Ball/Ball";
 import { Racket } from "../Racket";
@@ -32,6 +32,7 @@ export default function Game({userNames}: GameProps) {
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
     // const [userNames, setUserNames] = useState<Array<string> | null>(null)
     const [winPopup, setWinPopup] = useState<boolean>(false)
+    const refreshViewInterval = useRef<number | null>(null);
 
     function updateResult(result : number) {
         setPlayers(prev => {
@@ -40,11 +41,21 @@ export default function Game({userNames}: GameProps) {
 
             if (updated[result] >= 10) {
                 setWinPopup(true);
+                clearInterval(refreshViewInterval.current as number);
+                if (ia.current) {
+                    ia.current.reseteData();
+                }
             }
         
             return updated;
         }); 
     }
+
+    useEffect(() => {
+        if (refreshViewInterval.current) {
+            clearInterval(refreshViewInterval.current);
+        }
+    }, [refreshViewInterval]);
 
     useEffect(() => {
         const isBot = params.get("isBot") === "1";
@@ -88,7 +99,6 @@ export default function Game({userNames}: GameProps) {
                 ball.current.resetPos();
                 setTimeout(()=>{
                     ball.current.unFreeze();
-                    ia.current?.refreshView(r1, ball.current);
                 }, 500)
             }
             animationFrameId = requestAnimationFrame(loop);
@@ -98,7 +108,7 @@ export default function Game({userNames}: GameProps) {
         {
             ia.current = new IA(r2, pressedKeys.current, mapDimension);
             const REFRESH_VIEW_INTERVAL = 1000; // 1 second
-            setInterval(() => {
+            refreshViewInterval.current = setInterval(() => {
                 ia.current?.refreshView(r1, ball.current);
             }, REFRESH_VIEW_INTERVAL);
         }
@@ -111,6 +121,12 @@ export default function Game({userNames}: GameProps) {
             window.removeEventListener("keyup", handleKeyUp);
             window.addEventListener("keydown", handleUnfreeze);
             cancelAnimationFrame(animationFrameId);
+            clearInterval(refreshViewInterval.current as number);
+            if (ia.current) {
+                ia.current.clearIntervals();
+                ia.current = null;
+            }
+            refreshViewInterval.current = null;
         };
     }, []);
 
