@@ -46,18 +46,6 @@ export default function Game({userNames}: GameProps) {
         }); 
     }
 
-    useEffect(()=> { // tournament
-        const p1 = params.get("p1")
-        const p2 = params.get("p2")
-
-        if (!p1 || !p2)
-            return ;
-        setUserNames(()=> {
-            return ([p1, p2])
-        })
-    }, [params])
-
-
     useEffect(() => {
         const isBot = params.get("isBot") === "1";
         
@@ -92,7 +80,6 @@ export default function Game({userNames}: GameProps) {
 
             rackets.current.forEach(r => r.update(pressedKeys.current, deltaTime));
             ball.current.nextPos(deltaTime);
-            // showDebugMarker(ball.current.position.x, ball.current.position.y);
             ball.current.checkRacketCollision(rackets.current);
             const result = ball.current.checkVerticalCollision();
 
