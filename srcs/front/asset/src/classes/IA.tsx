@@ -34,7 +34,6 @@ class IA {
 
 	public refreshView(opponentRacket: Racket, ball: Ball)
 	{
-		console.log("IA refreshView called");
         this.tryToInterceptShot(JSON.parse(JSON.stringify(ball)), opponentRacket);
 	}
 
