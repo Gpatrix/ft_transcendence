@@ -17,8 +17,9 @@ class User {
 	lang : string;
 	isTwoFactorEnabled : boolean;
 	rank: number;
+	provider?: string;
 
-	constructor(id: number, name: string, email: string, profPicture:string, bio:string, lang : string, isTwoFactorEnabled : boolean, rank: number) {
+	constructor(id: number, name: string, email: string, profPicture:string, bio:string, lang : string, isTwoFactorEnabled : boolean, rank: number, provider?: string) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
@@ -27,6 +28,7 @@ class User {
 		this.lang = lang;
 		this.isTwoFactorEnabled = isTwoFactorEnabled;
 		this.rank = rank;
+		this.provider = provider;
 	}
 
 	updateName(newName: string) {
