@@ -137,13 +137,34 @@ export default function PageFriendLoby() {
         }
     }
 
-    const handlePlayGame = () => {
+    const handlePlayGame = async () => {
         if (arrayPlayersRef.current.length != 2
             && arrayPlayersRef.current.length != 4) {
             setErrorMessage("Vous devez etre 2 ou 4 pour lancer une partie"); // traduire cette merde !
             return ;
         } else {
             setErrorMessage("");
+            const tabIds = arrayPlayersRef.current.map(player => player.id);
+            // creer partie :
+            // const requestData : RequestInit = {
+            //     method :  'post',
+            //     credentials: 'include'
+            // }
+            const requestData: RequestInit = {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userIds: tabIds
+                })
+            };
+            const test = await fetch("/api/game/friendMatch/create", requestData);
+            console.log(test);
+            const data = await test.json();
+            console.log(data);
+            
         }
 
         // inviter les gents et attendre qu'ils rejoingne la game

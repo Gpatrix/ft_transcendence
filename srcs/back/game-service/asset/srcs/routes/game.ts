@@ -397,6 +397,24 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     server.post('/api/game/friendMatch/create', async (request, reply) => {
         const body = request.body as { userIds: number[] };
         const userIds = body.userIds;
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("test");
+        console.log("testv");
+        
     
         if (!Array.isArray(userIds) || userIds.length < 2) {
             return reply.status(230).send({ error: '4008' }); // format invalid // ajouter cette erreur au wiki
@@ -404,8 +422,10 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     
         const matchUsers: MatchMakingUser[] = [];
     
+        console.log(userIds);
         for (const userId of userIds) {
             try {
+                
                 const res = await axios.post(`http://user-service:${import.meta.env.VITE_PORT}/api/user/lookup/${userId}`, {
                     credential: process.env.API_CREDENTIAL
                 });
@@ -513,4 +533,5 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     done();
 }
 
+// export default gameRoutes;
 module.exports = gameRoutes;

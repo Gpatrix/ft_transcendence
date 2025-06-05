@@ -16,6 +16,7 @@ import { get_server_translation } from '../../translations/server_responses.tsx'
 type ChatProps = {
     // friends: Friend[],
     // setFriends: React.Dispatch<React.SetStateAction<Friend[]>>;
+    
     profileData: User;
     classList?: string;
     chanel?: number;
@@ -46,8 +47,6 @@ export default function Chat({ profileData, classList, chanel, participants, arr
     const handleSubmitMessage = (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (inputMessage != "") {
-            console.log("send mess");
-            
             if (socket && socket.readyState === WebSocket.OPEN) {
                 if (chanel == undefined) {
                     const friend =  participantsRef.current.find(participant => participant.id != profileDataRef.current?.id);

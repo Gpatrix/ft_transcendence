@@ -18,8 +18,6 @@ interface MenuLinkProps {
 export function MenuLink({link, label} : MenuLinkProps) {
     const [state, setState] = useState<boolean>(false)
 
-
-    console.log(import.meta.env.VITE_PORT)
     return (
         <Link to={link} 
             onMouseEnter={()=>setState(true)} 
@@ -43,6 +41,7 @@ export function MenuDropDown({ label, first, second, firstLink, secondLink, thir
     const [fold, setFold] = useState<boolean>(false)
   
     return (
+
       <span
         onMouseEnter={() => setState(true)}
         onFocus={() => setState(true)}

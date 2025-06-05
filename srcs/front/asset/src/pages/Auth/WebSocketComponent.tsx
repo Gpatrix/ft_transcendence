@@ -76,8 +76,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         };
 
         ws.onmessage = (event) => {
-            console.log(event);
-            
             if (event.data) {
                 try {
                     const data = JSON.parse(event.data);
