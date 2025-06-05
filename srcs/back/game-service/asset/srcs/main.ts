@@ -9,6 +9,7 @@ import gameRoutes from './routes/game';
 import tounramentRoutes from './routes/tournament';
 import statsRoutes from './routes/stats';
 import historyRoutes from './routes/history';
+import localGamesRoutes from './routes/localTournament';
 
 const server = fastify();
 
@@ -45,16 +46,16 @@ async function game_service(fastify: FastifyInstance)
         try
         {
             if (!token || token === undefined)
-                return (reply.status(403).send({ error: "0403" }));
+                return (reply.status(230).send({ error: "0403" }));
             const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
             const id = decoded.id;
             if (!id || id === undefined)
-                return (reply.status(403).send({ error: "0403" }));
+                return (reply.status(230).send({ error: "0403" }));
             done();
         }
         catch (error)
         {
-            return (reply.status(403).send({ error: "0403" }));
+            return (reply.status(230).send({ error: "0403" }));
         }
     })
 
@@ -62,6 +63,7 @@ async function game_service(fastify: FastifyInstance)
     fastify.register(tounramentRoutes);
     fastify.register(statsRoutes);
     fastify.register(historyRoutes);
+    fastify.register(localGamesRoutes);
 }
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
