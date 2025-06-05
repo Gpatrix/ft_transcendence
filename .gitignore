@@ -9,3 +9,4 @@
 docker.debug
 **/pnpm-lock.yaml
 **/.pnpm-store
+.vscode
