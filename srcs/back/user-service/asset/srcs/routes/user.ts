@@ -282,14 +282,16 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 bio: true,
                 profPicture: true,
                 rank: true,
+                provider: true
             };
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
-                selectFields.id = true,
-                selectFields.email = true,
-                selectFields.lang = true,
-                selectFields.isTwoFactorEnabled = true
+                selectFields.id = true;
+                selectFields.email = true;
+                selectFields.lang = true;
+                selectFields.isTwoFactorEnabled = true;
+                selectFields.provider = true;
             }
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },

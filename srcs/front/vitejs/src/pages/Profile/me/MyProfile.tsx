@@ -12,7 +12,7 @@ export type ProfileDataType = {
     rank : number
     lang : number | null
     isTwoFactorEnabled : boolean | null
-    provider?: string
+    provider: string | null
 }
 
 export default function MyProfile() {
