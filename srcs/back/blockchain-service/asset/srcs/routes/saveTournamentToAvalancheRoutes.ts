@@ -91,6 +91,19 @@ async function finish(tournamentId: number): Promise<ethers.ContractTransactionR
 
 function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any, done: any)
 {
+    server.get('/api/blockchain/infos', async (req: any, res: any) => {
+        try {
+            res.status(200).send({
+                rpcURL: rpcURL,
+                factoryAddress: factoryAddress,
+                tournamentABI: tournamentABI,
+                factoryABI: factoryABI,
+            });
+        } catch (error) {
+            res.status(500).send({ error: "0500" });
+        }
+    });
+
     interface deployTournamentParams {
         tournamentId: number;
     }

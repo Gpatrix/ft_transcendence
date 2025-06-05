@@ -10,11 +10,13 @@ interface MatchResultProps {
       id: number;
       userId: number;
       score: number;
+      scoreFromBlockchain: number | undefined;
     };
     opponents: Array<{
       id: number;
       userId: number;
       score: number;
+      scoreFromBlockchain: number | undefined;
     }>;
     gameId: number;
     gameDate: Date;
