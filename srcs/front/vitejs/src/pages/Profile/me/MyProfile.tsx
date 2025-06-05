@@ -12,6 +12,7 @@ export type ProfileDataType = {
     rank : number
     lang : number | null
     isTwoFactorEnabled : boolean | null
+    provider?: string
 }
 
 export default function MyProfile() {
@@ -22,7 +23,8 @@ export default function MyProfile() {
         profPicture: null,
         rank: 0,
         lang : null,
-        isTwoFactorEnabled : null
+        isTwoFactorEnabled : null,
+        provider: null
     })
 
     const { fetchWithAuth } = useAuth();
@@ -40,7 +42,8 @@ export default function MyProfile() {
                     profPicture: data.profPicture,
                     rank: data.rank,
                     lang: data.lang,
-                    isTwoFactorEnabled : data.isTwoFactorEnabled
+                    isTwoFactorEnabled : data.isTwoFactorEnabled,
+                    provider: data.provider || null
                 }));
             })
             .catch((error) => {

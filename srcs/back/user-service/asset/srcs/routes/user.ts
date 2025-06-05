@@ -163,19 +163,33 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
-    interface dfaUpdateParams
+    interface DfaUpdateParams
     {
         id: string,
     }
 
-    server.put<{ Body: dfaUpdateBody, Params: dfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
+    interface DfaUpdateBody
+    {
+        credential: string,
+        twoFactorSecret?: string,
+        twoFactorSecretTemp?: string,
+    }
+
+    interface DfaPut
+    {
+        isTwoFactorEnabled?: boolean,
+        twoFactorSecret?: string,
+        twoFactorSecretTemp?: string,
+    }
+
+    server.put<{ Body: DfaUpdateBody, Params: DfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
                 reply.status(401).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
-            let put: dfaUpdateBody = {};
+            let put: DfaPut = {};
             if (twoFactorSecret)
             {
                 put.isTwoFactorEnabled = true;
@@ -355,7 +369,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         lang?: string,
         profPicture?: string,
         newPassword?: string
-        isTwoFactorEnabled?: boolean
+        // isTwoFactorEnabled?: boolean
     }
 
     interface EditUserBody
@@ -367,7 +381,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         bio?: string,
         lang?: string,
         profPicture?: string,
-        isTwoFactorEnabled?: string
+        // isTwoFactorEnabled?: string
         image?: string
     }
 
@@ -401,8 +415,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             if (body.image) {
                 updateData.profPicture = body.image;
             }
-            if (body.isTwoFactorEnabled)
-                updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
+            // if (body.isTwoFactorEnabled)
+            //     updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
             const foundUser = await prisma.user.findUnique({
                 where: {
                     id: tokenPayload.id
@@ -412,7 +426,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             if (!foundUser)
                 reply.status(404).send({ error: "1006" });
 
-            if (foundUser.provider && (updateData.newPassword || body.isTwoFactorEnabled))
+            if (foundUser.provider && (updateData.newPassword))
                 return reply.status(401).send({ error: "2017" });
 
             const updatedUser = await prisma.user.update({
