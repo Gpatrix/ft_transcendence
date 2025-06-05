@@ -106,24 +106,19 @@ class IA {
 		return undefined;
 	}
 
-	private randomizeEstimated(realHitY: number, tryCount: number): number | null
+	private randomizeEstimated(realHitY: number, tryCount: number): number
 	{
-		if (tryCount < 2)
-		{
-			let racketsCoordsAiming: number = 0;
-			if (tryCount > 0) {
-				if (realHitY < this.racket.pos.y + this.racket.properties.height / 2)
-					racketsCoordsAiming = (this.racket.properties.height / 4); // /4
-				else
-					racketsCoordsAiming = -(this.racket.properties.height / 4); // /4
-			}
-	
-			const noise = Math.floor(Math.min(Math.max(-300, ((Math.random() - 0.5) * (IA.DEFAULT_ACCURACY * this.racket.properties.height))), 300));
-			const y = realHitY + (noise != Infinity ? noise : 0) + racketsCoordsAiming;
-			return (y);
+		let racketsCoordsAiming: number = 0;
+		if (tryCount > 0) {
+			if (realHitY < this.racket.pos.y + this.racket.properties.height / 2)
+				racketsCoordsAiming = (this.racket.properties.height / 4); // /4
+			else
+				racketsCoordsAiming = -(this.racket.properties.height / 4); // /4
 		}
-		else
-			return (null);
+
+		const noise = Math.floor(Math.min(Math.max(-300, ((Math.random() - 0.5) * (IA.DEFAULT_ACCURACY * this.racket.properties.height))), 300));
+		const y = realHitY + (noise != Infinity ? noise : 0) + racketsCoordsAiming;
+		return (y);
 	}
 
 	private async goToEstimated(whereToStopY: number): Promise<void>
@@ -162,48 +157,50 @@ class IA {
 
     private async interceptBall(estimated: number, tryCount: number) : Promise<void>
     {
-		const tmp = this.randomizeEstimated(estimated, tryCount);
-		if (tmp === null)
-			return ;
-        this.estimatedHitY = tmp;
+        this.estimatedHitY = this.randomizeEstimated(estimated, tryCount);
         await this.goToEstimated(this.estimatedHitY);
     }
 
 	private async tryToInterceptShot(ball: Ball, opponentRacket: Racket): Promise<void>
 	{
 		let tryCount = 0;
-		let temp: Array<number> | undefined = undefined;
 		
         this.clearIntervals();
 
 		let calculatedBallLanding: Array<number> | undefined = undefined;
 		let calculatedBallShooting: Array<number> | undefined = undefined;
 		let oppositeBallLanding: Array<number> | undefined = undefined;
-		if (ball.velocity.x >= 0)
-			calculatedBallLanding = this.calculateBallLanding(ball, this.racket.pos);
-		else
-		{
-			temp = this.calculateBallShooting(ball, opponentRacket);
-			if (temp != undefined)
-				calculatedBallShooting = temp;
-			else
-				oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
-		}
 
-        let estimated: number | undefined = undefined;
-        if (calculatedBallLanding != undefined)
-            estimated = calculatedBallLanding[0];
-        else if (calculatedBallShooting != undefined)
-            estimated = calculatedBallShooting[0];
-        else if (oppositeBallLanding !== undefined)
-            estimated = oppositeBallLanding[0];
-        else
-            return ;
 
         // this.interceptBall(estimated, tryCount);
 		this.fixingMoveInterval = setInterval(async () =>
 		{
-			console.log('fixingMove interval called');
+			if (ball.velocity.x >= 0)
+			{
+				let temp: Array<number> | undefined = undefined;
+				temp = this.calculateBallLanding(ball, this.racket.pos);
+				if (temp != undefined)
+					calculatedBallLanding = temp;
+				temp = undefined;
+			}
+			else
+			{
+				let temp: Array<number> | undefined = undefined;
+				temp = this.calculateBallShooting(ball, opponentRacket);
+				if (temp != undefined)
+					calculatedBallShooting = temp;
+				else
+					oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
+			}
+			let estimated: number | undefined = undefined;
+			if (calculatedBallLanding != undefined)
+				estimated = calculatedBallLanding[0];
+			else if (calculatedBallShooting != undefined)
+				estimated = calculatedBallShooting[0];
+			else if (oppositeBallLanding !== undefined)
+				estimated = oppositeBallLanding[0];
+			else
+				return ;
             this.interceptBall(estimated, tryCount);
             tryCount++;
 		}, ((Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL);
