@@ -66,8 +66,24 @@ export default function Game({userNames}: GameProps) {
     
         ia.current = new IA(r2, pressedKeys.current, mapDimension);
 
-        const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add(e.key);
-        const handleKeyUp = (e: KeyboardEvent) => pressedKeys.current.delete(e.key);
+        const normalizeKey = (key: string): string => {
+            switch (key) {
+              case "ArrowUp":
+              case "ArrowDown":
+              case "ArrowLeft":
+              case "ArrowRight":
+              case " ":
+              case "BOT_UP":
+              case "BOT_DOWN":
+                return key;
+              default:
+                return key.toLowerCase();
+            }
+          };
+          
+
+        const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add (normalizeKey(e.key));
+        const handleKeyUp = (e: KeyboardEvent) => pressedKeys.current.delete(normalizeKey(e.key));
         const handleUnfreeze = (e: KeyboardEvent) => {
             if (e.key == ' ') {
                 setCounter("3")
