@@ -37,9 +37,9 @@ export default function MultiGame({ players, socket, ball }: MultiGameProps) {
         const handleKeyDown = (e: KeyboardEvent) => {
         let direction: 'up' | 'down' | null = null;
     
-        if (e.key === 'ArrowUp' || e.key === 'w')
+        if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w')
             direction = 'up';
-        else if (e.key === 'ArrowDown' || e.key === 's')
+        else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's')
             direction = 'down';
     
         if (!direction) return;
@@ -47,9 +47,9 @@ export default function MultiGame({ players, socket, ball }: MultiGameProps) {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-        if (e.key === 'ArrowUp' || e.key === 'w') {
+        if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
             pressedKeys.current.delete('up');
-        } else if (e.key === 'ArrowDown' || e.key === 's') {
+        } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') {
             pressedKeys.current.delete('down');
         }
     };
