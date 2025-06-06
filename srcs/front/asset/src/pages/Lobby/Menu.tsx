@@ -3,6 +3,7 @@ import BgShadow from "../../components/BgShadow";
 import AuthLayout from "../Auth/AuthLayout";
 import { useState } from "react";
 import clsx from "clsx";
+import { gpt } from "../../translations/pages_reponses";
 
 interface MenuLinkProps {
     link?: string,
@@ -107,24 +108,24 @@ export function MenuDropDown({ label, first, second, firstLink, secondLink, thir
 export default function Menu() {
     return (
         <BgShadow className="flex flex-col gap-8 ">
-            <MenuDropDown label="multiplayer" 
-                          first="play with friends"
+            <MenuDropDown label={gpt("multiplayer")} 
+                          first={gpt("play_with_friends")}
                           firstLink="/lobby/friends" 
-                          second="Matchmaking"
+                          second={gpt("matchmaking")}
                           secondLink="/lobby/matchmaking"/>
 
-            <MenuDropDown label="Local game" 
+            <MenuDropDown label={gpt("local_game")} 
                           first="1 vs 1"
                           firstLink="/play/local" 
-                          second="Player vs AI"
+                          second={gpt("player_vs_ai")} 
                           secondLink="/play/local?isBot=1"
-                          third="Tournament"
+                          third={gpt("tournament")} 
                           thirdLink="/play/tournament"
                           />
 
 
-            <MenuLink link="/profile" label="profile"/>
-            <MenuLink link="/chat" label="social"/>
+            <MenuLink link="/profile" label={gpt("profile")} />
+            <MenuLink link="/chat" label={gpt("social")} />
             
         </BgShadow>
     )

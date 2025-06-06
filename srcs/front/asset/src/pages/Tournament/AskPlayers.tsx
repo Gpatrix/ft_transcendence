@@ -1,14 +1,11 @@
 import { Link } from "react-router";
-import BgShadow from "../../components/BgShadow";
 import Button from "../../components/Button";
-import AuthLayout from "../Auth/AuthLayout";
-import Login from "../Auth/Login";
-import ProfileBackground from "../Profile/ProfileBackground";
+import { gpt } from "../../translations/pages_reponses";
 
 export default function AskPlayers() {
     return (
         <div className="rounded-xl border-1 border-yellow w-[500px] flex flex-col items-center p-10">
-            <h1 className="text-yellow mb-10">Tournament</h1>
+            <h1 className="text-yellow mb-10">{gpt("tournament")}</h1>
             <span className="flex flex-col gap-9 w-[400px]">
             {(() => {
                 let rows = [];
@@ -16,7 +13,7 @@ export default function AskPlayers() {
                   rows.push(
                     <Link key={i} to={`/play/tournament/create?players=${i}`}>
                         <Button className="w-full uppercase font-title hover:bg-yellow hover:text-grey">
-                            {i} players
+                            {i} {gpt("players")}
                         </Button>
                     </Link>
                     );
