@@ -37,8 +37,40 @@ export interface PostLocalTournamentBody
     players: Map<number, string>;
 }
 
+interface GetLocalHistoryReturn
+{
+
+}
+
 export default function localGamesRoutes(server: FastifyInstance, options: any, done: any)
 {
+
+    server.get(`/api/game/local/history`, async ( request: any, reply: any ) => {
+        try {
+            const codedtoken = request.cookies['ft_transcendence_jw_token'];
+            const decoded: JwtStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+
+            const localTournaments = await prisma.localTournament.findMany({
+                where: {
+                    userId: decoded.id,
+                }
+            });
+            if (!localTournaments)
+                return reply.status(230).send({ error: '0404' });
+            return reply.status(200).send(localTournaments);
+        } catch (error) {
+            if (error instanceof Error && error instanceof Prisma.PrismaClientValidationError)
+            {
+                if ((error as Prisma.PrismaClientKnownRequestError).code as string == 'P2025') {
+                    return reply.status(230).send({ error: '0404' });
+                }
+                console.error("Error inserting local tournament games in database: ", error);
+                return reply.status(230).send({ error: '0401' });
+            }
+            reply.status(230).send('0500');
+        }
+    });
+
     server.post<{ Params: endLocalTournamentParams }>(`/api/game/local/end/:tournamentId`, async ( request: any, reply: any ) => {
         const codedtoken = request.cookies['ft_transcendence_jw_token'];
         const decoded: JwtStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
