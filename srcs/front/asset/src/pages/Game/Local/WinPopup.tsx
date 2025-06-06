@@ -4,6 +4,7 @@ import { Dispatch } from "react"
 import PointsCounter from "./PointsCounter"
 import Button from "../../../components/Button"
 import { Link } from "react-router"
+import { gpt } from "../../../translations/pages_reponses"
 
 type WinPopUpProperties = {
     userNames: Array<string> | null
@@ -42,25 +43,25 @@ export default function WinPopUp({userNames, scores}: WinPopUpProperties) {
             <span   className="font-title ml-auto mr-auto mb-auto mt-auto text-center flex flex-col truncate w-[700px] px-10"
                     style={{fontSize : "200%"}}>
             <span className="font-title w-full truncate">{ userNames != null ? userNames[winnerIndex] : `P${winnerIndex + 1}`}</span>
-            <span className="font-title w-full ">Won the game!</span>
+            <span className="font-title w-full ">{gpt("won_the_game")}</span>
             </span>
 
 
             { !userNames &&  // local
             <span className="flex flex-col mb-19 w-full">
                 <Link className="w-full mb-5 flex flex-col justify-between" to="/replay">
-                    <Button type="full" className="w-1/2 ml-auto mr-auto mb-2" onClick={()=>{window.location.reload()}}>Replay</Button>            
+                    <Button type="full" className="w-1/2 ml-auto mr-auto mb-2" onClick={()=>{window.location.reload()}}>{gpt("replay")}</Button>            
                 </Link>
 
                 <Link className="w-full mb-5 flex flex-col justify-between" to="/">
-                    <Button className="w-1/2 ml-auto mr-auto mb-2">Home</Button>            
+                    <Button className="w-1/2 ml-auto mr-auto mb-2">{gpt("back_to_home")}</Button>            
                 </Link>
             </span>}
         
             { userNames &&  // tournament
             <span className="flex flex-col mb-19 w-full">
                 <Link className="w-full mb-5 flex flex-col justify-between" to="/play/tournament/overview">
-                    <Button type="full" className="w-1/2 ml-auto mr-auto mb-2">Continue</Button>            
+                    <Button type="full" className="w-1/2 ml-auto mr-auto mb-2">{gpt("continue")}</Button>            
                 </Link>
             </span>}
                 
