@@ -52,6 +52,6 @@ model LocalTournament {
   id Int @id @unique @default(autoincrement())
   userId Int
 
-  gameIds Json // Map<number, Array<number>>
+  games Json // Map<number, Array<number>>
   players Json // Map<int id, string name>
 }

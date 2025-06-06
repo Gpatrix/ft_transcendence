@@ -11,7 +11,7 @@ export function checkLocalTournamentGamesData(data: PostLocalTournamentGamesBody
 {
     const games = data.games;
     console.log('games', games, 'size', games.size);
-    if (games.size < 1 || games.size % 2 != 0)
-        return (false);
+    // if (games.values.length < 1 || games.values.length % 2 != 0)
+    //     return (false);
     return (true);
 }
