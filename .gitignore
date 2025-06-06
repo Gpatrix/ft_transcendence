@@ -2,10 +2,11 @@
 **/node_modules
 *.log
 **/migrations
-**/*.js
+# **/*.js
 **/db*
 **/prisma_client
 **/package-lock.json
 docker.debug
 **/pnpm-lock.yaml
 **/.pnpm-store
+.vscode
