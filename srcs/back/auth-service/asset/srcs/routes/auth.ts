@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validatePassword  from "../validators/password";
 import isConnected from '../validators/jsonwebtoken';
+import { getTokenData } from "../utils/getTokenData";
 
 export default function authRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -84,14 +85,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
       password: string
     }
     
-    server.post<{ Body: loginBody }>('/api/auth/login', { config:
-        {
-            rateLimit: {
-                max: 10,
-                timeWindow: '1 minutes'
-            } 
-        }
-        }, async (request: any, reply: any) => {
+    server.post<{ Body: loginBody }>('/api/auth/login', async (request: any, reply: any) => {
         try {
             const email = request.body.email;
             const password = request.body.password;
@@ -141,7 +135,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
                   }).send({ response: "successfully logged in", need2fa: true }));
             }
             else {
-                const token = await jwt.sign({
+                const token = jwt.sign({
                     data: {
                     id: user.id,
                     email: email,
@@ -165,31 +159,27 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
         }
     })
 
-    interface logoutParams {
+    interface logoutParams
+    {
         token: string
-      }
+    }
       
-    server.delete<{ Body: logoutParams }>('/api/auth/logout', async (request, reply) => {
-        const token = request.cookies['ft_transcendence_jw_token'];
-        if (!token)
-            return (reply.status(230).send({ error: "1016" }));
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const id = decoded.data?.id
-        if (!id)
-          return (reply.status(230).send({ error: "1016" }));
-        reply.clearCookie('ft_transcendence_jw_token', {}).send({ response: "logout_success" });
+    server.delete<{ Body: logoutParams }>('/api/auth/logout',  { preHandler: [isConnected] },  async (request, reply) => {
+        reply.clearCookie('ft_transcendence_jw_token', {}).status(200);
     })
 
 
     type LookupUserError = {
         error: number;
       };
+
     type LookupUserSuccess = {
         id: number;
         email: string;
         name: string;
         error?: never;
       };
+
     type LookupUserResponse = LookupUserError | LookupUserSuccess
 
 
@@ -269,7 +259,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
     });
 
     server.get('/api/auth/status', async function (request, reply) {
-        const connected = await isConnected(request, reply, ()=> {
+        await isConnected(request, reply, ()=> {
             return (reply.status(200).send({ message: "logged_in" }));
         })
     });

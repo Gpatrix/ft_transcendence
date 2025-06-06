@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import sendMail from '../mail';
 import bcrypt from 'bcryptjs';
 
@@ -11,11 +11,11 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
         email: string,
     }
 
-    server.post<{ Body: passwordResetAskBody }>('/api/auth/passwordReset/ask', {}, async (req, res) => {
+    server.post<{ Body: passwordResetAskBody }>('/api/auth/passwordReset/ask', async (req, res) => {
         try {
             const email = req.body.email;
             if (!email)
-                return res.status(400).send({ error: "missing_key" });
+                return res.status(230).send({ error: "1022" });
             const userLookupResponse = await fetch(`http://user-service:3000/api/user/lookup/${email}`,
             {
                 method: 'POST',
@@ -30,8 +30,8 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
                 return res.status(userLookupResponse.status).send({ error: userLookupData.error})
             const user = userLookupData;
             if (!user)
-                return res.status(404).send({ error: "1006" });
-            const passwordResetToken = await jwt.sign({
+                return res.status(230).send({ error: "1006" });
+            const passwordResetToken = jwt.sign({
             data: {
                 email
             }
@@ -43,7 +43,7 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
             console.log(error)
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0230" });
         }
     });
 
@@ -56,10 +56,10 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
         try {
             const password = req.body.password;
             const token = req.body.token;
-            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-            const email = decoded.data?.email;
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+            const email = decoded.data.email;
             if (!email)
-                return res.status(401).send({ error: "1016" });
+                return res.status(230).send({ error: "1016" });
             const newPassword = await bcrypt.hash(password, 12);
             const userPasswordUpdate = await fetch(`http://user-service:3000/api/user/password/${email}`,
             {
@@ -73,9 +73,9 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
             const data = await userPasswordUpdate.json();
             if (!userPasswordUpdate.ok)
                 return res.status(userPasswordUpdate.status).send({ error: "1016"})
-            res.status(200).send({ message: "user_password_updated" });
+            res.status(200);
         } catch (error) {
-            res.status(500).send({ error: "1016" });
+            res.status(230).send({ error: "1016" });
         }
     });
     done();
