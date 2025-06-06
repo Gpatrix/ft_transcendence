@@ -7,6 +7,7 @@ import { Ball } from "./Classes/Ball";
 import MultiPointsCounter from "./MultiPointsCounter";
 import Disconnected from "./Popups/Disconnected";
 import { gpt } from "../../../translations/pages_reponses";
+import { get_server_translation } from "../../../translations/server_responses";
 
 export type Player = {
     id: number
@@ -106,7 +107,7 @@ export default function Multi() {
 
     return (
         <div className="relative">
-            {error && <p className="text-yellow">{gpt(error)}</p>}
+            {error && <p className="text-yellow">{get_server_translation(error)}</p>}
             {disconnect && <Disconnected/>}
             {!error &&
             <span>

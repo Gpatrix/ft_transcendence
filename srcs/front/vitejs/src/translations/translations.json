@@ -283,6 +283,11 @@
       "Won the tournament !!",
       "A gagné le tournoi !!",
       "Ha vinto il torneo !!"
+    ],
+    "someone_is_disconnected": [
+      "Someone is disconnected...",
+      "Quelqu'un est déconnecté...",
+      "Qualcuno si è disconnesso..."
     ]
 
 
