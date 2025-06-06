@@ -3,6 +3,7 @@ import Blur from "../../components/Blur.tsx"
 import InputWithIco from "../../components/InputWithIco.tsx"
 
 import { FormEvent, ChangeEvent, useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router"
 import ClickableIco from "../../components/ClickableIco.tsx"
 import Friend from "../../classes/Friend.tsx"
 import Message from "../../classes/Message.tsx"
@@ -30,6 +31,8 @@ type ChatProps = {
 }
 
 export default function Chat({ profileData, classList, chanel, participants, arrayMessage, setArrayMessage, blur=true} : ChatProps) {
+
+    const navigate = useNavigate()
 
     const { socket } = useWebSocket();
 
@@ -98,6 +101,12 @@ export default function Chat({ profileData, classList, chanel, participants, arr
         }
     };
 
+    const createGame = () => {
+        const friend = participantsRef.current.find(participant => participant.id != profileDataRef.current?.id)
+        navigate(`/lobby/friendLoby/${friend.id}`)
+        // /lobby/friendLoby/:idFriend
+    }
+
     // function getUserParams() {
     //     fetchWithAuth(`/api/user/get_profile/`)
     //     .then((response) => response.json())
@@ -141,7 +150,7 @@ export default function Chat({ profileData, classList, chanel, participants, arr
     }, [profileData]);
 
     return (
-        <div className={clsx("w-1/1 flex flex-col justify-end", classList)}>
+        <div className={clsx("w-1/1 flex flex-col justify-end max-h-1/1", classList)}>
             {blur && <Blur />}
             <div ref={containerRef} className="relative overflow-y-scroll flex flex-col-reverse gap-5 p-10 pt-[200px]">
 
@@ -168,10 +177,7 @@ export default function Chat({ profileData, classList, chanel, participants, arr
                     onSubmit={handleSubmitMessage}
                 />
                 {chanel == undefined && <div className="bg-yellow rounded-xl">
-                    <ClickableIco className="mx-[5px]" image={"/icons/game-alt.svg"} onClick={function (): void {
-                        console.log("Game !");
-                    } } />
-
+                    <ClickableIco className="mx-[5px]" image={"/icons/game-alt.svg"} onClick={createGame} />
                 </div>}
             </div>}
         </div>

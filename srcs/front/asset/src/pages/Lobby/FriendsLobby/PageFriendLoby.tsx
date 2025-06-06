@@ -1,6 +1,6 @@
 
 import { MouseEvent, useEffect, useRef, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import { useAuth } from "../../../AuthProvider";
 import User from "../../../classes/User";
 import { useWebSocket } from "../../Auth/WebSocketComponent";
@@ -12,18 +12,23 @@ import ProfilePic from "../../../components/ProfilePic";
 import Button from "../../../components/Button";
 
 export default function PageFriendLoby() {
-    // const [params] = useSearchParams()
+
     const navigate = useNavigate()
 
     const { fetchWithAuth } = useAuth();
 
-    const { friends } = useWebSocket();
+    const { idFriend } = useParams();
+
+
+    const { friends, socket } = useWebSocket();
     const friendsRef = useRef<Friend[]>([]); // a supprimer ?
     
     const [profileData, setProfileData] = useState<Friend | undefined>(undefined)
     const profileDataRef = useRef<Friend>(undefined);
     const [arrayPlayers, setArrayPlayers] = useState<Friend[]>([])
     const arrayPlayersRef = useRef<Friend[]>([]);
+    const socketRef = useRef<WebSocket | null>(null);
+
     
     const [arrayFriends, setArrayFriends] = useState<Friend[]>([])
     const arrayFriendsRef = useRef<Friend[]>([]);
@@ -49,8 +54,9 @@ export default function PageFriendLoby() {
             if (json.data)
             {
                 const data = json.data
-                
+
                 setProfileData(new Friend(data.id, data.name, data.email, data.profPicture, data.bio, data.lang, data.isTwoFactorEnabled, data.rank, true));
+
                 return(true);
             }
         })
@@ -145,11 +151,6 @@ export default function PageFriendLoby() {
         } else {
             setErrorMessage("");
             const tabIds = arrayPlayersRef.current.map(player => player.id);
-            // creer partie :
-            // const requestData : RequestInit = {
-            //     method :  'post',
-            //     credentials: 'include'
-            // }
             const requestData: RequestInit = {
                 method: 'POST',
                 credentials: 'include',
@@ -160,15 +161,32 @@ export default function PageFriendLoby() {
                     userIds: tabIds
                 })
             };
-            const test = await fetch("/api/game/friendMatch/create", requestData);
-            console.log(test);
-            const data = await test.json();
-            console.log(data);
+            const response = await fetch("/api/game/friendMatch/create", requestData);
             
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                setErrorMessage("0500")
+                return ;
+            }
+            const data = await response.json();
+            if (data.status != 200 && data.error) {
+                setErrorMessage(data.error)
+                return ;
+            }
+            // /lobby/friendLoby/waiting-room/
+            // /lobby/friendLoby/waiting-room/:gameId/:tournamentId
+            const message : string = `**game:/lobby/friendLoby/waiting-room/${String(data.gameId)}/${data.tournamentId}**`;
+            
+            for (let index = 1; index < arrayPlayersRef.current.length; index++) {
+                Message.sendMessage(profileDataRef.current.id, arrayPlayersRef.current[index].id, message, socketRef.current);
+            }
+
+            // faire la traduction de cette page
+            // faire une page d'attente pour rejoindre une game
+
+            setErrorMessage("")
+            navigate(`/lobby/friendLoby/waiting-room/${String(data.gameId)}/${data.tournamentId}`);
         }
-
-        // inviter les gents et attendre qu'ils rejoingne la game
-
     }
 
     useEffect(() => {
@@ -177,8 +195,23 @@ export default function PageFriendLoby() {
 
     useEffect(() => {
         profileDataRef.current = profileData;
-        if (arrayPlayers.length == 0 && profileData != undefined)
-            arrayPlayers.push(profileData);
+        
+        if (arrayPlayers.length == 0 && profileData != undefined) {
+            const newArrayPlayers = [...arrayPlayers];
+            newArrayPlayers.push(profileData);
+            
+            if (idFriend) {
+                const newFriends: Friend[] = [...friends];
+                
+                const friendIndexSended = newFriends.findIndex(friend => friend.id == idFriend);
+                if (friendIndexSended != -1) {
+                    newArrayPlayers.push(newFriends[friendIndexSended]);
+                    newFriends.splice(friendIndexSended, 1);
+                    setArrayFriends(newFriends);
+                }
+            }
+            setArrayPlayers(newArrayPlayers);
+        }
     }, [profileData])
 
     useEffect(() => {
@@ -193,6 +226,10 @@ export default function PageFriendLoby() {
     useEffect(() => {
         arrayPlayersRef.current = arrayPlayers;
     }, [arrayPlayers])
+
+    useEffect(() => {
+        socketRef.current = socket;
+    }, [socket]);
 
     // useEffect(()=> {
     //     // joinGame()

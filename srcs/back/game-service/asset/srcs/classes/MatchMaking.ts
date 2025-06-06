@@ -1,5 +1,6 @@
 import { setTimeout } from "timers";
 import WebSocket from 'ws';
+import { Player } from "./PongGame";
 
 export class MatchMakingUser {
     constructor(id: number, rank: number, websocket: WebSocket) {
@@ -226,6 +227,12 @@ export class MatchMakingMap {
 
     findIndex(predicate: (user: MatchMakingUser) => boolean): number {
         return this.queue.findIndex(predicate);
+    }
+
+    createFriendRoom(players : Player[]) : string {
+        const roomId = this.generateRoomId();
+        players.forEach(u => this.addUserToRoom(u.id, roomId));
+        return (roomId);
     }
 }
 
