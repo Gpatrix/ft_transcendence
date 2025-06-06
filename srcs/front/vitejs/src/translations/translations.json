@@ -206,38 +206,38 @@
     ],
     "Request_sent": [
       "Request sent",
-      "requete envoyé",
-      "Solicitud enviada"
+      "Requête envoyée",
+      "Richiesta inviata"
     ],
     "multiplayer": [
       "Multiplayer",
       "Multijoueur",
-      "Multijugador"
+      "Multigiocatore"
     ],
     "play_with_friends": [
       "Play with friends",
       "Jouer avec des amis",
-      "Jugar con amigos"
+      "Gioca con gli amici"
     ],
     "matchmaking": [
       "Matchmaking",
-      "Appariement",
-      "Emparejamiento"
+      "Recherche de partie",
+      "Ricerca partita"
     ],
     "local_game": [
       "Local game",
       "Jeu local",
-      "Juego local"
+      "Gioco locale"
     ],
     "1vs1": [
       "1 vs 1",
       "1 contre 1",
-      "1 contra 1"
+      "1 contro 1"
     ],
     "player_vs_ai": [
       "Player vs AI",
       "Joueur contre IA",
-      "Jugador contra IA"
+      "Giocatore contro IA"
     ],
     "tournament": [
       "Tournament",
@@ -247,8 +247,45 @@
     "social": [
       "Social",
       "Social",
-      "Social"
+      "Sociale"
+    ],
+    "home": [
+      "Home",
+      "Accueil",
+      "Home"
+    ],
+    "won_the_game": [
+      "Won the game!",
+      "A gagné la partie !",
+      "Ha vinto la partita!"
+    ],
+    "replay": [
+      "Replay",
+      "Rejouer",
+      "Rigioca"
+    ],
+    "players": [
+      "Players",
+      "Joueurs",
+      "Giocatoris"
+    ],
+    "player": [
+      "Player",
+      "Joueur",
+      "Giocatori"
+    ],
+    "nickname": [
+      "Nickname",
+      "Pseudo",
+      "Soprannome"
+    ],
+    "won_the_tournament": [
+      "Won the tournament !!",
+      "A gagné le tournoi !!",
+      "Ha vinto il torneo !!"
     ]
 
-  }
+
+
+  }    
 }
