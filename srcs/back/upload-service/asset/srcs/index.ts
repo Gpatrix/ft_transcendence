@@ -52,19 +52,8 @@ async function main() {
       process.exit(1);
     }
     _address = address;
-    console.log(`Server listening at ${_address}`);
+    console.log(`ready`);
   })
 }
 
 main();
-
-// main()
-//   .then(async () => {
-//     await prisma.$disconnect()
-//   })
-//   .catch(async (e) => {
-//     console.error(e)
-//     await prisma.$disconnect()
-//     process.exit(1)
-//   })
-

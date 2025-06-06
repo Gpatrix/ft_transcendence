@@ -80,7 +80,7 @@ async function main() {
       process.exit(1);
     }
     _address = address;
-    console.log(`Server listening at ${_address}`);
+    console.log(`ready`);
   })
 }
 

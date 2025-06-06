@@ -2,7 +2,6 @@ import { FastifyInstance } from "fastify";
 import jwt from 'jsonwebtoken';
 import { Prisma, User } from '@prisma/client';
 // import jwtValidator from "./validators/jsonwebtoken";
-import isAdmin from "../validators/admin";
 import validateUserData from "../validators/userData";
 import axios from 'axios';
 import prisma from '../config/prisma';
@@ -11,7 +10,7 @@ import imageUpload from "../validators/imageUpload";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
-function userRoutes (server: FastifyInstance, options: any, done: any)
+export default function userRoutes (server: FastifyInstance, options: any, done: any)
 {
     interface lookupParams 
     {
@@ -146,7 +145,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
-                    switch (error.code) {
+                    switch ((error as Prisma.PrismaClientKnownRequestError).code) {
                         case 'P2003':
                             reply.status(403).send({ error: "1011"});
                           break
@@ -165,6 +164,14 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     interface dfaUpdateParams
     {
         id: string,
+    }
+
+    interface dfaUpdateBody
+    {
+        isTwoFactorEnabled?: boolean;
+        twoFactorSecret?: string;
+        twoFactorSecretTemp?: string;
+        credential?: string;
     }
 
     server.put<{ Body: dfaUpdateBody, Params: dfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
@@ -193,18 +200,18 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.status(200).send({ message: "user_2fa_secret_updated" });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
-                {
-                    switch (error.code) {
-                        case 'P2003':
-                            reply.status(403).send({ error: "1011"});
-                          break
-                        case 'P2000':
-                            reply.status(403).send({ error: "1012"});
-                          break
-                        default:
-                            reply.status(403).send({ error: error.message});
-                    }
+            {
+                switch ((error as Prisma.PrismaClientKnownRequestError).code) {
+                    case 'P2003':
+                        reply.status(403).send({ error: "1011"});
+                        break
+                    case 'P2000':
+                        reply.status(403).send({ error: "1012"});
+                        break
+                    default:
+                        reply.status(403).send({ error: (error as Prisma.PrismaClientKnownRequestError).message});
                 }
+            }
             else
                 reply.status(500).send({ error: "0500" });
         }
@@ -299,6 +306,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         isAdmin?: boolean,
         profPicture?: string
         credential: string
+        lang?: string
     }
 
     server.post<{ Body: postUserBody }>('/api/user/create', { preHandler:[validateUserData] }, async (request, reply) => {
@@ -422,7 +430,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 deleteImage(body.image);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
-                switch (error.code) {
+                switch ((error as Prisma.PrismaClientKnownRequestError).code)
+                {
                     case 'P2002':
                         reply.status(403).send({ error: "1003"});
                         break
@@ -587,5 +596,3 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     done()
 }
-
-module.exports = userRoutes;

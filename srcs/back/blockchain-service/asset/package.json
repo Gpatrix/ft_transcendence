@@ -7,7 +7,7 @@
         "dev": "./srcs/*.ts"
     },
     "scripts": {
-        "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs/test/HelloWorld.ts ./srcs/index.ts",
+        "dev": "ts-node-dev --respawn --transpile-only --watch ./srcs ./srcs/index.ts",
         "build": "npx hardhat compile && tsc -p tsconfig.json",
         "start": "node ./srcs/index.js"
     },
@@ -23,9 +23,7 @@
         "solc": "0.8.30",
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0",
-        "web3": "4.16.0"
-    },
-    "devDependencies": {
+        "web3": "4.16.0",
         "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
         "@nomicfoundation/hardhat-ethers": "^3.0.8",
         "@types/chai": "^4.0.0",

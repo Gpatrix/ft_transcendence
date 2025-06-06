@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-function isConnected(request, reply, done) {
+export default function isConnected(request, reply, done) {
     const token = request.cookies.ft_transcendence_jw_token;
     if (!token)
         return (reply.status(401).send({ error: 1019 }));
@@ -13,6 +13,3 @@ function isConnected(request, reply, done) {
         return (reply.status(403).send({ error: 1020 }));
     done();
 }
-
-module.exports = isConnected;
-

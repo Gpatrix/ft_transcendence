@@ -1,6 +1,6 @@
 import deleteImage from "../utils/deleteImage";
 
-export async function validateUserData(request: any, reply: any) {
+export default async function validateUserData(request: any, reply: any) {
     try {
         const { email, name, bio, lang } = request.body || {};
 
@@ -29,5 +29,3 @@ export async function validateUserData(request: any, reply: any) {
             deleteImage(request.body.image);
     }
 }
-
-module.exports = validateUserData;

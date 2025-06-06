@@ -8,7 +8,7 @@ services:
         context: ./reverse_proxy
         dockerfile: Dockerfile
     ports:
-        - 3000:443
+        -  ${PORT:?}:443
     networks:
       - router
 
@@ -42,28 +42,28 @@ services:
     labels:
       - "com.example.service=auth"
 
-  chat-service:
-    container_name: chat-service
-    restart: on-failure
-    volumes:
-      - db-chat:/usr/src/chat-service/asset/prisma/db
-    environment:
-      HOST: ${HOST:?}
-      PORT: ${PORT:?}
-      NODE_ENV: prod
-      JWT_SECRET: ${JWT_SECRET:?}
-      DATABASE_URL: ${DATABASE_URL:?}
-      API_CREDENTIAL: ${API_CREDENTIAL:?}
-    build:
-        context: ./back/chat-service
-        dockerfile: Dockerfile
-        args:
-          NODE_ENV: prod
-          DATABASE_URL: ${DATABASE_URL:?}
-    expose:
-      - 3000
-    networks:
-      - router
+  # chat-service:
+  #   container_name: chat-service
+  #   restart: on-failure
+  #   volumes:
+  #     - db-chat:/usr/src/chat-service/asset/prisma/db
+  #   environment:
+  #     HOST: ${HOST:?}
+  #     PORT: ${PORT:?}
+  #     NODE_ENV: prod
+  #     JWT_SECRET: ${JWT_SECRET:?}
+  #     DATABASE_URL: ${DATABASE_URL:?}
+  #     API_CREDENTIAL: ${API_CREDENTIAL:?}
+  #   build:
+  #       context: ./back/chat-service
+  #       dockerfile: Dockerfile
+  #       args:
+  #         NODE_ENV: prod
+  #         DATABASE_URL: ${DATABASE_URL:?}
+  #   expose:
+  #     - 3000
+  #   networks:
+  #     - router
 
   # game-service:
   #   container_name: game-service
@@ -132,30 +132,28 @@ services:
   #   networks:
   #     - router
 
-  # user-service:
-  #   container_name: user-service
-  #   restart: on-failure
-  #   volumes:
-  #     - db-user:/usr/src/user-service/asset/prisma/db
-  #   environment:
-  #     HOST: ${HOST:?}
-  #     PORT: ${PORT:?}
-  #     API_CREDENTIAL: ${API_CREDENTIAL:?}
-  #     JWT_SECRET: ${JWT_SECRET:?}
-  #     NODE_ENV: prod
-  #     DATABASE_URL: ${DATABASE_URL:?}
-  #   build:
-  #       context: ./back/user-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         NODE_ENV: prod
-  #         DATABASE_URL: ${DATABASE_URL:?}
-  #   ports:
-  #     - 5555:5555
-  #   expose:
-  #     - 3000
-  #   networks:
-  #     - router
+  user-service:
+    container_name: user-service
+    restart: on-failure
+    volumes:
+      - db-user:/usr/src/user-service/asset/prisma/db
+    build:
+        context: ./back/user-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: prod
+          DATABASE_URL: ${DATABASE_URL:?}
+    environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+      JWT_SECRET: ${JWT_SECRET:?}
+      NODE_ENV: prod
+      DATABASE_URL: ${DATABASE_URL:?}
+    expose:
+      - 3000
+    networks:
+      - router
 
   # prometheus-service:
   #   container_name: prometheus-service

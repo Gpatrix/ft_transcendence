@@ -30,8 +30,8 @@ fclean purge: stop
 	docker compose -f $(compose_file_dev) down --volumes
 	docker system prune --all --force --volumes
 
-re: down all
+re: stop down all
 
-re_dev: build_dev up_dev
+re_dev: stop build_dev up_dev
 
 .PHONY: build up stop down re purge fclean clean debug re_dev build_dev up_dev

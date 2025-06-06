@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '@prisma/client';
 
 
-function friendsRoute(server: FastifyInstance, options: any, done: any)
+export default function friendsRoute(server: FastifyInstance, options: any, done: any)
 {
     interface postUserFriendRequestParams 
     {
@@ -359,5 +359,3 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
     });
     done();
 }
-
-module.exports = friendsRoute;

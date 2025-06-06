@@ -1,4 +1,4 @@
-function validatePassword(request, reply, done) {
+export default function validatePassword(request, reply, done) {
     let { password } = request.body;
     password = (password as string);
     if (!password || password.length < 8)
@@ -27,5 +27,3 @@ function validatePassword(request, reply, done) {
         return reply.code(400).send({ error: '1001' }); 
     done();
 }
-
-module.exports = validatePassword;
