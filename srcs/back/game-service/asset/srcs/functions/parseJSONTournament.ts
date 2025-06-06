@@ -7,19 +7,19 @@ export function parseGamesJson(gamesJson: string | object): Map<number, Array<nu
         else if (typeof gamesJson === 'object')
             games = gamesJson as object;
         else
-            throw new Error('Invalid JSON format');
+            throw new Error('Invalid JSON format (games not of type string or object)');
         if (games === undefined) {
-            throw new Error('Invalid JSON format');
+            throw new Error('Invalid JSON format (games == undefined)');
         }
 
         const gamesMap = new Map<number, Array<number>>();
 
         Object.entries(games).forEach(([key, value]) => {
-            if (!Array.isArray(value))
-                throw new Error('Invalid JSON format');
-            if (value.some((number: number) => typeof number != 'number'))
-                throw new Error('Invalid JSON format');
-            gamesMap.set(Number(key), value)
+            const objectValues = Object.values(value).map(stringValue => Number(stringValue));
+            const values: Array<number> = Array<number>(...objectValues);
+            if (values.some((number: number) => typeof number != 'number'))
+                throw new Error('Invalid JSON format (values is not a number)' + values);
+            gamesMap.set(Number(key), values)
         });
         return (gamesMap);
     } catch (error) {
