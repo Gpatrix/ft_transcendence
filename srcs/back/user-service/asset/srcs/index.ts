@@ -1,7 +1,6 @@
 import fastify from 'fastify'
 import cookiesPlugin from '@fastify/cookie';
 import multipartPlugin from '@fastify/multipart';
-import rateLimitPlugin from '@fastify/rate-limit';
 import public_userRoutes from "./routes/public_user";
 import private_userRoutes from "./routes/private_user";
 import friendsRoutes from "./routes/friends";
@@ -15,11 +14,6 @@ server.addHook('onResponse', (req, res, done) =>
 	done();
 });
 
-server.register(rateLimitPlugin, {
-  max: 100,
-  timeWindow: '1 minute',
-  allowList: ['127.0.0.1']
-});
 server.register(multipartPlugin, {
   limits: {
     fieldNameSize: 100, // Max field name size in bytes

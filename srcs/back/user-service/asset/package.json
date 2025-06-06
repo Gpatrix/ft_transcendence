@@ -16,7 +16,6 @@
         "@fastify/cookie": "^11.0.2",
         "@fastify/multipart": "^9.0.3",
         "@fastify/oauth2": "^8.1.2",
-        "@fastify/rate-limit": "^10.2.2",
         "@prisma/client": "^6.8.2",
         "@types/jsonwebtoken": "^9.0.9",
         "@types/node": "^22.14.1",
