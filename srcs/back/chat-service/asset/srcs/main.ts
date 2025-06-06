@@ -47,6 +47,7 @@ server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
 server.register(metrics);
+setInterval(recurrentPing, PING_INTERVAL);
 
 server.addHook('onResponse', (req, res, done) =>
 {
@@ -54,7 +55,6 @@ server.addHook('onResponse', (req, res, done) =>
 	done();
 });
 
-setInterval(recurrentPing, PING_INTERVAL);
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {

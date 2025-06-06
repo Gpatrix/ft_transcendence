@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 
 const expireIn = 5;
 
-function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
+export default function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
 {
     interface passwordResetAskBody {
         email: string,
@@ -56,7 +56,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
         try {
             const password = req.body.password;
             const token = req.body.token;
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
             const email = decoded.data?.email;
             if (!email)
                 return res.status(401).send({ error: "1016" });
@@ -80,7 +80,3 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
     });
     done();
 }
-
-module.exports = passwordResetRoutes;
-
-

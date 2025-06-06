@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { i_token  } from "../utils/getTokenData";
+import { i_token } from "../utils/getTokenData";
 
 export default function isConnected(request: any, reply: any, done: any)
 {

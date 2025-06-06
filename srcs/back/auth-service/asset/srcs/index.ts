@@ -1,7 +1,6 @@
 import fastify from 'fastify'
 import oauthPlugin from '@fastify/oauth2';
 import cookiesPlugin from '@fastify/cookie';
-import rateLimitPlugin from '@fastify/rate-limit';
 import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { metrics, auth_requests_total } from "./metrics";
@@ -19,19 +18,13 @@ declare module 'fastify'
   }
 }
 
-server.register(cookiesPlugin, {});
-server.register(rateLimitPlugin, {
-  max: 100,
-  timeWindow: '1 minute',
-  allowList: ['127.0.0.1']
-});
-
 server.addHook('onResponse', (req, res, done) =>
 {
 	auth_requests_total.inc({method: req.method});
 	done();
 });
 
+server.register(cookiesPlugin, {});
 server.register(metrics);
 server.register(authRoutes);
 server.register(dfaRoutes);
@@ -72,16 +65,11 @@ server.register(oauthPlugin, {
   }
 })
 
-async function main() {
-  let _address;
-  await server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) => {
+server.listen({ host: '0.0.0.0', port: 3000 }, (err) =>
+{
     if (err) {
-      console.error(err);
-      process.exit(1);
+        console.error(err);
+        process.exit(1);
     }
-    _address = address;
     console.log(`ready`);
-  })
-}
-
-main();
+})

@@ -37,16 +37,11 @@ server.register(public_userRoutes);
 server.register(private_userRoutes);
 server.register(friendsRoutes);
 
-async function main() {
-  let _address;
-  await server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) => {
+server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
+{
     if (err) {
       console.error(err);
       process.exit(1);
     }
-    _address = address;
     console.log(`ready`);
-  })
-}
-
-main();
+})

@@ -2,18 +2,24 @@ import { FastifyInstance } from "fastify";
 import speakeasy from "speakeasy";
 import QRCode from 'qrcode';
 import jwt from 'jsonwebtoken';
+import isConnected from '../validators/jsonwebtoken'
+import { getTokenData } from "../utils/getTokenData";
 
-function dfaRoutes (server: FastifyInstance, options: any, done: any)
+
+export default function dfaRoutes (server: FastifyInstance, options: any, done: any)
 {
-    // here the user for an url for getting a token (for example 420420)
-    server.get('/api/auth/2fa/setup/ask', {}, async (req, res) => {
+    server.addHook('preValidation', (request, reply, done) => 
+    {
+        isConnected(request, reply, done);
+    })
+
+    server.get('/api/auth/2fa/setup/ask', async (req, res) => {
         try {
             const token = req.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const tokenPayload = decoded.data;
+            const tokenPayload = getTokenData(token);
             const secret = speakeasy.generateSecret({
-                    name: `ft_transcendance:${tokenPayload.email}`, 
-                    issuer: 'ft_transcendance'
+                name: `ft_transcendance:${tokenPayload.email}`, 
+                issuer: 'ft_transcendance'
             }
             );
             const response = await fetch(`http://user-service:3000/api/user/2fa/update/${tokenPayload.id}`,
@@ -28,10 +34,10 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
             const data = await response.json();
             if (!response.ok)
                 res.status(response.status).send(data);
-            const data_url = await QRCode.toDataURL(secret.otpauth_url);
+            const data_url = QRCode.toDataURL(secret.otpauth_url);
             return (res.status(200).send({ message: "qrcode_generated", data_url }));
         } catch (error) {
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
@@ -40,9 +46,8 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
     }
 
     server.post<{ Body: dfaSetupAskBody }>('/api/auth/2fa/setup/submit', {}, async (req, res) => {
-        const jsonWebToken= req.cookies['ft_transcendence_jw_token'];
-        const decoded = jwt.verify(jsonWebToken, process.env.JWT_SECRET);
-        const jsonWebTokenPayload = decoded.data;
+        const token = req.cookies['ft_transcendence_jw_token'];
+        const jsonWebTokenPayload = getTokenData(token);
         const userToken  = req.body.userToken;
 
         //here we ask user api for user data
@@ -94,14 +99,9 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
     }
 
     server.post<{ Body: dfaSubmitBody }>('/api/auth/2fa/submit', {}, async (req, res) => {
-        const jsonWebToken= req.cookies['ft_transcendence_jw_token'];
-        const decoded = jwt.verify(jsonWebToken, process.env.JWT_SECRET);
-        if (!decoded || !decoded.data || !decoded.data.id)
-            return res.status(401).send({ error: "1016" });
-        if (decoded.data.dfa)
-            return res.status(403).send({ error: "1018" });
-        const jsonWebTokenPayload = decoded.data;
-        const userToken = req.body;
+        const token = req.cookies['ft_transcendence_jw_token'];
+        const jsonWebTokenPayload = getTokenData(token);
+        const userToken = req.body.userToken;
 
         // compare the first temp token the user got for example '420420'
         const verified = speakeasy.totp.verify({ secret: jsonWebTokenPayload.twoFactorSecret,
@@ -135,8 +135,7 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
     server.delete('/api/auth/2fa/delete', {}, async (req, res) => {
         try {
             const token = req.cookies['ft_transcendence_jw_token'];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const tokenPayload = decoded.data;
+            const tokenPayload = getTokenData(token);
             if (!tokenPayload || !tokenPayload.id)
                 return res.status(401).send({ error: 1019 });
             if (!tokenPayload.dfa)
@@ -160,7 +159,5 @@ function dfaRoutes (server: FastifyInstance, options: any, done: any)
         }
     });
 
-    done()
+    done();
 }
-
-module.exports = dfaRoutes;
