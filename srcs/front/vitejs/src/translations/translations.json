@@ -208,6 +208,47 @@
       "Request sent",
       "requete envoyé",
       "Solicitud enviada"
+    ],
+    "multiplayer": [
+      "Multiplayer",
+      "Multijoueur",
+      "Multijugador"
+    ],
+    "play_with_friends": [
+      "Play with friends",
+      "Jouer avec des amis",
+      "Jugar con amigos"
+    ],
+    "matchmaking": [
+      "Matchmaking",
+      "Appariement",
+      "Emparejamiento"
+    ],
+    "local_game": [
+      "Local game",
+      "Jeu local",
+      "Juego local"
+    ],
+    "1vs1": [
+      "1 vs 1",
+      "1 contre 1",
+      "1 contra 1"
+    ],
+    "player_vs_ai": [
+      "Player vs AI",
+      "Joueur contre IA",
+      "Jugador contra IA"
+    ],
+    "tournament": [
+      "Tournament",
+      "Tournoi",
+      "Torneo"
+    ],
+    "social": [
+      "Social",
+      "Social",
+      "Social"
     ]
+
   }
 }
