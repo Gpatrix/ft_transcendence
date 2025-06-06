@@ -18,7 +18,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const navigate = useNavigate();
 
     const fetchWithAuth = async (input: RequestInfo, init?: RequestInit) => {
+      console.log("bvxc");
+      
         const response = await fetch(input, init);
+        console.log(response);
+        
 
         if (response.status === 401) {
             navigate("/login");

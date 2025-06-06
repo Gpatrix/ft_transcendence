@@ -134,12 +134,12 @@ class Friend extends User {
                 credentials: 'include',
             }
             const response = await fetch(`/api/user/friends/${targetId}`, requestData);
-            if (response.status == 201)
-                return ("201")
+            
+            if (response.status == 200)
+                return ("200")
             const dataReponse = await response.json();
             
-
-            return (dataReponse.status);
+            return (dataReponse.error);
 
         } catch (error) {
             return ("0500");
