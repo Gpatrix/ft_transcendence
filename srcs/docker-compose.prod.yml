@@ -39,75 +39,73 @@ services:
       - 3000
     networks:
       - router
-    labels:
-      - "com.example.service=auth"
 
-  # chat-service:
-  #   container_name: chat-service
-  #   restart: on-failure
-  #   volumes:
-  #     - db-chat:/usr/src/chat-service/asset/prisma/db
-  #   environment:
-  #     HOST: ${HOST:?}
-  #     PORT: ${PORT:?}
-  #     NODE_ENV: prod
-  #     JWT_SECRET: ${JWT_SECRET:?}
-  #     DATABASE_URL: ${DATABASE_URL:?}
-  #     API_CREDENTIAL: ${API_CREDENTIAL:?}
-  #   build:
-  #       context: ./back/chat-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         NODE_ENV: prod
-  #         DATABASE_URL: ${DATABASE_URL:?}
-  #   expose:
-  #     - 3000
-  #   networks:
-  #     - router
+  chat-service:
+    container_name: chat-service
+    restart: on-failure
+    volumes:
+      - db-chat:/usr/src/chat-service/asset/prisma/db
+    environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
+      NODE_ENV: prod
+      JWT_SECRET: ${JWT_SECRET:?}
+      DATABASE_URL: ${DATABASE_URL:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+    build:
+        context: ./back/chat-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: prod
+          DATABASE_URL: ${DATABASE_URL:?}
+    expose:
+      - 3000
+    networks:
+      - router
 
-  # game-service:
-  #   container_name: game-service
-  #   restart: on-failure
-  #   volumes:
-  #     - db-game:/usr/src/game-service/prisma/db
-  #   environment:
-  #     HOST: ${HOST:?}
-  #     PORT: ${PORT:?}
-  #     DATABASE_URL: ${DATABASE_URL:?}
-  #     API_CREDENTIAL: ${API_CREDENTIAL:?}
-  #     NODE_ENV: prod
-  #     JWT_SECRET: ${JWT_SECRET:?}
-  #   build:
-  #       context: ./back/game-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         NODE_ENV: prod
-  #         DATABASE_URL: ${DATABASE_URL:?}
-  #   expose:
-  #     - 3000
-  #   networks:
-  #     - router
+  game-service:
+    container_name: game-service
+    restart: on-failure
+    volumes:
+      - db-game:/usr/src/game-service/prisma/db
+    environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
+      DATABASE_URL: ${DATABASE_URL:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+      NODE_ENV: prod
+      JWT_SECRET: ${JWT_SECRET:?}
+    build:
+        context: ./back/game-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: prod
+          DATABASE_URL: ${DATABASE_URL:?}
+    expose:
+      - 3000
+    networks:
+      - router
 
-  # upload-service:
-  #   container_name: upload-service
-  #   restart: on-failure
-  #   volumes:
-  #     - db-upload:/usr/src/upload-service/uploads
-  #   environment:
-  #     HOST: ${HOST:?}
-  #     PORT: ${PORT:?}
-  #     DATABASE_URL: ${DATABASE_URL:?}
-  #     API_CREDENTIAL: ${API_CREDENTIAL:?}
-  #     NODE_ENV: prod
-  #   build:
-  #       context: ./back/upload-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         NODE_ENV: prod
-  #   expose:
-  #     - 3000
-  #   networks:
-  #     - router
+  upload-service:
+    container_name: upload-service
+    restart: on-failure
+    volumes:
+      - db-upload:/usr/src/upload-service/uploads
+    environment:
+      HOST: ${HOST:?}
+      PORT: ${PORT:?}
+      DATABASE_URL: ${DATABASE_URL:?}
+      API_CREDENTIAL: ${API_CREDENTIAL:?}
+      NODE_ENV: prod
+    build:
+        context: ./back/upload-service
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: prod
+    expose:
+      - 3000
+    networks:
+      - router
 
   # blockchain-service:
   #   container_name: blockchain-service
@@ -155,71 +153,71 @@ services:
     networks:
       - router
 
-  # prometheus-service:
-  #   container_name: prometheus-service
-  #   restart: on-failure
-  #   volumes:
-  #     - db-monitoring:/usr/src/prometheus-service/data
-  #   build:
-  #       context: ./back/monitoring/prometheus-service
-  #       dockerfile: Dockerfile
-  #   networks:
-  #     - router
-  #   expose:
-  #     - 9090
+  prometheus-service:
+    container_name: prometheus-service
+    restart: on-failure
+    volumes:
+      - db-monitoring:/usr/src/prometheus-service/data
+    build:
+        context: ./back/monitoring/prometheus-service
+        dockerfile: Dockerfile
+    networks:
+      - router
+    expose:
+      - 9090
 
-  # grafana-service:
-  #   container_name: grafana-service
-  #   restart: on-failure
-  #   build:
-  #       context: ./back/monitoring/grafana-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         GRAFANA_DB_USER: ${GRAFANA_DB_USER:?}
-  #         GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?}
-  #         GRAFANA_ADMIN_USER: ${GRAFANA_ADMIN_USER:?}
-  #         GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
-  #         GRAFANA_ADMIN_EMAIL: ${GRAFANA_ADMIN_EMAIL:?}
-  #         GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
-  #   networks:
-  #     - router
-  #   expose:
-  #     - 3000
+  grafana-service:
+    container_name: grafana-service
+    restart: on-failure
+    build:
+        context: ./back/monitoring/grafana-service
+        dockerfile: Dockerfile
+        args:
+          GRAFANA_DB_USER: ${GRAFANA_DB_USER:?}
+          GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?}
+          GRAFANA_ADMIN_USER: ${GRAFANA_ADMIN_USER:?}
+          GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
+          GRAFANA_ADMIN_EMAIL: ${GRAFANA_ADMIN_EMAIL:?}
+          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+    networks:
+      - router
+    expose:
+      - 3000
 
-  # alertmanager-service:
-  #   container_name: alertmanager-service
-  #   restart: on-failure
-  #   build:
-  #       context: ./back/monitoring/alertmanager-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
-  #         ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
-  #         ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
-  #         ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
-  #         ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
-  #         ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
-  #   networks:
-  #     - router
-  #   expose:
-  #     - 9093
+  alertmanager-service:
+    container_name: alertmanager-service
+    restart: on-failure
+    build:
+        context: ./back/monitoring/alertmanager-service
+        dockerfile: Dockerfile
+        args:
+          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+          ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
+          ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
+          ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
+          ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
+          ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
+    networks:
+      - router
+    expose:
+      - 9093
 
-  # front-service:
-  #   container_name: front-service
-  #   restart: on-failure
-  #   build:
-  #       context: ./front/
-  #       dockerfile: Dockerfile
-  #       args:
-  #         NODE_ENV: prod
-  #   environment:
-  #     VITE_HOST: ${HOST:?}
-  #     VITE_PORT: ${PORT:?}
-  #     NODE_ENV: prod
-  #   expose:
-  #     - 5173
-  #   networks:
-  #     - router
+  front-service:
+    container_name: front-service
+    restart: on-failure
+    build:
+        context: ./front/
+        dockerfile: Dockerfile
+        args:
+          NODE_ENV: prod
+    environment:
+      VITE_HOST: ${HOST:?}
+      VITE_PORT: ${PORT:?}
+      NODE_ENV: prod
+    expose:
+      - 5173
+    networks:
+      - router
 
 volumes:
   db-chat:

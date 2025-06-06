@@ -41,8 +41,6 @@ services:
       - 3000
     networks:
       - router
-    labels:
-      - "com.example.service=auth"
 
   chat-service:
     container_name: chat-service
