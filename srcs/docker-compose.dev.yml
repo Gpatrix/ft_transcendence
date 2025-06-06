@@ -25,7 +25,7 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       MAIL_ADRESS: ${MAIL_ADRESS}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       MAIL_PORT: ${MAIL_PORT}
@@ -36,7 +36,7 @@ services:
         context: ./back/auth-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     expose:
       - 3000
     networks:
@@ -53,7 +53,7 @@ services:
     environment:
       HOST: ${HOST:?}
       PORT: ${PORT:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       JWT_SECRET: ${JWT_SECRET:?}
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
@@ -61,7 +61,7 @@ services:
         context: ./back/chat-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
           DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
@@ -81,13 +81,13 @@ services:
       PORT: ${PORT:?}
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       JWT_SECRET: ${JWT_SECRET:?}
     build:
         context: ./back/game-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
           DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
@@ -105,12 +105,12 @@ services:
       PORT: ${PORT:?}
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
     build:
         context: ./back/upload-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     expose:
       - 3000
     networks:
@@ -125,7 +125,7 @@ services:
       HOST: ${HOST:?}
       PORT: ${PORT:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
       FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
       FUJI_RPC_URL: ${FUJI_RPC_URL:?}
@@ -135,7 +135,7 @@ services:
         context: ./back/blockchain-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     expose:
       - 3000
     networks:
@@ -152,13 +152,13 @@ services:
       PORT: ${PORT:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       DATABASE_URL: ${DATABASE_URL:?}
     build:
         context: ./back/user-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
           DATABASE_URL: ${DATABASE_URL:?}
     ports:
       - 5555:5555
@@ -223,11 +223,11 @@ services:
         context: ./front/
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     environment:
       VITE_HOST: ${HOST:?}
       VITE_PORT: ${PORT:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
     expose:
       - 5173
     volumes:

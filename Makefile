@@ -1,28 +1,37 @@
-compose_file = ./srcs/docker-compose.yml
+compose_file_prod = ./srcs/docker-compose.prod.yml
+compose_file_dev  = ./srcs/docker-compose.dev.yml
 
 all: build up
 
 dev: build_dev up_dev
 
-debug:
-	docker compose -f $(compose_file) build --progress=plain  --no-cache > docker.debug
-
 build:
-	docker compose -f $(compose_file) build
+	docker compose -f $(compose_file_prod) build
 
 up:
-	docker compose -f $(compose_file) up
+	docker compose -f $(compose_file_prod) up
+
+build_dev:
+	docker compose -f $(compose_file_dev) build
+
+up_dev:
+	docker compose -f $(compose_file_dev) up
 
 stop:
-	docker compose -f $(compose_file) stop
+	docker compose -f $(compose_file_prod) stop
+	docker compose -f $(compose_file_dev) stop
 
 clean down:
-	docker compose -f $(compose_file) down
+	docker compose -f $(compose_file_prod) down
+	docker compose -f $(compose_file_dev) down
 
-fclean purge:
-	docker compose -f $(compose_file) down --volumes
+fclean purge: stop
+	docker compose -f $(compose_file_prod) down --volumes
+	docker compose -f $(compose_file_dev) down --volumes
 	docker system prune --all --force --volumes
 
 re: down all
 
-.PHONY: build up stop down re purge fclean clean debug
+re_dev: build_dev up_dev
+
+.PHONY: build up stop down re purge fclean clean debug re_dev build_dev up_dev

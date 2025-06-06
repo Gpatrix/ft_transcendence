@@ -27,10 +27,8 @@
         "qrcode": "^1.5.4",
         "speakeasy": "^2.0.0",
         "ts-node": "^10.9.2",
-        "ts-node-dev": "^2.0.0"
-    },
-    "devDependencies": {
-        "@types/jsonwebtoken": "^9.0.9",
-        "typescript": "^5.8.3"
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.8.3",
+        "@types/jsonwebtoken": "^9.0.9"
     }
 }

@@ -1,6 +1,6 @@
 import fastify from 'fastify';
 import { FastifyInstance } from "fastify";
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
@@ -253,7 +253,7 @@ async function chat_api(fastify: FastifyInstance)
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          if (!token || token === undefined)
             return (reply.status(403).send({ error: "0403" }));
-         const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
+         const decoded: tokenStruct = (jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload).data;
          const id = decoded.id;
          if (!id || id === undefined)
             return (reply.status(403).send({ error: "0403" }));
@@ -268,8 +268,8 @@ async function chat_api(fastify: FastifyInstance)
    {
       try
       {
-         const token: string | undefined = request.cookies.ft_transcendence_jw_token
-         const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
+         const token: string = request.cookies.ft_transcendence_jw_token as string
+         const decodedToken: tokenStruct = (jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload).data;
 
          const user: i_user = {socket: socket, timeout: null}
          activeConn.set(decodedToken.id, user);
