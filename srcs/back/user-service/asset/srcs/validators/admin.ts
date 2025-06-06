@@ -1,10 +1,10 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export function isAdmin(request, reply, done) {
     const token = request.cookies.ft_transcendence_jw_token;
     if (!token)
         return (reply.status(401).send({ error: 1019 }));
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded: JwtPayload = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
     const id = decoded.data?.id;
     const isAdmin = decoded.data?.isAdmin;
     if (!id)

@@ -245,22 +245,22 @@ interface newChannelBody
 async function chat_api(fastify: FastifyInstance)
 {
    fastify.addHook('preValidation'
-   , (request, reply, done) => {
-      
+   , (request, reply, done) => 
+    {
       try
       {
          chat_requests_total.inc({method: request.method});
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          if (!token || token === undefined)
-            return (reply.status(403).send({ error: "0403" }));
+            return (reply.status(230).send({ error: "0403" }));
          const decoded: tokenStruct = (jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload).data;
          const id = decoded.id;
          if (!id || id === undefined)
-            return (reply.status(403).send({ error: "0403" }));
+            return (reply.status(230).send({ error: "0403" }));
          done();
       }
       catch (error) {
-         return (reply.status(403).send({ error: "0403" }));
+        return (reply.status(230).send({ error: "0403" }));
       }
    })
 

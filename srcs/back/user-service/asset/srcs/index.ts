@@ -2,7 +2,8 @@ import fastify from 'fastify'
 import cookiesPlugin from '@fastify/cookie';
 import multipartPlugin from '@fastify/multipart';
 import rateLimitPlugin from '@fastify/rate-limit';
-import userRoutes from "./routes/user";
+import public_userRoutes from "./routes/public_user";
+import private_userRoutes from "./routes/private_user";
 import friendsRoutes from "./routes/friends";
 import { metrics , user_requests_total} from './metrics'
 
@@ -32,7 +33,8 @@ server.register(multipartPlugin, {
 });
 server.register(cookiesPlugin, {});
 server.register(metrics);
-server.register(userRoutes);
+server.register(public_userRoutes);
+server.register(private_userRoutes);
 server.register(friendsRoutes);
 
 async function main() {

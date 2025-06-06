@@ -21,7 +21,7 @@ stop:
 	docker compose -f $(compose_file_prod) stop
 	docker compose -f $(compose_file_dev) stop
 
-clean down stop:
+clean down: stop
 	docker compose -f $(compose_file_prod) down
 	docker compose -f $(compose_file_dev) down
 
