@@ -594,14 +594,16 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     rank: true,
                 }
             })
-            console.log("targets");
             if (!targets)
                 return reply.status(404).send({ error: "2012" });
             const indexUser = targets.findIndex(target => target.id == user.id);
             if (indexUser != -1)
                 targets.splice(indexUser, 1);
-            if (targets.length == 0)
+            if (targets.length == 0 && indexUser != -1)
                 return reply.status(401).send({ error: "2011" });
+            if (targets.length == 0)
+                return reply.status(404).send({ error: "2001" });
+            
             reply.status(201).send(targets);
         } catch (error) {
             {

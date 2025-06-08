@@ -4,7 +4,7 @@
 
 <summary>TODO</summary>
 
-## Continuel
+## Continuous
 
 
 - [x] Major module: Use a framework to build the backend.
@@ -15,7 +15,7 @@
 
 - [x] Minor module: Supports multiple languages.
 
-## debut - Milieu
+## Start - Middle
 
 - [ ] Major module: Standard user management, authentication, users across tournaments.
 
@@ -26,7 +26,7 @@
 - [ ] Minor module: User and Game Stats Dashboards
 
 
-## Milieu - Fin
+## Middle - End
 
 - [ ] Major module: Remote players
 
@@ -34,32 +34,29 @@
 
 - [x] Major module: Live chat.
 
-- [ ] Major module: Introduce an AI opponent.
+- [x] Major module: Introduce an AI opponent.
 
 - [ ] Major module: Replace basic Pong with server-side Pong and implement an API.
 
-## Fin
+## End
 
 - [ ] Major module: Store the score of a tournament in the Blockchain.
 
-- [ ] Minor module: GDPR compliance options with user anonymization, local data management, and Account Deletion.
-
-- [ ] Minor module: Server-Side Rendering (SSR) integration.
-
 - [x] Minor module: Monitoring system
 
-## Bonus
-
-- [ ] Major module: Add another game with user history and matchmaking.
-
-- [ ] Minor module: Game customization options.
-
-## C'est mort
+## Not planned
 • Graphics
 
 • Major module: Enabling Pong gameplay via CLI against web users with
 API integration.
 
+• Major module: Add another game with user history and matchmaking.
+
+• Minor module: Game customization options.
+
+• Minor module: Server-Side Rendering (SSR) integration.
+
+• Minor module: GDPR compliance options with user anonymization, local data management, and Account Deletion.
 
 • Minor module: Support on all devices.
 
