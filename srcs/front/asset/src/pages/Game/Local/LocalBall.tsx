@@ -141,6 +141,10 @@ export class Ball {
         this.isFreezed = false;
     }
 
+    freeze() {
+        this.isFreezed = true;
+    }
+
     resetPos()
     {
         this.isFreezed = true;
