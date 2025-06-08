@@ -19,7 +19,7 @@ export class PauseManager {
     }
 
     public askForPause(playerId: number): boolean {
-        if (!this.isPausing) {
+        if (this.isPausing) {
             return (false);
             // throw (new Error('Game is already in pause'));
         }
@@ -189,10 +189,9 @@ export class PongGame {
     }
 
     public pause(playerId: number) {
-        if (!this.pauseManager.askForPause(playerId)) {
+        if (!(this.pauseManager.askForPause(playerId))) {
             const player = this.players.find((player) => player.id === playerId);
-            player?.ws.send('pauseContested');
-            return ;
+            return player?.ws.send(JSON.stringify('pauseContested'));
         }
         this.ball.freeze();
         this.players.forEach(player => {
@@ -208,12 +207,14 @@ export class PongGame {
     public unPause(playerId?: number) {
         if (!this.pauseManager.endPause(playerId))
             return ;
-        this.ball.unFreeze();
         this.players.forEach(player => {
             if (player.ws) {
-                player.ws.send(JSON.stringify({ message: `gameUnpaused` }));
+                player.ws.send(JSON.stringify({ message: `gameUnpaused`, gameId: this.id }));
             }
         });
+        setTimeout(() => {
+            this.ball.unFreeze();
+        }, 1000);
     }
 
     start() {

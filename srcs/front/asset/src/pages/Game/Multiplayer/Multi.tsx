@@ -21,11 +21,12 @@ export type Player = {
 
 
 export default function Multi() {
-    const socket = useRef<WebSocket | null>(null)
+    const socket = useRef<WebSocket | null>(null);
     
-    const [players, setPlayers] = useState<Player[]>([])
-    const [counter, setCounter] = useState<string | null>(null)
-    const [points, setPoints] = useState<Array<number>>([])
+    const [players, setPlayers] = useState<Player[]>([]);
+    const [counter, setCounter] = useState<string | null>(null);
+    const [points, setPoints] = useState<Array<number>>([]);
+    const [isPaused, setIsPaused] = useState<boolean>(false);
 
     const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
     const navigate = useNavigate()
@@ -72,7 +73,22 @@ export default function Multi() {
                     console.log(json.ball)
                     ball.current.velocity = json.ball.velocity;
                     ball.current.position = json.ball.position;
-                    break 
+                    break ;
+                case "gamePaused":
+                    console.log("PAUSED")
+                    setIsPaused(true);
+                    ball.current.freeze();
+                    break ;
+                case "gameUnpaused":
+                    console.log("UNPAUSED")
+                    setIsPaused(false);
+                    setTimeout(() => {
+                        ball.current.unFreeze();
+                    }, 1000);
+                    break ;
+                case "pauseContested":
+                    console.log("PAUSED CONTEXTED");
+                    break ;
                 case "result":
                     setPoints(json.result[0])
                     break
@@ -111,7 +127,7 @@ export default function Multi() {
             {disconnect && <Disconnected/>}
             {!error &&
             <span>
-                <MultiGame ball={ball.current} players={players} socket={socket.current} />
+                <MultiGame ball={ball.current} players={players} socket={socket.current} isPaused={isPaused} />
                 {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}
                 <MultiPointsCounter points={points}/>
             </span>

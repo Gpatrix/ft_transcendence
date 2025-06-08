@@ -7,6 +7,7 @@ import RacketComponent from "../Racket"
 import { Racket } from "../Racket"
 import MultiBallComponent from "./MultiBall"
 import MultiPointsCounter from "./MultiPointsCounter"
+import PauseText from "../../../components/PauseText"
 
 export const mapDimension: dimension = {
   x: 700,
@@ -22,9 +23,10 @@ interface MultiGameProps {
   players: Player[]
   socket: WebSocket |null
   ball: Ball
+  isPaused: boolean
 }
 
-export default function MultiGame({ players, socket, ball }: MultiGameProps) {
+export default function MultiGame({ players, socket, ball, isPaused }: MultiGameProps) {
     const pressedKeys = useRef(new Set<string>())
   
     const [localY, setLocalY] = useState<number>(0)
@@ -41,6 +43,12 @@ export default function MultiGame({ players, socket, ball }: MultiGameProps) {
             direction = 'up';
         else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's')
             direction = 'down';
+        else if (e.key === 'Escape' ) {
+          if (isPaused) {
+            return socket.send(JSON.stringify({ action: "unPause" }));
+          }
+          return socket.send(JSON.stringify({ action: "pause" }));
+        }
     
         if (!direction) return;
         pressedKeys.current.add(direction);
@@ -67,7 +75,11 @@ export default function MultiGame({ players, socket, ball }: MultiGameProps) {
 
         setLocalY((prev) => {
             let newY = prev;
-            const speed = 10
+            const speed = 10;
+
+            if (isPaused) {
+                return newY;
+            }
     
             if (pressedKeys.current.has("up")) {
               if (newY - speed >= 0) {
@@ -107,6 +119,7 @@ export default function MultiGame({ players, socket, ball }: MultiGameProps) {
 
   return (
     <div className="block ml-auto mr-auto w-fit h-fit">
+      {isPaused && <PauseText />}
       <span className="border-yellow border-2 block relative" style={{ width: `${mapDimension.x}px`, height: `${mapDimension.y}px` }}>
         {players.map((player, index) => {
             const isYou = player.isYours;
