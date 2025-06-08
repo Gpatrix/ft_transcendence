@@ -11,6 +11,7 @@ import { gpt } from "../../../translations/pages_reponses.tsx";
 import IA from "../../../classes/IA.tsx";
 import { useSearchParams } from "react-router";
 import WinPopUp from "./WinPopup.tsx";
+import PauseText from "../../../components/PauseText.tsx";
 
 const mapDimension : dimension = {
     x : 700,
@@ -33,7 +34,13 @@ export default function Game({userNames}: GameProps) {
     // const [userNames, setUserNames] = useState<Array<string> | null>(null)
     const [winPopup, setWinPopup] = useState<boolean>(false)
     const refreshViewInterval = useRef<number | null>(null);
-    const [isPaused, setIsPaused] = useState<boolean>(true);
+    const [isPaused, setIsPaused] = useState<boolean>(false);
+    const isPausedRef = useRef(false);
+
+    const updatePauseState = (paused: boolean) => {
+        isPausedRef.current = paused;
+        setIsPaused(paused);
+    };
 
     function updateResult(result : number) {
         setPlayers(prev => {
@@ -82,21 +89,23 @@ export default function Game({userNames}: GameProps) {
         };
           
         const handleEscape = () => {
-            if (!(ball.current.isFreezed)){
+            console.log("Escape pressed");
+            console.log("isPaused:", isPaused);
+            if (isPausedRef.current == true) {
+                console.log("Unpause");
+                updatePauseState(false);
+                setTimeout(() => {
+                    r1.isFreezed = false;
+                    r2.isFreezed = false;
+                    ball.current.unFreeze();
+                }, 1000);
+            } else if (!(ball.current.isFreezed)) {
+                console.log("Pause");
+                updatePauseState(true);
                 r1.isFreezed = true;
                 r2.isFreezed = true;
                 ball.current.freeze();
             }
-            else {
-                setCounter("3");
-                setTimeout(()=>{
-                    setCounter(null);
-                    r1.isFreezed = false;
-                    r2.isFreezed = false;
-                    ball.current.unFreeze();
-                }, 3000);
-            }
-
         }
         const handleKeyDown = (e: KeyboardEvent) => pressedKeys.current.add (normalizeKey(e.key));
         const handleKeyUp = (e: KeyboardEvent) => {
@@ -169,6 +178,7 @@ export default function Game({userNames}: GameProps) {
 
     return (
         <div className="block ml-auto mr-auto w-fit h-fit ">
+            {isPaused && <PauseText />}
             { userNames && 
             <span className="w-full relative text-yellow flex">
                 <h1 className="w-[234px] truncate overflow-hidden">{userNames[0]}</h1>
