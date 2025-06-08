@@ -199,10 +199,10 @@ export class PongGame {
             if (player.ws) {
                 player.ws.send(JSON.stringify({ message: `gamePaused`, gameId: this.id }));
             }
-        })
+        });
         setTimeout(() => {
             this.unPause();
-        }, 10 * 1000)
+        }, 10 * 1000);
     }
 
     public unPause(playerId?: number) {
@@ -213,7 +213,7 @@ export class PongGame {
             if (player.ws) {
                 player.ws.send(JSON.stringify({ message: `gameUnpaused` }));
             }
-        })
+        });
     }
 
     start() {
