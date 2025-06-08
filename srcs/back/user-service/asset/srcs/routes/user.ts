@@ -171,7 +171,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "0404" });
+                reply.status(230).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
             let put: dfaUpdateBody = {};

@@ -138,6 +138,8 @@ services:
           NODE_ENV: ${NODE_ENV:?}
     expose:
       - 3000
+    ports:
+      - 8545:8545
     networks:
       - router
 
@@ -167,36 +169,36 @@ services:
     networks:
       - router
 
-  prometheus-service:
-    container_name: prometheus-service
-    restart: on-failure
-    volumes:
-      - db-monitoring:/usr/src/prometheus-service/data
-    build:
-        context: ./back/monitoring/prometheus-service
-        dockerfile: Dockerfile
-    networks:
-      - router
-    expose:
-      - 9090
+  # prometheus-service:
+  #   container_name: prometheus-service
+  #   restart: on-failure
+  #   volumes:
+  #     - db-monitoring:/usr/src/prometheus-service/data
+  #   build:
+  #       context: ./back/monitoring/prometheus-service
+  #       dockerfile: Dockerfile
+  #   networks:
+  #     - router
+  #   expose:
+  #     - 9090
 
-  grafana-service:
-    container_name: grafana-service
-    restart: on-failure
-    build:
-        context: ./back/monitoring/grafana-service
-        dockerfile: Dockerfile
-        args:
-          GRAFANA_DB_USER: ${GRAFANA_DB_USER:?}
-          GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?}
-          GRAFANA_ADMIN_USER: ${GRAFANA_ADMIN_USER:?}
-          GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
-          GRAFANA_ADMIN_EMAIL: ${GRAFANA_ADMIN_EMAIL:?}
-          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
-    networks:
-      - router
-    expose:
-      - 3000
+  # grafana-service:
+  #   container_name: grafana-service
+  #   restart: on-failure
+  #   build:
+  #       context: ./back/monitoring/grafana-service
+  #       dockerfile: Dockerfile
+  #       args:
+  #         GRAFANA_DB_USER: ${GRAFANA_DB_USER:?}
+  #         GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?}
+  #         GRAFANA_ADMIN_USER: ${GRAFANA_ADMIN_USER:?}
+  #         GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
+  #         GRAFANA_ADMIN_EMAIL: ${GRAFANA_ADMIN_EMAIL:?}
+  #         GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+  #   networks:
+  #     - router
+  #   expose:
+  #     - 3000
 
   alertmanager-service:
     container_name: alertmanager-service
@@ -241,7 +243,7 @@ volumes:
   db-game:
   db-upload:
   db-blockchain:
-  db-monitoring:
+  # db-monitoring:
 
 networks:
   router:

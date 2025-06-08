@@ -107,7 +107,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: email,
-                    credential: process.env.API_CREDENTIAL
+                    cential: process.env.API_CREDENTIAL
                 }),
             });
             const data = await response.json();

@@ -31,6 +31,7 @@ import AskPlayers from './pages/Tournament/AskPlayers.tsx';
 import CreateTournament from './pages/Tournament/CreateTournament.tsx';
 import Overview from './pages/Tournament/Overview/Overview.tsx';
 import PageFriendLoby from './pages/Lobby/FriendsLobby/PageFriendLoby.tsx';
+import LocalTournamentHistory from './pages/Profile/LocalTournamentResults.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -53,6 +54,7 @@ createRoot(document.getElementById('root')!).render(
             <Route element={<ProfileBackground/>}>
               <Route path="/profile" element={<MyProfile />}/>
               <Route path="/profile/:id" element={<OthersProfile />}/>
+              <Route path="/profile/tournament" element={<LocalTournamentHistory />}/>
             </Route>
 
             <Route element={<LobbyLayout />}>

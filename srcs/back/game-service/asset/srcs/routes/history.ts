@@ -20,6 +20,7 @@ interface GetPlayerHistoryReturn
     you: GetPlayerHistoryReturnPlayer;
     playTime: number;
     gameId: number;
+    tournamentId?: number;
     gameDate: Date;
     isWinner: number
 }
@@ -40,12 +41,13 @@ function getGameInfos(game: any, userId: number): GetPlayerHistoryReturn
         you: you,
         playTime: game.playTime,
         gameId: game.id,
+        tournamentId: game.tournamentId,
         gameDate: game.createdAt,
         isWinner: isPlayerWinnerInGame(game, userId)
     })
 }
 
-function gameRoutes(server: FastifyInstance, options: any, done: any)
+export default function historyRoutes(server: FastifyInstance, options: any, done: any)
 {
     interface GetPlayerHistoryParams
     {
@@ -94,5 +96,3 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
 
     done();
 }
-
-module.exports = gameRoutes;
