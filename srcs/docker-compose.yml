@@ -16,7 +16,7 @@ services:
     container_name: auth-service
     restart: on-failure
     volumes:
-      - ./back/auth-service/asset/srcs:/usr/src/auth-service/asset/srcs
+      - ./back/auth-service/asset/srcs:/usr/src/auth-service/srcs
     environment:
       HOST: ${HOST:?}
       PORT: ${PORT:?}

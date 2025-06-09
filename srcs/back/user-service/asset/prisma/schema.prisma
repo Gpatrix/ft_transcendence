@@ -48,6 +48,7 @@ model User {
   twoFactorSecret String?
   isTwoFactorEnabled Boolean @default(false)
   playerTime Int @default(0)
+  provider String?
 
   friends Friend[] @relation("UserToFriend")
   blockedUsers BlockedUser[] @relation("UsersToBlockedUsers")
