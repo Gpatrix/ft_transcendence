@@ -22,13 +22,14 @@ type InputWithLabelProps = {
     value?: string;
     hidechars?: boolean;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    disabled?: boolean;
 } & VariantProps<typeof variants>;
 
-export default function InputWithLabel({placeholder, label, type, className, onChange, value, hidechars} : InputWithLabelProps) {
+export default function InputWithLabel({placeholder, label, type, className, onChange, value, hidechars, disabled} : InputWithLabelProps) {
     return (
         <div className={clsx('flex flex-col w-full mt-[8px]', className)}>
             <label className={variants({ type })}>{label}</label>
-            <Input value={value} hidechars={hidechars} onChange={onChange} placeholder={placeholder} type={type} />
+            <Input value={value} hidechars={hidechars} onChange={onChange} placeholder={placeholder} type={type} disabled={disabled} />
         </div>
     );
 }
