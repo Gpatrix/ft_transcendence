@@ -20,11 +20,11 @@ declare module 'fastify'
 }
 
 server.register(cookiesPlugin, {});
-server.register(rateLimitPlugin, {
-  max: 100,
-  timeWindow: '1 minute',
-  allowList: ['127.0.0.1']
-});
+// server.register(rateLimitPlugin, {
+//   max: 100,
+//   timeWindow: '1 minute',
+//   allowList: ['127.0.0.1']
+// });
 
 server.addHook('onResponse', (req, res, done) =>
 {

@@ -1,6 +1,7 @@
 import { prisma } from '../config/prisma';
 import WebSocket from 'ws';
 import { Ball } from './Ball';
+import { activeGameConn, users1v1, users2v2 } from '../routes/game';
 
 export interface pos {
     x: number,
@@ -136,7 +137,7 @@ class Teams {
 export class PongGame {
     properties : properties
     teams : Teams
-    constructor (playerIds: Array<number>, id: number) {
+    constructor (playerIds: Array<number>, id: number, nbPlayers: number) {
         this.teams = new Teams(playerIds)
         this.players = []
         playerIds.map((playerId, i)=>{
@@ -154,23 +155,24 @@ export class PongGame {
             racketPadding : 20,
             racketWidth : 10,
             racketHeight : 70,
-            nbPlayers : 2
+            nbPlayers : nbPlayers
         }
         this.ball = new Ball(this.properties);
         this.pauseManager = new PauseManager();
     }
 
     initPlayers() {
-        const padding = this.properties.racketPadding 
-        this.players.map((player, i)=>{
+        this.players.map((player, i) => {
             player.position = {
-                x: (i % 2 == 0) ? padding // left
-                                : this.properties.size.width - padding - this.properties.racketWidth,
-
-                y: (i < 3)      ? 2
-                                : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
+                x: (i % 2 === 0) 
+                    ? this.properties.racketPadding
+                    : this.properties.size.width - this.properties.racketPadding - this.properties.racketWidth,
+        
+                y: (i < 2)
+                    ? 2
+                    : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
             }
-        })
+        });
     }
 
     initGame() {
@@ -266,11 +268,29 @@ export class PongGame {
     
 
     async onEnd() {
+        await prisma.game.update({
+            where: {
+                id: this.id,
+            },
+            data: {
+                closedAt: new Date(),
+            }
+        })
+
+        const game =  await prisma.game.findFirst({
+            where: {
+                id: this.id,
+            },
+        })
+
+        console.log("GAME: ", game)
+
+
+
         await Promise.all(this.players.map(async player => {
             const teamIndex = this.teams.teams.findIndex(t => t.playersIDs.includes(player.id));
             const score = this.teams.teams[teamIndex ^ 1].score;
 
-            // console.log("PLAYER:", player)
             const playerEntry = await prisma.player.findFirst({
               where: {
                 userId: player.id,
@@ -286,11 +306,13 @@ export class PongGame {
             }
           }));
 
-
         this.players.forEach(player => {
             if (player.ws) {
                 player.ws.send(JSON.stringify({ message: `gameEnded`, gameId: this.id }));
                 player.ws.close();
+                activeGameConn.delete(player.id)
+                users1v1.handleUserDisconnection(player.id)
+                users2v2.handleUserDisconnection(player.id)
             }
         })
     }
@@ -314,6 +336,9 @@ export class PongGame {
         const player = this.players.find(player => player.id == id) as Player;
         let newY : number = player.position.y + move
 
+        console.log(`${player.id}: ${move}`)
+
+
         if (move < 0) {  // up
             if (newY <= 0) {
                 newY = 0
@@ -324,7 +349,7 @@ export class PongGame {
                 newY = this.properties.size.height - this.properties.racketHeight - 3
             }
         }
-        player.position.y = newY    
+        player.position.y = newY
     }
 
     sendPlayers(message: string) {

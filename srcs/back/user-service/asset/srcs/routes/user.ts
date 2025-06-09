@@ -28,7 +28,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "0404" });
+                reply.status(230).send({ error: "0404" });
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
@@ -57,10 +57,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 })
             }
             if (!user)
-                return reply.status(404).send({ error: "1006" });
+                return reply.status(230).send({ error: "1006" });
             reply.send(user);
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+            return reply.status(230).send({ error: "0500" });
         }
     })
 
@@ -78,7 +78,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.post<{ Params: isBlockedByParams, Body: isBlockedByBody }>('/api/user/isBlockedBy/:target/:by', async (request, reply) => {
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            reply.status(401).send({ error: "0404" });
+            reply.status(230).send({ error: "0404" });
         const target_user = await prisma.user.findUnique({
             where: {
                 id: Number(request.params.target)
@@ -88,7 +88,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             }
         });
         if (!target_user || target_user === undefined)
-            return (reply.status(404).send({error: "2001"}));
+            return (reply.status(230).send({error: "2001"}));
 
         const by_user = await prisma.user.findUnique({
             where: {
@@ -99,7 +99,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             }
         });
         if (!by_user || by_user === undefined)
-            reply.status(404).send({error: "2002"});
+            reply.status(230).send({error: "2002"});
         else
         {
             let isBlocked: boolean
@@ -132,7 +132,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const credential = request.body?.credential;
             const password = request.body?.password;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "0404" });
+                reply.status(230).send({ error: "0404" });
             let user = await prisma.user.update({
                 where: { 
                     email: request.params.email
@@ -142,24 +142,24 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 }
             });
             if (!user)
-                reply.status(404).send({ error: "1006" });
+                reply.status(230).send({ error: "1006" });
             reply.status(200).send({ message: "user_password_updated" });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
                     switch (error.code) {
                         case 'P2003':
-                            reply.status(403).send({ error: "1011"});
+                            reply.status(230).send({ error: "1011"});
                           break
                         case 'P2000':
-                            reply.status(403).send({ error: "1012"});
+                            reply.status(230).send({ error: "1012"});
                           break
                         default:
-                            reply.status(403).send({ error: "0500"});
+                            reply.status(230).send({ error: "0500"});
                     }
                 }
             else
-                reply.status(500).send({ error: "0500" });
+                reply.status(230).send({ error: "0500" });
         }
     })
 
@@ -186,7 +186,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "0404" });
+                reply.status(230).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
             let put: DfaPut = {};
@@ -204,24 +204,24 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 data : put
             });
             if (!user)
-                reply.status(404).send({ error: "1006" });
+                reply.status(230).send({ error: "1006" });
             reply.status(200).send({ message: "user_2fa_secret_updated" });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
                     switch (error.code) {
                         case 'P2003':
-                            reply.status(403).send({ error: "1011"});
+                            reply.status(230).send({ error: "1011"});
                           break
                         case 'P2000':
-                            reply.status(403).send({ error: "1012"});
+                            reply.status(230).send({ error: "1012"});
                           break
                         default:
-                            reply.status(403).send({ error: error.message});
+                            reply.status(230).send({ error: error.message});
                     }
                 }
             else
-                reply.status(500).send({ error: "0500" });
+                reply.status(230).send({ error: "0500" });
         }
     })
 
@@ -250,7 +250,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             })
         }
         if (!user)
-            return reply.status(404).send({ error: "1006" });
+            return reply.status(230).send({ error: "1006" });
         reply.send(user);
     })
 
@@ -271,7 +271,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.get<{ Params: getUserProfile }>('/api/user/get_profile/:id', async (request, reply) => {
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token) {
-            return (reply.status(401).send({ error: "0403" }));
+            return (reply.status(230).send({ error: "0403" }));
         }
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -298,13 +298,13 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 select: selectFields
             });
             if (!data)
-                return (reply.status(404).send({ error: "0404" }));
+                return (reply.status(230).send({ error: "0404" }));
             return (reply.status(200).send({data}));
         }
 
         catch (error) {
             console.log(error)
-            return   (reply.status(401).send({ error: "1016" }));
+            return   (reply.status(230).send({ error: "1016" }));
         }
     });
 
@@ -323,7 +323,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         try {
             const credential = request.body.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: '0404' });
+                reply.status(230).send({ error: '0404' });
             const email = request.body.email;
             const name = request.body.name;
             const password = request.body.password;
@@ -350,16 +350,16 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             console.log(error);
             switch ((error as Prisma.PrismaClientKnownRequestError).code) {
                 case 'P2002':
-                    reply.status(403).send({ error: "1003"});
+                    reply.status(230).send({ error: "1003"});
                     break
                 case 'P2003':
-                    reply.status(403).send({ error: "1011"});
+                    reply.status(230).send({ error: "1011"});
                     break
                 case 'P2000':
-                    reply.status(403).send({ error: "1012"});
+                    reply.status(230).send({ error: "1012"});
                     break
                 default:
-                    return reply.status(500).send({ error: "0500"});
+                    return reply.status(230).send({ error: "0500"});
             }
         }
     })
@@ -395,11 +395,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     } }, async (request, reply) => {
         const body: EditUserBody = request.body;
         if (!body)
-            return (reply.status(400).send({ error: "0401" }));
+            return (reply.status(230).send({ error: "0401" }));
         const bodyId = body?.id;
         const token = request.cookies['ft_transcendence_jw_token'];
         if (!token)
-            reply.status(401).send({ error: "0403" });
+            reply.status(230).send({ error: "0403" });
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (tokenPayload?.isAdmin && bodyId)
@@ -427,10 +427,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
             if (!foundUser)
                 reply.status(404).send({ error: "1006" });
-
-            if (foundUser.provider && (updateData.newPassword))
-                return reply.status(401).send({ error: "2017" });
-
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
@@ -449,21 +445,21 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             {
                 switch (error.code) {
                     case 'P2002':
-                        reply.status(403).send({ error: "1003"});
+                        reply.status(230).send({ error: "1003"});
                         break
                     case 'P2003':
-                        reply.status(403).send({ error: "1011"});
+                        reply.status(230).send({ error: "1011"});
                       break
                     case 'P2000':
-                        reply.status(403).send({ error: "1012"});
+                        reply.status(230).send({ error: "1012"});
                       break
                     default:
-                        reply.status(403).send({ error: "0500"});
+                        reply.status(230).send({ error: "0500"});
                 }
             }
             else
             {
-                reply.status(500).send({ error: "0500"});
+                reply.status(230).send({ error: "0500"});
             }
         }
     })
@@ -476,21 +472,21 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     server.delete<{ Params: deleteUserParams }>('/delete/:email', async (request, reply) => {
         const token = request.cookies.ft_transcendence_jw_token;
         if (!token)
-            return (reply.status(401).send({ error: "0403"}));
+            return (reply.status(230).send({ error: "0403"}));
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tokenPayload = decoded.data;
         if (!tokenPayload?.isAdmin && !tokenPayload?.id)
-            return (reply.status(401).send({ error: "0403"}));
+            return (reply.status(230).send({ error: "0403"}));
         const dfa = tokenPayload?.dfa;
         if (!dfa)
-            return (reply.status(403).send({ error: "1020" }));
+            return (reply.status(230).send({ error: "1020" }));
         const user = await prisma.user.delete({
         where: { 
             email: request.params.email 
         }
         })
         if (!user)
-          return reply.status(404).send({ error: "1006" });
+          return reply.status(230).send({ error: "1006" });
         reply.send({ response: "user deleted" });
     })
 
@@ -515,11 +511,11 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             // et dans le ficher de gestion d'erreur
 
             if (body.targetId == tokenPayload.id)
-                return (reply.status(403).send({ error: "2003" }));
+                return (reply.status(230).send({ error: "2003" }));
             if (!targetUser)
-                return (reply.status(404).send({ error: "2004" }));
+                return (reply.status(230).send({ error: "2004" }));
             if (targetUser.isAdmin)
-                return (reply.status(403).send({ error: "2005" }));
+                return (reply.status(230).send({ error: "2005" }));
             await prisma.blockedUser.create({
                 data: {
                   userId: tokenPayload.id,
@@ -528,7 +524,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             });
             reply.status(200).send({ message: "user_successfully_blocked" });
         } catch (error) {
-            reply.status(500).send({ error: "0500"});
+            reply.status(230).send({ error: "0500"});
         }
     })
 
@@ -550,10 +546,10 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!targetUser)
-                return (reply.status(404).send({ error: "0500" }));
+                return (reply.status(230).send({ error: "0500" }));
             reply.status(200).send({ message: "user_successfully_unblocked" });
         } catch (error) {
-            reply.status(500).send({ error: "0500"});
+            reply.status(230).send({ error: "0500"});
         }
     })
 
@@ -568,18 +564,18 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const targetName = request.params?.name;
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             const decoded = jwt.decode(token);
             const id = decoded?.data?.id;
             if (!id)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             const user = await prisma.user.findUnique({
                 where: { 
                     id: Number(id),
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             const targets : User[] = await prisma.user.findMany({
                 where: { 
                     name: targetName
@@ -595,19 +591,16 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!targets)
-                return reply.status(404).send({ error: "2012" });
+                return reply.status(230).send({ error: "2012" });
             const indexUser = targets.findIndex(target => target.id == user.id);
             if (indexUser != -1)
                 targets.splice(indexUser, 1);
-            if (targets.length == 0 && indexUser != -1)
-                return reply.status(401).send({ error: "2011" });
             if (targets.length == 0)
-                return reply.status(404).send({ error: "2001" });
-            
+                return reply.status(401).send({ error: "2011" });
             reply.status(201).send(targets);
         } catch (error) {
             {
-                return reply.status(500).send({ error: "0500" });
+                return reply.status(230).send({ error: "0500" });
             }
         }
     })

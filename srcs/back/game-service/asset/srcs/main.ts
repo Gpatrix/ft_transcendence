@@ -45,16 +45,16 @@ async function game_service(fastify: FastifyInstance)
         try
         {
             if (!token || token === undefined)
-                return (reply.status(403).send({ error: "0403" }));
+                return (reply.status(230).send({ error: "0403" }));
             const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
             const id = decoded.id;
             if (!id || id === undefined)
-                return (reply.status(403).send({ error: "0403" }));
+                return (reply.status(230).send({ error: "0403" }));
             done();
         }
         catch (error)
         {
-            return (reply.status(403).send({ error: "0403" }));
+            return (reply.status(230).send({ error: "0403" }));
         }
     })
 

@@ -252,15 +252,15 @@ async function chat_api(fastify: FastifyInstance)
          chat_requests_total.inc({method: request.method});
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
          if (!token || token === undefined)
-            return (reply.status(403).send({ error: "0403" }));
+            return (reply.status(230).send({ error: "0403" }));
          const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
          const id = decoded.id;
          if (!id || id === undefined)
-            return (reply.status(403).send({ error: "0403" }));
+            return (reply.status(230).send({ error: "0403" }));
          done();
       }
       catch (error) {
-         return (reply.status(403).send({ error: "0403" }));
+         return (reply.status(230).send({ error: "0403" }));
       }
    })
 
@@ -289,11 +289,11 @@ async function chat_api(fastify: FastifyInstance)
    fastify.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
       const credential = request.body?.credential;
       if (!credential || credential != process.env.API_CREDENTIAL)
-         reply.status(401).send({ error: "private_route" });
+         reply.status(230).send({ error: "private_route" });
       
       let channel: Utils.t_channel | string= await Utils.CreateChannel(request.body?.usersId, true);
       if (typeof channel === 'string')
-         return (reply.status(400).send(channel));
+         return (reply.status(230).send(channel));
       
       return (reply.status(200).send({channelId: channel.id}));
    })

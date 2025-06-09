@@ -75,7 +75,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 body: form,
             }); 
 
-            if (response.ok) {
+            if (response.status == 200) {
                 window.location.reload();
             } else {
                 const data = await response.json();

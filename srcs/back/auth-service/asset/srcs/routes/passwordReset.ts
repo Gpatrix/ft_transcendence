@@ -15,7 +15,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
         try {
             const email = req.body.email;
             if (!email)
-                return res.status(400).send({ error: "missing_key" });
+                return res.status(230).send({ error: "missing_key" });
             const userLookupResponse = await fetch(`http://user-service:3000/api/user/lookup/${email}`,
             {
                 method: 'POST',
@@ -30,7 +30,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 return res.status(userLookupResponse.status).send({ error: userLookupData.error})
             const user = userLookupData;
             if (!user)
-                return res.status(404).send({ error: "1006" });
+                return res.status(230).send({ error: "1006" });
             const passwordResetToken = await jwt.sign({
             data: {
                 email
@@ -43,7 +43,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
             console.log(error)
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
@@ -59,7 +59,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const email = decoded.data?.email;
             if (!email)
-                return res.status(401).send({ error: "1016" });
+                return res.status(230).send({ error: "1016" });
             const newPassword = await bcrypt.hash(password, 12);
             const userPasswordUpdate = await fetch(`http://user-service:3000/api/user/password/${email}`,
             {
@@ -75,7 +75,7 @@ function passwordResetRoutes(server: FastifyInstance, options: any, done: any)
                 return res.status(userPasswordUpdate.status).send({ error: "1016"})
             res.status(200).send({ message: "user_password_updated" });
         } catch (error) {
-            res.status(500).send({ error: "1016" });
+            res.status(230).send({ error: "1016" });
         }
     });
     done();
