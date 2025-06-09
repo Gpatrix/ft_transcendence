@@ -35,6 +35,9 @@ export class PauseManager {
     }
 
     public endPause(playerId?: number) {
+        console.log('this.isPausing', this.isPausing);
+        console.log('this.currentPlayerId', this.currentPlayerId);
+        console.log('playerId', playerId);
         if (!this.isPausing)
             return (false);
         if (playerId && playerId != this.currentPlayerId)
@@ -189,6 +192,8 @@ export class PongGame {
     }
 
     public pause(playerId: number) {
+        if (this.ball.isFreezed)
+            return ;
         if (!(this.pauseManager.askForPause(playerId))) {
             const player = this.players.find((player) => player.id === playerId);
             return player?.ws.send(JSON.stringify('pauseContested'));
@@ -263,7 +268,7 @@ export class PongGame {
             const teamIndex = this.teams.teams.findIndex(t => t.playersIDs.includes(player.id));
             const score = this.teams.teams[teamIndex ^ 1].score;
 
-            console.log("PLAYER:", player)
+            // console.log("PLAYER:", player)
             const playerEntry = await prisma.player.findFirst({
               where: {
                 userId: player.id,

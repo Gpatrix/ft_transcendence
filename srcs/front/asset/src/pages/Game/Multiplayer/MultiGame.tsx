@@ -24,9 +24,10 @@ interface MultiGameProps {
   socket: WebSocket |null
   ball: Ball
   isPaused: boolean
+  isPausedRef?: any
 }
 
-export default function MultiGame({ players, socket, ball, isPaused }: MultiGameProps) {
+export default function MultiGame({ players, socket, ball, isPaused, isPausedRef }: MultiGameProps) {
     const pressedKeys = useRef(new Set<string>())
   
     const [localY, setLocalY] = useState<number>(0)
@@ -44,7 +45,8 @@ export default function MultiGame({ players, socket, ball, isPaused }: MultiGame
         else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's')
             direction = 'down';
         else if (e.key === 'Escape' ) {
-          if (isPaused) {
+          console.log('isPausedRef.current', isPausedRef.current);
+          if (isPausedRef.current == true) {
             return socket.send(JSON.stringify({ action: "unPause" }));
           }
           return socket.send(JSON.stringify({ action: "pause" }));
