@@ -354,7 +354,61 @@ export class PongGame {
         });
     }
 
+    hasPlayer(userId: number): boolean {
+        return this.players.some(player => player.id === userId);
+    }
+    
+    isReady(): boolean {
+        return this.players.every(player => player.ws);
+    }
 
+    addSocket(userId: number, ws: WebSocket): boolean {
+        const player = this.players.find(p => p.id === userId);
+        if (!player) {
+            console.warn(`addSocket: No player found with ID ${userId}`);
+            return false;
+        }
+    
+        player.ws = ws;
+        this.onPlayerJoin(userId, ws);
+        return true;
+    }
+
+    removePlayer(userId: number): void {
+        const player = this.players.find(p => p.id === userId);
+        if (!player) {
+            console.warn(`removePlayer: No player found with ID ${userId}`);
+            return;
+        }
+    
+        player.ws = undefined;
+        this.onPlayerLeave(userId);
+    }
+
+    markPlayerConnected(userId: number) {
+        this.connectedPlayers.add(userId);
+        this.disconnectedPlayers.delete(userId);
+    }
+
+    markPlayerDisconnected(userId: number) {
+        this.connectedPlayers.delete(userId);
+        this.disconnectedPlayers.add(userId);
+    }
+
+    areAllPlayersDisconnected(): boolean {
+        return this.connectedPlayers.size === 0;
+    }
+
+    allConnected(expectedPlayerCount : number): boolean {
+        console.log(this.connectedPlayers.size);
+        console.log(this.disconnectedPlayers.size);
+        
+        return (this.connectedPlayers.size === expectedPlayerCount)
+    }
+
+
+    private connectedPlayers: Set<number> = new Set();
+    private disconnectedPlayers: Set<number> = new Set();
     ball: Ball
     width: number = 200
     height: number = 200

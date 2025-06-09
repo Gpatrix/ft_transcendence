@@ -161,6 +161,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             }
 
             const res = await axios.post(`http://user-service:3000/api/user/lookup/${userId}`, {
+            // const res = await axios.post(`http://user-service:${import.meta.env.VITE_PORT}/api/user/lookup/${userId}`, {
                 credential: process.env.API_CREDENTIAL
             });
             
@@ -237,6 +238,208 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
         }
     });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    // creer la game :
+    server.post('/api/game/friendMatch/create', async (request, reply) => {
+        const body = request.body as { userIds: number[] };
+        const userIds = body.userIds;
+        
+    
+        if (!Array.isArray(userIds) || userIds.length < 2) {
+            return reply.status(230).send({ error: '4008' }); // format invalid // ajouter cette erreur au wiki
+        }
+    
+        const matchUsers: MatchMakingUser[] = [];
+    
+        console.log(userIds);
+        for (const userId of userIds) {
+            try {
+                console.log(userId);
+                
+                // console.log(import.meta.env.VITE_PORT);
+                
+                const res = await axios.post(`http://user-service:3000/api/user/lookup/${userId}`, {
+                    credential: process.env.API_CREDENTIAL
+                });
+
+
+                if (res.status != 200) {
+                    return reply.status(230).send({ error: `4001` });
+                //     (4001, 'User lookup failed') // ajouter 4001, 'User lookup failed' dans les erreurs
+                }
+    
+                if (!res.data?.id) {
+                    return reply.status(230).send({ error: `4004` });
+                    //     (4004, 'Invalid user data') //ajouter aux erreurs
+                }
+
+    
+                matchUsers.push(new MatchMakingUser(userId, res.data.rank, null)); // pas de websocket ici
+            } catch (err) {
+                console.log(`Error looking up user ${userId}:`, err);
+                return reply.status(500).send({ error: `0500` });
+            }
+        }
+    
+        try {
+            const tournament = await GamesManager.createGame(matchUsers);
+            if (!tournament) {
+                console.log('Game creation failed');
+                return reply.status(500).send({ error: 'Game creation failed' });
+            }
+    
+            return reply.status(200).send({ 
+                success: true, 
+                gameId: tournament.games[0].id, 
+                tournamentId: tournament.id 
+            });
+    
+        } catch (err) {
+            console.log('Game creation error:', err);
+            return reply.status(500).send({ error: '0500' });
+        }
+    });
+
+
+
+
+    // // joindre la game :
+    server.get('/api/game/join/:gameId/:idTournament', { websocket: true }, async (socket: WebSocket, request: any) => {
+        let userId: number | null = null;
+    
+        try {
+            const codedtoken = request.cookies['ft_transcendence_jw_token'];
+            const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+            userId = decoded.id;
+    
+            const url = new URL(request.url, `http://${request.headers.host}`);
+
+            const gameId = request.params.gameId;
+            if (!gameId) {
+                return socket.close(4001, 'Missing gameId');
+            }
+            const idTournament = request.params.idTournament;
+            if (!gameId) {
+                return socket.close(4001, 'Missing idTournament');
+            }
+    
+            if (activeGameConn.has(userId)) {
+                return socket.close(4002, 'Already in a game');
+            }
+
+            // console.log(GamesManager);
+            // console.log(GamesManager.games);
+            
+    
+            const game = await GamesManager.getGameById(Number(gameId));
+            if (!game || !game.hasPlayer(userId)) {
+                return socket.close(4003, 'Not allowed to join this game');
+            }
+    
+            activeGameConn.set(userId, socket);
+            game.addSocket(userId, socket);
+
+            console.log(`connecte : ${userId}, lenght : ${game.players.length}`);
+            
+            game.markPlayerConnected(userId);
+    
+            socket.on('close', () => {
+                if (userId != null) {
+                    console.log(`Socket closed for user ${userId}`);
+
+                    game.markPlayerDisconnected(userId);
+
+                    if (game.areAllPlayersDisconnected()) {
+                        console.log(`All players disconnected from game ${gameId}. Cleaning up.`);
+                        GamesManager.deleteGame(gameId);
+                    }
+
+                    activeGameConn.delete(userId);
+                }
+            });
+    
+            socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
+
+            console.log("test");
+            console.log("test");
+            console.log("test");
+            console.log("test");
+            console.log("test");
+            console.log("test");
+            console.log(game.players);
+            console.log(game.allConnected(game.players.length));
+            
+
+            if (game.allConnected(game.players.length)) {
+
+                console.log("ca commence ?");
+                
+                // this.broadcastToAll({ message: 'allPlayersConnected' });
+
+                // generer cette putin de room
+                // const roomId = this.generateRoomId();
+                // matchedUsers.forEach(u => this.addUserToRoom(u.id, roomId));
+
+                // recuperer tout les utilisateurs et leurs web sockets
+                const roomId : string = users.createFriendRoom(game.players)
+                game.players.forEach(user => {
+                    try {
+                        user.ws.send(JSON.stringify({ 
+                            message: 'gameLaunched', 
+                            gameId: game.id, 
+                            tournamentId: idTournament,
+                            roomId: roomId
+                        }));
+                        
+                        user.ws.close(1000, 'All players ready for the game');
+                    } catch (error) {
+                        console.log(`Error notifying user ${user.id}:`, error);
+                    }
+                });
+            }
+
+            
+    
+        } catch (err) {
+            console.log('Error during game join:', err);
+            socket.close(4000, 'Error joining game');
+        }
+    });
+    
+    
+
     server.get('/api/game/status', async (request, reply) => {
         try {
             const codedtoken = request.cookies['ft_transcendence_jw_token'];
@@ -287,4 +490,5 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     done();
 }
 
+// export default gameRoutes;
 module.exports = gameRoutes;

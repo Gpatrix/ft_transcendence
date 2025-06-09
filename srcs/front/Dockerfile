@@ -1,11 +1,17 @@
 FROM alpine:3.21.3
-
-RUN apk update --no-cache
-RUN apk add nodejs pnpm curl --no-cache
-RUN mkdir -p /var/www/html
-
 WORKDIR /var/www/html
-COPY ./tools/vite.sh /tmp
+
+RUN apk update --no-cache && \ 
+ apk add nodejs pnpm curl --no-cache
+
+ARG NODE_ENV
+COPY ./asset/package.json .
+COPY ./conf/pnpm_install.sh .
+RUN chmod +x pnpm_install.sh && ./pnpm_install.sh
+
+COPY ./asset/ .
+
+COPY ./conf/vite.sh /tmp
 RUN chmod +x /tmp/vite.sh
 
 EXPOSE 5173

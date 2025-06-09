@@ -20,7 +20,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
 
     interface lookupBody
     {
-        credential: string
+        credential: string,
+        provider?: string
     }
 
     server.post<{ Params: lookupParams, Body: lookupBody }>('/api/user/lookup/:email', async (request, reply) => {
@@ -42,7 +43,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             else if (isId)
             {
                 user = await prisma.user.findUnique({
-                    where: { 
+                    where: {
                         id: Number(value)
                     }
                 })
@@ -162,19 +163,33 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
-    interface dfaUpdateParams
+    interface DfaUpdateParams
     {
         id: string,
     }
 
-    server.put<{ Body: dfaUpdateBody, Params: dfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
+    interface DfaUpdateBody
+    {
+        credential: string,
+        twoFactorSecret?: string,
+        twoFactorSecretTemp?: string,
+    }
+
+    interface DfaPut
+    {
+        isTwoFactorEnabled?: boolean,
+        twoFactorSecret?: string,
+        twoFactorSecretTemp?: string,
+    }
+
+    server.put<{ Body: DfaUpdateBody, Params: DfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
                 reply.status(230).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
-            let put: dfaUpdateBody = {};
+            let put: DfaPut = {};
             if (twoFactorSecret)
             {
                 put.isTwoFactorEnabled = true;
@@ -267,14 +282,16 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 bio: true,
                 profPicture: true,
                 rank: true,
+                provider: true
             };
             let id : string = request.params.id;
             if (id.length == 0) {
                 id = callerId;
-                selectFields.id = true,
-                selectFields.email = true,
-                selectFields.lang = true,
-                selectFields.isTwoFactorEnabled = true
+                selectFields.id = true;
+                selectFields.email = true;
+                selectFields.lang = true;
+                selectFields.isTwoFactorEnabled = true;
+                selectFields.provider = true;
             }
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
@@ -297,7 +314,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         name: string,
         password?: string,
         isAdmin?: boolean,
-        profPicture?: string
+        profPicture?: string,
+        provider?: string,
         credential: string
     }
 
@@ -312,6 +330,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             const profPicture = request.body.profPicture;
             const isAdmin = request.body.isAdmin;
             const lang = request.body.lang;
+            const provider = request.body.provider;
             let user = await prisma.user.create({
                 data: {
                     email,
@@ -319,7 +338,8 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     password,
                     profPicture,
                     isAdmin,
-                    lang
+                    lang,
+                    provider
                 }
             })
             if (!user) {
@@ -351,7 +371,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         lang?: string,
         profPicture?: string,
         newPassword?: string
-        isTwoFactorEnabled?: boolean
+        // isTwoFactorEnabled?: boolean
     }
 
     interface EditUserBody
@@ -363,7 +383,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         bio?: string,
         lang?: string,
         profPicture?: string,
-        isTwoFactorEnabled?: string
+        // isTwoFactorEnabled?: string
         image?: string
     }
 
@@ -397,15 +417,16 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             if (body.image) {
                 updateData.profPicture = body.image;
             }
-            if (body.isTwoFactorEnabled)
-                updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
+            // if (body.isTwoFactorEnabled)
+            //     updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
             const foundUser = await prisma.user.findUnique({
                 where: {
                     id: tokenPayload.id
                 }
             })
+
             if (!foundUser)
-                reply.status(230).send({ error: "1006" });
+                reply.status(404).send({ error: "1006" });
             const updatedUser = await prisma.user.update({
                 where: { 
                     id: tokenPayload.id
@@ -569,15 +590,14 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     rank: true,
                 }
             })
-            console.log("targets");
             if (!targets)
                 return reply.status(230).send({ error: "2012" });
             const indexUser = targets.findIndex(target => target.id == user.id);
             if (indexUser != -1)
                 targets.splice(indexUser, 1);
             if (targets.length == 0)
-                return reply.status(230).send({ error: "2011" });
-            reply.status(200).send(targets);
+                return reply.status(401).send({ error: "2011" });
+            reply.status(201).send(targets);
         } catch (error) {
             {
                 return reply.status(230).send({ error: "0500" });

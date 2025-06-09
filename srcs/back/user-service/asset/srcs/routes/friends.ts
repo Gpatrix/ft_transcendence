@@ -50,7 +50,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (existingFriendRequest)
-                return reply.status(230).send({ error: '2013'})
+                return reply.status(429).send({ error: '2013'})
             await prisma.friendRequest.create({
                 data: {
                     author: { connect: { id: user.id } },
@@ -146,7 +146,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 console.log("error");
                 console.log(error);
                 
-            return reply.status(230).send({ error: "0500" });
+            return reply.status(500).send({ error: "0500" });
         }
     })
 

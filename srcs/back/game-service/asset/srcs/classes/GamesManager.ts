@@ -67,4 +67,45 @@ export class GamesManager {
             return (null);
         }
     }
+
+    // ne marche pas
+    // static async getGameById(gameId: number): Promise<PongGame | null> {
+    //     const game = await  GamesManager.games.get(gameId);
+        
+    //     if (!game) {
+    //         console.log(`GamesManager: No game found with ID ${gameId}`);
+    //         return null;
+    //     }
+    //     return game;
+    // }
+
+    static async getGameById(gameId: number): Promise<PongGame | null> {
+    const inMemoryGame = GamesManager.games.get(gameId);
+    if (inMemoryGame)
+        return inMemoryGame;
+
+    const dbGame = await prisma.game.findUnique({
+        where: { id: gameId },
+        include: {
+            players: true
+        }
+    });
+
+    if (!dbGame) {
+        console.log(`GamesManager: No game found in DB with ID ${gameId}`);
+        return null;
+    }
+
+    const playerIds = dbGame.players.map((p: any) => p.userId);
+    const newGame = new PongGame(playerIds, dbGame.id);
+
+    GamesManager.games.set(dbGame.id, newGame);
+    return newGame;
+}
+
+
+    static deleteGame(gameId: number) {
+        GamesManager.games.delete(gameId);
+    }
+    
 }

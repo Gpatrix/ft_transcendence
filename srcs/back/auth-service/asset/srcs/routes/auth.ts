@@ -116,7 +116,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
             if (!user)
-                return reply.status(230).send({ error: "1006" });
+                return reply.status(404).send({ error: "1006" });
             if (!user.password)
                 return reply.status(230).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
@@ -206,23 +206,25 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
             if (!userinfo)
                 throw (Error("cannot_get_user_infos"));
+            console.log('User info from Google:', userinfo);
 
             const response = await fetch(`http://user-service:3000/api/user/lookup/${userinfo.email}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  credential: process.env.API_CREDENTIAL
+                  credential: process.env.API_CREDENTIAL,
                 })
             });
             let user;
             const lookupData = await response.json();
             if (response.ok && !('error' in lookupData)) {
-              user = lookupData;
+                if (!(lookupData.provider) || lookupData.provider !== 'google')
+                    return (reply.status(403).redirect("/register?oauth-error=1014"));
+                user = lookupData;
             }
-
             else 
             {
-                console.log(`User ${userinfo.name} not found, creating new user`);
+                const translatedName= userinfo.given_name.trim().replace(/[^a-zA-Z0-9 ]/g, '_');
 
                 const createResponse = await fetch(`http://user-service:3000/api/user/create`, {
                   method: 'POST',
@@ -230,14 +232,17 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                   body: JSON.stringify({
                     email: userinfo.email,
                     profPicture: userinfo.picture,
-                    name: userinfo.name,
+                    name: translatedName,
+                    provider: 'google',
                     credential: process.env.API_CREDENTIAL
                   }),
                 });
+
+                
                 
                 if (!createResponse.ok) {
-                    console.error('Failed to create user:', await createResponse.text());
-                    return reply.status(createResponse.status).redirect("/register?oauth-error=1015");
+                    const errorData = await createResponse.json();
+                    return reply.status(createResponse.status).redirect(`/register?oauth-error=${errorData.error || '1015'}`);
                 }
                 
                 user = await createResponse.json();
@@ -268,7 +273,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             else
                 throw new Error("no token generated");
         } catch (error) {
-            return (reply.redirect("/register?oauth-error=1015"));
+            return (reply.redirect("/register?oauth-error=0500"));
         }
     });
 
