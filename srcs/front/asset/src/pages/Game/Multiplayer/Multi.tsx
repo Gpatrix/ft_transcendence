@@ -7,16 +7,12 @@ import { Ball } from "./Classes/Ball";
 import MultiPointsCounter from "./MultiPointsCounter";
 import Disconnected from "./Popups/Disconnected";
 import { gpt } from "../../../translations/pages_reponses";
-<<<<<<< HEAD:srcs/front/vitejs/src/pages/Game/Multiplayer/Multi.tsx
 import EndPopup from "./Popups/EndPopup";
 import { get_server_translation } from "../../../translations/server_responses";
 import Button from "../../../components/Button";
 import BgShadow from "../../../components/BgShadow";
 import BlankPopup from "../../../components/BlankPopup";
 import Blur from "../../../components/Blur";
-=======
-import { get_server_translation } from "../../../translations/server_responses";
->>>>>>> origin/main:srcs/front/asset/src/pages/Game/Multiplayer/Multi.tsx
 
 export type Player = {
     id: number
@@ -30,11 +26,13 @@ export type Player = {
 
 
 export default function Multi() {
-    const socket = useRef<WebSocket | null>(null)
+    const socket = useRef<WebSocket | null>(null);
     
-    const [players, setPlayers] = useState<Player[]>([])
-    const [counter, setCounter] = useState<string | null>(null)
-    const [points, setPoints] = useState<Array<number>>([])
+    const [players, setPlayers] = useState<Player[]>([]);
+    const [counter, setCounter] = useState<string | null>(null);
+    const [points, setPoints] = useState<Array<number>>([]);
+    const [isPaused, setIsPaused] = useState<boolean>(false);
+    const isPausedRef = useRef<boolean>(false);
 
     const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
     const navigate = useNavigate()
@@ -43,7 +41,12 @@ export default function Multi() {
     const [error, setError] = useState<string | null>(null);
     const [end, setEnd] = useState<boolean>(false)
 
-    const [disconnect, setDisconnect] = useState<boolean>(false)
+    const [disconnect, setDisconnect] = useState<boolean>(false);
+
+    const updatePauseState = (paused: boolean) => {
+        setIsPaused(paused);
+        isPausedRef.current = paused;
+    };
 
 
     useEffect(() => {
@@ -76,8 +79,6 @@ export default function Multi() {
         };
 
         const setWebsocket = async () => {
-
-
             try {
                 const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
                 socket.current = ws
@@ -148,7 +149,6 @@ export default function Multi() {
 
     return (
         <div className="relative">
-<<<<<<< HEAD:srcs/front/vitejs/src/pages/Game/Multiplayer/Multi.tsx
             {error && 
                 <span className='w-[80vw] md:w-[500px] gap-8 flex flex-col text-yellow items-center'>
                     <h2>{get_server_translation(error)}</h2>
@@ -157,14 +157,11 @@ export default function Multi() {
                     </Link>
                 </span>
             }
-=======
-            {error && <p className="text-yellow">{get_server_translation(error)}</p>}
->>>>>>> origin/main:srcs/front/asset/src/pages/Game/Multiplayer/Multi.tsx
             {disconnect && <Disconnected/>}
             {end && !error && <EndPopup/>}
             {(!error && !end) &&
             <span>
-                <MultiGame ball={ball.current} players={players} socket={socket.current} />
+                <MultiGame ball={ball.current} players={players} socket={socket.current} isPaused={isPaused} isPausedRef={isPausedRef} />
                 {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}
                 <MultiPointsCounter points={points}/>
             </span>

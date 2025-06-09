@@ -11,6 +11,43 @@ export interface pos {
 export type velocity = pos;
 export type dimension = pos
 
+export class PauseManager {
+    isPausing:boolean = false;
+    currentPlayerId?: number;
+    knownPlayerIds: Set<number>;
+    constructor () {
+        this.knownPlayerIds = new Set()
+    }
+
+    public askForPause(playerId: number): boolean {
+        if (this.isPausing) {
+            return (false);
+            // throw (new Error('Game is already in pause'));
+        }
+
+        if (this.knownPlayerIds.has(playerId)) {
+            return (false);
+            // throw (new Error('This player cannot ask for a pause'));
+        }
+        this.knownPlayerIds.add(playerId);
+        this.currentPlayerId = playerId;
+        this.isPausing = true;
+        return (true);
+    }
+
+    public endPause(playerId?: number) {
+        console.log('this.isPausing', this.isPausing);
+        console.log('this.currentPlayerId', this.currentPlayerId);
+        console.log('playerId', playerId);
+        if (!this.isPausing)
+            return (false);
+        if (playerId && playerId != this.currentPlayerId)
+            return (false);
+        this.isPausing = false;
+        this.currentPlayerId = undefined;
+        return (true)
+    }
+}
 
 
 export class Player {
@@ -120,7 +157,8 @@ export class PongGame {
             racketHeight : 70,
             nbPlayers : nbPlayers
         }
-        this.ball = new Ball(this.properties)
+        this.ball = new Ball(this.properties);
+        this.pauseManager = new PauseManager();
     }
 
     initPlayers() {
@@ -155,7 +193,38 @@ export class PongGame {
         }, 4100)
     }
 
+    public pause(playerId: number) {
+        console.log('this.ball.isFreezed', this.ball.isFreezed);
+        console.log('this.isBall', this.ball.isFreezed);
+        if (this.ball.isFreezed)
+            return ;
+        if (!(this.pauseManager.askForPause(playerId))) {
+            const player = this.players.find((player) => player.id === playerId);
+            return player?.ws.send(JSON.stringify('pauseContested'));
+        }
+        this.ball.freeze();
+        this.players.forEach(player => {
+            if (player.ws) {
+                player.ws.send(JSON.stringify({ message: `gamePaused`, gameId: this.id }));
+            }
+        });
+        setTimeout(() => {
+            this.unPause();
+        }, 10 * 1000);
+    }
 
+    public unPause(playerId?: number) {
+        if (!this.pauseManager.endPause(playerId))
+            return ;
+        this.players.forEach(player => {
+            if (player.ws) {
+                player.ws.send(JSON.stringify({ message: `gameUnpaused`, gameId: this.id }));
+            }
+        });
+        setTimeout(() => {
+            this.ball.unFreeze();
+        }, 1000);
+    }
 
     start() {
         this.initGame()
@@ -262,6 +331,8 @@ export class PongGame {
 
     onPlayerMove(id: number, move: number)
     {
+        if (this.isPaused == true)
+            return ;
         const player = this.players.find(player => player.id == id) as Player;
         let newY : number = player.position.y + move
 
@@ -406,7 +477,6 @@ export class PongGame {
         return (this.connectedPlayers.size === expectedPlayerCount)
     }
 
-
     private connectedPlayers: Set<number> = new Set();
     private disconnectedPlayers: Set<number> = new Set();
     ball: Ball
@@ -420,6 +490,7 @@ export class PongGame {
     timeout?: NodeJS.Timeout
     startedAt?: number 
     id: number;
+    pauseManager: PauseManager;
 }
 
 // module.exports = PongGame;
