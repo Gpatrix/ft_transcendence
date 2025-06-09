@@ -14,6 +14,7 @@ export default function MatchMaking() {
 
 
         let ws : WebSocket = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/matchmaking?mode=${players}`);
+
         ws.onopen = () => {
             setSocket(ws);
             console.log("opened")
@@ -27,7 +28,8 @@ export default function MatchMaking() {
                     ws.close();
                     navigate(`/play/multi?tournament=${json.tournamentId}&game=${json.gameId}`)
                 if (json.error) {
-                    alert(`ERROR: $(json.error)`)
+                    console.log(json)
+                    alert(`ERROR: ${json.error}`)
                     ws.close();
                 }
             }
