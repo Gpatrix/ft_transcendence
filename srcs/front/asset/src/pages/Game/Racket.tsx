@@ -24,11 +24,12 @@ type RacketProperties = {
 }
 
 export class Racket {
-    element: HTMLElement
-    pos : pos
-    keyUp: string
-    keyDown: string
-    properties : RacketProperties
+    element: HTMLElement;
+    pos : pos;
+    keyUp: string;
+    keyDown: string;
+    properties : RacketProperties;
+    isFreezed: boolean = false;
     constructor({ id, keyUp, keyDown, speed }: RacketArgs) {
         const el = document.getElementById(`racket-${id}`)
         const rect = el?.getBoundingClientRect()
@@ -70,6 +71,8 @@ export class Racket {
     
 
     update(pressedKeys: Set<string>, deltaTime: number) {
+        if (this.isFreezed == true)
+            return ;
         if (pressedKeys.has(this.keyUp)) {
             if (this.checkCollisions(Direction.UP, deltaTime))
                 this.pos.y -= this.properties.speed * deltaTime;

@@ -21,11 +21,13 @@ export type Player = {
 
 
 export default function Multi() {
-    const socket = useRef<WebSocket | null>(null)
+    const socket = useRef<WebSocket | null>(null);
     
-    const [players, setPlayers] = useState<Player[]>([])
-    const [counter, setCounter] = useState<string | null>(null)
-    const [points, setPoints] = useState<Array<number>>([])
+    const [players, setPlayers] = useState<Player[]>([]);
+    const [counter, setCounter] = useState<string | null>(null);
+    const [points, setPoints] = useState<Array<number>>([]);
+    const [isPaused, setIsPaused] = useState<boolean>(false);
+    const isPausedRef = useRef<boolean>(false);
 
     const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
     const navigate = useNavigate()
@@ -33,7 +35,12 @@ export default function Multi() {
     const [params] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
 
-    const [disconnect, setDisconnect] = useState<boolean>(false)
+    const [disconnect, setDisconnect] = useState<boolean>(false);
+
+    const updatePauseState = (paused: boolean) => {
+        setIsPaused(paused);
+        isPausedRef.current = paused;
+    };
 
     useEffect(() => {
         const tournament = params.get("tournament");
@@ -60,7 +67,7 @@ export default function Multi() {
                     setPlayers(json.players)     
                     break
                 case "start":
-                    console.log("START")
+                    // console.log("START")
                     ball.current.unFreeze(  )
                     setPlayers(json.players)
                     setCounter("3")
@@ -69,10 +76,25 @@ export default function Multi() {
                     setPlayers(json.players)
                     break
                 case "ball":
-                    console.log(json.ball)
+                    // console.log(json.ball)
                     ball.current.velocity = json.ball.velocity;
                     ball.current.position = json.ball.position;
-                    break 
+                    break ;
+                case "gamePaused":
+                    // console.log("PAUSED")
+                    updatePauseState(true);
+                    ball.current.freeze();
+                    break ;
+                case "gameUnpaused":
+                    // console.log("UNPAUSED")
+                    updatePauseState(false);
+                    setTimeout(() => {
+                        ball.current.unFreeze();
+                    }, 1000);
+                    break ;
+                case "pauseContested":
+                    // console.log("PAUSED CONTEXTED");
+                    break ;
                 case "result":
                     setPoints(json.result[0])
                     break
@@ -111,7 +133,7 @@ export default function Multi() {
             {disconnect && <Disconnected/>}
             {!error &&
             <span>
-                <MultiGame ball={ball.current} players={players} socket={socket.current} />
+                <MultiGame ball={ball.current} players={players} socket={socket.current} isPaused={isPaused} isPausedRef={isPausedRef} />
                 {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}
                 <MultiPointsCounter points={points}/>
             </span>
