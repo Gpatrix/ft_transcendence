@@ -192,6 +192,8 @@ export class PongGame {
     }
 
     public pause(playerId: number) {
+        console.log('this.ball.isFreezed', this.ball.isFreezed);
+        console.log('this.isBall', this.ball.isFreezed);
         if (this.ball.isFreezed)
             return ;
         if (!(this.pauseManager.askForPause(playerId))) {
