@@ -23,10 +23,10 @@ interface tokenStruct {
 }
 
 var activeMatchmakingConn: Map<number, WebSocket> = new Map(); // lobby connections
-var activeGameConn: Map<number, WebSocket> = new Map(); // match connection
+export const activeGameConn: Map<number, WebSocket> = new Map(); // match connection
 
-var users1v1: MatchMakingMap = new MatchMakingMap(2);
-var users2v2: MatchMakingMap = new MatchMakingMap(4);
+export const users1v1: MatchMakingMap = new MatchMakingMap(2);
+export const users2v2: MatchMakingMap = new MatchMakingMap(4);
 
 function gameRoutes(server: FastifyInstance, options: any, done: any) {
     server.get<{ Params: gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, { websocket: true }, async (socket: WebSocket, request) => {
@@ -150,10 +150,9 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 activeMatchmakingConn.delete(userId);
             }
 
-
             if (activeGameConn.has(userId)) {
                 console.log(`User ${userId} is already in a game`);
-                return socket.close(4003, 'Already in a game');
+                return socket.send({error: "4003"});
             }
 
             const res = await axios.post(`http://user-service:3000/api/user/lookup/${userId}`, {
@@ -161,17 +160,18 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             });
             
             if (res.status != 200) {
-                return socket.close(4001, 'User lookup failed');
+                return socket.send({error: "4001"});
             }
 
             if (!(res.data?.id)) {
-                return socket.close(4004, 'Invalid user data');
+                return socket.send({error: "4004"});
             }
 
             const mode = parseInt(request.query.mode || '2');
             const users = (mode === 4) ? users2v2 : users1v1;
             if (!mode) {
-                return socket.close(4004, 'Invalid user data');
+                console.log(`NO MODE`);
+                return socket.send({error: "4004"});
             }
 
             activeMatchmakingConn.set(userId, socket);
@@ -194,8 +194,9 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             });
             
             const matchResult = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
-            
+
             if (matchResult && matchResult.users && matchResult.users.length == mode) {
+                console.log("MATCHRESULT: ", matchResult)
                 const tournament = await GamesManager.createGame(matchResult.users, mode);
                 if (!tournament) {
                     throw new Error('Games manager cannot create game');
@@ -217,6 +218,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     }
                 });
             } else {
+                console.log("MATCHRESULT: ", matchResult)
                 socket.send(JSON.stringify({ message: 'waitingForMatch' }));
             }
         }
@@ -227,7 +229,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 users1v1.removeUserFromQueue(userId);
                 users2v2.removeUserFromQueue(userId);
             }
-            socket.close(4001, 'Authentication or server error');
+            return socket.send({error: "4001"});
         }
     });
 

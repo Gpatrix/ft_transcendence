@@ -1,6 +1,7 @@
 import { prisma } from '../config/prisma';
 import WebSocket from 'ws';
 import { Ball } from './Ball';
+import { activeGameConn, users1v1, users2v2 } from '../routes/game';
 
 export interface pos {
     x: number,
@@ -240,6 +241,9 @@ export class PongGame {
             if (player.ws) {
                 player.ws.send(JSON.stringify({ message: `gameEnded`, gameId: this.id }));
                 player.ws.close();
+                activeGameConn.delete(player.id)
+                users1v1.handleUserDisconnection(player.id)
+                users2v2.handleUserDisconnection(player.id)
             }
         })
     }

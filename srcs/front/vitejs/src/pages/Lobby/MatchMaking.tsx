@@ -21,10 +21,18 @@ export default function MatchMaking() {
 
         ws.onmessage = (event) => {
             const json =JSON.parse(event.data)
-            if (json.message && json.message == "gameLaunched") {
-                ws.close()
-                navigate(`/play/multi?tournament=${json.tournamentId}&game=${json.gameId}`)
+            console.log(json)
+            if (json.message) {
+                if (json.message == "gameLaunched") {
+                    ws.close();
+                    navigate(`/play/multi?tournament=${json.tournamentId}&game=${json.gameId}`)
+                if (json.error) {
+                    alert(`ERROR: $(json.error)`)
+                    ws.close();
+                }
             }
+         }
+
         }
 
         ws.onclose = () => {
