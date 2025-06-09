@@ -150,12 +150,7 @@ export default function Multi() {
                     <Link to={"/"} className="w-full">
                         <Button type="full" className="w-full z-1000">{gpt("back_to_home")}</Button>
                     </Link>
-                    <BgShadow className='w-[80vw] md:w-[600px] md:px-20  py-10 shadow-yellow shadow-xl'>
-                        <p>test</p>
-                    </BgShadow>
                 </span>
-
-
             }
             {disconnect && <Disconnected/>}
             {end && !error && <EndPopup/>}
