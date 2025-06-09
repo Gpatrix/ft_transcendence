@@ -69,9 +69,9 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
         form.append("image", file);
 
         try {
-            const response = await fetchWithAuth("/api/user/edit", {
+            const response = await fetchWithAuth("http://upload-service/api/upload/", {
                 signal: AbortSignal.timeout(5000),
-                method: "PUT",
+                method: "POST",
                 body: form,
             }); 
 

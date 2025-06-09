@@ -67,3 +67,8 @@ API integration.
 
 ```The .env```
 
+## Blockchain
+
+If you use the local hardhat node to dev purposes you will encounter an error like "mixed content" or "insecure content"
+It means you'r on a page loaded by https that loads http content, it's because the local hardhat node is served over http://localhost.
+It will depend on your navigator but you have to authorize you navigator to load this "mixed content"

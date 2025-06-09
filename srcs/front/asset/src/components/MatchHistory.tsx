@@ -96,7 +96,7 @@ export default function MatchResult({ match }: MatchResultProps) {
         const MatchPlayers = await Promise.all(userPromises);
         setUsers(MatchPlayers);
       } catch (error) {
-        console.error("Error fetching MatchPlayer data:", error);
+        // console.error("Error fetching MatchPlayer data:", error);
       } finally {
         setLoading(false);
       }

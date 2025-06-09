@@ -38,10 +38,11 @@ export async function imageUpload(request: any, reply: any) {
             //     if (!(res?.ok))
             //         throw(new Error("cannot_delete_old_prof_pic"));
             // }
+            const formHeaders = form.getHeaders();
 
             //upload the new pp
             const res = await axios.post('http://upload-service:3000/api/upload/', form, {
-                headers: form.getHeaders()
+                headers: formHeaders
             });
             if (res.status != 200)
                 return (reply.status(res.status).send({ error: res.data.error || "0500" }));
@@ -56,4 +57,4 @@ export async function imageUpload(request: any, reply: any) {
     }
 }
 
-module.exports = imageUpload;
+export default imageUpload;

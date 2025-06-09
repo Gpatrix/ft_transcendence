@@ -3,17 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import util from 'util'
 import { pipeline } from 'stream'
+import jwt from 'jsonwebtoken';
+import { isConnected } from "../validators/jsonwebtoken";
 
 const pump = util.promisify(pipeline);
-
-function isMimeTypeAllowed(file: any): boolean {
-      const allowedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf'];
-
-    if (allowedMimeTypes.includes(file.mimetype))
-        return (true);
-    else
-        return (false);
-}
 
 function uploadRoutes (server: FastifyInstance, options: any, done: any)
 {
@@ -23,8 +16,15 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
         credential: string
     }
     
-    server.post<{ Body: uploadPostBody }>('/api/upload/', async (req: any, res: any) => {
+    server.post<{ Body: uploadPostBody }>('/api/upload/', { preHandler: [isConnected] }, async (req: any, res: any) => {
         try {
+            const token = req.cookies['ft_transcendence_jw_token'];
+            if (!token)
+                return (res.status(401).send({ error: "0401" }));  // private route (:
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+            const tokenPayload = decoded.data;
+            if (!tokenPayload || !tokenPayload.id)
+                return (res.status(401).send({ error: "0401" }));  // private route (:
             console.log('upload')
             const parts = await req.parts();
             let credential: string | undefined;
@@ -47,7 +47,21 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
                 return (res.status(420).send({ error: "6002" }));
             const fileName = Date.now();
             const storedFile = fs.createWriteStream(`./uploads/${fileName}`);
-            pump(file.file, storedFile);
+            await pump(file.file, storedFile);
+            const response = await fetch(`http://user-service:3000/api/user/profile_picture`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    credential: process.env.API_CREDENTIAL,
+                    profPicture: fileName,
+                    id: tokenPayload.id
+                }),
+            });
+            if (!response.ok) {
+                fs.unlink(`./uploads/${fileName}`);
+                return res.status(230).send({ error: "0500" });
+            }
             res.status(200).send({ fileName: fileName });
         } catch (error) {
             console.error('Error during file upload:', error);

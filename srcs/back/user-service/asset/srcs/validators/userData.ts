@@ -25,8 +25,6 @@ export async function validateUserData(request: any, reply: any) {
     } catch (error) {
         console.error("Error in validateUserData:", error);
         reply.status(500).send({ error: '0500' });
-        if (request.body?.image)
-            deleteImage(request.body.image);
     }
 }
 

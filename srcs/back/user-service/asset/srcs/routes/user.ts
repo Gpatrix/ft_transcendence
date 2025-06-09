@@ -7,7 +7,6 @@ import validateUserData from "../validators/userData";
 import axios from 'axios';
 import prisma from '../config/prisma';
 import deleteImage from "../utils/deleteImage";
-import imageUpload from "../validators/imageUpload";
 
 axios.defaults.validateStatus = status => status >= 200 && status <= 500;
 
@@ -116,6 +115,37 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
+    interface profilePictureBody
+    {
+        credential: string,
+        path: string,
+        id: number
+    }
+
+    server.put<{ Body: profilePictureBody }>('/api/user/profile_picture', async (request, reply) => {
+        if (request.body?.credential != process.env.API_CREDENTIAL)
+            return reply.status(230).send({ error: "0404" });
+        const path = request.body?.path;
+        const id = request.body?.id;
+        if (!path || !id)
+            return reply.status(230).send({ error: "0401" });
+        try {
+            const result = await prisma.user.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    profPicture: path
+                }
+            });
+            if (!result)
+                return reply.status(230).send({ error: "0401" });
+        } catch (error) {
+            return reply.status(230).send({ error: "0401" });
+        }
+        reply.status(200).send();
+    });
+
     interface passwordUpdateBody
     {
         password: string,
@@ -126,6 +156,7 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     {
         email: string,
     }
+
 
     server.put<{ Body: passwordUpdateBody, Params: passwordUpdateParams }>('/api/user/password/:email', async (request, reply) => {
         try {
@@ -384,10 +415,9 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
         lang?: string,
         profPicture?: string,
         // isTwoFactorEnabled?: string
-        image?: string
     }
 
-    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [imageUpload, validateUserData], config: {
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [validateUserData], config: {
         rateLimit: {
             max: 10,
             timeWindow: '1 minute'
@@ -414,9 +444,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                 updateData.lang = body.lang;
             if (body.newPassword)
                 updateData.newPassword = body.newPassword;
-            if (body.image) {
-                updateData.profPicture = body.image;
-            }
             // if (body.isTwoFactorEnabled)
             //     updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
             const foundUser = await prisma.user.findUnique({
@@ -443,8 +470,6 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
             reply.status(200).send("User successfully updated.");
         } catch (error) {
             console.log(error);
-            if (body.image)
-                deleteImage(body.image);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch (error.code) {
