@@ -7,6 +7,7 @@ import WebSocket from 'ws';
 import {metrics, chat_requests_total} from './metrics'
 
 import * as Utils from './utils'
+import { get } from 'http';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
@@ -242,6 +243,11 @@ interface newChannelBody
    usersId: number[];
 }
 
+interface i_isconnected
+{
+    id?: number;
+}
+
 async function chat_api(fastify: FastifyInstance)
 {
    fastify.addHook('preValidation'
@@ -251,12 +257,12 @@ async function chat_api(fastify: FastifyInstance)
       {
          chat_requests_total.inc({method: request.method});
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
-         if (!token || token === undefined)
+         if (token === undefined)
             return (reply.status(230).send({ error: "0403" }));
          const decoded: tokenStruct = (jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload).data;
          const id = decoded.id;
-         if (!id || id === undefined)
-            return (reply.status(230).send({ error: "0403" }));
+         if (id === undefined)
+            return (reply.status(230).send({ error: "1016" }));
          done();
       }
       catch (error) {
@@ -285,6 +291,14 @@ async function chat_api(fastify: FastifyInstance)
          console.log(error);
       }
    });
+
+   fastify.get<{Params: i_isconnected}>('/api/chat/isconnected/:id', async (request, reply) => 
+    {
+        if (request.params.id === undefined)
+            return reply.status(230).send({error: "0400"});
+        console.log(`size: ${activeConn.size} value: ${JSON.stringify(activeConn.get(1))}`);
+        return reply.status(200).send({value: activeConn.has(Number(request.params.id))});
+    });
 
    fastify.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
       const credential = request.body?.credential;

@@ -10,3 +10,4 @@ docker.debug
 **/pnpm-lock.yaml
 **/.pnpm-store
 .vscode
+srcs/front/asset
