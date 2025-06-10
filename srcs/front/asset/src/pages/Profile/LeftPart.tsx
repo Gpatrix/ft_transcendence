@@ -29,6 +29,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     const [statsData, setStatsData] = useState<PlayerStats | null>(null)
     const params = useParams()
     const [newProfPicture, setNewProfPicture] = useState("")
+    const [isOnline, setIsOnline] = useState<boolean>(false)
 
     const MAX_FILE_SIZE = 200000;
 
@@ -105,9 +106,33 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 setError(get_server_translation("0500"));
             }
         };
+
+        const fetchUserStatus = async () => { // online / offline
+            try {
+                const res = await fetchWithAuth(`/api/chat/isconnected/${params.id}`);
+                if (res.status == 200) {
+                    const data = await res.json()
+                    console.log(data)
+                    setIsOnline(data.value)
+                }
+                else {
+                    setIsOnline(false)
+                }
+            } catch (err) {
+                setError(get_server_translation("0500"));
+            }
+        };
     
         fetchStats();
+
+        if (!owner) {
+            fetchUserStatus();
+            const intervalId = setInterval(fetchUserStatus, 5000);
+            return () => clearInterval(intervalId);
+        }
+
     }, [owner, params.id]);
+
 
 
     return (
@@ -121,8 +146,19 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 className={"ml-auto mr-auto rounded-full w-[100px] h-[100px] object-cover mb-8 shadow-lg/40 shadow-purple cursor-pointer"}/>
             </span>
             :
-            <img src={data.profPicture ?? "/default.png"} 
-            className={`ml-auto mr-auto rounded-full w-[100px] mb-8 shadow-lg/40 shadow-purple`}/>}
+            <span className="relative">
+                <img src={data.profPicture ?? "/default.png"} 
+                className={`ml-auto mr-auto rounded-full w-[100px] mb-8 shadow-lg/40 shadow-purple`}/>
+                <span className="absolute  right-[115px] flex rounded-full top-[70px] items-center justify-center  w-[40px] h-[40px] bg-grey">
+                    <span className="block  rounded-full relative w-5/6 h-5/6"
+                    style={{
+                        backgroundColor : isOnline ? "green" : "grey"
+                    }}>
+                    </span>
+                </span>
+
+            </span>
+            }
 
             {error && <LoginErrorMsg>{error}</LoginErrorMsg>}
 

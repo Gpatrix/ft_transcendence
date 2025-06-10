@@ -20,8 +20,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchWithAuth = async (input: RequestInfo, init?: RequestInit) => {
       
         const response = await fetch(input, init);
-        
-        
 
         if (response.status === 401) {
             navigate("/login");

@@ -73,6 +73,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
 
         ws.onopen = () => {
             setSocket(ws);
+            console.log("SOCKET OK")
         };
 
         ws.onmessage = (event) => {
