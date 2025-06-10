@@ -89,10 +89,10 @@ export default function Game({userNames}: GameProps) {
         };
           
         const handleEscape = () => {
-            console.log("Escape pressed");
-            console.log("isPaused:", isPaused);
+            
+            
             if (isPausedRef.current == true) {
-                console.log("Unpause");
+                
                 updatePauseState(false);
                 setTimeout(() => {
                     r1.isFreezed = false;
@@ -100,7 +100,7 @@ export default function Game({userNames}: GameProps) {
                     ball.current.unFreeze();
                 }, 1000);
             } else if (!(ball.current.isFreezed)) {
-                console.log("Pause");
+                
                 updatePauseState(true);
                 r1.isFreezed = true;
                 r2.isFreezed = true;

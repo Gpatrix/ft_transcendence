@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 
 function parseGamesJson(gamesJson: string | object): Map<number, Array<number>> {
     try {
-        console.log('Parsing games JSON:', gamesJson);
+        
         let games: object | undefined = undefined;
 
         if (typeof gamesJson === 'string')
@@ -20,7 +20,7 @@ function parseGamesJson(gamesJson: string | object): Map<number, Array<number>> 
         const gamesMap = new Map<number, Array<number>>();
 
         Object.entries(games).forEach(([key, value]) => {
-            // console.log(`Parsing game with key: ${key}, value: ${value}`);
+            // 
             const objectValues = Object.values(value).map(stringValue => Number(stringValue));
             const values: Array<number> = Array<number>(...objectValues);
             if (values.some((number: number) => typeof number != 'number'))
@@ -125,7 +125,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                         games: []
                     };
                     for (let j = 0; j < localTournamentGames.size; j++) {
-                        console.log(`Fetching scores for tournament ${tournament.id}, game ${j}`);
+                        
                         const match: number[] | undefined = localTournamentGames.get(j);
                         let maxScore: number = 0;
                         if (!match)
@@ -135,7 +135,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                             players: []
                         };
                         for (let k = 0; k < match.length; k++) {
-                            console.log(`Fetching score for player ${k} in game ${j} from tournament ${tournament.id}`);
+                            
                             const player = match[k];
                             let matchPlayer: TournamentScoreGamePlayer = {
                                 id: player,
@@ -154,7 +154,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                                         p.isWinner = false;
                                     });
                                 }
-                                console.log(`Score of player ${player} (${tournament.players[player]}) in game ${j} from tournament ${tournament.id}: ${matchPlayer.score}`);
+                                
                             } catch (error) {
                                 console.error(`Cannot fetch player ${player} (${tournament.players[player]}) in game ${j} from tournament ${tournament.id}: `, error);
                             }
@@ -181,7 +181,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
             if (!resJson)
                 throw new Error("Cannot fetch local history");
             const array: TournamentInfos[] = [];
-            console.log(resJson)
+            
             for (let i = 0; i < resJson.length; i++) {
                 const element = resJson[i]
                 const games = parseGamesJson(resJson[i].games);
@@ -194,7 +194,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                 }
                 array.push(tournamentInfos);
             }
-            console.log('array', array);
+            
             setTournamentsInfos(array);
         } catch (error) {
             // console.error('Cannot get user local tournaments history');
@@ -213,19 +213,19 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
         tournamentABI: data.tournamentABI,
         factoryABI: data.factoryABI
       });
-      console.log("Blockchain infos fetched:", data);
+      
     }
 
     useEffect(() => {
-        console.log(tournamentScores)
+        
         if (!tournamentScores || tournamentScores.length === 0)
-            return ; // console.log('Waiting for tournamentScores to be set')
-        console.log("Tournament scores fetched:", tournamentScores);
+            return ; // 
+        
     }, [tournamentScores]);
 
     useEffect(() => {
         if (!tournamentsInfos || !blockchainInfos || !blockchainInfos.factoryAddress || !blockchainInfos.tournamentABI || !blockchainInfos.factoryABI)
-            return ; // console.log("Waiting for tournamentsInfos or blockchainInfos to be set")
+            return ; // 
         fetchScores();
     }, [tournamentsInfos, blockchainInfos]);
 
@@ -234,12 +234,12 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
         console.error("Cannot get blockchain infos:", error);
         return ;
         }).then(() => {
-            console.log("then")
+            
             getLocalHistory().catch((error) => {
                 console.error("Cannot get local history:", error);
                 return ;
             }).then(() => {
-                // console.log("then2")
+                // 
                 fetchScores().catch(error => {
                     return ;
                 });

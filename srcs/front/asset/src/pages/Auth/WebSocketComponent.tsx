@@ -93,7 +93,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                                     });
                                     setFriends(newFriends);
                                 } else {
-                                    console.log("Error : ", get_server_translation(newFriends));
+                                    
                                 }
                             })
                         } else if (data.messages) {
@@ -125,7 +125,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         console.warn('Socket non connectée');
                     }
                 } catch (error) {
-                    console.log("Error :", error);
+                    
                 }
             }
         };
@@ -137,7 +137,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         };
 
         ws.onerror = (error) => {
-            console.log('Erreur WebSocket:', error);
+            
             ws.close(); // Forcer une fermeture pour relancer la reconnexion
         };
     };
@@ -159,10 +159,10 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                     setActivFriend(tempFriends[0].id);
                 return (tempFriends);
             } else {
-                console.log("Error : ", get_server_translation(tempFriends));
+                
             }
         } catch (error) {
-            console.log("Error :", get_server_translation("0500"));
+            
         }
     };
 

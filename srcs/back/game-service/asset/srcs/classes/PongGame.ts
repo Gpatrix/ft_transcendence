@@ -249,7 +249,7 @@ export class PongGame {
                     this.sendBall();
                     this.teams.newScore(looserPlayerId);
                     this.sendResults();
-                    if (this.teams.getResult().find((e)=> e >= 2)) {
+                    if (this.teams.getResult().find((e)=> e >= 10)) {
                         this.endGame()
                     }
 

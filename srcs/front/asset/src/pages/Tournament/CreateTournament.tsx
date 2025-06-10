@@ -55,7 +55,7 @@ export default function CreateTournament() {
 
         let nbPlayers : number = players / 2;
         while (nbPlayers >= 2) {
-            console.log(nbPlayers)
+            
             array.push(new Array(nbPlayers).fill(""));
             nbPlayers /= 2
         }

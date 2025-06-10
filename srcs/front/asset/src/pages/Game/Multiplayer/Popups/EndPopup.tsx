@@ -24,8 +24,8 @@ export default function EndPopup({array, points}: EndPopupProps) {
     const [isWinner, setIsWinner] = useState<boolean>(true)
 
     useEffect(() => {
-        console.log("ARRAY", array);
-        console.log("POINTS", points);
+        
+        
 
         const you = array.find(element => element.isYours);
         if (!you) return;
@@ -33,7 +33,7 @@ export default function EndPopup({array, points}: EndPopupProps) {
         const yourIndex = array.indexOf(you);
         if (yourIndex === -1) return;
 
-        const yourScore = points[yourIndex];
+        const yourScore = points[(yourIndex & 1) ^ 1];
         if (yourScore === undefined) return;
 
         let winner = true;
@@ -46,7 +46,7 @@ export default function EndPopup({array, points}: EndPopupProps) {
 
         setIsWinner(winner);
     }, [array, points]);
-
+    
 
     return (
         <div className="w-[100vh] h-[50vh] top-0 flex items-center justify-center">
