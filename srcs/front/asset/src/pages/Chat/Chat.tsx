@@ -103,7 +103,8 @@ export default function Chat({ profileData, classList, chanel, participants, arr
 
     const createGame = () => {
         const friend = participantsRef.current.find(participant => participant.id != profileDataRef.current?.id)
-        navigate(`/lobby/friendLoby/${friend.id}`)
+        if (friend)
+            navigate(`/lobby/friendLoby/${friend.id}`)
         // /lobby/friendLoby/:idFriend
     }
 
@@ -169,7 +170,7 @@ export default function Chat({ profileData, classList, chanel, participants, arr
             {profileData && participants.length > 1 && <div className="w-1/1 bg-dark border-0 border-t-1 border-yellow flex p-3 gap-2">
                 <InputWithIco className="w-[100%] rounded-xl"
                     placeholder={gpt("send_message")
-                        + (participants.length == 2 ? (participants.find(participant =>  participant.id != profileData.id) as User) : gpt("send_message"))
+                        + (participants.length == 2 ? (participants.find(participant =>  participant.id != profileData.id) as User).name : gpt("send_message"))
                     }
                     iconSrc={"/icons/icon_chat.svg"}
                     value={inputMessage}
