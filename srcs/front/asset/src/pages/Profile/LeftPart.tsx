@@ -7,6 +7,7 @@ import { useAuth } from "../../AuthProvider"
 import LoginErrorMsg from "../../components/LoginErrorMsg"
 import { get_server_translation } from "../../translations/server_responses"
 import { useEffect } from "react"
+import FormData from 'form-data';
 
 interface LeftPartProps {
     data : ProfileDataType
@@ -54,35 +55,49 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     };
 
     const handleSubmit = async () => {
+        console.log("handleSubmit called with file:", file);
         if (!file) {
             setError(gpt("no_file"));
             setFile(undefined)
+            console.error("No file selected");
             return;
         }
 
         if (file.size > MAX_FILE_SIZE) {
             setError(gpt("big_file"));
             setFile(undefined)
+            console.error("File size exceeds the limit");
             return;
         }
         const form = new FormData();
-        form.append("image", file);
+        // const fileBuffer = await file.toBuffer();
+        form.append('file', file, {
+            filename: file.filename || 'file.txt',
+            contentType: file.mimetype || 'application/octet-stream'
+         });
+        // form.append("image", file);
 
         try {
-            const response = await fetchWithAuth("http://upload-service/api/upload/", {
-                signal: AbortSignal.timeout(5000),
+            const response = await fetch ("https://localhost:3000/api/upload/", {
                 method: "POST",
                 body: form,
-            }); 
+            });
+            console.log(response);
+            // const response = await fetchWithAuth("http://upload-service/api/upload/", {
+            //     signal: AbortSignal.timeout(5000),
+            //     method: "POST",
+            //     body: form,
+            // }); 
 
             if (response.ok) {
-                window.location.reload();
+                // window.location.reload();
             } else {
                 const data = await response.json();
                 setError(get_server_translation(data.error));
                 setFile(undefined)
             }
         } catch (err: any) {
+            console.error("Error uploading file:", err);
             if (err.name === "AbortError") {
                 setError(gpt("abort_error"));
             } else {

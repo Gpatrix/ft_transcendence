@@ -104,6 +104,7 @@ services:
       HOST: ${HOST:?}
       PORT: ${PORT:?}
       DATABASE_URL: ${DATABASE_URL:?}
+      JWT_SECRET: ${JWT_SECRET:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: ${NODE_ENV:?}
     build:

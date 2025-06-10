@@ -2,6 +2,7 @@ import fastify from 'fastify'
 import path from 'node:path'
 import rateLimitPlugin from '@fastify/rate-limit'
 import multipartPlugin from '@fastify/multipart'
+import cookiesPlugin from '@fastify/cookie';
 import staticPlugin from '@fastify/static'
 import { metrics , upload_requests_total} from './metrics'
 import uploadRoutes from './routes/upload'
@@ -12,6 +13,8 @@ server.register(staticPlugin, {
   root: path.join(__dirname, '../uploads'),
   prefix: '/api/upload/'
 })
+
+server.register(cookiesPlugin, {});
 
 server.addHook('onResponse', (req, res, done) =>
   {
