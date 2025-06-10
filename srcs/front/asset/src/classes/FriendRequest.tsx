@@ -68,15 +68,8 @@ class FriendRequest {
                 credentials: 'include'
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
-
-<<<<<<< HEAD:srcs/front/vitejs/src/classes/FriendRequest.tsx
-            console.log(response);
-            if (response.status == 200)
-                    return ("0200")
-=======
             if (response.status == 201)
                     return ("201")
->>>>>>> origin/main:srcs/front/asset/src/classes/FriendRequest.tsx
             const dataReponse = await response.json();
             return (dataReponse.error)
         } catch (error) {

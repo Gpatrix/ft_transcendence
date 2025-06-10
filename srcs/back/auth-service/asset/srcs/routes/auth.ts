@@ -97,7 +97,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: email,
-                    cential: process.env.API_CREDENTIAL
+                    credential: process.env.API_CREDENTIAL
                 }),
             });
             const data = await response.json();

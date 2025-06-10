@@ -205,7 +205,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             const matchResult = await users.addUserToMatchmaking(new MatchMakingUser(res.data.id, res.data.rank, socket));
 
             if (matchResult && matchResult.users && matchResult.users.length == mode) {
-                console.log("MATCHRESULT: ", matchResult)
                 const tournament = await GamesManager.createGame(matchResult.users, mode);
                 if (!tournament) {
                     throw new Error('Games manager cannot create game');
@@ -227,7 +226,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     }
                 });
             } else {
-                console.log("MATCHRESULT: ", matchResult)
                 socket.send(JSON.stringify({ message: 'waitingForMatch' }));
             }
         }

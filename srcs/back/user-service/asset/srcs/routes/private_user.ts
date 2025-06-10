@@ -22,7 +22,7 @@ export default function private_userRoutes (server: FastifyInstance, options: an
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(404).send({ error: "0404" });
+                reply.status(404);
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);

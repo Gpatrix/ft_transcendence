@@ -42,10 +42,7 @@ export default function Column({players, left, right} : ColumnProps) {
 
         if (!firstRect || !secondRect)
             return ;
-        // console.log("FIRST: ", firstRect)
-        // console.log("SECOND: ", secondRect)
 
-        console.log("DISTANCE: ", secondRect.y - firstRect.y)
         setDistance(secondRect.y - firstRect.y)
     }, [])
 
