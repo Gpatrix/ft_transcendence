@@ -24,8 +24,8 @@ export default function EndPopup({array, points}: EndPopupProps) {
     const [isWinner, setIsWinner] = useState<boolean>(true)
 
     useEffect(() => {
-        console.log("ARRAY", array);
-        console.log("POINTS", points);
+        
+        
 
         const you = array.find(element => element.isYours);
         if (!you) return;

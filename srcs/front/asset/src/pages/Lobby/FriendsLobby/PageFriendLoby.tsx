@@ -41,7 +41,7 @@ export default function PageFriendLoby() {
     
     // async function joinGame() {
     //     if (params.get("gameId"))
-    //         alert("gameID")
+    //         
     //     else {
     //         navigate("/lobby/friends/create")
     //     }
@@ -61,7 +61,7 @@ export default function PageFriendLoby() {
             }
         })
         .catch((error) => {
-            console.log("Error :", error);
+            
         });
     }
     // function getUserParams() {

@@ -37,7 +37,7 @@ export default function Login() {
             setLogged()
             navigate("/")
             return ;
-            // alert()
+            // 
         }
     }, [])
 

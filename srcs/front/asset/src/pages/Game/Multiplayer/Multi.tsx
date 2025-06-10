@@ -72,7 +72,7 @@ export default function Multi() {
                     return (1);
                 }
             } catch (error) {
-                console.log(error)
+                
                 setError(get_server_translation("0500"));
                 return (0);
             }
@@ -128,7 +128,7 @@ export default function Multi() {
                 };
     
                 ws.onerror = (err : Event) => {
-                    alert("error")
+                    
                 };
     
                 return () => {

@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchWithAuth = async (input: RequestInfo, init?: RequestInit) => {
       
         const response = await fetch(input, init);
-        console.log(response);
+        
         
 
         if (response.status === 401) {

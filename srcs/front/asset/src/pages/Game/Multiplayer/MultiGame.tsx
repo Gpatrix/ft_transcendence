@@ -45,7 +45,7 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
         else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's')
             direction = 'down';
         else if (e.key === 'Escape' ) {
-          console.log('isPausedRef.current', isPausedRef.current);
+          
           if (isPausedRef.current == true) {
             return socket.send(JSON.stringify({ action: "unPause" }));
           }

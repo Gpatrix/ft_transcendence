@@ -33,7 +33,7 @@ export class Ball {
         if (newVelocity.y < Ball.maxSpeed)
             this.velocity.y = newVelocity.y;
         else
-            console.log('setvelocity too high y')
+            
     }
 
     processWallCollision() {

@@ -15,7 +15,7 @@ export default function WaitingRoom() {
 
         ws.onopen = () => {
             setSocket(ws);
-            console.log("opened")
+            
         };
 
         ws.onmessage = (event) => {
@@ -27,7 +27,7 @@ export default function WaitingRoom() {
         }
 
         ws.onclose = () => {
-            console.log("closed!!!")
+            
         }
     }
 
