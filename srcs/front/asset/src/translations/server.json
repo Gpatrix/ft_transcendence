@@ -1,177 +1,61 @@
 {
-  "0400": [
-    "Bad Request",
-    "Requête invalide",
-    "Richiesta non valida"
-  ],
-  "0401": [
-    "Forbidden",
-    "Interdit",
-    "Prohibido"
-  ],
-  "0413": [
-    "Argument is too long",
-    "L'argument est trop long",
-    "L'argomento è troppo lungo"
-  ],
-  "0403": [
-    "User not logged in",
-    "Utilisateur non connecté",
-    "Utente non connesso"
-  ],
-  "0404": [
-    "Not found",
-    "Non trouvé",
-    "Extraviado"
-  ],
-  "0500": [
-    "Internal server error",
-    "Erreur serveur interne",
-    "Errore interno del server"
-  ],
-  "1001": [
-    "Password must contain lowercase letters, uppercase letters, and digits",
-    "Le mot de passe doit contenir des lettres minuscules, majuscules et des chiffres",
-    "La password deve contenere lettere minuscole, maiuscole e numeri"
-  ],
-  "1002": [
-    "Password is too short",
-    "Le mot de passe est trop court",
-    "La password è troppo corta"
-  ],
-  "1003": [
-    "User already exists",
-    "L'utilisateur existe déjà",
-    "L'utente esiste già"
-  ],
-  "1004": [
-    "Invalid email format",
-    "Format d'adresse e-mail invalide",
-    "Formato email non valido"
-  ],
-  "1005": [
-    "Invalid username format",
-    "Format de nom d'utilisateur invalide",
-    "Formato del nome utente non valido"
-  ],
-  "1006": [
-    "Invalid username or password",
-    "Nom d'utilisateur ou mot de passe invalide",
-    "Nome utente o password non validi"
-  ],
-  "1007": [
-    "Please specify an email",
-    "Veuillez spécifier une adresse e-mail",
-    "Per favore specifica un'email"
-  ],
-  "1008": [
-    "Please specify a name",
-    "Veuillez spécifier un nom",
-    "Per favore specifica un nome"
-  ],
-  "1009": [
-    "Please specify a password",
-    "Veuillez spécifier un mot de passe",
-    "Per favore specifica una password"
-  ],
-  "1010": [
-    "Your passwords don't match",
-    "Les mots de passe ne correspondent pas",
-    "Le password non corrispondono"
-  ],
-  "1011": [
-    "Missing argument",
-    "Argument manquant",
-    "Argomento mancante"
-  ],
-  "1012": [
-    "Argument is too long",
-    "L'argument est trop long",
-    "L'argomento è troppo lungo"
-  ],
-  "1013": [
-    "User is banned",
-    "L'utilisateur est banni",
-    "L'utente è stato bannato"
-  ],
-  "1014": [
-    "Account was created using an external provider",
-    "Le compte a été créé via un fournisseur externe",
-    "L'account è stato creato con un provider esterno"
-  ],
-  "1015": [
-    "Failed to log in with Google",
-    "Échec de la connexion avec Google",
-    "Accesso con Google non riuscito"
-  ],
-  "1016": [
-    "Invalid token provided",
-    "Jeton fourni invalide",
-    "Token fornito non valido"
-  ],
-  "1017": [
-    "Invalid code",
-    "Code invalide",
-    "Codice non valido"
-  ],
-  "1018": [
-    "Already logged in",
-    "Déjà connecté",
-    "Già connesso"
-  ],
-  "1020": [
-    "User not logged in with 2fa",
-    "Utilisateur non connecté avec 2FA",
-    "Utente non connesso con 2FA"
-  ],
-  "2001": [
-    "Target user does not exist",
-    "L'utilisateur cible n'existe pas",
-    "L'utente di destinazione non esiste"
-  ],
-  "2002": [
-    "Blocking user does not exist",
-    "L'utilisateur bloquant n'existe pas",
-    "L'utente che blocca non esiste"
-  ],
-  "2011": [
-    "User is yourself",
-    "Vous ne pouvez pas vous bloquer vous-même",
-    "Non puoi bloccare te stesso"
-  ],
-  "2012": [
-    "User doesn't exist",
-    "L'utilisateur n'existe pas",
-    "L'utente non esiste"
-  ],
-  "2013": [
-    "User is admin",
-    "Impossible de bloquer un administrateur",
-    "Impossibile bloccare un amministratore"
-  ],
-  "2014": [
-    "A friend request was already send",
-    "Une demande d'ami a déjà été envoyée",
-    "Ya se envió una solicitud de amistad."
-  ],
-  "3001": [
-    "Target blocked you",
-    "La cible vous a bloqué",
-    "Il destinatario ti ha bloccato"
-  ],
-  "3002": [
-    "Target is you",
-    "La cible est vous-même",
-    "Il destinatario sei tu stesso"
-  ],
-  "3003": [
-    "Target does not exist",
-    "La cible n'existe pas",
-    "Il destinatario non esiste"
-  ],
-  "3010": [
-    "Too many messages requested",
-    "Trop de messages demandés",
-    "Troppe richieste di messaggi"
-  ]
+  "0400": ["Bad Request", "Mauvaise requête", "Richiesta non valida"],
+  "0401": ["Forbidden", "Interdit", "Vietato"],
+  "0403": ["User not logged in", "Utilisateur non connecté", "Utente non connesso"],
+  "0404": ["Not found", "Non trouvé", "Non trovato"],
+  "0413": ["Argument is too long", "L'argument est trop long", "L'argomento è troppo lungo"],
+  "0500": ["Internal server error", "Erreur interne du serveur", "Errore interno del server"],
+  "0503": ["Service Unavailable", "Service non disponible", "Servizio non disponibile"],
+  "4001": ["Unauthorized", "Non autorisé", "Non autorizzato"],
+  "4002": ["Not found", "Non trouvé", "Non trovato"],
+  "4003": ["Forbidden", "Interdit", "Vietato"],
+  "4004": ["Conflict", "Conflit", "Conflitto"],
+  "4500": ["Internal server error", "Erreur interne du serveur", "Errore interno del server"],
+  "1001": ["Password requirements not met", "Le mot de passe ne répond pas aux exigences", "La password non soddisfa i requisiti"],
+  "1002": ["Password is too short", "Le mot de passe est trop court", "La password è troppo corta"],
+  "1003": ["User already exists", "L'utilisateur existe déjà", "L'utente esiste già"],
+  "1004": ["Invalid email format", "Format d'email invalide", "Formato email non valido"],
+  "1005": ["Invalid username format", "Format de nom d'utilisateur invalide", "Formato nome utente non valido"],
+  "1007": ["Email is required", "L'email est requise", "L'email è richiesta"],
+  "1008": ["Name is required", "Le nom est requis", "Il nome è richiesto"],
+  "1009": ["Password is required", "Le mot de passe est requis", "La password è richiesta"],
+  "1010": ["Passwords do not match", "Les mots de passe ne correspondent pas", "Le password non corrispondono"],
+  "1011": ["Bio is too long", "La bio est trop longue", "La bio è troppo lunga"],
+  "1006": ["Invalid username or password", "Nom d'utilisateur ou mot de passe invalide", "Nome utente o password non validi"],
+  "1013": ["User is banned", "L'utilisateur est banni", "L'utente è bannato"],
+  "1014": ["Account created with external provider", "Compte créé avec un fournisseur externe", "Account creato con un provider esterno"],
+  "1018": ["Already logged in", "Déjà connecté", "Già connesso"],
+  "1016": ["Invalid token", "Jeton invalide", "Token non valido"],
+  "1015": ["Failed to log in with Google", "Échec de la connexion avec Google", "Accesso con Google fallito"],
+  "1017": ["Invalid code", "Code invalide", "Codice non valido"],
+  "1020": ["User not logged in with 2FA", "Utilisateur non connecté avec 2FA", "Utente non connesso con 2FA"],
+  "2001": ["Target does not exist", "La cible n'existe pas", "Il destinatario non esiste"],
+  "2002": ["User does not exist", "L'utilisateur n'existe pas", "L'utente non esiste"],
+  "2011": ["Cannot block yourself", "Vous ne pouvez pas vous bloquer", "Non puoi bloccare te stesso"],
+  "2012": ["User does not exist", "L'utilisateur n'existe pas", "L'utente non esiste"],
+  "2013": ["Cannot block admin", "Vous ne pouvez pas bloquer un admin", "Non puoi bloccare un amministratore"],
+  "2013": ["Friend request already sent", "Demande d'ami déjà envoyée", "Richiesta di amicizia già inviata"],
+  "2017": ["Cannot edit Google account", "Vous ne pouvez pas modifier un compte Google", "Non puoi modificare un account Google"],
+  "2021": ["User not found", "Utilisateur non trouvé", "Utente non trovato"],
+  "3001": ["You are blocked by the target", "Vous êtes bloqué par la cible", "Sei stato bloccato dal destinatario"],
+  "3002": ["You have blocked the target", "Vous avez bloqué la cible", "Hai bloccato il destinatario"],
+  "3003": ["Cannot message yourself", "Vous ne pouvez pas vous envoyer de message", "Non puoi inviare un messaggio a te stesso"],
+  "3004": ["Target does not exist", "La cible n'existe pas", "Il destinatario non esiste"],
+  "3005": ["Message is too long", "Le message est trop long", "Il messaggio è troppo lungo"],
+  "3010": ["Too many messages requested", "Trop de messages demandés", "Troppi messaggi richiesti"],
+  "5002": ["Lobby is full", "Le lobby est complet", "La lobby è piena"],
+  "5003": ["Cannot create game with odd number of players", "Impossible de créer un jeu avec un nombre impair de joueurs", "Impossibile creare una partita con un numero dispari di giocatori"],
+  "4004": ["Not enough players", "Pas assez de joueurs", "Non ci sono abbastanza giocatori"],
+  "4005": ["Lobby name is invalid", "Le nom du lobby est invalide", "Il nome della lobby non è valido"],
+  "4006": ["Player count must be even", "Le nombre de joueurs doit être pair", "Il numero di giocatori deve essere pari"],
+  "4007": ["Player count must be between 4 and 32", "Le nombre de joueurs doit être entre 4 et 32", "Il numero di giocatori deve essere compreso tra 4 e 32"],
+  "6001": ["File format not allowed", "Format de fichier non autorisé", "Formato file non consentito"],
+  "6002": ["File is missing", "Fichier manquant", "File mancante"],
+  "4001": ["Not logged in", "Non connecté", "Non connesso"],
+  "4004": ["Lobby does not exist", "Le lobby n'existe pas", "La lobby non esiste"],
+  "4003": ["Game is private", "Le jeu est privé", "Il gioco è privato"],
+  "4009": ["Already in lobby", "Déjà dans le lobby", "Già nella lobby"],
+  "4510": ["Tournament not found", "Tournoi non trouvé", "Torneo non trovato"],
+  "4511": ["Game not found in tournament", "Jeu non trouvé dans le tournoi", "Gioco non trovato nel torneo"],
+  "4512": ["Player not in game", "Joueur non dans le jeu", "Giocatore non nel gioco"]
 }

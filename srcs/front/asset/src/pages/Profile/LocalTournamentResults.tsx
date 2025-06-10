@@ -125,7 +125,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                         games: []
                     };
                     for (let j = 0; j < localTournamentGames.size; j++) {
-                        // console.log(`Fetching scores for tournament ${tournament.id}, game ${j}`);
+                        console.log(`Fetching scores for tournament ${tournament.id}, game ${j}`);
                         const match: number[] | undefined = localTournamentGames.get(j);
                         let maxScore: number = 0;
                         if (!match)
@@ -135,7 +135,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                             players: []
                         };
                         for (let k = 0; k < match.length; k++) {
-                            // console.log(`Fetching score for player ${k} in game ${j} from tournament ${tournament.id}`);
+                            console.log(`Fetching score for player ${k} in game ${j} from tournament ${tournament.id}`);
                             const player = match[k];
                             let matchPlayer: TournamentScoreGamePlayer = {
                                 id: player,
@@ -154,9 +154,9 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                                         p.isWinner = false;
                                     });
                                 }
-                                // console.log(`Score of player ${player} (${tournament.players[player]}) in game ${j} from tournament ${tournament.id}: ${matchPlayer.score}`);
+                                console.log(`Score of player ${player} (${tournament.players[player]}) in game ${j} from tournament ${tournament.id}: ${matchPlayer.score}`);
                             } catch (error) {
-                                // console.error(`Cannot fetch player ${player} (${tournament.players[player]}) in game ${j} from tournament ${tournament.id}: `, error);
+                                console.error(`Cannot fetch player ${player} (${tournament.players[player]}) in game ${j} from tournament ${tournament.id}: `, error);
                             }
                             matchScore.players.push(matchPlayer);
                         }
@@ -181,7 +181,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
             if (!resJson)
                 throw new Error("Cannot fetch local history");
             const array: TournamentInfos[] = [];
-            // console.log(resJson)
+            console.log(resJson)
             for (let i = 0; i < resJson.length; i++) {
                 const element = resJson[i]
                 const games = parseGamesJson(resJson[i].games);
@@ -194,7 +194,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                 }
                 array.push(tournamentInfos);
             }
-            // console.log('array', array);
+            console.log('array', array);
             setTournamentsInfos(array);
         } catch (error) {
             // console.error('Cannot get user local tournaments history');
@@ -213,10 +213,11 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
         tournamentABI: data.tournamentABI,
         factoryABI: data.factoryABI
       });
-    //   console.log("Blockchain infos fetched:", data);
+      console.log("Blockchain infos fetched:", data);
     }
 
     useEffect(() => {
+        console.log(tournamentScores)
         if (!tournamentScores || tournamentScores.length === 0)
             return ; // console.log('Waiting for tournamentScores to be set')
         console.log("Tournament scores fetched:", tournamentScores);
@@ -230,12 +231,12 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
 
     useEffect(() => {
         getBlockchainInfos().catch((error) => {
-        // console.error("Cannot get blockchain infos:", error);
+        console.error("Cannot get blockchain infos:", error);
         return ;
         }).then(() => {
             console.log("then")
             getLocalHistory().catch((error) => {
-                // console.error("Cannot get local history:", error);
+                console.error("Cannot get local history:", error);
                 return ;
             }).then(() => {
                 // console.log("then2")
