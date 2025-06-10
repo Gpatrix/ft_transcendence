@@ -14,7 +14,8 @@ export default function private_userRoutes (server: FastifyInstance, options: an
 
     interface lookupBody
     {
-        credential: string
+        credential: string,
+        provider?: string
     }
 
     server.post<{ Params: lookupParams, Body: lookupBody }>('/api/user/lookup/:email', async (request, reply) => {
@@ -72,7 +73,7 @@ export default function private_userRoutes (server: FastifyInstance, options: an
     server.post<{ Params: isBlockedByParams, Body: isBlockedByBody }>('/api/user/isBlockedBy/:target/:by', async (request, reply) => {
         const credential = request.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            reply.status(404);
+            reply.status(230).send({ error: "0404" });
         const target_user = await prisma.user.findUnique({
             where: {
                 id: Number(request.params.target)
@@ -100,12 +101,12 @@ export default function private_userRoutes (server: FastifyInstance, options: an
             = (by_user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => 
                 blockedUser.blockedUserId === target_user.id))
             if (isBlocked === true)
-                return (reply.status(230).send({value: "3001"}))
+                return (reply.status(200).send({value: "3001"}))
             isBlocked
             = (target_user.blockedUsers.some((blockedUser: { blockedUserId: number; }) => 
                 blockedUser.blockedUserId === by_user.id))
             if (isBlocked === true)
-                return (reply.status(230).send({value: "3002"}))
+                return (reply.status(200).send({value: "3002"}))
             reply.status(200).send({ value: false });
         }
     })
@@ -126,7 +127,7 @@ export default function private_userRoutes (server: FastifyInstance, options: an
             const credential = request.body?.credential;
             const password = request.body?.password;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "0404" });
+                reply.status(230).send({ error: "0404" });
             let user = await prisma.user.update({
                 where: { 
                     email: request.params.email
@@ -136,20 +137,20 @@ export default function private_userRoutes (server: FastifyInstance, options: an
                 }
             });
             if (!user)
-                reply.status(404).send({ error: "1006" });
+                reply.status(230).send({ error: "1006" });
             reply.status(200).send({ message: "user_password_updated" });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
                 {
-                    switch ((error as Prisma.PrismaClientKnownRequestError).code) {
+                    switch (error.code) {
                         case 'P2003':
-                            reply.status(403).send({ error: "1011"});
+                            reply.status(230).send({ error: "1011"});
                           break
                         case 'P2000':
-                            reply.status(403).send({ error: "1012"});
+                            reply.status(230).send({ error: "1012"});
                           break
                         default:
-                            reply.status(403).send({ error: "0500"});
+                            reply.status(230).send({ error: "0500"});
                     }
                 }
             else
@@ -157,27 +158,33 @@ export default function private_userRoutes (server: FastifyInstance, options: an
         }
     })
 
-    interface dfaUpdateParams
+    interface DfaUpdateParams
     {
         id: string,
     }
 
-    interface dfaUpdateBody
+    interface DfaUpdateBody
     {
-        isTwoFactorEnabled?: boolean;
-        twoFactorSecret?: string;
-        twoFactorSecretTemp?: string;
-        credential?: string;
+        credential: string,
+        twoFactorSecret?: string,
+        twoFactorSecretTemp?: string,
     }
 
-    server.put<{ Body: dfaUpdateBody, Params: dfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
+    interface DfaPut
+    {
+        isTwoFactorEnabled?: boolean,
+        twoFactorSecret?: string,
+        twoFactorSecretTemp?: string,
+    }
+
+    server.put<{ Body: DfaUpdateBody, Params: DfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
         try {
             const credential = request.body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: "0404" });
+                reply.status(230).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
-            let put: dfaUpdateBody = {};
+            let put: DfaPut = {};
             if (twoFactorSecret)
             {
                 put.isTwoFactorEnabled = true;
@@ -192,22 +199,22 @@ export default function private_userRoutes (server: FastifyInstance, options: an
                 data : put
             });
             if (!user)
-                reply.status(404).send({ error: "1006" });
+                reply.status(230).send({ error: "1006" });
             reply.status(200).send({ message: "user_2fa_secret_updated" });
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError)
-            {
-                switch ((error as Prisma.PrismaClientKnownRequestError).code) {
-                    case 'P2003':
-                        reply.status(403).send({ error: "1011"});
-                        break
-                    case 'P2000':
-                        reply.status(403).send({ error: "1012"});
-                        break
-                    default:
-                        reply.status(403).send({ error: (error as Prisma.PrismaClientKnownRequestError).message});
+                {
+                    switch (error.code) {
+                        case 'P2003':
+                            reply.status(230).send({ error: "1011"});
+                          break
+                        case 'P2000':
+                            reply.status(230).send({ error: "1012"});
+                          break
+                        default:
+                            reply.status(230).send({ error: error.message});
+                    }
                 }
-            }
             else
                 reply.status(230).send({ error: "0500" });
         }
@@ -219,22 +226,25 @@ export default function private_userRoutes (server: FastifyInstance, options: an
         name: string,
         password?: string,
         isAdmin?: boolean,
-        profPicture?: string
-        credential: string
+        profPicture?: string,
+        provider?: string,
+        credential: string,
         lang?: string
+
     }
 
     server.post<{ Body: postUserBody }>('/api/user/create', { preHandler:[validateUserData] }, async (request, reply) => {
         try {
             const credential = request.body.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(401).send({ error: '0404' });
+                reply.status(230).send({ error: '0404' });
             const email = request.body.email;
             const name = request.body.name;
             const password = request.body.password;
             const profPicture = request.body.profPicture;
             const isAdmin = request.body.isAdmin;
             const lang = request.body.lang;
+            const provider = request.body.provider;
             let user = await prisma.user.create({
                 data: {
                     email,
@@ -242,7 +252,8 @@ export default function private_userRoutes (server: FastifyInstance, options: an
                     password,
                     profPicture,
                     isAdmin,
-                    lang
+                    lang,
+                    provider
                 }
             })
             if (!user) {

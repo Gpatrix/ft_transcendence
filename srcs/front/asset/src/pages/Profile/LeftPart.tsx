@@ -75,7 +75,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 body: form,
             }); 
 
-            if (response.ok) {
+            if (response.status == 200) {
                 window.location.reload();
             } else {
                 const data = await response.json();
@@ -99,6 +99,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 if (!res.ok) 
                     throw new Error("0500");
                 const data = await res.json();
+                data.winRate = Math.round(data.winRate)
                 setStatsData(data);
             } catch (err) {
                 setError(get_server_translation("0500"));
@@ -140,10 +141,10 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 }
             </span>
             { data.bio &&
-            <span className="flex-col mt-[32px]">
-                <span className="text-yellow">{gpt("bio")}:</span>
+            <span className="flex-col mt-[32px] w-[350px]">
+                <span className="text-yellow w-full">{gpt("bio")}:</span>
 
-                <p className="p-2 px-4 mt-[10px] min-h-[100px] whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow">
+                <p className="p-2 px-4 mt-[10px] break-words min-h-[100px] w-1/1 whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow w-full">
                     {data.bio}
                 </p>
             </span>}

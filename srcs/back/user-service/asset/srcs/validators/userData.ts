@@ -18,13 +18,13 @@ export default async function validateUserData(request: any, reply: any) {
             if (name && !name.match(/^[a-zA-Z0-9._\- ]+$/))
                 throw new Error("1005");
         } catch (error: any) {
-            reply.status(400).send({ error: error.message });
+            reply.status(230).send({ error: error.message });
             if (request.body?.image)
                 deleteImage(request.body.image);
         }
     } catch (error) {
         console.error("Error in validateUserData:", error);
-        reply.status(500).send({ error: '0500' });
+        reply.status(230).send({ error: '0500' });
         if (request.body?.image)
             deleteImage(request.body.image);
     }

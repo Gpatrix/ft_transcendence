@@ -38,20 +38,20 @@ export default function uploadRoutes (server: FastifyInstance, options: any, don
                 }
             }
             if (credential != process.env.API_CREDENTIAL)
-                return (res.status(401).send({ error: "0401" }));  // private route (:
+                return (res.status(230).send({ error: "0401" }));  // private route (:
             console.log(file);
             const extName = path.extname(file.filename);
             if (extName !== '.png' && extName !== '.jpeg' && extName !== '.jpg')
-                return (res.status(415).send({ error: "6001" }));
+                return (res.status(230).send({ error: "6001" }));
             if (!file)
-                return (res.status(420).send({ error: "6002" }));
+                return (res.status(230).send({ error: "6002" }));
             const fileName = Date.now();
             const storedFile = fs.createWriteStream(`./uploads/${fileName}`);
             pump(file.file, storedFile);
             res.status(200).send({ fileName: fileName });
         } catch (error) {
             console.error('Error during file upload:', error);
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
@@ -68,11 +68,11 @@ export default function uploadRoutes (server: FastifyInstance, options: any, don
             const credential = req.body.credential;
             const fileName = req.params.fileName
             if (credential != process.env.API_CREDENTIAL)
-                return (res.status(401).send({ error: "private_route" }));  // private route (:
+                return (res.status(230).send({ error: "private_route" }));  // private route (:
             fs.unlink(`../uploads/${fileName}`, err => {});
             res.status(200).send({ message: 'file_successfully_deleted' });
         } catch (error) {
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 

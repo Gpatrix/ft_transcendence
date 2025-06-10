@@ -72,7 +72,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
             method: "PUT",
             body: form,
         }).then((response)=>{
-            if (response.ok) {
+            if (response.status == 200) {
                 setFormValues(initialFormValues)
                 formValues.lang != null && localStorage.setItem('LANGUAGE', JSON.stringify(formValues.lang));
                 if (formValues.isTwoFactorEnabled == true) {
@@ -105,6 +105,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         onChange={createNullSetter("mail")}
                         label={gpt("email")}    
                         placeholder={placeholders.email ?? gpt("email_placeholder")}
+                        disabled={placeholders.provider ? true : false}
                     />
                     <TextAreaWithLabel
                         value={formValues.bio ?? ""}
@@ -121,36 +122,36 @@ export default function EditParams({placeholders} : EditParamsProps) {
 
                 </span>
                 <span className="md:w-3/7 flex-col flex">
-                    <InputWithLabel
-                        hidechars={true}
-                        value={formValues.actual_password ?? ""}
-                        onChange={createNullSetter("actual_password")}
-                        label={gpt("actual_password")} 
-                        placeholder={gpt("password_placeholder")}/>
-                    <InputWithLabel
-                        hidechars={true}
-                        value={formValues.new_password ?? ""} 
-                        onChange={createNullSetter("new_password")}
-                        label={gpt("new_password")}    
-                        placeholder={gpt("new_password_placeholder")}/>
-                    <InputWithLabel className="mb-5" hidechars={true}
-                        value={formValues.confirm_new_password ?? ""}
-                        onChange={createNullSetter("confirm_new_password")}
-                        label={gpt("password_confirm")}
-                        placeholder={gpt("password_confirm_placeholder")} />
-                    <span>
-                        <label>{gpt("2fa")}</label>
-                        <span className="w-2/5 h-[40px] flex justify-evenly border-1 p-1 rounded-xl border-yellow bg-grey mt-[8px]">
-                            {((formValues.isTwoFactorEnabled == null && placeholders.isTwoFactorEnabled == false) 
-                            || formValues.isTwoFactorEnabled == false)
-                            ? <span  onClick={()=>setFormValues((prev) => ({ ...prev, isTwoFactorEnabled: true}))} 
-                                className="w-[50%] h-full rounded-full bg-light-yellow opacity-10 mr-auto cursor-pointer"></span>
+                    {
+                    !(placeholders.provider) ? 
+                        <><InputWithLabel
+                            hidechars={true}
+                            value={formValues.actual_password ?? ""}
+                            onChange={createNullSetter("actual_password")}
+                            label={gpt("actual_password")}
+                            placeholder={gpt("password_placeholder")} /><InputWithLabel
+                                hidechars={true}
+                                value={formValues.new_password ?? ""}
+                                onChange={createNullSetter("new_password")}
+                                label={gpt("new_password")}
+                                placeholder={gpt("new_password_placeholder")} /><InputWithLabel className="mb-5" hidechars={true}
+                                    value={formValues.confirm_new_password ?? ""}
+                                    onChange={createNullSetter("confirm_new_password")}
+                                    label={gpt("password_confirm")}
+                                    placeholder={gpt("password_confirm_placeholder")} /><span>
+                                <label>{gpt("2fa")}</label>
+                                <span className="w-2/5 h-[40px] flex justify-evenly border-1 p-1 rounded-xl border-yellow bg-grey mt-[8px]">
+                                    {((formValues.isTwoFactorEnabled == null && placeholders.isTwoFactorEnabled == false)
+                                        || formValues.isTwoFactorEnabled == false)
+                                        ? <span onClick={() => setFormValues((prev) => ({ ...prev, isTwoFactorEnabled: true }))}
+                                            className="w-[50%] h-full rounded-full bg-light-yellow opacity-10 mr-auto cursor-pointer"></span>
 
-                            : <span  onClick={()=>setFormValues((prev) => ({ ...prev, isTwoFactorEnabled: false}))} 
-                                className="w-[50%] h-full rounded-full bg-yellow ml-auto cursor-pointer"></span>
-                            }
-                        </span>
-                    </span>
+                                        : <span onClick={() => setFormValues((prev) => ({ ...prev, isTwoFactorEnabled: false }))}
+                                            className="w-[50%] h-full rounded-full bg-yellow ml-auto cursor-pointer"></span>}
+                                </span>
+                            </span></>
+                        : null
+                    }
 
                     { (formValues.name || formValues.mail || formValues.bio 
                     || formValues.new_password || formValues.lang != null 

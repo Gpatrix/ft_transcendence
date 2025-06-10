@@ -43,7 +43,7 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
             console.log(error)
-            res.status(230).send({ error: "0230" });
+            res.status(230).send({ error: "0500" });
         }
     });
 

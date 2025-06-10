@@ -29,7 +29,7 @@ export default function OthersProfile() {
     function getUserParams() {
         fetchWithAuth(`/api/user/get_profile/${id}`)
             .then((response) => {
-                if (!response.ok) 
+                if (response.status != 200) 
                     throw new Error("User not found");
                 return (response.json())
                 }

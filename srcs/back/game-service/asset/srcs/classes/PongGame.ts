@@ -1,6 +1,7 @@
 import { prisma } from '../config/prisma';
 import WebSocket from 'ws';
 import { Ball } from './Ball';
+import { activeGameConn, users1v1, users2v2 } from '../routes/game';
 
 export interface pos {
     x: number,
@@ -10,6 +11,43 @@ export interface pos {
 export type velocity = pos;
 export type dimension = pos
 
+export class PauseManager {
+    isPausing:boolean = false;
+    currentPlayerId?: number;
+    knownPlayerIds: Set<number>;
+    constructor () {
+        this.knownPlayerIds = new Set()
+    }
+
+    public askForPause(playerId: number): boolean {
+        if (this.isPausing) {
+            return (false);
+            // throw (new Error('Game is already in pause'));
+        }
+
+        if (this.knownPlayerIds.has(playerId)) {
+            return (false);
+            // throw (new Error('This player cannot ask for a pause'));
+        }
+        this.knownPlayerIds.add(playerId);
+        this.currentPlayerId = playerId;
+        this.isPausing = true;
+        return (true);
+    }
+
+    public endPause(playerId?: number) {
+        console.log('this.isPausing', this.isPausing);
+        console.log('this.currentPlayerId', this.currentPlayerId);
+        console.log('playerId', playerId);
+        if (!this.isPausing)
+            return (false);
+        if (playerId && playerId != this.currentPlayerId)
+            return (false);
+        this.isPausing = false;
+        this.currentPlayerId = undefined;
+        return (true)
+    }
+}
 
 
 export class Player {
@@ -99,7 +137,7 @@ class Teams {
 export class PongGame {
     properties : properties
     teams : Teams
-    constructor (playerIds: Array<number>, id: number) {
+    constructor (playerIds: Array<number>, id: number, nbPlayers: number) {
         this.teams = new Teams(playerIds)
         this.players = []
         playerIds.map((playerId, i)=>{
@@ -117,22 +155,24 @@ export class PongGame {
             racketPadding : 20,
             racketWidth : 10,
             racketHeight : 70,
-            nbPlayers : 2
+            nbPlayers : nbPlayers
         }
-        this.ball = new Ball(this.properties)
+        this.ball = new Ball(this.properties);
+        this.pauseManager = new PauseManager();
     }
 
     initPlayers() {
-        const padding = this.properties.racketPadding 
-        this.players.map((player, i)=>{
+        this.players.map((player, i) => {
             player.position = {
-                x: (i % 2 == 0) ? padding // left
-                                : this.properties.size.width - padding - this.properties.racketWidth,
-
-                y: (i < 3)      ? 2
-                                : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
+                x: (i % 2 === 0) 
+                    ? this.properties.racketPadding
+                    : this.properties.size.width - this.properties.racketPadding - this.properties.racketWidth,
+        
+                y: (i < 2)
+                    ? 2
+                    : this.properties.size.height - this.properties.racketHeight - this.properties.racketPadding - 2
             }
-        })
+        });
     }
 
     initGame() {
@@ -153,7 +193,38 @@ export class PongGame {
         }, 4100)
     }
 
+    public pause(playerId: number) {
+        console.log('this.ball.isFreezed', this.ball.isFreezed);
+        console.log('this.isBall', this.ball.isFreezed);
+        if (this.ball.isFreezed)
+            return ;
+        if (!(this.pauseManager.askForPause(playerId))) {
+            const player = this.players.find((player) => player.id === playerId);
+            return player?.ws.send(JSON.stringify('pauseContested'));
+        }
+        this.ball.freeze();
+        this.players.forEach(player => {
+            if (player.ws) {
+                player.ws.send(JSON.stringify({ message: `gamePaused`, gameId: this.id }));
+            }
+        });
+        setTimeout(() => {
+            this.unPause();
+        }, 10 * 1000);
+    }
 
+    public unPause(playerId?: number) {
+        if (!this.pauseManager.endPause(playerId))
+            return ;
+        this.players.forEach(player => {
+            if (player.ws) {
+                player.ws.send(JSON.stringify({ message: `gameUnpaused`, gameId: this.id }));
+            }
+        });
+        setTimeout(() => {
+            this.ball.unFreeze();
+        }, 1000);
+    }
 
     start() {
         this.initGame()
@@ -197,11 +268,29 @@ export class PongGame {
     
 
     async onEnd() {
+        await prisma.game.update({
+            where: {
+                id: this.id,
+            },
+            data: {
+                closedAt: new Date(),
+            }
+        })
+
+        const game =  await prisma.game.findFirst({
+            where: {
+                id: this.id,
+            },
+        })
+
+        console.log("GAME: ", game)
+
+
+
         await Promise.all(this.players.map(async player => {
             const teamIndex = this.teams.teams.findIndex(t => t.playersIDs.includes(player.id));
             const score = this.teams.teams[teamIndex ^ 1].score;
 
-            console.log("PLAYER:", player)
             const playerEntry = await prisma.player.findFirst({
               where: {
                 userId: player.id,
@@ -217,11 +306,13 @@ export class PongGame {
             }
           }));
 
-
         this.players.forEach(player => {
             if (player.ws) {
                 player.ws.send(JSON.stringify({ message: `gameEnded`, gameId: this.id }));
                 player.ws.close();
+                activeGameConn.delete(player.id)
+                users1v1.handleUserDisconnection(player.id)
+                users2v2.handleUserDisconnection(player.id)
             }
         })
     }
@@ -240,8 +331,13 @@ export class PongGame {
 
     onPlayerMove(id: number, move: number)
     {
+        if (this.isPaused == true)
+            return ;
         const player = this.players.find(player => player.id == id) as Player;
         let newY : number = player.position.y + move
+
+        console.log(`${player.id}: ${move}`)
+
 
         if (move < 0) {  // up
             if (newY <= 0) {
@@ -253,7 +349,7 @@ export class PongGame {
                 newY = this.properties.size.height - this.properties.racketHeight - 3
             }
         }
-        player.position.y = newY    
+        player.position.y = newY
     }
 
     sendPlayers(message: string) {
@@ -329,7 +425,60 @@ export class PongGame {
         });
     }
 
+    hasPlayer(userId: number): boolean {
+        return this.players.some(player => player.id === userId);
+    }
+    
+    isReady(): boolean {
+        return this.players.every(player => player.ws);
+    }
 
+    addSocket(userId: number, ws: WebSocket): boolean {
+        const player = this.players.find(p => p.id === userId);
+        if (!player) {
+            console.warn(`addSocket: No player found with ID ${userId}`);
+            return false;
+        }
+    
+        player.ws = ws;
+        this.onPlayerJoin(userId, ws);
+        return true;
+    }
+
+    removePlayer(userId: number): void {
+        const player = this.players.find(p => p.id === userId);
+        if (!player) {
+            console.warn(`removePlayer: No player found with ID ${userId}`);
+            return;
+        }
+    
+        player.ws = undefined;
+        this.onPlayerLeave(userId);
+    }
+
+    markPlayerConnected(userId: number) {
+        this.connectedPlayers.add(userId);
+        this.disconnectedPlayers.delete(userId);
+    }
+
+    markPlayerDisconnected(userId: number) {
+        this.connectedPlayers.delete(userId);
+        this.disconnectedPlayers.add(userId);
+    }
+
+    areAllPlayersDisconnected(): boolean {
+        return this.connectedPlayers.size === 0;
+    }
+
+    allConnected(expectedPlayerCount : number): boolean {
+        console.log(this.connectedPlayers.size);
+        console.log(this.disconnectedPlayers.size);
+        
+        return (this.connectedPlayers.size === expectedPlayerCount)
+    }
+
+    private connectedPlayers: Set<number> = new Set();
+    private disconnectedPlayers: Set<number> = new Set();
     ball: Ball
     width: number = 200
     height: number = 200
@@ -341,6 +490,7 @@ export class PongGame {
     timeout?: NodeJS.Timeout
     startedAt?: number 
     id: number;
+    pauseManager: PauseManager;
 }
 
 // module.exports = PongGame;

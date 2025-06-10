@@ -64,7 +64,7 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
             return res.status(userLookupResponse.status).send({ error: userLookupData.error})
         const user = userLookupData;
         if (!user)  
-            return res.status(404).send({ error: "1006" });
+            return res.status(230).send({ error: "1006" });
 
         // compare the first temp token the user got for example '420420'
         const verified = speakeasy.totp.verify({ 
@@ -91,7 +91,7 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_enabled" })
         }
         else
-            return (res.status(401).send({ error: "1017" }));
+            return (res.status(230).send({ error: "1017" }));
     });
 
     interface dfaSubmitBody {
@@ -129,7 +129,7 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
                   })).send({ response: "successfully logged with 2fa" });
         }
         else
-            return (res.status(401).send({ error: "1017" }));
+            return (res.status(230).send({ error: "1017" }));
     });
 
     server.delete('/api/auth/2fa/delete', {}, async (req, res) => {
@@ -137,9 +137,9 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
             const token = req.cookies['ft_transcendence_jw_token'];
             const tokenPayload = getTokenData(token);
             if (!tokenPayload || !tokenPayload.id)
-                return res.status(401).send({ error: 1019 });
+                return res.status(230).send({ error: 1019 });
             if (!tokenPayload.dfa)
-                return res.status(403).send({ error: "1020" });
+                return res.status(230).send({ error: "1020" });
             const response = await fetch(`http://user-service:3000/api/user/2fa/update/${tokenPayload.id}`,
             {
                 method: 'PUT',
@@ -155,7 +155,7 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
                 res.status(response.status).send(data);
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_disabled" });
         } catch (error) {
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 

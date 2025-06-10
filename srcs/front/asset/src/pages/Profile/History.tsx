@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import MatchHistory from "../../components/MatchHistory";
 import { gpt } from "../../translations/pages_reponses";
+import { ethers } from "ethers";
 
 interface GetPlayerHistoryReturnPlayer
 {
@@ -16,6 +17,7 @@ interface GetPlayerHistoryReturn
     you: GetPlayerHistoryReturnPlayer;
     playTime: number;
     gameId: number;
+    tournamentId: number;
     gameDate: Date;
     isWinner: number
 }
@@ -26,11 +28,14 @@ export default function History({ playerId }: { playerId: number }) {
 
   useEffect(() => {
     async function fetchHistory() {
+      setLoading(false);
+
       try {
         const res = await fetch(`/api/game/history/${playerId}`);
 
         if (!res.ok) throw new Error("ERROR");
         const data = await res.json();
+  
         const parsedGames = data.games.map((match: any) => ({
           ...match,
           gameDate: new Date(match.gameDate)
@@ -43,8 +48,11 @@ export default function History({ playerId }: { playerId: number }) {
         setLoading(false);
       }
     }
-    fetchHistory();
-  }, [playerId]);
+
+    fetchHistory().catch((error) => {
+      console.error("Error fetching match history:", error);
+    });
+  }, [playerId]); 
 
   if (loading) return <p className="text-yellow">Loading...</p>;
   if (!matches || matches.length === 0) return <p className="text-yellow my-5">{gpt("no_match")}</p>;

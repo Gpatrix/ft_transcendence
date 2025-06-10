@@ -41,7 +41,7 @@ export default function DfaSetup() {
             },
             body: JSON.stringify({userToken: code})
         })
-        if (response.ok) {
+        if (response.status == 200) {
             navigate("/login")
         }
         else {

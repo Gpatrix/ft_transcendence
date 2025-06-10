@@ -48,7 +48,7 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
             if (!target || isAlreadyFriend)
                 return reply.status(230).send({ error: "2012" });
             if (target.id == user.id)
-                return reply.status(401).send({ error: "2011" });
+                return reply.status(230).send({ error: "2011" });
             const existingFriendRequest = await prisma.friendRequest.findFirst({
                 where: {
                     authorId: user.id,
@@ -63,7 +63,7 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
                     target: { connect: { id: target.id } }
                 }
             })
-            reply.status(201).send();
+            reply.status(200).send();
         } catch (error) {
             {
                 return reply.status(230).send({ error: "0500" });
@@ -119,7 +119,7 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
             if (!author)
                 return reply.status(230).send({ error: "2012" });
             if (existingFriendRequest.targetId != id)
-                return reply.status(401).send({ error: "0401" });
+                return reply.status(230).send({ error: "0401" });
             await prisma.friendRequest.delete({
                 where: {
                     id: existingFriendRequest.id
@@ -146,7 +146,7 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
                     friendUserId: user.id
                 }
             });
-            reply.status(201).send();
+            reply.status(200).send();
         } catch (error) {
                 console.log("error");
                 console.log(error);
@@ -197,14 +197,14 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
             if (!author)
                 return reply.status(230).send({ error: "2012" });
             if (existingFriendRequest.targetId != id)
-                return reply.status(401).send({ error: "0401" });
+                return reply.status(230).send({ error: "0401" });
             await prisma.friendRequest.delete({
                 where: {
                     id: existingFriendRequest.id
                 },
             });
 
-            reply.status(201).send();
+            reply.status(200).send();
         } catch (error) {
             return reply.status(230).send({ error: "0500" });
         }
@@ -226,7 +226,7 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
             const body = request.body;
             const credential = body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                return reply.status(401).send({ error: "0401" });
+                return reply.status(230).send({ error: "0401" });
             let user: User | null = null;
             user = await prisma.user.findUnique({
                 where: { 

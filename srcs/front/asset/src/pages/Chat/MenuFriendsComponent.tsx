@@ -30,7 +30,12 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
 
     const handleSupFriend = async (idFriend: number) => {
         const codeError = await Friend.deleteFriends(idFriend);
-        if (codeError != "201") {
+<<<<<<< HEAD:srcs/front/vitejs/src/pages/Chat/MenuFriendsComponent.tsx
+=======
+        console.log(codeError);
+        
+>>>>>>> origin/main:srcs/front/asset/src/pages/Chat/MenuFriendsComponent.tsx
+        if (codeError != "200") {
             console.log("Error :", get_server_translation(codeError));
             return ;
         }

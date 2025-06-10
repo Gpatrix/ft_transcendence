@@ -20,6 +20,7 @@ interface GetPlayerHistoryReturn
     you: GetPlayerHistoryReturnPlayer;
     playTime: number;
     gameId: number;
+    tournamentId?: number;
     gameDate: Date;
     isWinner: number
 }
@@ -40,12 +41,13 @@ function getGameInfos(game: any, userId: number): GetPlayerHistoryReturn
         you: you,
         playTime: game.playTime,
         gameId: game.id,
+        tournamentId: game.tournamentId,
         gameDate: game.createdAt,
         isWinner: isPlayerWinnerInGame(game, userId)
     })
 }
 
-function gameRoutes(server: FastifyInstance, options: any, done: any)
+export default function historyRoutes(server: FastifyInstance, options: any, done: any)
 {
     interface GetPlayerHistoryParams
     {
@@ -64,7 +66,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
                     userId = tokenPayload.id
                 }
                 if (!userId)
-                    return reply.status(403).send({ error: '0403' });
+                    return reply.status(230).send({ error: '0403' });
                 const players = await prisma.player.findMany({
                     where: {
                         userId: userId
@@ -87,12 +89,10 @@ function gameRoutes(server: FastifyInstance, options: any, done: any)
                 reply.status(200).send({ games: games });
             } catch (error) {
                 console.log(error);
-                return reply.status(500).send({ error: '0500' });
+                return reply.status(230).send({ error: '0500' });
             }
         }
     );
 
     done();
 }
-
-module.exports = gameRoutes;

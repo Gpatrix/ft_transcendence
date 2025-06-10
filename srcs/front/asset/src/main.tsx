@@ -25,11 +25,13 @@ import LocalGame from './pages/Game/Local/LocalGame.tsx';
 import GameLayout from './pages/Game/GameLayout.tsx';
 import LocalGameWrapper from './pages/Game/Local/LocalGameWrapper.tsx';
 import MatchMaking from './pages/Lobby/MatchMaking.tsx';
+import WaitingRoom from './pages/Lobby/WaitingRoom.tsx';
 import Multi from './pages/Game/Multiplayer/Multi.tsx';
 import AskPlayers from './pages/Tournament/AskPlayers.tsx';
 import CreateTournament from './pages/Tournament/CreateTournament.tsx';
 import Overview from './pages/Tournament/Overview/Overview.tsx';
 import PageFriendLoby from './pages/Lobby/FriendsLobby/PageFriendLoby.tsx';
+import LocalTournamentHistory from './pages/Profile/LocalTournamentResults.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -52,6 +54,7 @@ createRoot(document.getElementById('root')!).render(
             <Route element={<ProfileBackground/>}>
               <Route path="/profile" element={<MyProfile />}/>
               <Route path="/profile/:id" element={<OthersProfile />}/>
+              <Route path="/profile/tournament" element={<LocalTournamentHistory />}/>
             </Route>
 
             <Route element={<LobbyLayout />}>
@@ -59,6 +62,9 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/lobby/friends/create" element={<PopupCreate />}/>
               <Route path="/lobby/matchmaking" element={<MatchMaking/>}/>
               <Route path="/lobby/friendLoby" element={<PageFriendLoby />}/>
+              <Route path="/lobby/friendLoby/:idFriend" element={<PageFriendLoby />}/>
+              <Route path="/lobby/friendLoby/waiting-room/:gameId/:tournamentId" element={<WaitingRoom />}/>
+              
 
             </Route>
 

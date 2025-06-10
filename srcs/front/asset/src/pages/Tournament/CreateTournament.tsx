@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import InputWithLabel from "../../components/InputWithLabel"
 import Button from "../../components/Button"
+import { gpt } from "../../translations/pages_reponses"
 
 export default function CreateTournament() {
     const [params] = useSearchParams()
@@ -67,15 +68,15 @@ export default function CreateTournament() {
 
     return (
         <div className="flex flex-col items-center">
-            <h1 className="text-yellow mb-10">Usernames</h1>
+            <h1 className="text-yellow mb-10">{gpt("players")}</h1>
             <form onSubmit={(e)=>handleSubmit(e)}>
                 <span  className="grid gap-x-8 grid-cols-2">
                     {playerNicknames.map((nickname, i) => (
                         <InputWithLabel
                             key={i}
-                            placeholder="Nickname"
+                            placeholder={gpt("nickname")}
                             type={errorFields[i] ? "error" : "ok"}
-                            label={`Player ${i + 1}`}
+                            label={`${gpt("player")} ${i + 1}`}
                             value={nickname}
                             onChange={(e) => {
                                 const updated = [...playerNicknames];
@@ -85,7 +86,7 @@ export default function CreateTournament() {
                         />
                     ))}
                 </span>
-                <Button className="w-full mt-10" type="full">Start</Button>
+                <Button className="w-full mt-10" type="full">{gpt("start")}</Button>
             </form>
         </div>
     )
