@@ -245,37 +245,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    // creer la game :
+    // create game friend :
     server.post('/api/game/friendMatch/create', async (request, reply) => {
         const body = request.body as { userIds: number[] };
         const userIds = body.userIds;
@@ -287,13 +257,8 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     
         const matchUsers: MatchMakingUser[] = [];
     
-        console.log(userIds);
         for (const userId of userIds) {
             try {
-                console.log(userId);
-                
-                // console.log(import.meta.env.VITE_PORT);
-                
                 const res = await axios.post(`http://user-service:3000/api/user/lookup/${userId}`, {
                     credential: process.env.API_CREDENTIAL
                 });
@@ -363,10 +328,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 return socket.close(4002, 'Already in a game');
             }
 
-            // console.log(GamesManager);
-            // console.log(GamesManager.games);
-            
-    
             const game = await GamesManager.getGameById(Number(gameId));
             if (!game || !game.hasPlayer(userId)) {
                 return socket.close(4003, 'Not allowed to join this game');
@@ -396,15 +357,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     
             socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
 
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            // console.log(game.players);
-            // console.log(game.allConnected(game.players.length));
-            
 
             if (game.allConnected(game.players.length)) {
 
@@ -433,7 +385,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             socket.close(4000, 'Error joining game');
         }
     });
-    
     
 
     // server.get('/api/game/status', async (request, reply) => {
