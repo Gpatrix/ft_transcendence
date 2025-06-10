@@ -18,7 +18,7 @@ export default function DfaSetup() {
                 const res = await fetch("/api/auth/2fa/setup/ask");
                 const json = await res.json();
                 if (!res.ok) {
-                    alert("???")
+                    
                     setError(json.message)
                     return ;
                 }

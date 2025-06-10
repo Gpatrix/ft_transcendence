@@ -103,13 +103,13 @@ export default function Register() {
                 <InputWithLabel type={errorfield == ErrorTypes.PASS_MATCH ? "error" : "ok"} onChange={(e)=>setPasswordConfirm(e.target.value)} hidechars={true}
                 placeholder={gpt("password_confirm_placeholder")} label={gpt("password_confirm")} />
 
-                <Link to="/forgot-password"  className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{gpt("forgotten")}</Link> 
+
 
                 { error && 
                     <LoginErrorMsg>{error}</LoginErrorMsg>
                 }
 
-                <Button type="full" className="mt-5">{gpt("register")}</Button>
+                <Button type="full" className="mt-10">{gpt("register")}</Button>
                 <span className="flex text-xs text-yellow items-center my-[10px]">
                     <span className="w-full h-[1px] mr-[12px] bg-yellow"/>
                     <span>{gpt("or")}</span>

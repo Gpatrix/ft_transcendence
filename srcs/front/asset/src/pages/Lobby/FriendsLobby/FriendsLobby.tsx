@@ -8,7 +8,7 @@ export default function FriendsLobby() {
 
     async function joinGame() {
         if (params.get("gameId"))
-            alert("gameID")
+            
         else {
             navigate("/lobby/friends/create")
         }

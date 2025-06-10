@@ -24,7 +24,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/rpc/, ''),
       },
     },
-    allowedHosts: ["c1r6p12.42lehavre.fr"],
+    allowedHosts: ["c1r6p15.42lehavre.fr"],
     host: true,
     watch: {
       usePolling: true,
