@@ -109,10 +109,9 @@ export default function Menu() {
     return (
         <BgShadow className="flex flex-col gap-8 ">
             <MenuDropDown label={gpt("multiplayer")} 
-                          first={gpt("play_with_friends")}
-                          firstLink="/lobby/friends" 
-                          second={gpt("matchmaking")}
-                          secondLink="/lobby/matchmaking"/>
+                          first={gpt("matchmaking")}
+                          firstLink="/lobby/matchmaking" 
+                          />
 
             <MenuDropDown label={gpt("local_game")} 
                           first="1 vs 1"
