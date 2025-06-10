@@ -63,11 +63,11 @@ export default function AddFriends({} : AddFriendsProps) {
                 })}
 
                 {
-                    inputResponse == "201" &&
+                    inputResponse == "200" &&
                     <div className="py-2 text-green">{gpt("Request_sent")}</div>
                 }
                 {
-                    inputResponse != "201" && inputResponse != "" &&
+                    inputResponse != "200" && inputResponse != "" &&
                     <div className="py-2 text-light-red">{get_server_translation((inputResponse))}</div>
                 }
 
