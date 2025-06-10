@@ -46,9 +46,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="*" element={<NotFound />}/> 
               <Route path='2fa-setup' element={<DfaSetup />}/>
               <Route path='2fa-check' element={<DfaCheck />}/>
-              <Route path='/' element={<Menu />} />
-
             </Route>
+
 
 
             <Route element={<ProfileBackground/>}>
@@ -58,6 +57,7 @@ createRoot(document.getElementById('root')!).render(
             </Route>
 
             <Route element={<LobbyLayout />}>
+
               <Route path="/lobby/friends" element={<FriendsLobby />}/>
               <Route path="/lobby/friends/create" element={<PopupCreate />}/>
               <Route path="/lobby/matchmaking" element={<MatchMaking/>}/>
@@ -70,6 +70,8 @@ createRoot(document.getElementById('root')!).render(
 
 
             <Route element={<GameLayout />}>
+            <Route path='/' element={<Menu />} />
+
               <Route path="/play/local" element={<LocalGameWrapper/>}/>
               <Route path="/play/multi" element={<Multi/>}/>
               <Route path="/play/tournament" element={<AskPlayers/>}/>
