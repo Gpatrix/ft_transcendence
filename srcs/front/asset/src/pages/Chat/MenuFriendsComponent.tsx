@@ -24,14 +24,12 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
 
     const handleBlockFriend = async (idFriend: number) => {
         const codeError : string = await Friend.blockFriends(idFriend);
-        if (codeError != "200")
             
     }
 
     const handleSupFriend = async (idFriend: number) => {
         const codeError = await Friend.deleteFriends(idFriend);
         if (codeError != "200") {
-            
             return ;
         }
         
@@ -48,8 +46,6 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
                 });
                 
                 setFriends(friends);
-            } else {
-                
             }
         } catch (error) {
             

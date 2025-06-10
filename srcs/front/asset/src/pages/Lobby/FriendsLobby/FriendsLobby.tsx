@@ -7,16 +7,14 @@ export default function FriendsLobby() {
     const navigate = useNavigate()
 
     async function joinGame() {
-        if (params.get("gameId"))
-            
-        else {
+        if (!params.get("gameId"))
             navigate("/lobby/friends/create")
         }
-    }
 
     useEffect(()=> {
         joinGame()
     }, [params])
+
 
     return (
         <div>
