@@ -158,7 +158,7 @@ export default function Multi() {
                 </span>
             }
             {disconnect && <Disconnected/>}
-            {end && !error && <EndPopup/>}
+            {end && !error && <EndPopup array={players} points={points}/>}
             {(!error && !end) &&
             <span>
                 <MultiGame ball={ball.current} players={players} socket={socket.current} isPaused={isPaused} isPausedRef={isPausedRef} />
@@ -167,5 +167,8 @@ export default function Multi() {
             </span>
             }
         </div>
+        // <div className="relative">
+        //     { <EndPopup players={players}/>}
+        // </div>       
     );
 }

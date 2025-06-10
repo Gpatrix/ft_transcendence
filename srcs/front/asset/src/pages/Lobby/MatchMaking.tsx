@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../../components/Button";
+import { get_server_translation } from "../../translations/server_responses";
 
 export default function MatchMaking() {
     const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -10,6 +11,9 @@ export default function MatchMaking() {
     const navigate = useNavigate()
 
     const wsHandler = () => {
+        console.log("PLAYERS", players)
+        if (!players) return;
+
         let ws : WebSocket = new WebSocket(`wss://${window.location.host}/api/game/matchmaking`);
 
         ws.onopen = () => {
@@ -27,6 +31,7 @@ export default function MatchMaking() {
                 if (json.error) {
                     console.log(json)
                     alert(`ERROR: ${json.error}`)
+                    setError(get_server_translation(json.error))
                     ws.close();
                 }
             }
@@ -44,14 +49,19 @@ export default function MatchMaking() {
     }
 
     useEffect(()=>{
-        wsHandler()
+        if (players == 2 || players == 4)
+            wsHandler()
     }, [players])
-
 
     return (
         <div className="flex w-full h-full flex-col justify-center items-center">
-            
-            { players ?
+            { error && 
+            <span>
+                {error}
+            </span>
+            }
+
+            {players ?
             <span className="flex w-full h-full flex-col justify-center items-center">
                 <h2 className="text-yellow font-title animate-bounce">Matchmaking...</h2>
                 <img className="mt-15 animate-spin" src="/icons/wait.png"></img>
