@@ -304,14 +304,14 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                     rank: true,
                 }
             })
-            if (!targets)
+            if (!targets || targets.length == 0)
                 return reply.status(230).send({ error: "2012" });
             const indexUser = targets.findIndex(target => target.id == user.id);
             if (indexUser != -1)
                 targets.splice(indexUser, 1);
             if (targets.length == 0)
                 return reply.status(230).send({ error: "2011" });
-            reply.status(201).send(targets);
+            reply.status(200).send(targets);
         } catch (error) {
             {
                 return reply.status(230).send({ error: "0500" });

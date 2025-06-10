@@ -50,7 +50,7 @@ type UserContactProps = {
 export default function UserContact({className, userName, status='online', notifs = 0, type, image, children, nb, onClick, onClickIcone, iconeType = "add"} : UserContactProps) {
     
     return (
-        <div data-nb={nb} data-status={status}
+        <div data-nb={nb} data-status={status} tabIndex={0}
             className={clsx('userContact h-[50px] p-[4px] pink-shadow bg-grey relative', statusVariants( {status} ), typeVariants( {type} ) , className)} onClick={onClick}>
             <span className='flex items-center h-1/1'>
                 <ProfilePic profileLink='test.jpg' image={image} status={status} className={'h-1/3 min-w-[42px]'}/>

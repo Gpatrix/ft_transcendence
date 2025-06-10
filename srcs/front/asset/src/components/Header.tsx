@@ -18,7 +18,7 @@ export default function Header({className} : HeaderProps) {
         <div className={clsx("text-yellow header border border-yellow flex relative z-999 bg-dark", className)}>
             <h1 className='w-1/1 h-min self-center ml-[20px]'>ft_transcendance</h1>
             <Link to="/chat">
-                <Button style={location.pathname=="/chat"?'selected':'header'}>{gpt("social")} </Button>
+                <Button tabIndex={-1} style={location.pathname=="/chat"?'selected':'header'}>{gpt("social")} </Button>
             </Link>
 
             <Link to="/profile">

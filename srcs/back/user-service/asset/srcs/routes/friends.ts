@@ -41,7 +41,7 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
                 }
             })
             if (!target)
-                return reply.status(230).send({ error: "2012" }); // a modiffier
+                return reply.status(230).send({ error: "2001" });
             const isAlreadyFriend = await prisma.friend.findFirst({
                 where: {
                     userId: user.id,

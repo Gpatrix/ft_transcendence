@@ -19,7 +19,7 @@ export default function AddFriends({} : AddFriendsProps) {
     const handleSubmitSearch = async (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const response: User[] | undefined | string = await User.searchUserByName(inputSearch)
+        const response: User[] | undefined | string = await User.searchUserByName(inputSearch);
 
         if (typeof response == 'string') {
             setInputResponse(response)
@@ -38,7 +38,7 @@ export default function AddFriends({} : AddFriendsProps) {
 
     const handleSendFriendRequest = async (id: number) => {
         const response = await Friend.friendRequest(id)
-
+        
         setUsersSearched([]);
         setInputResponse(response)
     }
