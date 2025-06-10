@@ -296,7 +296,7 @@ async function chat_api(fastify: FastifyInstance)
     {
         if (request.params.id === undefined)
             return reply.status(230).send({error: "0400"});
-        console.log(`size: ${activeConn.size} value: ${JSON.stringify(activeConn.get(1))}`);
+        console.log(JSON.stringify(activeConn.size))
         return reply.status(200).send({value: activeConn.has(Number(request.params.id))});
     });
 
