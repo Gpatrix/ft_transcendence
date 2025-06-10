@@ -46,7 +46,7 @@ export default function EndPopup({array, points}: EndPopupProps) {
 
         setIsWinner(winner);
     }, [array, points]);
-
+    
 
     return (
         <div className="w-[100vh] h-[50vh] top-0 flex items-center justify-center">
