@@ -32,8 +32,6 @@ export class Ball {
             this.velocity.x = newVelocity.x;
         if (newVelocity.y < Ball.maxSpeed)
             this.velocity.y = newVelocity.y;
-        else
-            
     }
 
     processWallCollision() {
