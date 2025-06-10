@@ -47,7 +47,6 @@ export default function Login() {
             <form onSubmit={(e)=>handleSubmit(e)} className="flex flex-col w-1/1">
                 <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setEmail(e.target.value)} placeholder={gpt("email_placeholder")} label={gpt("email")} />
                 <InputWithLabel type={error ? "error" : "ok"} onChange={(e)=>setPassword(e.target.value)} hidechars={true} placeholder={gpt("password_placeholder")} label={gpt("password")} />
-                <Link to="/forgot-password" className="ml-auto text-dark-yellow text-xs py-2 hover:text-yellow">{gpt("forgotten")}</Link> 
 
                 { error && 
                     <LoginErrorMsg>{error}</LoginErrorMsg>

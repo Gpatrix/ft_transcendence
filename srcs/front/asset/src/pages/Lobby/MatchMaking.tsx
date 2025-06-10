@@ -14,7 +14,7 @@ export default function MatchMaking() {
         console.log("PLAYERS", players)
         if (!players) return;
 
-        let ws : WebSocket = new WebSocket(`wss://${window.location.host}/api/game/matchmaking`);
+        let ws : WebSocket = new WebSocket(`wss://${window.location.host}/api/game/matchmaking?mode=${players}`);
 
         ws.onopen = () => {
             setSocket(ws);
@@ -33,7 +33,7 @@ export default function MatchMaking() {
                     alert(`ERROR: ${json.error}`)
                     setError(get_server_translation(json.error))
                     ws.close();
-                }
+                }   
             }
          }
 

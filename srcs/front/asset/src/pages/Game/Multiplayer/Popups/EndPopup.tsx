@@ -33,7 +33,7 @@ export default function EndPopup({array, points}: EndPopupProps) {
         const yourIndex = array.indexOf(you);
         if (yourIndex === -1) return;
 
-        const yourScore = points[yourIndex];
+        const yourScore = points[(yourIndex & 1) ^ 1];
         if (yourScore === undefined) return;
 
         let winner = true;
