@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-async function sendMail(to: string, subject: string, text: string) {
+export default async function sendMail(to: string, subject: string, text: string) {
     const mailOptions = {
         from: `ft_transcendence`,
         to,
@@ -24,5 +24,3 @@ async function sendMail(to: string, subject: string, text: string) {
         console.log(error)
     }
 };
-
-module.exports = sendMail;

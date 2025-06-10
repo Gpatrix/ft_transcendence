@@ -8,7 +8,7 @@ services:
         context: ./reverse_proxy
         dockerfile: Dockerfile
     ports:
-        - 3000:443
+        - ${PORT:?}:443
     networks:
       - router
 
@@ -25,7 +25,7 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       MAIL_ADRESS: ${MAIL_ADRESS}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       MAIL_PORT: ${MAIL_PORT}
@@ -36,13 +36,11 @@ services:
         context: ./back/auth-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     expose:
       - 3000
     networks:
       - router
-    labels:
-      - "com.example.service=auth"
 
   chat-service:
     container_name: chat-service
@@ -53,7 +51,7 @@ services:
     environment:
       HOST: ${HOST:?}
       PORT: ${PORT:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       JWT_SECRET: ${JWT_SECRET:?}
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
@@ -61,7 +59,7 @@ services:
         context: ./back/chat-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
           DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
@@ -81,13 +79,13 @@ services:
       PORT: ${PORT:?}
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       JWT_SECRET: ${JWT_SECRET:?}
     build:
         context: ./back/game-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
           DATABASE_URL: ${DATABASE_URL:?}
     expose:
       - 3000
@@ -106,12 +104,12 @@ services:
       DATABASE_URL: ${DATABASE_URL:?}
       JWT_SECRET: ${JWT_SECRET:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
     build:
         context: ./back/upload-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     expose:
       - 3000
     networks:
@@ -126,7 +124,7 @@ services:
       HOST: ${HOST:?}
       PORT: ${PORT:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
       FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
       FUJI_RPC_URL: ${FUJI_RPC_URL:?}
@@ -136,9 +134,11 @@ services:
         context: ./back/blockchain-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     expose:
       - 3000
+    ports:
+      - 8545:8545
     networks:
       - router
 
@@ -153,13 +153,13 @@ services:
       PORT: ${PORT:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       JWT_SECRET: ${JWT_SECRET:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
       DATABASE_URL: ${DATABASE_URL:?}
     build:
         context: ./back/user-service
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
           DATABASE_URL: ${DATABASE_URL:?}
     ports:
       - 5555:5555
@@ -199,23 +199,23 @@ services:
     expose:
       - 3000
 
-  alertmanager-service:
-    container_name: alertmanager-service
-    restart: on-failure
-    build:
-        context: ./back/monitoring/alertmanager-service
-        dockerfile: Dockerfile
-        args:
-          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
-          ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
-          ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
-          ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
-          ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
-          ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
-    networks:
-      - router
-    expose:
-      - 9093
+  # alertmanager-service:
+  #   container_name: alertmanager-service
+  #   restart: on-failure
+  #   build:
+  #       context: ./back/monitoring/alertmanager-service
+  #       dockerfile: Dockerfile
+  #       args:
+  #         GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+  #         ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
+  #         ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
+  #         ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
+  #         ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
+  #         ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
+  #   networks:
+  #     - router
+  #   expose:
+  #     - 9093
 
   front-service:
     container_name: front-service
@@ -224,11 +224,11 @@ services:
         context: ./front/
         dockerfile: Dockerfile
         args:
-          NODE_ENV: ${NODE_ENV:?}
+          NODE_ENV: dev
     environment:
       VITE_HOST: ${HOST:?}
       VITE_PORT: ${PORT:?}
-      NODE_ENV: ${NODE_ENV:?}
+      NODE_ENV: dev
     expose:
       - 5173
     volumes:

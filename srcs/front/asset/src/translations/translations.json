@@ -288,8 +288,17 @@
       "Someone is disconnected...",
       "Quelqu'un est déconnecté...",
       "Qualcuno si è disconnesso..."
+    ],
+    "you_win": [
+      "You win!",
+      "Tu as gagné !",
+      "Hai vinto!"
+    ],
+    "you_lose": [
+      "You lose!",
+      "Tu as perdu !",
+      "Hai perso!"
     ]
-
 
 
   }    

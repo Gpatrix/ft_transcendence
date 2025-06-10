@@ -1,8 +1,8 @@
 import fastify from 'fastify'
 import cookiesPlugin from '@fastify/cookie';
 import multipartPlugin from '@fastify/multipart';
-import rateLimitPlugin from '@fastify/rate-limit';
-import userRoutes from "./routes/user";
+import public_userRoutes from "./routes/public_user";
+import private_userRoutes from "./routes/private_user";
 import friendsRoutes from "./routes/friends";
 import { metrics , user_requests_total} from './metrics'
 
@@ -14,11 +14,6 @@ server.addHook('onResponse', (req, res, done) =>
 	done();
 });
 
-server.register(rateLimitPlugin, {
-  max: 100,
-  timeWindow: '1 minute',
-  allowList: ['127.0.0.1']
-});
 server.register(multipartPlugin, {
   limits: {
     fieldNameSize: 100, // Max field name size in bytes
@@ -32,30 +27,15 @@ server.register(multipartPlugin, {
 });
 server.register(cookiesPlugin, {});
 server.register(metrics);
-server.register(userRoutes);
+server.register(public_userRoutes);
+server.register(private_userRoutes);
 server.register(friendsRoutes);
 
-async function main() {
-  let _address;
-  await server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) => {
+server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
+{
     if (err) {
       console.error(err);
       process.exit(1);
     }
-    _address = address;
-    console.log(`Server listening at ${_address}`);
-  })
-}
-
-main();
-
-// main()
-//   .then(async () => {
-//     await prisma.$disconnect()
-//   })
-//   .catch(async (e) => {
-//     console.error(e)
-//     await prisma.$disconnect()
-//     process.exit(1)
-//   })
-
+    console.log(`ready`);
+})

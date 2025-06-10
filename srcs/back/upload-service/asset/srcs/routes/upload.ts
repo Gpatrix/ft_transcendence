@@ -8,7 +8,7 @@ import { isConnected } from "../validators/jsonwebtoken";
 
 const pump = util.promisify(pipeline);
 
-function uploadRoutes (server: FastifyInstance, options: any, done: any)
+export default function uploadRoutes (server: FastifyInstance, options: any, done: any)
 {
 
     interface uploadPostBody {
@@ -20,8 +20,7 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
             const token = req.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return (res.status(230).send({ error: "0401" }));  // private route (:
-            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-            const tokenPayload = decoded.data;
+            const tokenPayload = jwt.decode(token).data;
             if (!tokenPayload || !tokenPayload.id)
                 return (res.status(230).send({ error: "0401" }));  // private route (:
             const file = await req.file();
@@ -70,15 +69,13 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
             const credential = req.body.credential;
             const fileName = req.params.fileName
             if (credential != process.env.API_CREDENTIAL)
-                return (res.status(401).send({ error: "private_route" }));  // private route (:
+                return (res.status(230).send({ error: "private_route" }));  // private route (:
             fs.unlink(`../uploads/${fileName}`, err => {});
             res.status(200).send({ message: 'file_successfully_deleted' });
         } catch (error) {
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
     done()
 }
-
-module.exports = uploadRoutes;

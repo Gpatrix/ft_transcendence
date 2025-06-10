@@ -14,8 +14,8 @@
     "dependencies": {
         "@fastify/cookie": "^11.0.2",
         "@fastify/oauth2": "^8.1.2",
-        "@fastify/rate-limit": "^10.2.2",
         "@fastify/websocket": "^11.0.2",
+        "@types/jsonwebtoken": "^9.0.9",
         "@types/node": "^22.14.1",
         "@types/nodemailer": "^6.4.17",
         "axios": "^1.8.4",
@@ -27,10 +27,9 @@
         "qrcode": "^1.5.4",
         "speakeasy": "^2.0.0",
         "ts-node": "^10.9.2",
-        "ts-node-dev": "^2.0.0"
-    },
-    "devDependencies": {
-        "@types/jsonwebtoken": "^9.0.9",
-        "typescript": "^5.8.3"
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.8.3",
+        "@types/qrcode": "^1.5.5",
+        "@types/speakeasy": "^2.0.10"
     }
 }

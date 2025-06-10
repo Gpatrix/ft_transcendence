@@ -20,7 +20,7 @@ const GoogleAuth: React.FC = () => {
       return;
     }
 
-    console.log(import.meta.env.VITE_HOST, import.meta.env.VITE_PORT);
+    
 
     const params = new URLSearchParams({
       client_id: '126523871891-i2jnhvg2mgo847mbbkpmio7nj4ikepdp.apps.googleusercontent.com',

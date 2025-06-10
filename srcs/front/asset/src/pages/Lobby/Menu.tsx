@@ -107,12 +107,11 @@ export function MenuDropDown({ label, first, second, firstLink, secondLink, thir
   }
 export default function Menu() {
     return (
-        <BgShadow className="flex flex-col gap-8 ">
+        <div className="flex flex-col justify-center gap-8 w-[600px] h-[400px] shadow-lg shadow-yellow-500/20 rounded-2xl pl-10">
             <MenuDropDown label={gpt("multiplayer")} 
-                          first={gpt("play_with_friends")}
-                          firstLink="/lobby/friends" 
-                          second={gpt("matchmaking")}
-                          secondLink="/lobby/matchmaking"/>
+                          first={gpt("matchmaking")}
+                          firstLink="/lobby/matchmaking" 
+                          />
 
             <MenuDropDown label={gpt("local_game")} 
                           first="1 vs 1"
@@ -127,6 +126,6 @@ export default function Menu() {
             <MenuLink link="/profile" label={gpt("profile")} />
             <MenuLink link="/chat" label={gpt("social")} />
             
-        </BgShadow>
+        </div>
     )
 }

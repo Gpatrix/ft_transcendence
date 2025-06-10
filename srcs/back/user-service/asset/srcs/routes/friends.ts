@@ -2,10 +2,17 @@ import { FastifyInstance } from 'fastify';
 import prisma from '../config/prisma';
 import jwt from 'jsonwebtoken';
 import { User } from '@prisma/client';
+import { i_token, getTokenData } from "../utils/getTokenData";
+import isConnected from "../validators/jsonwebtoken";
 
 
-function friendsRoute(server: FastifyInstance, options: any, done: any)
+export default function friendsRoute(server: FastifyInstance, options: any, done: any)
 {
+    server.addHook('preValidation', (request, reply, done) => 
+    {
+        isConnected(request, reply, done);
+    })
+
     interface postUserFriendRequestParams 
     {
         id: number
@@ -16,18 +23,17 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const targetId = Number(request.params?.id);
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
-                return reply.status(403).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+                return reply.status(230).send({ error: "0403" });
+            const id = getTokenData(token).id;
             if (!id)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             const user = await prisma.user.findUnique({
                 where: { 
                     id: Number(id),
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             const target = await prisma.user.findUnique({
                 where: { 
                     id: targetId
@@ -40,9 +46,9 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!target || isAlreadyFriend)
-                return reply.status(404).send({ error: "2012" });
+                return reply.status(230).send({ error: "2012" });
             if (target.id == user.id)
-                return reply.status(401).send({ error: "2011" });
+                return reply.status(230).send({ error: "2011" });
             const existingFriendRequest = await prisma.friendRequest.findFirst({
                 where: {
                     authorId: user.id,
@@ -50,17 +56,17 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (existingFriendRequest)
-                return reply.status(429).send({ error: '2014'})
+                return reply.status(429).send({ error: '2013'})
             await prisma.friendRequest.create({
                 data: {
                     author: { connect: { id: user.id } },
                     target: { connect: { id: target.id } }
                 }
             })
-            reply.status(201).send();
+            reply.status(200).send();
         } catch (error) {
             {
-                return reply.status(500).send({ error: "0500" });
+                return reply.status(230).send({ error: "0500" });
             }
         }
     })
@@ -75,11 +81,10 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const requestId = request.params?.id;
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
-                return reply.status(403).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+                return reply.status(230).send({ error: "0403" });
+            const id = getTokenData(token).id;
             if (!id)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             let user = await prisma.user.findUnique({
                 where: { 
                     id: Number(id)
@@ -89,14 +94,14 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             const existingFriendRequest = await prisma.friendRequest.findFirst({
                 where: {
                     id: Number(requestId)
                 }
             })
             if (!existingFriendRequest)
-                return reply.status(404).send({ error: '0404'});
+                return reply.status(230).send({ error: '0404'});
             const existingReverseFriendRequest = await prisma.friendRequest.findFirst({
                 where: {
                     authorId: existingFriendRequest.targetId,
@@ -112,9 +117,9 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!author)
-                return reply.status(404).send({ error: "2012" });
+                return reply.status(230).send({ error: "2012" });
             if (existingFriendRequest.targetId != id)
-                return reply.status(401).send({ error: "0401" });
+                return reply.status(230).send({ error: "0401" });
             await prisma.friendRequest.delete({
                 where: {
                     id: existingFriendRequest.id
@@ -141,9 +146,12 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                     friendUserId: user.id
                 }
             });
-            reply.status(201).send();
+            reply.status(200).send();
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+                console.log("error");
+                console.log(error);
+                
+            return reply.status(230).send({ error: "0500" });
         }
     })
 
@@ -157,11 +165,10 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const requestId = request.params?.id;
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
-                return reply.status(403).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+                return reply.status(230).send({ error: "0403" });
+            const id = getTokenData(token).id;
             if (!id)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             let user = await prisma.user.findUnique({
                 where: { 
                     id: Number(id)
@@ -171,14 +178,14 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             const existingFriendRequest = await prisma.friendRequest.findFirst({
                 where: {
                     id: Number(requestId)
                 }
             })
             if (!existingFriendRequest)
-                return reply.status(404).send({ error: '0404'});
+                return reply.status(230).send({ error: '0404'});
             let author = await prisma.user.findUnique({
                 where: { 
                     id: existingFriendRequest.authorId
@@ -188,18 +195,18 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!author)
-                return reply.status(404).send({ error: "2012" });
+                return reply.status(230).send({ error: "2012" });
             if (existingFriendRequest.targetId != id)
-                return reply.status(401).send({ error: "0401" });
+                return reply.status(230).send({ error: "0401" });
             await prisma.friendRequest.delete({
                 where: {
                     id: existingFriendRequest.id
                 },
             });
 
-            reply.status(201).send();
+            reply.status(200).send();
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+            return reply.status(230).send({ error: "0500" });
         }
     })
 
@@ -219,7 +226,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const body = request.body;
             const credential = body?.credential;
             if (!credential || credential != process.env.API_CREDENTIAL)
-                return reply.status(401).send({ error: "0401" });
+                return reply.status(230).send({ error: "0401" });
             let user: User | null = null;
             user = await prisma.user.findUnique({
                 where: { 
@@ -230,10 +237,10 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0404" });
+                return reply.status(230).send({ error: "0404" });
             reply.send(user.friends);
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+            return reply.status(230).send({ error: "0500" });
         }
     })
 
@@ -245,13 +252,11 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
         try {
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
-                return reply.status(403).send({ error: "0403" });
-
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+                return reply.status(230).send({ error: "0403" });
+            const id = getTokenData(token).id;
             const targetId = request.params?.id;
             if (!id || !targetId)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
 
             const user = await prisma.user.findUnique({
                 where: { 
@@ -262,7 +267,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0404" });
+                return reply.status(230).send({ error: "0404" });
             const userFriend = await prisma.friend.findFirst({
                 where: {
                     userId: user.id,
@@ -279,7 +284,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             });
 
             if (!userFriend)
-                return reply.status(404).send({ error: "0404" });
+                return reply.status(230).send({ error: "0404" });
 
             await prisma.friend.delete({
                 where: {
@@ -299,19 +304,18 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
 
             reply.status(200).send();
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+            return reply.status(230).send({ error: "0500" });
         }
     });
 
-    server.get<{}>('/api/user/friends', async (request: any, reply: any) => {
+    server.get('/api/user/friends', async (request: any, reply: any) => {
         try {
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
-                return reply.status(403).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+                return reply.status(230).send({ error: "0403" });
+            const id = getTokenData(token).id;
             if (!id)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             let user: User | null = null;
             user = await prisma.user.findUnique({
                 where: { 
@@ -322,22 +326,21 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0404" });
+                return reply.status(230).send({ error: "0404" });
             reply.send(user.friends);
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+            return reply.status(230).send({ error: "0500" });
         }
     });
 
-    server.get<{}>('/api/user/receivedFriendRequests', async (request: any, reply: any) => {
+    server.get('/api/user/receivedFriendRequests', async (request: any, reply: any) => {
         try {
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
-                return reply.status(403).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+                return reply.status(230).send({ error: "0403" });
+            const id = getTokenData(token).id;
             if (!id)
-                return reply.status(403).send({ error: "0403" });
+                return reply.status(230).send({ error: "0403" });
             let user: User | null = null;
             user = await prisma.user.findUnique({
                 where: { 
@@ -348,13 +351,11 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 }
             })
             if (!user)
-                return reply.status(404).send({ error: "0404" });
+                return reply.status(230).send({ error: "0404" });
             reply.send(user.receivedFriendRequests);
         } catch (error) {
-            return reply.status(500).send({ error: "0500" });
+            return reply.status(230).send({ error: "0500" });
         }
     });
     done();
 }
-
-module.exports = friendsRoute;

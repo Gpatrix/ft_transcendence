@@ -1,12 +1,13 @@
 import fastify from 'fastify';
 import { FastifyInstance } from "fastify";
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import cookiesPlugin from '@fastify/cookie'
 import websocketPlugin from '@fastify/websocket';
 import WebSocket from 'ws';
 import {metrics, chat_requests_total} from './metrics'
 
 import * as Utils from './utils'
+import { get } from 'http';
 
 const PING_INTERVAL = 30000; // 30s
 const PONG_TIMEOUT = 5000;  // 5s
@@ -47,6 +48,7 @@ server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
 server.register(metrics);
+setInterval(recurrentPing, PING_INTERVAL);
 
 server.addHook('onResponse', (req, res, done) =>
 {
@@ -54,7 +56,6 @@ server.addHook('onResponse', (req, res, done) =>
 	done();
 });
 
-setInterval(recurrentPing, PING_INTERVAL);
 
 function closing_conn(socket: WebSocket, token: tokenStruct): void
 {
@@ -242,25 +243,30 @@ interface newChannelBody
    usersId: number[];
 }
 
+interface i_isconnected
+{
+    id?: number;
+}
+
 async function chat_api(fastify: FastifyInstance)
 {
    fastify.addHook('preValidation'
-   , (request, reply, done) => {
-      
+   , (request, reply, done) => 
+    {
       try
       {
          chat_requests_total.inc({method: request.method});
          const token: string | undefined = request.cookies.ft_transcendence_jw_token
-         if (!token || token === undefined)
-            return (reply.status(403).send({ error: "0403" }));
-         const decoded: tokenStruct = jwt.verify(token, process.env.JWT_SECRET as string).data;
+         if (token === undefined)
+            return (reply.status(230).send({ error: "0403" }));
+         const decoded: tokenStruct = (jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload).data;
          const id = decoded.id;
-         if (!id || id === undefined)
-            return (reply.status(403).send({ error: "0403" }));
+         if (id === undefined)
+            return (reply.status(230).send({ error: "1016" }));
          done();
       }
       catch (error) {
-         return (reply.status(403).send({ error: "0403" }));
+        return (reply.status(230).send({ error: "0403" }));
       }
    })
 
@@ -268,8 +274,8 @@ async function chat_api(fastify: FastifyInstance)
    {
       try
       {
-         const token: string | undefined = request.cookies.ft_transcendence_jw_token
-         const decodedToken: tokenStruct = jwt.verify(token as string, process.env.JWT_SECRET as string).data;
+         const token: string = request.cookies.ft_transcendence_jw_token as string
+         const decodedToken: tokenStruct = (jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload).data;
 
          const user: i_user = {socket: socket, timeout: null}
          activeConn.set(decodedToken.id, user);
@@ -286,14 +292,22 @@ async function chat_api(fastify: FastifyInstance)
       }
    });
 
+   fastify.get<{Params: i_isconnected}>('/api/chat/isconnected/:id', async (request, reply) => 
+    {
+        if (request.params.id === undefined)
+            return reply.status(230).send({error: "0400"});
+        console.log(JSON.stringify(activeConn.size))
+        return reply.status(200).send({value: activeConn.has(Number(request.params.id))});
+    });
+
    fastify.post<{Body: newChannelBody}>('/api/chat/newChannel', async (request, reply) => {
       const credential = request.body?.credential;
       if (!credential || credential != process.env.API_CREDENTIAL)
-         reply.status(401).send({ error: "private_route" });
+         reply.status(230).send({ error: "private_route" });
       
       let channel: Utils.t_channel | string= await Utils.CreateChannel(request.body?.usersId, true);
       if (typeof channel === 'string')
-         return (reply.status(400).send(channel));
+         return (reply.status(230).send(channel));
       
       return (reply.status(200).send({channelId: channel.id}));
    })

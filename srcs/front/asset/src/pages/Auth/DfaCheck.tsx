@@ -21,7 +21,7 @@ export default function DfaSetup() {
             method: "POST",
             body: code
         })
-        if (response.ok) {
+        if (response.status == 200) {
             navigate("/")
         }
         else {

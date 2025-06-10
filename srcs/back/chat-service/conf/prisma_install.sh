@@ -1,7 +1,8 @@
 #!/bin/sh
 
-pnpx prisma generate
-pnpx prisma migrate dev --name init
-
-#  "db:deploy": "npx prisma generate && npx prisma migrate deploy && npx prisma db seed",
-#  "db:dev": "npx prisma generate && npx prisma db push && npx prisma db seed"
+# if [ "$NODE_ENV" = "dev" ]; then
+    pnpx prisma migrate dev --name init
+# else
+#     pnpx prisma migrate deploy
+#     pnpx prisma generate
+# fi

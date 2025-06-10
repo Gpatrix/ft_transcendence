@@ -25,15 +25,13 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
     const handleBlockFriend = async (idFriend: number) => {
         const codeError : string = await Friend.blockFriends(idFriend);
         if (codeError != "200")
-            console.log("Error :", get_server_translation(codeError));
+            
     }
 
     const handleSupFriend = async (idFriend: number) => {
         const codeError = await Friend.deleteFriends(idFriend);
-        console.log(codeError);
-        
         if (codeError != "200") {
-            console.log("Error :", get_server_translation(codeError));
+            
             return ;
         }
         
@@ -51,21 +49,21 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
                 
                 setFriends(friends);
             } else {
-                console.log("Error :", get_server_translation(friends));
+                
             }
         } catch (error) {
-            console.log("Error :", get_server_translation("0500"));
+            
         }
     }
 
     // const [test, setTest] = useState(false);
 
     // const test1 = () => {
-    //     console.log("oui");
+    //     
     // };
 
     // const test2 = () => {
-    //     console.log("non");
+    //     
     // };
 
     return (

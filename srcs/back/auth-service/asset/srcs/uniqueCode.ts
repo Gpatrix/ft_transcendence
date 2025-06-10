@@ -1,4 +1,4 @@
-function    generateCode(len: number): string {
+export default function    generateCode(len: number): string {
     const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let code = '';
     for (let i = 0; i < len; i++) {
@@ -6,5 +6,3 @@ function    generateCode(len: number): string {
     }
     return (code);
 }
-
-module.exports = generateCode;

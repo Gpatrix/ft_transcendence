@@ -1,4 +1,4 @@
-async function deleteImage(imageName: string): Promise<void> {
+export default async function deleteImage(imageName: string): Promise<void> {
     await fetch(`http:/upload-service:3000/api/upload/${imageName}`, {
         method: 'DELETE',
         body: JSON.stringify({ credential: process.env.API_CREDENTIAL }),
@@ -6,5 +6,3 @@ async function deleteImage(imageName: string): Promise<void> {
     });
     return ;
 }
-
-module.exports = deleteImage;

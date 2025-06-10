@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { redirect, useNavigate, useSearchParams } from "react-router";
+import { data, Link, redirect, useNavigate, useSearchParams } from "react-router";
 import MultiGame from "./MultiGame";
 import { mapDimension } from "./MultiGame";
 import StartCounterMulti from "./StartCounterMulti";
@@ -7,7 +7,12 @@ import { Ball } from "./Classes/Ball";
 import MultiPointsCounter from "./MultiPointsCounter";
 import Disconnected from "./Popups/Disconnected";
 import { gpt } from "../../../translations/pages_reponses";
+import EndPopup from "./Popups/EndPopup";
 import { get_server_translation } from "../../../translations/server_responses";
+import Button from "../../../components/Button";
+import BgShadow from "../../../components/BgShadow";
+import BlankPopup from "../../../components/BlankPopup";
+import Blur from "../../../components/Blur";
 
 export type Player = {
     id: number
@@ -21,101 +26,149 @@ export type Player = {
 
 
 export default function Multi() {
-    const socket = useRef<WebSocket | null>(null)
+    const socket = useRef<WebSocket | null>(null);
     
-    const [players, setPlayers] = useState<Player[]>([])
-    const [counter, setCounter] = useState<string | null>(null)
-    const [points, setPoints] = useState<Array<number>>([])
+    const [players, setPlayers] = useState<Player[]>([]);
+    const [counter, setCounter] = useState<string | null>(null);
+    const [points, setPoints] = useState<Array<number>>([]);
+    const [isPaused, setIsPaused] = useState<boolean>(false);
+    const isPausedRef = useRef<boolean>(false);
 
     const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
     const navigate = useNavigate()
 
     const [params] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
+    const [end, setEnd] = useState<boolean>(false)
 
-    const [disconnect, setDisconnect] = useState<boolean>(false)
+    const [disconnect, setDisconnect] = useState<boolean>(false);
+
+    const updatePauseState = (paused: boolean) => {
+        setIsPaused(paused);
+        isPausedRef.current = paused;
+    };
+
 
     useEffect(() => {
         const tournament = params.get("tournament");
         const game = params.get("game");
 
         if (!game || !tournament) {
-            setError("PARAMS ERROR"); // todo translations
+            setError(get_server_translation("4511"));
             return;
         }
 
-        const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
-        if (!ws)
-            return ;
-        socket.current = ws
-        ws.onopen = () => {
-            console.log("/api/game/connect/ opened");
-        };
+        const fetchGame = async () => {
+            try {
+                const response = await fetch(
+                    `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/getGameStatus/${game}`
+                );
 
-        ws.onmessage = (event) => {
-            const json = JSON.parse(event.data)
-
-            switch (json.message) {
-                case "playerJoined": 
-                    setPlayers(json.players)     
-                    break
-                case "start":
-                    console.log("START")
-                    ball.current.unFreeze(  )
-                    setPlayers(json.players)
-                    setCounter("3")
-                    break
-                case "update":
-                    setPlayers(json.players)
-                    break
-                case "ball":
-                    console.log(json.ball)
-                    ball.current.velocity = json.ball.velocity;
-                    ball.current.position = json.ball.position;
-                    break 
-                case "result":
-                    setPoints(json.result[0])
-                    break
-                case "freeze":
-                    ball.current.freeze()
-                    setDisconnect(true)
-                    break
-                case "unfreeze":
-                    ball.current.unFreeze()
-                    setDisconnect(false)
-                    break
+                const data = await response.json();
+                if (response.status == 200) {
+                    return (0);
+                } else {
+                    setError(get_server_translation(data.error))
+                    return (1);
+                }
+            } catch (error) {
+                
+                setError(get_server_translation("0500"));
+                return (0);
             }
-
         };
 
-        ws.onclose = (event) => {
-            setError(event.code)
-            console.log("/api/game/connect/ closed");
-        };
+        const setWebsocket = async () => {
+            try {
+                const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
+                socket.current = ws
+    
+                ws.onopen = () => {
+                };
+    
+                ws.onmessage = (event) => {
+                    const json = JSON.parse(event.data)
+                    if (!json)
+                        return ;
+                    switch (json.message) {
+                        case "playerJoined": 
+                            setPlayers(json.players)     
+                            break
+                        case "start":
+                            ball.current.unFreeze()
+                            setPlayers(json.players)
+                            setCounter("3")
+                            break
+                        case "update":
+                            setPlayers(json.players)
+                            break
+                        case "ball":
+                            ball.current.velocity = json.ball.velocity;
+                            ball.current.position = json.ball.position;
+                            break 
+                        case "result":
+                            setPoints(json.result[0])
+                            break
+                        case "freeze":
+                            ball.current.freeze()
+                            setDisconnect(true) 
+                            break
+                        case "gameEnded":
+                            setEnd(true)
+                            break
+                        case "unfreeze":
+                            ball.current.unFreeze()
+                            setDisconnect(false)
+                            break
+                    }
+                };
+    
+                ws.onclose = (event) => {
+                    setEnd(true)
+                };
+    
+                ws.onerror = (err : Event) => {
+                    
+                };
+    
+                return () => {
+                    ws.close();
+                };
+    
+                }
+            catch {
+                return ;
+            }
+        }
 
-        ws.onerror = (err) => {
-            console.error("WebSocket error:", err);
-            setError("WebSocket error");
-        };
-
-        return () => {
-            ws.close();
-        };
+        fetchGame()
+        setWebsocket()
 
     }, [params]);
 
 
     return (
         <div className="relative">
-            {error && <p className="text-yellow">{get_server_translation(error)}</p>}
+            {error && 
+                <span className='w-[80vw] md:w-[500px] gap-8 flex flex-col text-yellow items-center'>
+                    <h2>{get_server_translation(error)}</h2>
+                    <Link to={"/"} className="w-full">
+                        <Button type="full" className="w-full z-1000">{gpt("back_to_home")}</Button>
+                    </Link>
+                </span>
+            }
             {disconnect && <Disconnected/>}
-            {!error &&
+            {end && !error && <EndPopup array={players} points={points}/>}
+            {(!error && !end) &&
             <span>
-                <MultiGame ball={ball.current} players={players} socket={socket.current} />
+                <MultiGame ball={ball.current} players={players} socket={socket.current} isPaused={isPaused} isPausedRef={isPausedRef} />
                 {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}
                 <MultiPointsCounter points={points}/>
             </span>
             }
         </div>
+        // <div className="relative">
+        //     { <EndPopup players={players}/>}
+        // </div>       
     );
 }

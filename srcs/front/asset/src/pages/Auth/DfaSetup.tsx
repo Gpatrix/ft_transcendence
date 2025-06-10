@@ -18,7 +18,7 @@ export default function DfaSetup() {
                 const res = await fetch("/api/auth/2fa/setup/ask");
                 const json = await res.json();
                 if (!res.ok) {
-                    alert("???")
+                    
                     setError(json.message)
                     return ;
                 }
@@ -41,7 +41,7 @@ export default function DfaSetup() {
             },
             body: JSON.stringify({userToken: code})
         })
-        if (response.ok) {
+        if (response.status == 200) {
             navigate("/login")
         }
         else {

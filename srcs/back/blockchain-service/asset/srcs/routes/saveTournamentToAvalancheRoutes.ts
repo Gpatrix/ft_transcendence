@@ -91,6 +91,19 @@ async function finish(tournamentId: number): Promise<ethers.ContractTransactionR
 
 function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any, done: any)
 {
+    server.get('/api/blockchain/infos', async (req: any, res: any) => {
+        try {
+            res.status(200).send({
+                rpcURL: rpcURL,
+                factoryAddress: factoryAddress,
+                tournamentABI: tournamentABI,
+                factoryABI: factoryABI,
+            });
+        } catch (error) {
+            res.status(500).send({ error: "0500" });
+        }
+    });
+
     interface deployTournamentParams {
         tournamentId: number;
     }
@@ -102,7 +115,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
     server.post<{ Params: deployTournamentParams, Body: deployTournamentBody }>('/api/blockchain/deploy/:tournamentId', async (req: any, res: any) => {
         const credential = req.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            res.status(401).send({ error: "private_route" });
+            res.status(230).send({ error: "private_route" });
         try {
             const deployTransactionReceipt = await deployTournament(req.params.tournamentId);
             res.send({ status: "ok", transactionHash: deployTransactionReceipt.hash, contractAddress: deployTransactionReceipt.to });
@@ -112,7 +125,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
             } else {
                 console.log(error);
             }
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
@@ -128,7 +141,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
     server.post<{ Params: createGameParams, Body: createGameBody }>('/api/blockchain/game/:tournamentId/:gameId', async (req: any, res: any) => {
         const credential = req.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            res.status(401).send({ error: "private_route" });
+            res.status(230).send({ error: "private_route" });
         try {
             const deployTransactionReceipt = await createGame(req.params.tournamentId, req.params.gameId);
             res.send({ status: "ok", transactionHash: deployTransactionReceipt.hash, contractAddress: deployTransactionReceipt.to });
@@ -138,7 +151,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
             } else {
                 console.log(error);
             }
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
@@ -155,7 +168,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
     server.post<{ Params: addPointToPlayerParams, Body: addPointToPlayerBody }>('/api/blockchain/goal/:tournamentId/:gameId/:playerId', async (req: any, res: any) => {
         const credential = req.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            res.status(401).send({ error: "private_route" });
+            res.status(230).send({ error: "private_route" });
         try {
             const deployTransactionReceipt = await addPointToPlayer(req.params.tournamentId, req.params.gameId, req.params.playerId);
             res.send({ status: "ok", transactionHash: deployTransactionReceipt.hash, contractAddress: deployTransactionReceipt.to });
@@ -165,7 +178,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
             } else {
                 console.log(error);
             }
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
@@ -181,7 +194,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
     server.post<{ Params: finishGameParams, Body: addPointToPlayerBody }>('/api/blockchain/finishGame/:tournamentId/:gameId', async (req: any, res: any) => {
         const credential = req.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            res.status(401).send({ error: "private_route" });
+            res.status(230).send({ error: "private_route" });
         try {
             const deployTransactionReceipt = await finishGame(req.params.tournamentId, req.params.gameId);
             res.send({ status: "ok", transactionHash: deployTransactionReceipt.hash, contractAddress: deployTransactionReceipt.to });
@@ -191,7 +204,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
             } else {
                 console.log(error);
             }
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 
@@ -207,7 +220,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
     server.post<{ Params: finishParams, Body: addPointToPlayerBody }>('/api/blockchain/finish/:tournamentId', async (req: any, res: any) => {
         const credential = req.body?.credential;
         if (!credential || credential != process.env.API_CREDENTIAL)
-            res.status(401).send({ error: "private_route" });
+            res.status(230).send({ error: "private_route" });
         try {
             const deployTransactionReceipt = await finish(req.params.tournamentId);
             res.send({ status: "ok", transactionHash: deployTransactionReceipt.hash, contractAddress: deployTransactionReceipt.to });
@@ -217,7 +230,7 @@ function saveTournamentToAvalancheRoutes (server: FastifyInstance, options: any,
             } else {
                 console.log(error);
             }
-            res.status(500).send({ error: "0500" });
+            res.status(230).send({ error: "0500" });
         }
     });
 

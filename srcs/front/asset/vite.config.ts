@@ -17,7 +17,14 @@ export default defineConfig({
     }
   },
   server: {
-    allowedHosts: ["c1r6p12.42lehavre.fr"],
+    proxy: {
+      '/localrpc': {
+        target: 'http://127.0.0.1:8545',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/rpc/, ''),
+      },
+    },
+    allowedHosts: ["c1r6p15.42lehavre.fr"],
     host: true,
     watch: {
       usePolling: true,

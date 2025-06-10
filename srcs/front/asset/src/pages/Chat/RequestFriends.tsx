@@ -22,7 +22,7 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
 
     const handleAcceptRequest = async (friendRequest: FriendRequest, i: number) => {
         const res = await friendRequest.accepteRequest();
-        if (res != "201") {
+        if (res != "200") {
             setErrorCode(res);
             return ;
         }
@@ -60,7 +60,7 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
     const handleRefuseRequest = async (friendRequest: FriendRequest, i: number) => {
         const codeError = await friendRequest.refuseRequest();
 
-        if (codeError == "201")
+        if (codeError == "200")
         {
             const newFriendRequestTab: FriendRequest[] = [...friendRequestTab];
             newFriendRequestTab.splice(i, 1);

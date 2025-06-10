@@ -65,7 +65,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
             if ((error as LobbyError).errorCode)
                 return socket.close((error as LobbyError).errorCode);
             else
-                return socket.close(500);
+                return socket.close(230);
         }
     });
 
@@ -83,9 +83,9 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
     
             const lobby = Lobby.lobbies.get(lobbyId);
             if (!lobby)
-                return reply.status(404).send({ error: '0404' });
+                return reply.status(230).send({ error: '0404' });
             if (!(tokenPayload?.id) || userId != lobby.ownerId)
-                return reply.status(401).send({ error: '0401' });
+                return reply.status(230).send({ error: '0401' });
 
             lobby.checkIfCanBeLaunched();
 
@@ -98,9 +98,9 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
             })
         } catch (error) {
             if ((error as LobbyError).errorCode)
-                reply.status(400).send({ error: (error as LobbyError).errorCode });
+                reply.status(230).send({ error: (error as LobbyError).errorCode });
             else
-                reply.status(500).send({ error: '0500' });
+                reply.status(230).send({ error: '0500' });
         }
     })
 
@@ -110,7 +110,7 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         targetUserId: string;
     }
 
-    server.post<{ Params: InvitePlayerToLobbyParams }>('/api/game/invite/:lobbyId/:targetUserId',{ config: { rateLimit: { max: 50, timeWindow: '1minute' }} }, async (request: any, reply: any ) => {
+    server.post<{ Params: InvitePlayerToLobbyParams }>('/api/game/invite/:lobbyId/:targetUserId', async (request: any, reply: any ) => {
         const token = request.cookies['ft_transcendence_jw_token'];
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
         const tokenPayload = decoded?.data;
@@ -119,11 +119,11 @@ function lobbyRoutes (server: FastifyInstance, options: any, done: any)
         const lobbyId = Number(request.params?.lobbyId);
         const lobby = Lobby.lobbies.get(lobbyId);
         if (!lobby)
-            return reply.status(404).send({ error: '0404' });
+            return reply.status(230).send({ error: '0404' });
         if (!userId)
-            return (reply.status(403).send({ error: '0403' }));
+            return (reply.status(230).send({ error: '0403' }));
         if (lobby.ownerId != userId)
-            return (reply.status(401).send({ error: '0401' }));
+            return (reply.status(230).send({ error: '0401' }));
         lobby.invitePlayer(targetUserId);  
         return reply.status(200).send({ lobbyId: lobbyId })
     })

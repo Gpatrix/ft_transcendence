@@ -22,7 +22,7 @@ export class GamesManager {
         return (game);
     }
 
-    static async createGame(matchMakingUsers: MatchMakingUser[] | LobbyUser[] ): Promise<any>
+    static async createGame(matchMakingUsers: MatchMakingUser[] | LobbyUser[], nbPlayers : number ): Promise<any>
     {
         try {
             const tournament = await prisma.tournament.create({
@@ -58,7 +58,7 @@ export class GamesManager {
             const playerIds : Array<number> = tournament.games[0].players.map((player: any) => {
                 return (player.userId);
             });
-            const newGame = new PongGame(playerIds, tournament.games[0].id);
+            const newGame = new PongGame(playerIds, tournament.games[0].id, nbPlayers);
             // GamesManager.waitAndStart(newGame);
             GamesManager.games.set(tournament.games[0].id, newGame);
             return (tournament);
