@@ -6,16 +6,16 @@ import { pipeline } from 'stream'
 
 const pump = util.promisify(pipeline);
 
-function isMimeTypeAllowed(file: any): boolean {
-      const allowedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+// function isMimeTypeAllowed(file: any): boolean {
+//       const allowedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf'];
 
-    if (allowedMimeTypes.includes(file.mimetype))
-        return (true);
-    else
-        return (false);
-}
+//     if (allowedMimeTypes.includes(file.mimetype))
+//         return (true);
+//     else
+//         return (false);
+// }
 
-function uploadRoutes (server: FastifyInstance, options: any, done: any)
+export default function uploadRoutes (server: FastifyInstance, options: any, done: any)
 {
 
     interface uploadPostBody {
@@ -78,5 +78,3 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
 
     done()
 }
-
-module.exports = uploadRoutes;

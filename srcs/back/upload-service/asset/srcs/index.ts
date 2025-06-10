@@ -1,6 +1,5 @@
 import fastify from 'fastify'
 import path from 'node:path'
-import rateLimitPlugin from '@fastify/rate-limit'
 import multipartPlugin from '@fastify/multipart'
 import staticPlugin from '@fastify/static'
 import { metrics , upload_requests_total} from './metrics'
@@ -31,12 +30,6 @@ server.register(multipartPlugin, {
   }
 });
 
-server.register(rateLimitPlugin, {
-  max: 100,
-  timeWindow: '1 minute',
-  // allowList: ['127.0.0.1']
-});
-
 server.register(metrics);
 
 server.register(uploadRoutes, { config: {
@@ -44,27 +37,11 @@ server.register(uploadRoutes, { config: {
   timeWindow: '1 minute'
 }});
 
-async function main() {
-  let _address;
-  await server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) => {
+server.listen({ host: '0.0.0.0', port: 3000 }, (err) =>
+{
     if (err) {
       console.error(err);
       process.exit(1);
     }
-    _address = address;
-    console.log(`Server listening at ${_address}`);
-  })
-}
-
-main();
-
-// main()
-//   .then(async () => {
-//     await prisma.$disconnect()
-//   })
-//   .catch(async (e) => {
-//     console.error(e)
-//     await prisma.$disconnect()
-//     process.exit(1)
-//   })
-
+    console.log(`ready`);
+});

@@ -134,10 +134,6 @@ class Friend extends User {
                 credentials: 'include',
             }
             const response = await fetch(`/api/user/friends/${targetId}`, requestData);
-<<<<<<< HEAD:srcs/front/vitejs/src/classes/Friend.tsx
-=======
-            
->>>>>>> origin/main:srcs/front/asset/src/classes/Friend.tsx
             if (response.status == 200)
                 return ("200")
             const dataReponse = await response.json();

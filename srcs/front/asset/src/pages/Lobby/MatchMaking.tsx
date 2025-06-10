@@ -10,14 +10,7 @@ export default function MatchMaking() {
     const navigate = useNavigate()
 
     const wsHandler = () => {
-<<<<<<< HEAD:srcs/front/vitejs/src/pages/Lobby/MatchMaking.tsx
-        if (!players) return ;
-
-
-        let ws : WebSocket = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/matchmaking?mode=${players}`);
-=======
         let ws : WebSocket = new WebSocket(`wss://${window.location.host}/api/game/matchmaking`);
->>>>>>> origin/main:srcs/front/asset/src/pages/Lobby/MatchMaking.tsx
 
         ws.onopen = () => {
             setSocket(ws);

@@ -1,7 +1,7 @@
 import FormData from 'form-data';
 import axios from 'axios';
 
-export async function imageUpload(request: any, reply: any) {
+export default async function imageUpload(request: any, reply: any) {
     try {
         const parts = request.parts();
         let file: any = null;
@@ -55,5 +55,3 @@ export async function imageUpload(request: any, reply: any) {
         reply.status(230).send({ error: "0500" });
     }
 }
-
-module.exports = imageUpload;

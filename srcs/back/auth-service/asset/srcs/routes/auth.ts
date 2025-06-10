@@ -3,8 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validatePassword  from "../validators/password";
 import isConnected from '../validators/jsonwebtoken';
+import { getTokenData } from "../utils/getTokenData";
 
-function authRoutes (server: FastifyInstance, options: any, done: any)
+export default function authRoutes (server: FastifyInstance, options: any, done: any)
 {
     interface signUpBody {
         email: string,
@@ -13,10 +14,6 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     }
     
     server.post<{ Body: signUpBody }>('/api/auth/signup', { preHandler:[validatePassword], config: {
-        rateLimit: {
-            max: 10,
-            timeWindow: '1 minute'
-        }
     } }, async (req, res) => {
         const { email, name, password } = req.body;
         if (!email)
@@ -44,7 +41,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             const user = data;
             if (!user)
                 throw(new Error("cannot upsert user in prisma"));
-            const token = await jwt.sign({
+            const token = jwt.sign({
             data: {
                 id: user.id,
                 email: email,
@@ -88,14 +85,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
       password: string
     }
     
-    server.post<{ Body: loginBody }>('/api/auth/login', { config:
-        {
-            rateLimit: {
-                max: 10,
-                timeWindow: '1 minutes'
-            } 
-        }
-        }, async (request: any, reply: any) => {
+    server.post<{ Body: loginBody }>('/api/auth/login', async (request: any, reply: any) => {
         try {
             const email = request.body.email;
             const password = request.body.password;
@@ -107,7 +97,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: email,
-                    cential: process.env.API_CREDENTIAL
+                    credential: process.env.API_CREDENTIAL
                 }),
             });
             const data = await response.json();
@@ -116,7 +106,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
             if (!user)
-                return reply.status(404).send({ error: "1006" });
+                return reply.status(230).send({ error: "1006" });
             if (!user.password)
                 return reply.status(230).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(password as string, user.password);
@@ -125,7 +115,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
             if (user.isBanned)
                 return reply.status(230).send({ error: "1013" });
             if (user.isTwoFactorEnabled) {
-                const token = await jwt.sign({
+                const token = jwt.sign({
                     data: {
                     id: user.id,
                     email: email,
@@ -145,7 +135,7 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
                   }).send({ response: "successfully logged in", need2fa: true }));
             }
             else {
-                const token = await jwt.sign({
+                const token = jwt.sign({
                     data: {
                     id: user.id,
                     email: email,
@@ -169,31 +159,27 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
         }
     })
 
-    interface logoutParams {
+    interface logoutParams
+    {
         token: string
-      }
+    }
       
-    server.delete<{ Body: logoutParams }>('/api/auth/logout', async (request, reply) => {
-        const token = request.cookies['ft_transcendence_jw_token'];
-        if (!token)
-            return (reply.status(230).send({ error: "1016" }));
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const id = decoded.data?.id
-        if (!id)
-          return (reply.status(230).send({ error: "1016" }));
-        reply.clearCookie('ft_transcendence_jw_token', {}).send({ response: "logout_success" });
+    server.delete<{ Body: logoutParams }>('/api/auth/logout',  { preHandler: [isConnected] },  async (request, reply) => {
+        reply.clearCookie('ft_transcendence_jw_token', {}).status(200);
     })
 
 
     type LookupUserError = {
         error: number;
       };
+
     type LookupUserSuccess = {
         id: number;
         email: string;
         name: string;
         error?: never;
       };
+
     type LookupUserResponse = LookupUserError | LookupUserSuccess
 
 
@@ -278,12 +264,10 @@ function authRoutes (server: FastifyInstance, options: any, done: any)
     });
 
     server.get('/api/auth/status', async function (request, reply) {
-        const connected = await isConnected(request, reply, ()=> {
+        await isConnected(request, reply, ()=> {
             return (reply.status(200).send({ message: "logged_in" }));
         })
     });
 
-    done();    
+    done();
 }
-
-module.exports = authRoutes;

@@ -2,10 +2,17 @@ import { FastifyInstance } from 'fastify';
 import prisma from '../config/prisma';
 import jwt from 'jsonwebtoken';
 import { User } from '@prisma/client';
+import { i_token, getTokenData } from "../utils/getTokenData";
+import isConnected from "../validators/jsonwebtoken";
 
 
-function friendsRoute(server: FastifyInstance, options: any, done: any)
+export default function friendsRoute(server: FastifyInstance, options: any, done: any)
 {
+    server.addHook('preValidation', (request, reply, done) => 
+    {
+        isConnected(request, reply, done);
+    })
+
     interface postUserFriendRequestParams 
     {
         id: number
@@ -17,8 +24,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return reply.status(230).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+            const id = getTokenData(token).id;
             if (!id)
                 return reply.status(230).send({ error: "0403" });
             const user = await prisma.user.findUnique({
@@ -76,8 +82,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return reply.status(230).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+            const id = getTokenData(token).id;
             if (!id)
                 return reply.status(230).send({ error: "0403" });
             let user = await prisma.user.findUnique({
@@ -146,7 +151,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
                 console.log("error");
                 console.log(error);
                 
-            return reply.status(500).send({ error: "0500" });
+            return reply.status(230).send({ error: "0500" });
         }
     })
 
@@ -161,8 +166,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return reply.status(230).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+            const id = getTokenData(token).id;
             if (!id)
                 return reply.status(230).send({ error: "0403" });
             let user = await prisma.user.findUnique({
@@ -249,9 +253,7 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return reply.status(230).send({ error: "0403" });
-
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+            const id = getTokenData(token).id;
             const targetId = request.params?.id;
             if (!id || !targetId)
                 return reply.status(230).send({ error: "0403" });
@@ -306,13 +308,12 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
         }
     });
 
-    server.get<{}>('/api/user/friends', async (request: any, reply: any) => {
+    server.get('/api/user/friends', async (request: any, reply: any) => {
         try {
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return reply.status(230).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+            const id = getTokenData(token).id;
             if (!id)
                 return reply.status(230).send({ error: "0403" });
             let user: User | null = null;
@@ -332,13 +333,12 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
         }
     });
 
-    server.get<{}>('/api/user/receivedFriendRequests', async (request: any, reply: any) => {
+    server.get('/api/user/receivedFriendRequests', async (request: any, reply: any) => {
         try {
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
                 return reply.status(230).send({ error: "0403" });
-            const decoded = jwt.decode(token);
-            const id = decoded?.data?.id;
+            const id = getTokenData(token).id;
             if (!id)
                 return reply.status(230).send({ error: "0403" });
             let user: User | null = null;
@@ -359,5 +359,3 @@ function friendsRoute(server: FastifyInstance, options: any, done: any)
     });
     done();
 }
-
-module.exports = friendsRoute;
