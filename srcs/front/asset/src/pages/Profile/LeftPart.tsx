@@ -110,9 +110,14 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
         const fetchUserStatus = async () => { // online / offline
             try {
                 const res = await fetchWithAuth(`/api/chat/isconnected/${params.id}`);
-                if (!res.ok) 
-                    throw new Error("0500");
-                const data = await res.json();
+                if (res.status == 200) {
+                    const data = await res.json()
+                    console.log(data)
+                    setIsOnline(data.value)
+                }
+                else {
+                    setIsOnline(false)
+                }
             } catch (err) {
                 setError(get_server_translation("0500"));
             }
@@ -125,6 +130,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
             const intervalId = setInterval(fetchUserStatus, 5000);
             return () => clearInterval(intervalId);
         }
+
     }, [owner, params.id]);
 
 
