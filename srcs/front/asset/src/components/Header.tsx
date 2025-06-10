@@ -22,11 +22,11 @@ export default function Header({className} : HeaderProps) {
             </Link>
 
             <Link to="/profile">
-                <Button style={location.pathname=="/profil"?'selected':'header'}>{gpt("profile")}</Button>
+                <Button tabIndex={-1} style={location.pathname=="/profil"?'selected':'header'}>{gpt("profile")}</Button>
             </Link>
 
             <Link to="/">
-                <Button type="full" style='play'>{gpt("home")} </Button>
+                <Button tabIndex={-1} type="full" style='play'>{gpt("home")} </Button>
             </Link>
         </div>
     );
