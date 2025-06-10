@@ -70,7 +70,7 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
                 <div className="h-[1px] w-1/1 bg-dark-yellow mx-auto my-3"></div>
                 <p className="text-yellow w-[200px] cursor-pointer" onClick={() => handleBlockFriend(friendId)}>{gpt("to_block")}</p>
                 <div className="h-[1px] w-1/1 bg-dark-yellow mx-auto my-3"></div>
-                <p className="text-yellow w-[200px] cursor-pointer" onClick={() => handleSupFriend(friendId)}>{gpt("delete")}</p>
+                <p className="text-yellow w-[200px] cursor-pointer" onClick={() => handleSupFriend(friendId)}>{gpt("unfriend")}</p>
                 {/* {test && <ModalComponent onClose={setTest} message={"truc"} onClickOption1={test1} onClickOption2={test2} />}
                 <button onClick={() => setTest(true)}>test</button> */}
             </div>
