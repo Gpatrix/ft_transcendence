@@ -118,16 +118,16 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
     interface profilePictureBody
     {
         credential: string,
-        path: string,
+        profPicture: string,
         id: number
     }
 
     server.put<{ Body: profilePictureBody }>('/api/user/profile_picture', async (request, reply) => {
         if (request.body?.credential != process.env.API_CREDENTIAL)
             return reply.status(230).send({ error: "0404" });
-        const path = request.body?.path;
+        const profPicture = request.body?.profPicture;
         const id = request.body?.id;
-        if (!path || !id)
+        if (!profPicture || !id)
             return reply.status(230).send({ error: "0401" });
         try {
             const result = await prisma.user.update({
@@ -135,12 +135,13 @@ function userRoutes (server: FastifyInstance, options: any, done: any)
                     id: id
                 },
                 data: {
-                    profPicture: path
+                    profPicture: profPicture
                 }
             });
             if (!result)
                 return reply.status(230).send({ error: "0401" });
         } catch (error) {
+            console.log('error', error)
             return reply.status(230).send({ error: "0401" });
         }
         reply.status(200).send();

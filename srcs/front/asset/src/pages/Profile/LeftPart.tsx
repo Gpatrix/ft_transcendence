@@ -31,7 +31,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     const params = useParams()
     const [newProfPicture, setNewProfPicture] = useState("")
 
-    const MAX_FILE_SIZE = 200000;
+    const MAX_FILE_SIZE = 2000000;
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const validImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
@@ -70,27 +70,17 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
             return;
         }
         const form = new FormData();
-        // const fileBuffer = await file.toBuffer();
-        form.append('file', file, {
-            filename: file.filename || 'file.txt',
-            contentType: file.mimetype || 'application/octet-stream'
-         });
-        // form.append("image", file);
+        form.append('file', file, file.name);
+        console.log(file)
 
         try {
             const response = await fetch ("https://localhost:3000/api/upload/", {
                 method: "POST",
                 body: form,
             });
-            console.log(response);
-            // const response = await fetchWithAuth("http://upload-service/api/upload/", {
-            //     signal: AbortSignal.timeout(5000),
-            //     method: "POST",
-            //     body: form,
-            // }); 
 
             if (response.ok) {
-                // window.location.reload();
+                window.location.reload();
             } else {
                 const data = await response.json();
                 setError(get_server_translation(data.error));

@@ -24,41 +24,33 @@ function uploadRoutes (server: FastifyInstance, options: any, done: any)
             const tokenPayload = decoded.data;
             if (!tokenPayload || !tokenPayload.id)
                 return (res.status(230).send({ error: "0401" }));  // private route (:
-            console.log('upload')
-            const parts = await req.parts();
-            let file: any;
-            for await (const part of parts) {
-                console.log('part', part);
-                if (part.type === 'file')
-                    file = part;
-            }
-            console.log(file);
+            const file = await req.file();
+            if (!file)
+                return (res.status(230).send({ error: "6002" }));
             const extName = path.extname(file.filename);
             if (extName !== '.png' && extName !== '.jpeg' && extName !== '.jpg')
                 return (res.status(230).send({ error: "6001" }));
-            if (!file)
-                return (res.status(230).send({ error: "6002" }));
-            const fileName = Date.now();
+            const fileName = String(Date.now());
             const storedFilePath = path.join(__dirname, `../../uploads/${fileName}`);
             const storedFile = fs.createWriteStream(storedFilePath);
             await pump(file.file, storedFile);
+            const fileNameURL = `https://${process.env.HOST}:${process.env.PORT}/api/upload/${fileName}`
             const response = await fetch(`http://user-service:3000/api/user/profile_picture`,
             {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     credential: process.env.API_CREDENTIAL,
-                    profPicture: fileName,
+                    profPicture: fileNameURL,
                     id: tokenPayload.id
                 }),
             });
-            if (!response.ok) {
-                console.error('Failed to update profile picture:', response.statusText);
-                console.log(response);
-                fs.unlink(`./uploads/${fileName}`);
-                return res.status(230).send({ error: "0500" });
+            if (response.status == 230) {
+                // const resJson = await response.json();
+                // const error = resJson?.error;
+                return res.status(230).send({ error: '0500' });
             }
-            res.status(200).send({ fileName: fileName });
+            res.status(200).send({ fileName: fileNameURL });
         } catch (error) {
             console.error('Error during file upload:', error);
             res.status(230).send({ error: "0500" });
