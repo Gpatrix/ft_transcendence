@@ -3,7 +3,6 @@ import Friend from "../../classes/Friend.tsx"
 import { useNavigate } from "react-router-dom";
 import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 import { gpt } from "../../translations/pages_reponses"
-import { get_server_translation } from "../../translations/server_responses.tsx";
 
 type MenuFriendsParamComponentProps = {
     friendId: number;

@@ -1,4 +1,3 @@
-import RightChat from "../../../Chat/RightChat";
 import Pair from "./Pair";
 import { useEffect, useRef, useState } from "react";
 

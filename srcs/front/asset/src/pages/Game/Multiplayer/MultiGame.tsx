@@ -1,12 +1,8 @@
-import Wall from "../Wall"
 import { Ball, dimension } from "../Local/LocalBall"
 import { useEffect, useState, useRef } from "react"
-import Multi, { Player } from "./Multi"
+import { Player } from "./Multi"
 import MultiPlayerRacket from "./OthersRacket"
-import RacketComponent from "../Racket"
-import { Racket } from "../Racket"
 import MultiBallComponent from "./MultiBall"
-import MultiPointsCounter from "./MultiPointsCounter"
 import PauseText from "../../../components/PauseText"
 
 export const mapDimension: dimension = {
@@ -31,9 +27,6 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
     const pressedKeys = useRef(new Set<string>())
   
     const [localY, setLocalY] = useState<number>(0)
-  
-    const [, setTicks] = useState<number>(0)
-
   
     useEffect(() => {
         if (!socket) return;
@@ -71,7 +64,6 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
       let lastTime = performance.now();
 
       const loop = (now: any) => {
-        const deltaTime = (now - lastTime) / 1000; // In seconds
         lastTime = performance.now();
 
 

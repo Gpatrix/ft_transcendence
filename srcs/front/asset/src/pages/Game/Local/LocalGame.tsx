@@ -1,10 +1,10 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Ball } from "./LocalBall.tsx";
 import BallComponent from "../Ball/Ball";
 import { Racket } from "../Racket";
 import RacketComponent from "../Racket";
 import Wall from "../Wall";
-import { pos, dimension } from "./LocalBall.tsx"
+import { dimension } from "./LocalBall.tsx"
 import StartCounter from "./StartCounter.tsx";
 import PointsCounter from "./PointsCounter.tsx";
 import { gpt } from "../../../translations/pages_reponses.tsx";

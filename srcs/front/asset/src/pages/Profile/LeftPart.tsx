@@ -1,8 +1,7 @@
 import { useState } from "react"
-import TextAreaWithLabel from "../../components/TextAreaWithLabel"
 import { gpt } from "../../translations/pages_reponses"
 import { ProfileDataType } from "./me/MyProfile"
-import { Form, useParams } from "react-router"
+import { useParams } from "react-router"
 import { useAuth } from "../../AuthProvider"
 import LoginErrorMsg from "../../components/LoginErrorMsg"
 import { get_server_translation } from "../../translations/server_responses"
@@ -26,7 +25,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     const [file, setFile] = useState<File>();
     const [error, setError] = useState<string>("");
     const { fetchWithAuth } = useAuth();
-    const [newImageUrl, setNewImageUrl] = useState("")
     const [statsData, setStatsData] = useState<PlayerStats | null>(null)
     const params = useParams()
     const [newProfPicture, setNewProfPicture] = useState("")

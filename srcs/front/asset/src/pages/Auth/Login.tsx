@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router"
+import { Link } from "react-router"
 import InputWithLabel from "../../components/InputWithLabel"
 import Button from "../../components/Button"
 import { useEffect, useState } from "react";

@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { gpt } from "../../translations/pages_reponses";
 import { ethers } from "ethers";
 
@@ -34,13 +34,13 @@ function parseGamesJson(gamesJson: string | object): Map<number, Array<number>> 
     }
 }
 
-function stringifiyGamesJson(games: Map<number, Array<number>>): string {
-    const gamesObject: { [key: number]: Array<number> } = {};
-    games.forEach((value, key) => {
-        gamesObject[key] = value;
-    });
-    return JSON.stringify(gamesObject);
-}
+// function stringifiyGamesJson(games: Map<number, Array<number>>): string {
+//     const gamesObject: { [key: number]: Array<number> } = {};
+//     games.forEach((value, key) => {
+//         gamesObject[key] = value;
+//     });
+//     return JSON.stringify(gamesObject);
+// }
 
 interface TournamentInfos
 {
@@ -71,7 +71,7 @@ interface TournamentScore
 export default function LocalTournamentHistory({ playerId }: { playerId: number }) {
   playerId = 1; // <= you will have to delete this when you will fix the player login in frontend
   const [tournamentsInfos, setTournamentsInfos] = useState<TournamentInfos[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(true);
   const [blockchainInfos, setBlockchainInfos] = useState<{
     rpcURL: string | undefined,
     factoryAddress: string | undefined,

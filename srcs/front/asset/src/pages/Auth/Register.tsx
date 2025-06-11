@@ -27,7 +27,7 @@ export default function Register() {
     const {login} = useAuth()
 
     const [params] = useSearchParams()
-    const { setLogged, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
 
     useEffect(()=> {
         if (params) {

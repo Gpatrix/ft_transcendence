@@ -1,14 +1,11 @@
 
-import { MouseEvent, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router"
 import { useAuth } from "../../../AuthProvider";
-import User from "../../../classes/User";
 import { useWebSocket } from "../../Auth/WebSocketComponent";
 import UserContact from "../../../components/UserContact";
 import Friend from "../../../classes/Friend";
-import Chat from "../../Chat/Chat";
 import Message from "../../../classes/Message";
-import ProfilePic from "../../../components/ProfilePic";
 import Button from "../../../components/Button";
 
 export default function PageFriendLoby() {

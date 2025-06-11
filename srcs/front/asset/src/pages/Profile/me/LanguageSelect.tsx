@@ -1,6 +1,3 @@
-import FlagIcons from "./FlagsIcon"
-import { LabelHTMLAttributes, SetStateAction } from "react";
-
 interface LanguageSelectProps {
     setValue: (value: number) => void;
     lang : number | null,

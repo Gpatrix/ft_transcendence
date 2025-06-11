@@ -46,7 +46,7 @@ export default function OthersProfile() {
                     lang: data.lang
                 }));
             })
-            .catch((error) => {
+            .catch(() => {
                 navigate("/page-not-found")
             });
     }   

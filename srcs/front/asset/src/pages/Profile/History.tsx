@@ -1,7 +1,6 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MatchHistory from "../../components/MatchHistory";
 import { gpt } from "../../translations/pages_reponses";
-import { ethers } from "ethers";
 
 interface GetPlayerHistoryReturnPlayer
 {

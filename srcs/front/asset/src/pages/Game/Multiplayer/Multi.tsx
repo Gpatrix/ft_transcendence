@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { data, Link, redirect, useNavigate, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import MultiGame from "./MultiGame";
 import { mapDimension } from "./MultiGame";
 import StartCounterMulti from "./StartCounterMulti";
@@ -10,9 +10,6 @@ import { gpt } from "../../../translations/pages_reponses";
 import EndPopup from "./Popups/EndPopup";
 import { get_server_translation } from "../../../translations/server_responses";
 import Button from "../../../components/Button";
-import BgShadow from "../../../components/BgShadow";
-import BlankPopup from "../../../components/BlankPopup";
-import Blur from "../../../components/Blur";
 
 export type Player = {
     id: number
@@ -35,7 +32,6 @@ export default function Multi() {
     const isPausedRef = useRef<boolean>(false);
 
     const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
-    const navigate = useNavigate()
 
     const [params] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
