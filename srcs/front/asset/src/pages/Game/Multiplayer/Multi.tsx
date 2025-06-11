@@ -21,22 +21,22 @@ export type Player = {
     isYours: boolean
 }
 
-
 export default function Multi() {
     const socket = useRef<WebSocket | null>(null);
+    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
     const [players, setPlayers] = useState<Player[]>([]);
     const [counter, setCounter] = useState<string | null>(null);
     const [points, setPoints] = useState<Array<number>>([]);
     const [isPaused, setIsPaused] = useState<boolean>(false);
     const isPausedRef = useRef<boolean>(false);
+    const [isConnected, setIsConnected] = useState<boolean>(false);
 
     const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
 
     const [params] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
     const [end, setEnd] = useState<boolean>(false)
-
     const [disconnect, setDisconnect] = useState<boolean>(false);
 
     // const updatePauseState = (paused: boolean) => {
@@ -44,6 +44,116 @@ export default function Multi() {
     //     isPausedRef.current = paused;
     // };
 
+    const requestGameState = () => {
+        if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+            socket.current.send(JSON.stringify({ action: "getState" }));
+        }
+    };
+
+    const setupWebSocketListeners = (ws: WebSocket) => {
+        ws.onopen = () => {
+            console.log("WebSocket connected");
+            setIsConnected(true);
+            setDisconnect(false);
+            setTimeout(() => requestGameState(), 100);
+        };
+
+        ws.onmessage = (event) => {
+            const json = JSON.parse(event.data);
+            if (!json) return;
+            
+            console.log("Received:", json);
+            if (json.error)
+                setError(get_server_translation(json.error))
+
+            switch (json.message) {
+                case "error":
+                case "playerJoined": 
+                    setPlayers(json.players);     
+                    break;
+                case "start":
+                    alert("START")
+                    ball.current.unFreeze();
+                    setPlayers(json.players);
+                    setCounter("3");
+                    break;
+                case "update":
+                    setPlayers(json.players);
+                    break;
+                case "ball":
+                    ball.current.velocity = json.ball.velocity;
+                    ball.current.position = json.ball.position;
+                    break;
+                case "result":
+                    setPoints(json.result[0]);
+                    break;
+                case "freeze":
+                    ball.current.freeze();
+                    setDisconnect(true);
+                    break;
+                case "gameEnded":
+                    setEnd(true);
+                    break;
+                case "unfreeze":
+                    ball.current.unFreeze();
+                    setDisconnect(false);
+                    break;
+                case "gameState":
+                    if (json.players) setPlayers(json.players);
+                    if (json.ball) {
+                        ball.current.velocity = json.ball.velocity;
+                        ball.current.position = json.ball.position;
+                    }
+                    if (json.points) setPoints(json.points);
+                    if (json.isPaused !== undefined) updatePauseState(json.isPaused);
+                    if (json.gameEnded) setEnd(true);
+                    break;
+                case "pause":
+                    updatePauseState(true);
+                    break;
+                case "unPause":
+                    updatePauseState(false);
+                    break;
+            }
+        };
+
+        ws.onclose = (event) => {
+            setIsConnected(false);
+            
+            if (!end && event.code !== 1000) {
+                setDisconnect(true);
+                reconnectTimeoutRef.current = setTimeout(() => {
+                    initializeWebSocket();
+                }, 3000);
+            }
+        };
+
+        ws.onerror = (err: Event) => {
+            setIsConnected(false);
+        };
+    };
+
+    const initializeWebSocket = () => {
+        const tournament = params.get("tournament");
+        const game = params.get("game");
+
+        if (!game || !tournament) {
+            setError(get_server_translation("4511"));
+            return;
+        }
+
+        try {
+            if (socket.current) {
+                socket.current.close();
+            }
+
+            const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
+            socket.current = ws;
+            setupWebSocketListeners(ws);
+        } catch (error) {
+            setError(get_server_translation("0500"));
+        }
+    };
 
     useEffect(() => {
         setIsPaused(false)
@@ -60,18 +170,21 @@ export default function Multi() {
                 const response = await fetch(
                     `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/getGameStatus/${game}`
                 );
-
-                const data = await response.json();
-                if (response.status == 200) {
-                    return (0);
-                } else {
-                    setError(get_server_translation(data.error))
-                    return (1);
+                
+                if (response.status === 200) {
+                    initializeWebSocket();
+                    return 0;
+                } 
+                else {
+                    const data = await response.json();
+                    console.log(data.error)
+                    setError(get_server_translation(data.error));
+                    return 1;
                 }
             } catch (error) {
-                
+                console.error("Failed to fetch game:", error);
                 setError(get_server_translation("0500"));
-                return (0);
+                return 1;
             }
         };
 
@@ -138,17 +251,43 @@ export default function Multi() {
             }
         }
 
-        fetchGame()
-        setWebsocket()
+        if (!fetchGame())
+          setWebsocket()
 
+
+        return () => {
+            if (reconnectTimeoutRef.current) {
+                clearTimeout(reconnectTimeoutRef.current);
+            }
+            if (socket.current) {
+                socket.current.close();
+            }
+        };
     }, [params]);
 
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                console.log("Page hidden");
+            } else {
+                if (isConnected) {
+                    requestGameState();
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [isConnected]);
 
     return (
         <div className="relative">
             {error && 
                 <span className='w-[80vw] md:w-[500px] gap-8 flex flex-col text-yellow items-center'>
-                    <h2>{get_server_translation(error)}</h2>
+                    <h2>{error}</h2>
                     <Link to={"/"} className="w-full">
                         <Button type="full" className="w-full z-1000">{gpt("back_to_home")}</Button>
                     </Link>
@@ -158,14 +297,17 @@ export default function Multi() {
             {end && !error && <EndPopup array={players} points={points}/>}
             {(!error && !end) &&
             <span>
-                <MultiGame ball={ball.current} players={players} socket={socket.current} isPaused={isPaused} isPausedRef={isPausedRef} />
+                <MultiGame 
+                    ball={ball.current} 
+                    players={players} 
+                    socket={socket.current} 
+                    isPaused={isPaused} 
+                    isPausedRef={isPausedRef} 
+                />
                 {counter && <StartCounterMulti width={mapDimension.x} height={mapDimension.y} counter={counter} setCounter={setCounter}/>}
                 <MultiPointsCounter points={points}/>
             </span>
             }
         </div>
-        // <div className="relative">
-        //     { <EndPopup players={players}/>}
-        // </div>       
     );
 }

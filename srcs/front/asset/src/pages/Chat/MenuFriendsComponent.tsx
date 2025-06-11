@@ -22,7 +22,10 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
     }
 
     const handleBlockFriend = async (idFriend: number) => {
-        void idFriend
+    const codeError : string = await Friend.blockFriends(idFriend); 
+
+    void idFriend
+
     }
 
     const handleSupFriend = async (idFriend: number) => {

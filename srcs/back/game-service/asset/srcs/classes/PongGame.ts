@@ -391,6 +391,7 @@ export class PongGame {
     }
 
     onPlayerJoin(id: number, ws: WebSocket) { // send user update to everyone, start if everyone is here
+        this.markPlayerConnected(id)
         console.log(`Player ${id} joined`);
         const index = this.players.findIndex(player => player.id == id);
         if (index !== -1) {
@@ -415,14 +416,18 @@ export class PongGame {
 
     onPlayerLeave(id: number) {
         console.log("PLAYER LEAVED")
+        this.markPlayerDisconnected(id)
         this.ball.freeze()
 
+
         this.players.forEach(player => {
-            if (player.ws)
-                player.ws.send(JSON.stringify({
-                    message: "freeze",
-            }));
+            if (player.ws) {
+                player.ws.send(JSON.stringify({message: "freeze",}));
+            }
         });
+        if (this.areAllPlayersDisconnected()) {
+            this.onEnd()
+        }
     }
 
     hasPlayer(userId: number): boolean {

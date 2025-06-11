@@ -303,8 +303,12 @@
       "You lose!",
       "Tu as perdu !",
       "Hai perso!"
+    ],
+    "invited_you" : [
+      "invited you !",
+      "vous a invité !",
+      "ti ho invitato!"
     ]
-
 
   }    
 }
