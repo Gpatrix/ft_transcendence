@@ -165,7 +165,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
     }
       
     server.delete<{ Body: logoutParams }>('/api/auth/logout',  { preHandler: [isConnected] },  async (request, reply) => {
-        reply.clearCookie('ft_transcendence_jw_token', {}).status(200);
+        reply.clearCookie('ft_transcendence_jw_token', {}).status(200).send();
     })
 
 

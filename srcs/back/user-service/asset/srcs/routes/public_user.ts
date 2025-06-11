@@ -6,7 +6,6 @@ import validateUserData from "../validators/userData";
 import axios from 'axios';
 import prisma from '../config/prisma';
 import deleteImage from "../utils/deleteImage";
-import imageUpload from "../validators/imageUpload";
 import { i_token, getTokenData } from "../utils/getTokenData";
 import isConnected from "../validators/jsonwebtoken";
 
@@ -17,6 +16,7 @@ export default function public_userRoutes (server: FastifyInstance, options: any
     server.addHook('preValidation', (request, reply, done) => 
     {
        isConnected(request, reply, done);
+       done();
     })
 
     interface getUserParams 
@@ -113,7 +113,7 @@ export default function public_userRoutes (server: FastifyInstance, options: any
         image?: string
     }
 
-    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [imageUpload, validateUserData], config: {
+    server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [validateUserData], config: {
     } }, async (request, reply) => {
         const body: EditUserBody = request.body;
         if (!body)
@@ -135,9 +135,6 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                 updateData.lang = body.lang;
             if (body.newPassword)
                 updateData.newPassword = body.newPassword;
-            if (body.image) {
-                updateData.profPicture = body.image;
-            }
             if (body.isTwoFactorEnabled)
                 updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
             const foundUser = await prisma.user.findUnique({
@@ -159,8 +156,6 @@ export default function public_userRoutes (server: FastifyInstance, options: any
             reply.status(200).send("User successfully updated.");
         } catch (error) {
             console.log(error);
-            if (body.image)
-                deleteImage(body.image);
             if (error instanceof Prisma.PrismaClientKnownRequestError)
             {
                 switch ((error as Prisma.PrismaClientKnownRequestError).code)
