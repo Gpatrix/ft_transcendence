@@ -8,7 +8,7 @@ import { ProfileDataType } from "./MyProfile";
 import LoginErrorMsg from "../../../components/LoginErrorMsg";
 import { get_server_translation } from "../../../translations/server_responses";
 import { useAuth } from "../../../AuthProvider";
-import { useNavigate } from "react-router";
+import { Form, useNavigate } from "react-router";
 import LogoutButton from "./LogoutButton";
 
 
@@ -68,6 +68,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
                 form.append(key, String(value))
             }
         }
+
         const res = fetchWithAuth("/api/user/edit", {
             method: "PUT",
             body: form,

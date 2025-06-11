@@ -23,6 +23,8 @@ model FriendRequest {
   targetId Int
   target User @relation("UserToReceivedFriendRequests", fields: [targetId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@unique([authorId, targetId])
 }
 
 model Friend {
