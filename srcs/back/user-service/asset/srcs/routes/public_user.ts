@@ -16,6 +16,7 @@ export default function public_userRoutes (server: FastifyInstance, options: any
     server.addHook('preValidation', (request, reply, done) => 
     {
        isConnected(request, reply, done);
+       done();
     })
 
     interface getUserParams 
