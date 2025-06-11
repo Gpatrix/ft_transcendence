@@ -2,8 +2,6 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import Friend from '../../classes/Friend';
 import Message from '../../classes/Message';
-import { useLocation } from 'react-router-dom';
-import { get_server_translation } from '../../translations/server_responses';
 // import { WebSocketContext } from './WebSocketContext';
 
 
@@ -136,7 +134,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
             }
         };
 
-        ws.onerror = (error) => {
+        ws.onerror = () => {
             
             ws.close(); // Forcer une fermeture pour relancer la reconnexion
         };

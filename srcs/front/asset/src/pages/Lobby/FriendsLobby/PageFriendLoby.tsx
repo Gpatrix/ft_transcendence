@@ -1,14 +1,11 @@
 
-import { MouseEvent, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router"
 import { useAuth } from "../../../AuthProvider";
-import User from "../../../classes/User";
 import { useWebSocket } from "../../Auth/WebSocketComponent";
 import UserContact from "../../../components/UserContact";
 import Friend from "../../../classes/Friend";
-import Chat from "../../Chat/Chat";
 import Message from "../../../classes/Message";
-import ProfilePic from "../../../components/ProfilePic";
 import Button from "../../../components/Button";
 
 export default function PageFriendLoby() {
@@ -60,8 +57,7 @@ export default function PageFriendLoby() {
                 return(true);
             }
         })
-        .catch((error) => {
-            
+        .catch(() => {
         });
     }
     // function getUserParams() {
@@ -178,7 +174,8 @@ export default function PageFriendLoby() {
             const message : string = `**game:/lobby/friendLoby/waiting-room/${String(data.gameId)}/${data.tournamentId}**`;
             
             for (let index = 1; index < arrayPlayersRef.current.length; index++) {
-                Message.sendMessage(profileDataRef.current.id, arrayPlayersRef.current[index].id, message, socketRef.current);
+                if (socketRef.current && profileDataRef.current && profileDataRef.current.id)
+                    Message.sendMessage(profileDataRef.current.id, arrayPlayersRef.current[index].id, message, socketRef.current);
             }
 
             // faire la traduction de cette page
@@ -202,8 +199,8 @@ export default function PageFriendLoby() {
             
             if (idFriend) {
                 const newFriends: Friend[] = [...friends];
-                
-                const friendIndexSended = newFriends.findIndex(friend => friend.id == idFriend);
+
+                const friendIndexSended = newFriends.findIndex(friend => friend.id == Number(idFriend));
                 if (friendIndexSended != -1) {
                     newArrayPlayers.push(newFriends[friendIndexSended]);
                     newFriends.splice(friendIndexSended, 1);

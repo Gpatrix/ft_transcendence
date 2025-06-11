@@ -21,7 +21,7 @@ type TextAreaWithLabelProps = {
     className?: string;
     value?: string;
     hidechars?: boolean;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 } & VariantProps<typeof variants>;
 
 export default function TextAreaWithLabel({placeholder, label, type, className, onChange, value, hidechars} : TextAreaWithLabelProps) {

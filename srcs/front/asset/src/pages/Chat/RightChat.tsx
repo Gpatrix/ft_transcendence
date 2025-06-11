@@ -1,17 +1,11 @@
-import ChatMessage from '../../components/ChatMessage.tsx'
-import Blur from "../../components/Blur.tsx"
 // import DropDownMenu from "../../components/DropDownMenu.tsx"
-import InputWithIco from "../../components/InputWithIco.tsx"
 
-import { FormEvent, ChangeEvent, useEffect, useState, useRef, SetStateAction } from "react";
+import { useEffect, useRef } from "react";
 // import { useNavigate } from 'react-router-dom';
-import ClickableIco from "../../components/ClickableIco.tsx"
 import Friend from "../../classes/Friend.tsx"
-import Message from "../../classes/Message.tsx"
 import ButtonMenu from '../../components/ButtonMenu.tsx';
 import { useWebSocket } from '../Auth/WebSocketComponent.tsx';
 import User from '../../classes/User.tsx';
-import { gpt } from "../../translations/pages_reponses"
 import Chat from './Chat.tsx';
 
 type RightChatProps = {

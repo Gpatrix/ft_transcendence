@@ -1,9 +1,8 @@
 // import { tv, type VariantProps } from 'tailwind-variants'
 import { clsx } from 'clsx'
-import { Link } from "react-router-dom";
 import ProfilePic from './ProfilePic.tsx'
 // import { HomeIcon } from '@heroicons/react/solid'
-import React, { useState } from 'react';
+import { useState } from 'react';
 import arrowDown from './down-arrow-box.svg';
 import styles from './MatchResult.module.css';
 import Player from '../classes/Player.tsx'

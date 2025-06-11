@@ -28,7 +28,7 @@ export default function ChatPage() {
                 return(true);
             }
         })
-        .catch((error) => {
+        .catch(() => {
             
         });
     }

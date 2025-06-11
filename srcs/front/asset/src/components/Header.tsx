@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Button from './Button';
 import { clsx } from 'clsx'
 import { gpt } from '../translations/pages_reponses';
@@ -12,7 +12,6 @@ type HeaderProps = {
 export default function Header({className} : HeaderProps) {
 
     const location = useLocation();
-    const navigate = useNavigate();
 
     return (
         <div className={clsx("text-yellow header border border-yellow flex relative z-999 bg-dark", className)}>

@@ -7,7 +7,6 @@ import Button from './components/Button.tsx'
 import Input from './components/Input.tsx'
 import ProfilePic from './components/ProfilePic.tsx'
 import BgShadow from './components/BgShadow.tsx'
-import InputWithLabel from './components/InputWithLabel.tsx'
 import UserContact from './components/UserContact.tsx'
 import ClickableIco from './components/ClickableIco.tsx'
 import ChatMessage from './components/ChatMessage.tsx'
@@ -19,10 +18,10 @@ function App()
 
   const players: Player[] = [];
   const testJpegUrl = `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/test.jpeg`;
-  players.push(new Player(0, "user1", "user1@gmail.com", testJpegUrl, 1200, 0, 1))
-  players.push(new Player(1, "user2", "user2@gmail.com", testJpegUrl, 800, 0, 2))
-  players.push(new Player(2, "user3", "user3@gmail.com", testJpegUrl, 400, 0, 3))
-  players.push(new Player(3, "user4", "user4@gmail.com", "https://famille-de-geek.com/wp-content/uploads/2021/12/pyjama-bebe-bob-eponge.jpg", 100, 0, 4))
+//   players.push(new Player(0, "user1", "user1@gmail.com", testJpegUrl, 1200, 0, 1))
+//   players.push(new Player(1, "user2", "user2@gmail.com", testJpegUrl, 800, 0, 2))
+//   players.push(new Player(2, "user3", "user3@gmail.com", testJpegUrl, 400, 0, 3))
+//   players.push(new Player(3, "user4", "user4@gmail.com", "https://famille-de-geek.com/wp-content/uploads/2021/12/pyjama-bebe-bob-eponge.jpg", 100, 0, 4))
 
   return (
     <div className='flex flex-col'>

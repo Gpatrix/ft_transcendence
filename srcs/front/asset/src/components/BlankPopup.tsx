@@ -1,10 +1,8 @@
-import { ReactNode, useState } from "react";
-import ClickableIco from "./ClickableIco";
+import { ReactNode } from "react";
 import { SetStateAction } from "react";
 
 export default function BlankPopup({ children, onClose}: { children: ReactNode, onClose: React.Dispatch<SetStateAction<boolean>>; }) {
-    const [isOpen, setIsOpen]= useState<boolean>(true)
-
+    // const [isOpen, setIsOpen]= useState<boolean>(true)
     return (
         <div className="w-[100vw] h-[100vh] fixed z-999 top-0 left-0 p-50">
             <div className="fixed z-10 w-1/1 h-1/1 bg-(--dark-transp) top-0 left-0 cursor-pointer" onClick={() => onClose(false)}></div>

@@ -5,7 +5,6 @@ import Button from "../../components/Button";
 import { get_server_translation } from "../../translations/server_responses";
 
 export default function MatchMaking() {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
     const [error, setError] = useState<string | null>(null)
     const [players, setPlayers] = useState<number | null>(null)
     const navigate = useNavigate()
@@ -17,8 +16,6 @@ export default function MatchMaking() {
         let ws : WebSocket = new WebSocket(`wss://${window.location.host}/api/game/matchmaking?mode=${players}`);
 
         ws.onopen = () => {
-            setSocket(ws);
-            
         };
 
         ws.onmessage = (event) => {
@@ -43,7 +40,7 @@ export default function MatchMaking() {
             
         }
 
-        ws.onerror = (ev) => {
+        ws.onerror = () => {
             
         }
     }

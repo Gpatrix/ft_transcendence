@@ -1,4 +1,4 @@
-import {Racket} from "../Racket"
+import {Racket} from "../../Racket"
 
 export interface pos {
     x: number,
@@ -88,7 +88,6 @@ export class Ball {
                     
                 if (!isCollision && isVerticalY && this.velocity.x > 5) {
                     const prevBallLeft = this.previousPosition.x;
-                    const prevBallRight = this.previousPosition.x + (this.radius * 2);
                     
                     if (prevBallLeft < racketLeft && ballRight > racketRight) {
                         isCollision = true;

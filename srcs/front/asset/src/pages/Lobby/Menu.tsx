@@ -1,6 +1,4 @@
 import { Link } from "react-router";
-import BgShadow from "../../components/BgShadow";
-import AuthLayout from "../Auth/AuthLayout";
 import { useState } from "react";
 import clsx from "clsx";
 import { gpt } from "../../translations/pages_reponses";
@@ -20,7 +18,7 @@ export function MenuLink({link, label} : MenuLinkProps) {
     const [state, setState] = useState<boolean>(false)
 
     return (
-        <Link to={link} 
+        <Link to={link ?? "/"} 
             onMouseEnter={()=>setState(true)} 
             onFocus={()=>setState(true)}
             onMouseLeave={()=>setState(false)}

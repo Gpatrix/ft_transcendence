@@ -8,7 +8,7 @@ interface PairProps {
     distance:number
 }
 
-export default function Pair({top, bottom, left, right, distance}: PairProps) {
+export default function Pair({top, bottom, left, right}: PairProps) {
     return (
         <div className={
             clsx("text-yellow flex flex-col justify-center border-1 \
