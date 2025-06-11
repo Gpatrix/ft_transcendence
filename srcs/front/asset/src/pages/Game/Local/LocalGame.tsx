@@ -27,7 +27,7 @@ export default function Game({userNames}: GameProps) {
     const pressedKeys = useRef(new Set<string>());
     const ball = useRef<Ball>(new Ball(10, mapDimension));
     const ia = useRef<IA | null>(null);
-    const rackets = useRef<Racket[] | null>(null);
+    const rackets = useRef<Racket[]>(null);
     const [players, setPlayers] = useState([0, 0]);
     const [params] = useSearchParams()
     const [counter, setCounter] = useState<string | null>(gpt("press_space_to_play"));
@@ -135,9 +135,9 @@ export default function Game({userNames}: GameProps) {
             const deltaTime = (now - lastTime) / 1000; // In seconds
             lastTime = performance.now();
 
-            rackets.current.forEach(r => r.update(pressedKeys.current, deltaTime));
+            rackets?.current?.forEach(r => r.update(pressedKeys.current, deltaTime));
             ball.current.nextPos(deltaTime);
-            ball.current.checkRacketCollision(rackets.current);
+            ball.current.checkRacketCollision(rackets.current );
             const result = ball.current.checkVerticalCollision();
 
             if (result != -1) {
@@ -154,9 +154,9 @@ export default function Game({userNames}: GameProps) {
         {
             ia.current = new IA(r2, pressedKeys.current, mapDimension);
             const REFRESH_VIEW_INTERVAL = 1000; // 1 second
-            refreshViewInterval.current = setInterval(() => {
+            refreshViewInterval.current = Number(setInterval(() => {
                 ia.current?.refreshView(r1, ball.current);
-            }, REFRESH_VIEW_INTERVAL);
+            }, REFRESH_VIEW_INTERVAL));
         }
         let lastTime = performance.now();
 

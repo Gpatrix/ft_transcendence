@@ -3,9 +3,10 @@ import { gpt } from "../../translations/pages_reponses";
 import Button from "../../components/Button";
 
 const GoogleAuth: React.FC = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(['state']);
+  const [cookies, setCookie] = useCookies(['state']);
 
   function fetchOauth() {
+    void cookies
     const stateValue = Math.random().toString(36).substring(2, 15);
     
     setCookie('state', stateValue, {

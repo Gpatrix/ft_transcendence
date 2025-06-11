@@ -1,10 +1,7 @@
 import { useEffect } from "react"
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-export default function WaitingRoom()
-{
-    const [socket, setSocket] = useState<WebSocket | null>(null);
+export default function WaitingRoom() {
     const navigate = useNavigate()
 
     const { gameId, tournamentId } = useParams();
@@ -14,8 +11,6 @@ export default function WaitingRoom()
         let ws : WebSocket = new WebSocket(`wss://${window.location.host}/api/game/join/${gameId}/${tournamentId}`);
 
         ws.onopen = () => {
-            setSocket(ws);
-            
         };
 
         ws.onmessage = (event) => {
@@ -27,7 +22,6 @@ export default function WaitingRoom()
         }
 
         ws.onclose = () => {
-            
         }
     }
 

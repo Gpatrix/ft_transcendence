@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router"
 import Button from "../../components/Button"
 import InputWithLabel from "../../components/InputWithLabel"

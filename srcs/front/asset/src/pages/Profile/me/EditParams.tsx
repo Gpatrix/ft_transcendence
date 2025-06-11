@@ -69,7 +69,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
             }
         }
 
-        const res = fetchWithAuth("/api/user/edit", {
+        fetchWithAuth("/api/user/edit", {
             method: "PUT",
             body: form,
         }).then((response)=>{

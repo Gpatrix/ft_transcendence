@@ -39,13 +39,14 @@ export default function Multi() {
 
     const [disconnect, setDisconnect] = useState<boolean>(false);
 
-    const updatePauseState = (paused: boolean) => {
-        setIsPaused(paused);
-        isPausedRef.current = paused;
-    };
+    // const updatePauseState = (paused: boolean) => {
+    //     setIsPaused(paused);
+    //     isPausedRef.current = paused;
+    // };
 
 
     useEffect(() => {
+        setIsPaused(false)
         const tournament = params.get("tournament");
         const game = params.get("game");
 
@@ -119,11 +120,11 @@ export default function Multi() {
                     }
                 };
     
-                ws.onclose = (event) => {
+                ws.onclose = () => {
                     setEnd(true)
                 };
     
-                ws.onerror = (err : Event) => {
+                ws.onerror = () => {
                     
                 };
     

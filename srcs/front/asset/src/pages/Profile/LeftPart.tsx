@@ -6,7 +6,6 @@ import { useAuth } from "../../AuthProvider"
 import LoginErrorMsg from "../../components/LoginErrorMsg"
 import { get_server_translation } from "../../translations/server_responses"
 import { useEffect } from "react"
-import FormData from 'form-data';
 
 interface LeftPartProps {
     data : ProfileDataType
@@ -68,8 +67,8 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
             console.error("File size exceeds the limit");
             return;
         }
-        const form = new FormData();
-        form.append('file', file, file.name);
+        const form: FormData = new FormData();
+        form.append('file', file as File, file?.name ?? 'upload');
         console.log(file)
 
         try {

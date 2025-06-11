@@ -6,7 +6,6 @@
 //   email: string;
 // }
 
-import { data } from "react-router";
 
 class User {
 	id: number;

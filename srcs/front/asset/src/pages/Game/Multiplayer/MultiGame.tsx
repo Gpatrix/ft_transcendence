@@ -60,11 +60,8 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
     window.addEventListener('keydown', handleKeyDown);
 
 
-      let animationFrameId: number;
-      let lastTime = performance.now();
 
-      const loop = (now: any) => {
-        lastTime = performance.now();
+      const loop = () => {
 
 
         setLocalY((prev) => {
@@ -87,15 +84,11 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
                   newY += speed
               }
             }
-            // ball.checkVerticalCollision()
-            // ball.nextPos(deltaTime)
             return (newY)
         });
-        // ball.nextPos()
 
-        animationFrameId = requestAnimationFrame(loop);
+        requestAnimationFrame(loop);
     };
-    animationFrameId = requestAnimationFrame(loop);
 
 
       return () => {

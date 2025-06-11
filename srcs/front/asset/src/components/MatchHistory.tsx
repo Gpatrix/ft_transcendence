@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ProfilePic from './ProfilePic.tsx';
 import arrowDown from './down-arrow-box.svg';
 import styles from './MatchResult.module.css';
@@ -10,7 +10,7 @@ interface MatchResultProps {
       id: number;
       userId: number;
       score: number;
-      scoreFromBlockchain: number | undefined;
+      scoreFromBlockchain: number | undefined;  
     };
     opponents: Array<{
       id: number;
@@ -26,7 +26,6 @@ interface MatchResultProps {
 }
 
 export class MatchPlayer {
-  id: number;
   userId: number;
   score: number;
   place: number;
@@ -47,7 +46,6 @@ export class MatchPlayer {
   static async fillFromApi(
     userId: number,
     score: number,
-    gameId: number,
     place: number
   ): Promise<MatchPlayer> {
     const res = await fetch(`/api/user/get_profile/${userId}`);
@@ -91,8 +89,8 @@ export default function MatchResult({ match }: MatchResultProps) {
 
         const sorted = [...allMatchPlayersRaw].sort((a, b) => b.score - a.score);
 
-        const userPromises = sorted.map(async (player, idx) => {
-          return MatchPlayer.fillFromApi(player.userId, player.score, match.gameId, idx + 1)
+        const userPromises = sorted.map(async (player) => {
+          return MatchPlayer.fillFromApi(player.userId, player.score, match.gameId)
         });
 
         const MatchPlayers = await Promise.all(userPromises);

@@ -69,7 +69,7 @@ interface TournamentScore
 }
 
 export default function LocalTournamentHistory({ playerId }: { playerId: number }) {
-  playerId = 1; // <= you will have to delete this when you will fix the player login in frontend
+  void playerId
   const [tournamentsInfos, setTournamentsInfos] = useState<TournamentInfos[] | null>(null);
   const [loading] = useState(true);
   const [blockchainInfos, setBlockchainInfos] = useState<{
@@ -113,7 +113,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
             {
                 for (let i = 0; i < tournamentsInfos.length; i++) {
                     const tournament = tournamentsInfos[i];
-                    tournament.players = JSON.parse(tournament.players as string);
+                    tournament.players = JSON.parse(tournament.players as unknown as string);
                     const smartContractAddress = await factory.getTournament(tournament.id);
                     if (!smartContractAddress || smartContractAddress == ethers.ZeroAddress)
                     throw new Error("Tournament not found in blockchain");
@@ -240,7 +240,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                 return ;
             }).then(() => {
                 // 
-                fetchScores().catch(error => {
+                fetchScores().catch(() => {
                     return ;
                 });
             });

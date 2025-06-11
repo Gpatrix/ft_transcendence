@@ -57,8 +57,7 @@ export default function PageFriendLoby() {
                 return(true);
             }
         })
-        .catch((error) => {
-            
+        .catch(() => {
         });
     }
     // function getUserParams() {
@@ -175,7 +174,8 @@ export default function PageFriendLoby() {
             const message : string = `**game:/lobby/friendLoby/waiting-room/${String(data.gameId)}/${data.tournamentId}**`;
             
             for (let index = 1; index < arrayPlayersRef.current.length; index++) {
-                Message.sendMessage(profileDataRef.current.id, arrayPlayersRef.current[index].id, message, socketRef.current);
+                if (socketRef.current && profileDataRef.current && profileDataRef.current.id)
+                    Message.sendMessage(profileDataRef.current.id, arrayPlayersRef.current[index].id, message, socketRef.current);
             }
 
             // faire la traduction de cette page
@@ -199,8 +199,8 @@ export default function PageFriendLoby() {
             
             if (idFriend) {
                 const newFriends: Friend[] = [...friends];
-                
-                const friendIndexSended = newFriends.findIndex(friend => friend.id == idFriend);
+
+                const friendIndexSended = newFriends.findIndex(friend => friend.id == Number(idFriend));
                 if (friendIndexSended != -1) {
                     newArrayPlayers.push(newFriends[friendIndexSended]);
                     newFriends.splice(friendIndexSended, 1);
