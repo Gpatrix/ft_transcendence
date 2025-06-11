@@ -36,7 +36,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
                 }),
             });
             const data = await response.json();
-            if (!response.ok)
+            if (response.status != 200)
                 return (res.status(response.status).send({ error: data.error}))
             const user = data;
             if (!user)
@@ -89,6 +89,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
         try {
             const email = request.body.email;
             const password = request.body.password;
+            
             if (!email || !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
                 return (reply.status(230).send({ error: "1007" }));
             const response = await fetch(`http://user-service:3000/api/user/lookup/${email}`,
@@ -101,8 +102,7 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
                 }),
             });
             const data = await response.json();
-            
-            if (!response.ok)
+            if (response.status != 200)
                 reply.status(response.status).send({ error: data.error})
             const user = data;
             if (!user)
