@@ -49,12 +49,10 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
             if (activeGameConn.has(token.id)) {
                 const oldSocket = activeGameConn.get(token.id);
-                console.log("connected, test")
                 if (oldSocket && oldSocket.readyState === WebSocket.OPEN) {
-                    return socket.send(JSON.stringify({error: "4002"}))
-                } else {
-                    activeGameConn.delete(token.id);
+                    oldSocket.close(1000, 'New connection');
                 }
+                activeGameConn.delete(token.id);
             }
 
             const tournament = await prisma.tournament.findFirst({
@@ -123,6 +121,11 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     pongGame.onPlayerMove(caller.id, -10)
                 if (action == "down")
                     pongGame.onPlayerMove(caller.id, +10)
+                if (action == "gameState") {
+                    pongGame.sendBall()
+                    pongGame.sendPlayers("update")
+                    pongGame.sendResults()
+                }
             })
 
             socket.on('close', () => {
@@ -317,20 +320,20 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
             const gameId = request.params.gameId;
             if (!gameId) {
-                return socket.close(4001, 'Missing gameId');
+                return socket.send(`{"error" : 4001}`);
             }
             const idTournament = request.params.idTournament;
             if (!gameId) {
-                return socket.close(4001, 'Missing idTournament');
+                return socket.send(`{"error" : 4001}`);
             }
     
             if (activeGameConn.has(userId)) {
-                return socket.close(4002, 'Already in a game');
+                return socket.send(`{"error" : 4002}`);
             }
 
             const game = await GamesManager.getGameById(Number(gameId));
             if (!game || !game.hasPlayer(userId)) {
-                return socket.close(4003, 'Not allowed to join this game');
+                return socket.send(`{"error" : 4003}`);
             }
     
             activeGameConn.set(userId, socket);
@@ -353,7 +356,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
                     activeGameConn.delete(userId);
                 }
-            });
+            }); 
     
             socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
 

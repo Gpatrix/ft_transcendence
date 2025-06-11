@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { get_server_translation } from "../../translations/server_responses";
 
 export default function WaitingRoom() {
     const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -15,11 +16,15 @@ export default function WaitingRoom() {
 
         ws.onopen = () => {
             setSocket(ws);
-            
         };
 
         ws.onmessage = (event) => {
             const json =JSON.parse(event.data)
+            console.log("MSG", json)
+            if (json.error) {
+                ws.close()
+                navigate("/404-error")
+            }
             if (json.message && json.message == "gameLaunched") {
                 ws.close()
                 navigate(`/play/multi?tournament=${json.tournamentId}&game=${json.gameId}`)
@@ -39,7 +44,7 @@ export default function WaitingRoom() {
     return (
         <div className="flex w-full h-full flex-col justify-center items-center">
             <h2 className="text-yellow font-title animate-bounce">Waiting for players...</h2>
-            <img className="mt-15 animate-spin" src="/icons/wait.png"></img>
+            <img className="mt-15 animate-spin" src="/icons/wait.png" />
         </div>
     )
 }

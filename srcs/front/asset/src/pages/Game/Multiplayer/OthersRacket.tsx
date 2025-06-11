@@ -12,7 +12,8 @@ export default function MultiPlayerRacket({player, localY}: MultiPlayerRacketPro
               style={{
                 top: `${localY ? localY : player.position.y}px`,
                 left: `${player.position.x}px`,
-                backgroundColor: player.isYours ? "red" : "green"
+                backgroundColor: "yellow",
+                boxShadow: player.isYours ? "0px 0px 10px 5px rgba(254,255,0,0.59)" : "none"
               }}  
         ></span>
     )
