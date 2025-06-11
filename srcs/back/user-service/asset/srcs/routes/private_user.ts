@@ -9,7 +9,8 @@ export default function private_userRoutes (server: FastifyInstance, options: an
     server.addHook('preValidation', (request, reply, done) => 
     {
         if (request.body?.credential != process.env.API_CREDENTIAL)
-            return reply.status(404);
+            return reply.status(404).send();
+        done();
     })
 
     interface profilePictureBody
