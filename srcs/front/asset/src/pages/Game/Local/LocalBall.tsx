@@ -51,7 +51,8 @@ export class Ball {
         }
     }
 
-    checkRacketCollision(rackets: Array<Racket>) {
+    checkRacketCollision(rackets: Array<Racket> | null) {
+        if (!rackets) return;
         rackets.forEach((racket)=> {
             if (this.position.x > this.mapDimensions.x / 3 
                 && this.position.x < this.mapDimensions.x /3 * 2)
@@ -83,7 +84,6 @@ export class Ball {
                     
                 if (!isCollision && isVerticalY && this.velocity.x > 5) {
                     const prevBallLeft = this.previousPosition.x;
-                    const prevBallRight = this.previousPosition.x + (this.radius * 2);
                     
                     if (prevBallLeft < racketLeft && ballRight > racketRight) {
                         isCollision = true;

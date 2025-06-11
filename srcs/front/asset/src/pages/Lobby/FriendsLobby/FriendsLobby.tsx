@@ -1,5 +1,4 @@
 import { useEffect } from "react"
-import Header from "../../components/Header"
 import { useNavigate, useSearchParams } from "react-router"
 
 export default function FriendsLobby() {

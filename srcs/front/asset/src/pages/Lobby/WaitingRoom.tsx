@@ -1,11 +1,8 @@
 import { useEffect } from "react"
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { get_server_translation } from "../../translations/server_responses";
 
 export default function WaitingRoom() {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
-    const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
 
     const { gameId, tournamentId } = useParams();
@@ -32,7 +29,6 @@ export default function WaitingRoom() {
         }
 
         ws.onclose = () => {
-            
         }
     }
 

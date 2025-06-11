@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import InputWithLabel from "../../../components/InputWithLabel";
 import Button from "../../../components/Button";
 import { gpt } from "../../../translations/pages_reponses";
@@ -68,7 +68,8 @@ export default function EditParams({placeholders} : EditParamsProps) {
                 form.append(key, String(value))
             }
         }
-        const res = fetchWithAuth("/api/user/edit", {
+
+        fetchWithAuth("/api/user/edit", {
             method: "PUT",
             body: form,
         }).then((response)=>{

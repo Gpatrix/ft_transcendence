@@ -32,7 +32,7 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
                 }),
             });
             const data = await response.json();
-            if (!response.ok)
+            if (response.status != 200)
                 res.status(response.status).send(data);
             const data_url = QRCode.toDataURL(secret.otpauth_url);
             return (res.status(200).send({ message: "qrcode_generated", data_url }));
@@ -86,7 +86,7 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
                 }),
             });
             const data = await response.json();
-            if (!response.ok)
+            if (response.status != 200)
                 return (res.status(response.status).send(data));
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_enabled" })
         }
@@ -151,7 +151,7 @@ export default function dfaRoutes (server: FastifyInstance, options: any, done: 
                 }),
             });
             const data = await response.json();
-            if (!response.ok)
+            if (response.status != 200)
                 res.status(response.status).send(data);
             res.clearCookie('ft_transcendence_jw_token', {path: '/'}).status(200).send({ message: "2fa_successfully_disabled" });
         } catch (error) {

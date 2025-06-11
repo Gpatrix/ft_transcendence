@@ -44,7 +44,7 @@ services:
     container_name: chat-service
     restart: on-failure
     volumes:
-      - db-chat:/usr/src/chat-service/asset/prisma/db
+      - db-chat:/usr/src/chat-service/prisma/db
     environment:
       HOST: ${HOST:?}
       PORT: ${PORT:?}
@@ -134,7 +134,7 @@ services:
     container_name: user-service
     restart: on-failure
     volumes:
-      - db-user:/usr/src/user-service/asset/prisma/db
+      - db-user:/usr/src/user-service/prisma/db
     build:
         context: ./back/user-service
         dockerfile: Dockerfile
@@ -209,6 +209,7 @@ services:
         context: ./front/
         dockerfile: Dockerfile
         args:
+          VITE_HOST: ${HOST:?}
           NODE_ENV: prod
     environment:
       VITE_HOST: ${HOST:?}

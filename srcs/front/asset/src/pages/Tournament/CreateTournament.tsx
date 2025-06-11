@@ -9,7 +9,6 @@ export default function CreateTournament() {
     const navigate = useNavigate()
     const [players, setPlayers] = useState<number>(0)
     const [playerNicknames, setPlayerNicknames] = useState<string[]>([])
-    const [error, setError] = useState<string | null>(null)
 
     const [errorFields, setErrorFields] = useState<boolean[]>([])
 

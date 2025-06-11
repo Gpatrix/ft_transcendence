@@ -1,4 +1,3 @@
-import AuthLayout from "../Auth/AuthLayout";
 import { gpt } from "../../translations/pages_reponses";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router";

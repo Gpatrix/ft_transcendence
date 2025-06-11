@@ -11,6 +11,8 @@ export type ProfileDataType = {
     profPicture: string | null
     rank : number
     lang : number | null
+    isTwoFactorEnabled : boolean | null
+    provider: string | null
 }
 
 export default function OthersProfile() {   
@@ -20,7 +22,9 @@ export default function OthersProfile() {
         bio: null,
         profPicture: null,
         rank: 0,
-        lang : null
+        lang : null,
+        isTwoFactorEnabled : null,
+        provider: null
     })
     const { id } = useParams();
     const navigate = useNavigate()
@@ -43,10 +47,12 @@ export default function OthersProfile() {
                     bio: data.bio,
                     profPicture: data.profPicture,
                     rank: data.rank,
-                    lang: data.lang
+                    lang: data.lang,
+                    isTwoFactorEnabled : null,
+                    provider: null
                 }));
             })
-            .catch((error) => {
+            .catch(() => {
                 navigate("/page-not-found")
             });
     }   

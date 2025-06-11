@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react"
-import { SetStateAction } from "react"
-import { Dispatch } from "react"
-import PointsCounter from "./PointsCounter"
 import Button from "../../../components/Button"
 import { Link } from "react-router"
 import { gpt } from "../../../translations/pages_reponses"

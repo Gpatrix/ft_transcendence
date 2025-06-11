@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import InputWithLabel from "../../components/InputWithLabel";
 import { gpt } from "../../translations/pages_reponses";
 import Button from "../../components/Button";

@@ -1,0 +1,1 @@
+sed -i "s/allowedHosts: \[\".*\"\]/allowedHosts: [\"$VITE_HOST\"]/" vite.config.ts

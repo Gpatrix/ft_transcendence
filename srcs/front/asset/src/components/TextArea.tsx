@@ -19,12 +19,12 @@ type TextAreaProps = {
     className?: string;
     value?: string;
     placeholder: string;
-    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     hidechars?: boolean;
 } & VariantProps<typeof variants>;
 
-export default function TextArea({type, className, placeholder, onChange, hidechars} : TextAreaProps) {
+export default function TextArea({type, className, placeholder, onChange} : TextAreaProps) {
     return (
-        <textarea className={clsx(variants({ type }), className)} type={hidechars ? "password" : "text"} onChange={onChange}  placeholder={placeholder} />
+        <textarea className={clsx(variants({ type }), className)} onChange={onChange}  placeholder={placeholder} />
     );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { data, Link, redirect, useNavigate, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import MultiGame from "./MultiGame";
 import { mapDimension } from "./MultiGame";
 import StartCounterMulti from "./StartCounterMulti";
@@ -33,17 +33,16 @@ export default function Multi() {
     const [isConnected, setIsConnected] = useState<boolean>(false);
 
     const ball = useRef<Ball>(new Ball({x:0, y:0}, {x:0, y:0}, 10, mapDimension));
-    const navigate = useNavigate()
 
     const [params] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
     const [end, setEnd] = useState<boolean>(false)
     const [disconnect, setDisconnect] = useState<boolean>(false);
 
-    const updatePauseState = (paused: boolean) => {
-        setIsPaused(paused);
-        isPausedRef.current = paused;
-    };
+    // const updatePauseState = (paused: boolean) => {
+    //     setIsPaused(paused);
+    //     isPausedRef.current = paused;
+    // };
 
     const requestGameState = () => {
         if (socket.current && socket.current.readyState === WebSocket.OPEN) {
@@ -157,6 +156,7 @@ export default function Multi() {
     };
 
     useEffect(() => {
+        setIsPaused(false)
         const tournament = params.get("tournament");
         const game = params.get("game");
 
@@ -188,7 +188,72 @@ export default function Multi() {
             }
         };
 
-        fetchGame();
+        const setWebsocket = async () => {
+            try {
+                const ws = new WebSocket(`wss://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/connect/${tournament}/${game}`);
+                socket.current = ws
+    
+                ws.onopen = () => {
+                };
+    
+                ws.onmessage = (event) => {
+                    const json = JSON.parse(event.data)
+                    if (!json)
+                        return ;
+                    switch (json.message) {
+                        case "playerJoined": 
+                            setPlayers(json.players)     
+                            break
+                        case "start":
+                            ball.current.unFreeze()
+                            setPlayers(json.players)
+                            setCounter("3")
+                            break
+                        case "update":
+                            setPlayers(json.players)
+                            break
+                        case "ball":
+                            ball.current.velocity = json.ball.velocity;
+                            ball.current.position = json.ball.position;
+                            break 
+                        case "result":
+                            setPoints(json.result[0])
+                            break
+                        case "freeze":
+                            ball.current.freeze()
+                            setDisconnect(true) 
+                            break
+                        case "gameEnded":
+                            setEnd(true)
+                            break
+                        case "unfreeze":
+                            ball.current.unFreeze()
+                            setDisconnect(false)
+                            break
+                    }
+                };
+    
+                ws.onclose = () => {
+                    setEnd(true)
+                };
+    
+                ws.onerror = () => {
+                    
+                };
+    
+                return () => {
+                    ws.close();
+                };
+    
+                }
+            catch {
+                return ;
+            }
+        }
+
+        if (!fetchGame())
+          setWebsocket()
+
 
         return () => {
             if (reconnectTimeoutRef.current) {

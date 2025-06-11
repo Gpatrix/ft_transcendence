@@ -1,4 +1,3 @@
-import Button from "../../../components/Button";
 import { useAuth } from "../../../AuthProvider";
 
 export default function LogoutButton() {
