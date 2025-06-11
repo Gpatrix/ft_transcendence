@@ -11,6 +11,10 @@ RUN chmod +x pnpm_install.sh && ./pnpm_install.sh
 
 COPY ./asset/ .
 
+ARG VITE_HOST
+COPY ./conf/vite_config.sh .
+RUN chmod +x vite_config.sh && ./vite_config.sh
+
 COPY ./conf/vite.sh /tmp
 RUN chmod +x /tmp/vite.sh
 

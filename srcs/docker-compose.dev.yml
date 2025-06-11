@@ -224,6 +224,7 @@ services:
         context: ./front/
         dockerfile: Dockerfile
         args:
+          VITE_HOST: ${HOST:?}
           NODE_ENV: dev
     environment:
       VITE_HOST: ${HOST:?}
