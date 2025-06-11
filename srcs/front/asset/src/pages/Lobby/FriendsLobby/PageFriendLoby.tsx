@@ -7,6 +7,7 @@ import UserContact from "../../../components/UserContact";
 import Friend from "../../../classes/Friend";
 import Message from "../../../classes/Message";
 import Button from "../../../components/Button";
+import { gpt } from "../../../translations/pages_reponses";
 
 export default function PageFriendLoby() {
 
@@ -169,17 +170,12 @@ export default function PageFriendLoby() {
                 setErrorMessage(data.error)
                 return ;
             }
-            // /lobby/friendLoby/waiting-room/
-            // /lobby/friendLoby/waiting-room/:gameId/:tournamentId
             const message : string = `**game:/lobby/friendLoby/waiting-room/${String(data.gameId)}/${data.tournamentId}**`;
             
             for (let index = 1; index < arrayPlayersRef.current.length; index++) {
-                if (socketRef.current && profileDataRef.current && profileDataRef.current.id)
+                if (profileDataRef.current && socketRef.current)
                     Message.sendMessage(profileDataRef.current.id, arrayPlayersRef.current[index].id, message, socketRef.current);
             }
-
-            // faire la traduction de cette page
-            // faire une page d'attente pour rejoindre une game
 
             setErrorMessage("")
             navigate(`/lobby/friendLoby/waiting-room/${String(data.gameId)}/${data.tournamentId}`);
@@ -199,7 +195,6 @@ export default function PageFriendLoby() {
             
             if (idFriend) {
                 const newFriends: Friend[] = [...friends];
-
                 const friendIndexSended = newFriends.findIndex(friend => friend.id == Number(idFriend));
                 if (friendIndexSended != -1) {
                     newArrayPlayers.push(newFriends[friendIndexSended]);
@@ -228,16 +223,12 @@ export default function PageFriendLoby() {
         socketRef.current = socket;
     }, [socket]);
 
-    // useEffect(()=> {
-    //     // joinGame()
-    // }, [params])
-
     return (
         <div className="w-1/1 h-1/1 flex flex-col items-center">
             <div className="w-1/1 flex justify-evenly">
                 
                 <div className="flex flex-col pt-3 gap-3 overflow-y-scroll h-1/1 p-3 w-1/4 items-center">
-                    <div className="order-first text-yellow font-press text-center">Player</div>
+                    <div className="order-first text-yellow font-press text-center">{gpt("players")}</div>
                     {arrayPlayers.map((friend, id) => {
                         if (friend.id != profileData?.id)
                             return <UserContact key={id} nb={friend.id}
@@ -265,7 +256,7 @@ export default function PageFriendLoby() {
 
 
                 <div className="flex flex-col pt-3 gap-3 overflow-y-scroll h-1/1 p-3 w-1/4">
-                    <div className="order-first text-yellow font-press text-center">Friends</div>
+                    <div className="order-first text-yellow font-press text-center">{gpt("friends")}</div>
                     {arrayFriends.map((friend, id) => {
                         if (friend.connected)
                             return <UserContact key={id} nb={friend.id}
@@ -296,9 +287,7 @@ export default function PageFriendLoby() {
                 </div> */}
             </div>
 
-
-            {/* traduite cette chose */}
-            <Button onClick={handlePlayGame} className="mt-auto w-fit" style={location.pathname=="/profil"?'selected':'header'}>Lancer la partie</Button>
+            <Button onClick={handlePlayGame} className="mt-auto w-fit" style={location.pathname=="/profil"?'selected':'header'}>{gpt("start_the_game")}</Button>
             {errorMessage && <div className="text-light-red">{errorMessage}</div>}
         </div>
     )

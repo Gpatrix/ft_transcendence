@@ -80,6 +80,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                     const data = JSON.parse(event.data);
                     
                     if (ws && ws.readyState === WebSocket.OPEN) {
+                        
                         if (data.action)
                         {
                             Friend.getFriends().then((newFriends) => {
@@ -95,7 +96,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                                 }
                             })
                         } else if (data.messages) {
-                            // verrifier le chanel de discution ?
                             const newArrayMessage = [...arrayMessageRef.current];
                             const newMessages: Message[] = (data.messages as Array<messageData>).map(message => 
                                 new Message(message.senderId, -1, new Date(message.sentAt), message.content)
@@ -105,7 +105,8 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         } else {
                             const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
                             if (newMessage != undefined) {
-                                if (newMessage.idSender == activFriendRef.current) {
+                                if (newMessage.idSender == activFriendRef.current && location.pathname=="/chat") {
+                                    
                                     const newArrayMessage = [...arrayMessageRef.current];
                                     newArrayMessage.splice(0, 0, newMessage);
                                     setArrayMessage(newArrayMessage);
