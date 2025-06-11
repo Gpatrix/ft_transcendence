@@ -31,6 +31,8 @@ export const activeGameConn: Map<number, WebSocket> = new Map(); // match connec
 
 export const users1v1: MatchMakingMap = new MatchMakingMap(2);
 export const users2v2: MatchMakingMap = new MatchMakingMap(4);
+export const usersFriends1v1: MatchMakingMap = new MatchMakingMap(2);
+export const usersFriends2v2: MatchMakingMap = new MatchMakingMap(4);
 
 function gameRoutes(server: FastifyInstance, options: any, done: any) {
     server.get<{ Params: gameConnectParams }>(`/api/game/connect/:tournamentId/:gameId`, { websocket: true }, async (socket: WebSocket, request) => {
@@ -243,55 +245,20 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    // creer la game :
+    // create game friend :
     server.post('/api/game/friendMatch/create', async (request, reply) => {
         const body = request.body as { userIds: number[] };
         const userIds = body.userIds;
         
     
-        if (!Array.isArray(userIds) || userIds.length < 2) {
+        if (!Array.isArray(userIds) || (userIds.length != 2 && userIds.length != 4)) {
             return reply.status(230).send({ error: '4008' }); // format invalid // ajouter cette erreur au wiki
         }
     
         const matchUsers: MatchMakingUser[] = [];
     
-        console.log(userIds);
         for (const userId of userIds) {
             try {
-                console.log(userId);
-                
-                // console.log(import.meta.env.VITE_PORT);
-                
                 const res = await axios.post(`http://user-service:3000/api/user/lookup/${userId}`, {
                     credential: process.env.API_CREDENTIAL
                 });
@@ -316,7 +283,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
         }
     
         try {
-            const tournament = await GamesManager.createGame(matchUsers);
+            const tournament = await GamesManager.createGame(matchUsers, userIds.length);
             if (!tournament) {
                 console.log('Game creation failed');
                 return reply.status(500).send({ error: 'Game creation failed' });
@@ -361,10 +328,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 return socket.close(4002, 'Already in a game');
             }
 
-            // console.log(GamesManager);
-            // console.log(GamesManager.games);
-            
-    
             const game = await GamesManager.getGameById(Number(gameId));
             if (!game || !game.hasPlayer(userId)) {
                 return socket.close(4003, 'Not allowed to join this game');
@@ -394,28 +357,11 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     
             socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
 
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            console.log("test");
-            console.log(game.players);
-            console.log(game.allConnected(game.players.length));
-            
 
             if (game.allConnected(game.players.length)) {
 
-                console.log("ca commence ?");
-                
-                // this.broadcastToAll({ message: 'allPlayersConnected' });
-
-                // generer cette putin de room
-                // const roomId = this.generateRoomId();
-                // matchedUsers.forEach(u => this.addUserToRoom(u.id, roomId));
-
-                // recuperer tout les utilisateurs et leurs web sockets
-                const roomId : string = users.createFriendRoom(game.players)
+                const usersFriends = game.players.length == 2 ? usersFriends1v1 : usersFriends2v2;
+                const roomId : string = usersFriends.createFriendRoom(game.players)
                 game.players.forEach(user => {
                     try {
                         user.ws.send(JSON.stringify({ 
@@ -440,24 +386,24 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
         }
     });
     
-    
 
-    server.get('/api/game/status', async (request, reply) => {
-        try {
-            const codedtoken = request.cookies['ft_transcendence_jw_token'];
-            const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
+    // server.get('/api/game/status', async (request, reply) => {
+    //     try {
+    //         const codedtoken = request.cookies['ft_transcendence_jw_token'];
+    //         const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
             
-            return {
-                userId: decoded.id,
-                inMatchmaking: activeMatchmakingConn.has(decoded.id),
-                inGame: activeGameConn.has(decoded.id),
-                queuePosition: users.findIndex(user => user.id === decoded.id),
-                totalInQueue: users.length
-            };
-        } catch (error) {
-            reply.code(230).send({ "error": 'Invalid token' });
-        }
-    });
+    //         // const usersFriends = game.players.length == 2 ? usersFriends1v1 : usersFriends2v2;
+    //         return {
+    //             userId: decoded.id,
+    //             inMatchmaking: activeMatchmakingConn.has(decoded.id),
+    //             inGame: activeGameConn.has(decoded.id),
+    //             queuePosition: usersFriends.findIndex(user => user.id === decoded.id),
+    //             totalInQueue: usersFriends.length
+    //         };
+    //     } catch (error) {
+    //         reply.code(230).send({ "error": 'Invalid token' });
+    //     }
+    // });
 
     server.get<{ Params: fetchGameParams }>('/api/game/getGameStatus/:gameId', async (request, reply) => {
         try {

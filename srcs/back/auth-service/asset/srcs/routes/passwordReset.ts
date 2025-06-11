@@ -73,7 +73,7 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
             const data = await userPasswordUpdate.json();
             if (!userPasswordUpdate.ok)
                 return res.status(userPasswordUpdate.status).send({ error: "1016"})
-            res.status(200);
+            res.status(200).send();
         } catch (error) {
             res.status(230).send({ error: "1016" });
         }

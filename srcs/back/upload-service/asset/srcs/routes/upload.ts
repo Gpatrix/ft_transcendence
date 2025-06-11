@@ -3,52 +3,53 @@ import fs from 'fs';
 import path from 'path';
 import util from 'util'
 import { pipeline } from 'stream'
+import jwt from 'jsonwebtoken';
+import { isConnected } from "../validators/jsonwebtoken";
 
 const pump = util.promisify(pipeline);
-
-// function isMimeTypeAllowed(file: any): boolean {
-//       const allowedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf'];
-
-//     if (allowedMimeTypes.includes(file.mimetype))
-//         return (true);
-//     else
-//         return (false);
-// }
 
 export default function uploadRoutes (server: FastifyInstance, options: any, done: any)
 {
 
     interface uploadPostBody {
         file: any,
-        credential: string
     }
     
-    server.post<{ Body: uploadPostBody }>('/api/upload/', async (req: any, res: any) => {
+    server.post<{ Body: uploadPostBody }>('/api/upload/', { preHandler: [isConnected] }, async (req: any, res: any) => {
         try {
-            console.log('upload')
-            const parts = await req.parts();
-            let credential: string | undefined;
-            let file: any;
-            for await (const part of parts) {
-                console.log('part', part);
-                if (part.type === 'file')
-                    file = part;
-                if (part.fieldname === 'credential') {
-                    credential = part.value;
-                }
-            }
-            if (credential != process.env.API_CREDENTIAL)
+            const token = req.cookies['ft_transcendence_jw_token'];
+            if (!token)
                 return (res.status(230).send({ error: "0401" }));  // private route (:
-            console.log(file);
+            const tokenPayload = jwt.decode(token).data;
+            if (!tokenPayload || !tokenPayload.id)
+                return (res.status(230).send({ error: "0401" }));  // private route (:
+            const file = await req.file();
+            if (!file)
+                return (res.status(230).send({ error: "6002" }));
             const extName = path.extname(file.filename);
             if (extName !== '.png' && extName !== '.jpeg' && extName !== '.jpg')
                 return (res.status(230).send({ error: "6001" }));
-            if (!file)
-                return (res.status(230).send({ error: "6002" }));
-            const fileName = Date.now();
-            const storedFile = fs.createWriteStream(`./uploads/${fileName}`);
-            pump(file.file, storedFile);
-            res.status(200).send({ fileName: fileName });
+            const fileName = String(Date.now());
+            const storedFilePath = path.join(__dirname, `../../uploads/${fileName}`);
+            const storedFile = fs.createWriteStream(storedFilePath);
+            await pump(file.file, storedFile);
+            const fileNameURL = `https://${process.env.HOST}:${process.env.PORT}/api/upload/${fileName}`
+            const response = await fetch(`http://user-service:3000/api/user/profile_picture`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    credential: process.env.API_CREDENTIAL,
+                    profPicture: fileNameURL,
+                    id: tokenPayload.id
+                }),
+            });
+            if (response.status == 230) {
+                // const resJson = await response.json();
+                // const error = resJson?.error;
+                return res.status(230).send({ error: '0500' });
+            }
+            res.status(200).send({ fileName: fileNameURL });
         } catch (error) {
             console.error('Error during file upload:', error);
             res.status(230).send({ error: "0500" });

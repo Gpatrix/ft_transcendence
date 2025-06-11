@@ -159,6 +159,11 @@
       "Supprimer",
       "Eliminare"
     ],
+    "unfriend" : [
+      "Unfriend",
+      "Supprimer l'ami",
+      "Elimina amico"
+    ],
     "no_invitation" : [
       "No invitation",
       "Aucune invitation",

@@ -6,6 +6,42 @@ import validateUserData from "../validators/userData";
 
 export default function private_userRoutes (server: FastifyInstance, options: any, done: any)
 {
+    server.addHook('preValidation', (request, reply, done) => 
+    {
+        if (request.body?.credential != process.env.API_CREDENTIAL)
+            return reply.status(404).send();
+        done();
+    })
+
+    interface profilePictureBody
+    {
+        credential: string,
+        profPicture: string,
+        id: number
+    }
+
+    server.put<{ Body: profilePictureBody }>('/api/user/profile_picture', async (request, reply) => {
+        const profPicture = request.body?.profPicture;
+        const id = request.body?.id;
+        if (!profPicture || !id)
+            return reply.status(230).send({ error: "0401" });
+        try {
+            const result = await prisma.user.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    profPicture: profPicture
+                }
+            });
+            if (!result)
+                return reply.status(230).send({ error: "0401" });
+        } catch (error) {
+            console.log('error', error)
+            return reply.status(230).send({ error: "0401" });
+        }
+        reply.status(200).send();
+    });
 
     interface lookupParams 
     {
@@ -20,9 +56,6 @@ export default function private_userRoutes (server: FastifyInstance, options: an
 
     server.post<{ Params: lookupParams, Body: lookupBody }>('/api/user/lookup/:email', async (request, reply) => {
         try {
-            const credential = request.body?.credential;
-            if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(404);
             const value = request.params.email;
             const isEmail = value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
             const isId = value.match(/^[0-9]$/);
@@ -71,9 +104,6 @@ export default function private_userRoutes (server: FastifyInstance, options: an
     }
 
     server.post<{ Params: isBlockedByParams, Body: isBlockedByBody }>('/api/user/isBlockedBy/:target/:by', async (request, reply) => {
-        const credential = request.body?.credential;
-        if (!credential || credential != process.env.API_CREDENTIAL)
-            reply.status(230).send({ error: "0404" });
         const target_user = await prisma.user.findUnique({
             where: {
                 id: Number(request.params.target)
@@ -124,10 +154,7 @@ export default function private_userRoutes (server: FastifyInstance, options: an
 
     server.put<{ Body: passwordUpdateBody, Params: passwordUpdateParams }>('/api/user/password/:email', async (request, reply) => {
         try {
-            const credential = request.body?.credential;
             const password = request.body?.password;
-            if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(230).send({ error: "0404" });
             let user = await prisma.user.update({
                 where: { 
                     email: request.params.email
@@ -179,9 +206,6 @@ export default function private_userRoutes (server: FastifyInstance, options: an
 
     server.put<{ Body: DfaUpdateBody, Params: DfaUpdateParams }>('/api/user/2fa/update/:id', async (request, reply) => {
         try {
-            const credential = request.body?.credential;
-            if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(230).send({ error: "0404" });
             const twoFactorSecretTemp = request.body?.twoFactorSecretTemp;
             const twoFactorSecret = request.body?.twoFactorSecret;
             let put: DfaPut = {};
@@ -235,9 +259,6 @@ export default function private_userRoutes (server: FastifyInstance, options: an
 
     server.post<{ Body: postUserBody }>('/api/user/create', { preHandler:[validateUserData] }, async (request, reply) => {
         try {
-            const credential = request.body.credential;
-            if (!credential || credential != process.env.API_CREDENTIAL)
-                reply.status(230).send({ error: '0404' });
             const email = request.body.email;
             const name = request.body.name;
             const password = request.body.password;

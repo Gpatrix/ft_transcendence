@@ -31,7 +31,7 @@
   "1020": ["User not logged in with 2FA", "Utilisateur non connecté avec 2FA", "Utente non connesso con 2FA"],
   "2001": ["Target does not exist", "La cible n'existe pas", "Il destinatario non esiste"],
   "2002": ["User does not exist", "L'utilisateur n'existe pas", "L'utente non esiste"],
-  "2011": ["Cannot block yourself", "Vous ne pouvez pas vous bloquer", "Non puoi bloccare te stesso"],
+  "2011": ["User is yourself", "Cette utilisateur est vous meme", "L'utente è te stesso"],
   "2012": ["User does not exist", "L'utilisateur n'existe pas", "L'utente non esiste"],
   "2013": ["Cannot block admin", "Vous ne pouvez pas bloquer un admin", "Non puoi bloccare un amministratore"],
   "2013": ["Friend request already sent", "Demande d'ami déjà envoyée", "Richiesta di amicizia già inviata"],

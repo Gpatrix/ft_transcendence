@@ -68,13 +68,15 @@ class FriendRequest {
                 credentials: 'include'
             }
             const response = await fetch(`/api/user/friends/requests/${this.id}`, requestData);
-            if (response.status == 201)
-                    return ("201")
+            if (response.status == 200)
+                    return ("200")
             const dataReponse = await response.json();
             return (dataReponse.error)
         } catch (error) {
             this.author = undefined;
-            return ("500")
+            console.log(error);
+            
+            return ("0500")
         }
     }
 

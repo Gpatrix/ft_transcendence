@@ -1,6 +1,7 @@
 import fastify from 'fastify'
 import path from 'node:path'
 import multipartPlugin from '@fastify/multipart'
+import cookiesPlugin from '@fastify/cookie';
 import staticPlugin from '@fastify/static'
 import { metrics , upload_requests_total} from './metrics'
 import uploadRoutes from './routes/upload'
@@ -11,6 +12,8 @@ server.register(staticPlugin, {
   root: path.join(__dirname, '../uploads'),
   prefix: '/api/upload/'
 })
+
+server.register(cookiesPlugin, {});
 
 server.addHook('onResponse', (req, res, done) =>
   {
@@ -23,7 +26,7 @@ server.register(multipartPlugin, {
     fieldNameSize: 100, // Max field name size in bytes
     fieldSize: 100,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
-    fileSize: 10500000,  // For multipart forms, the max file size in bytes
+    fileSize: 1000000 * 500,  // For multipart forms, the max file size in bytes
     files: 1,           // Max number of file fields
     headerPairs: 2000,  // Max number of header key=>value pairs
     parts: 1000         // For multipart forms, the max number of parts (fields + files)

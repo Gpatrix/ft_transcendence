@@ -31,10 +31,11 @@ type ButtonProps = {
     type?: string;
     style?: string;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
+    tabIndex?: number;
 } & VariantProps<typeof variants>;
 
-export default function Button({children, type, style, className, onClick} : ButtonProps) {
+export default function Button({children, type, style, className, onClick, tabIndex=0} : ButtonProps) {
     return (
-        <button onClick={onClick} className={clsx(variants({ type, style }), className)}>{children}</button>
+        <button tabIndex={tabIndex} onClick={onClick} className={clsx(variants({ type, style }), className)}>{children}</button>
     );
 }
