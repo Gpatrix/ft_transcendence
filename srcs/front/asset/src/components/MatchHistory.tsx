@@ -46,7 +46,7 @@ export class MatchPlayer {
   static async fillFromApi(
     userId: number,
     score: number,
-    place: number
+    idx: number
   ): Promise<MatchPlayer> {
     const res = await fetch(`/api/user/get_profile/${userId}`);
     if (!res.ok) {
@@ -59,7 +59,7 @@ export class MatchPlayer {
       score,
       data.data.name,
       data.data.profPicture,
-      place,
+      idx,
     );
   } 
 
@@ -89,8 +89,8 @@ export default function MatchResult({ match }: MatchResultProps) {
 
         const sorted = [...allMatchPlayersRaw].sort((a, b) => b.score - a.score);
 
-        const userPromises = sorted.map(async (player) => {
-          return MatchPlayer.fillFromApi(player.userId, player.score, match.gameId)
+        const userPromises = sorted.map(async (player, idx) => {
+          return MatchPlayer.fillFromApi(player.userId, player.score, idx+1)
         });
 
         const MatchPlayers = await Promise.all(userPromises);
