@@ -19,7 +19,7 @@ export default function AddFriends({} : AddFriendsProps) {
     const handleSubmitSearch = async (event : FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const response: User[] | undefined | string = await User.searchUserByName(inputSearch)
+        const response: User[] | undefined | string = await User.searchUserByName(inputSearch);
 
         if (typeof response == 'string') {
             setInputResponse(response)
@@ -38,7 +38,7 @@ export default function AddFriends({} : AddFriendsProps) {
 
     const handleSendFriendRequest = async (id: number) => {
         const response = await Friend.friendRequest(id)
-
+        
         setUsersSearched([]);
         setInputResponse(response)
     }
@@ -63,11 +63,11 @@ export default function AddFriends({} : AddFriendsProps) {
                 })}
 
                 {
-                    inputResponse == "201" &&
+                    inputResponse == "200" &&
                     <div className="py-2 text-green">{gpt("Request_sent")}</div>
                 }
                 {
-                    inputResponse != "201" && inputResponse != "" &&
+                    inputResponse != "200" && inputResponse != "" &&
                     <div className="py-2 text-light-red">{get_server_translation((inputResponse))}</div>
                 }
 

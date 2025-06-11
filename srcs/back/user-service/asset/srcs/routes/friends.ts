@@ -20,6 +20,7 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
 
     server.post<{ Params: postUserFriendRequestParams }>('/api/user/friends/requests/:id', async (request: any, reply: any) => {
         try {
+            
             const targetId = Number(request.params?.id);
             const token = request.cookies['ft_transcendence_jw_token'];
             if (!token)
@@ -39,6 +40,8 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
                     id: targetId
                 }
             })
+            if (!target)
+                return reply.status(230).send({ error: "2001" });
             const isAlreadyFriend = await prisma.friend.findFirst({
                 where: {
                     userId: user.id,
