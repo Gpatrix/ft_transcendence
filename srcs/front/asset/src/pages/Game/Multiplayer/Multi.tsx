@@ -64,12 +64,16 @@ export default function Multi() {
             if (!json) return;
             
             console.log("Received:", json);
-            
+            if (json.error)
+                setError(get_server_translation(json.error))
+
             switch (json.message) {
+                case "error":
                 case "playerJoined": 
                     setPlayers(json.players);     
                     break;
                 case "start":
+                    alert("START")
                     ball.current.unFreeze();
                     setPlayers(json.players);
                     setCounter("3");

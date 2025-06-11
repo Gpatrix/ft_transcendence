@@ -266,17 +266,13 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     credential: process.env.API_CREDENTIAL
                 });
 
-
                 if (res.status != 200) {
                     return reply.status(230).send({ error: `4001` });
-                //     (4001, 'User lookup failed') // ajouter 4001, 'User lookup failed' dans les erreurs
                 }
     
                 if (!res.data?.id) {
                     return reply.status(230).send({ error: `4004` });
-                    //     (4004, 'Invalid user data') //ajouter aux erreurs
                 }
-
     
                 matchUsers.push(new MatchMakingUser(userId, res.data.rank, null)); // pas de websocket ici
             } catch (err) {
@@ -291,7 +287,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 console.log('Game creation failed');
                 return reply.status(500).send({ error: 'Game creation failed' });
             }
-    
+
             return reply.status(200).send({ 
                 success: true, 
                 gameId: tournament.games[0].id, 
@@ -328,7 +324,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             }
     
             if (activeGameConn.has(userId)) {
-                return socket.send(`{"error" : 4002}`);
+                return socket.send(JSON.stringify({error: "4003"}))
             }
 
             const game = await GamesManager.getGameById(Number(gameId));
@@ -359,7 +355,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             }); 
     
             socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
-
 
             if (game.allConnected(game.players.length)) {
 
