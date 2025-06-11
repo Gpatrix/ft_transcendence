@@ -3,7 +3,6 @@ import Friend from "../../classes/Friend.tsx"
 import { useNavigate } from "react-router-dom";
 import { useWebSocket } from "../Auth/WebSocketComponent.tsx";
 import { gpt } from "../../translations/pages_reponses"
-import { get_server_translation } from "../../translations/server_responses.tsx";
 
 type MenuFriendsParamComponentProps = {
     friendId: number;
@@ -23,8 +22,10 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
     }
 
     const handleBlockFriend = async (idFriend: number) => {
-        const codeError : string = await Friend.blockFriends(idFriend);
-            
+    const codeError : string = await Friend.blockFriends(idFriend); 
+
+    void idFriend
+
     }
 
     const handleSupFriend = async (idFriend: number) => {

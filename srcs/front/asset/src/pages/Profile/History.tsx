@@ -1,13 +1,13 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MatchHistory from "../../components/MatchHistory";
 import { gpt } from "../../translations/pages_reponses";
-import { ethers } from "ethers";
 
 interface GetPlayerHistoryReturnPlayer
 {
     id: number;
     userId: number;
     score: number;
+    scoreFromBlockchain: number | undefined;  
 }
 
 interface GetPlayerHistoryReturn
@@ -60,7 +60,7 @@ export default function History({ playerId }: { playerId: number }) {
     <div className="flex flex-col gap-4 h-[500px] p-4 border-yellow border-1 rounded-2xl">
       <h2 className="text-yellow text-2xl">{gpt("match_history")}</h2>
       <span className="flex flex-col gap-4 h-[500px] overflow-scroll">
-      {matches.map((match, idx) => (
+      {matches.map((match) => (
         <MatchHistory
         key={match.gameId}
         match={match}

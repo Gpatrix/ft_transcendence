@@ -58,8 +58,7 @@ export default function PageFriendLoby() {
                 return(true);
             }
         })
-        .catch((error) => {
-            
+        .catch(() => {
         });
     }
     // function getUserParams() {
@@ -196,7 +195,6 @@ export default function PageFriendLoby() {
             
             if (idFriend) {
                 const newFriends: Friend[] = [...friends];
-                
                 const friendIndexSended = newFriends.findIndex(friend => friend.id == Number(idFriend));
                 if (friendIndexSended != -1) {
                     newArrayPlayers.push(newFriends[friendIndexSended]);

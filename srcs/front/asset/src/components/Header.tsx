@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Button from './Button';
 import { clsx } from 'clsx'
 import { gpt } from '../translations/pages_reponses';
@@ -14,7 +14,6 @@ type HeaderProps = {
 export default function Header({className} : HeaderProps) {
 
     const location = useLocation();
-    const navigate = useNavigate();
 
     const [notifs, setNotifs] = useState(0);
 

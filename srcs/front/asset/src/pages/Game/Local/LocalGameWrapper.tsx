@@ -1,6 +1,6 @@
 import Game from "./LocalGame";
 import LocalKeyLayout from "./LocalKeyLayout";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 
 export default function LocalGameWrapper() {

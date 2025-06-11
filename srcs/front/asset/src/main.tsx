@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Router } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router";
 import './css/global.css'
 
 import { AuthProvider } from './AuthProvider.tsx';
@@ -21,7 +21,6 @@ import Menu from './pages/Lobby/Menu.tsx';
 import LobbyLayout from './pages/Lobby/LobbyLayout.tsx';
 import FriendsLobby from './pages/Lobby/FriendsLobby/FriendsLobby.tsx';
 import PopupCreate from './pages/Lobby/FriendsLobby/PopupCreate.tsx';
-import LocalGame from './pages/Game/Local/LocalGame.tsx';
 import GameLayout from './pages/Game/GameLayout.tsx';
 import LocalGameWrapper from './pages/Game/Local/LocalGameWrapper.tsx';
 import MatchMaking from './pages/Lobby/MatchMaking.tsx';
@@ -31,7 +30,6 @@ import AskPlayers from './pages/Tournament/AskPlayers.tsx';
 import CreateTournament from './pages/Tournament/CreateTournament.tsx';
 import Overview from './pages/Tournament/Overview/Overview.tsx';
 import PageFriendLoby from './pages/Lobby/FriendsLobby/PageFriendLoby.tsx';
-import LocalTournamentHistory from './pages/Profile/LocalTournamentResults.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -53,7 +51,7 @@ createRoot(document.getElementById('root')!).render(
             <Route element={<ProfileBackground/>}>
               <Route path="/profile" element={<MyProfile />}/>
               <Route path="/profile/:id" element={<OthersProfile />}/>
-              <Route path="/profile/tournament" element={<LocalTournamentHistory />}/>
+              {/* <Route path="/profile/tournament" element={<LocalTournamentHistory />}/> */}
             </Route>
 
             <Route element={<LobbyLayout />}>

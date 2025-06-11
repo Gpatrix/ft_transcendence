@@ -313,8 +313,12 @@
       "Start the game",
       "Lancer la partie",
       "Inizia il gioco"
+    ],
+    "invited_you" : [
+      "invited you !",
+      "vous a invité !",
+      "ti ho invitato!"
     ]
-
 
   }    
 }

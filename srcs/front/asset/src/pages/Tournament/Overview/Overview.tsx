@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react"
-import { NavigationType, useNavigate, useSearchParams } from "react-router"
-import Pair from "./Brackets/Pair"
+import { useNavigate } from "react-router"
 import Column from "./Brackets/Column"
 import Panel from "../Panel"
 import Winner from "../Winner"
 
 
 export default function Overview() {
-    const [params] = useSearchParams()
     const navigate = useNavigate()
     const [placedPlayers, setPlacedPlayers] = useState<Array<Array<string>>>([]) 
     const [winner, setWinner] = useState<string | null>(null)

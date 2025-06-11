@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useState } from 'react';
+import React, { SetStateAction, useState } from 'react';
 import clsx from 'clsx';
 import MenuFriendsComponent from '../pages/Chat/MenuFriendsComponent';
 import Friend from '../classes/Friend';
@@ -11,7 +11,7 @@ type ButtonMenuProps = {
     profileData: User;
 };
 
-export default function ButtonMenu({className, setFriends, friendId, profileData} : ButtonMenuProps) {
+export default function ButtonMenu({className, setFriends, friendId} : ButtonMenuProps) {
 
     const [showFriendMenu, setShowFriendMenu] = useState(false);
 

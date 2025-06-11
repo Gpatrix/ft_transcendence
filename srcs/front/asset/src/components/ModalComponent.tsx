@@ -1,4 +1,4 @@
-import { FormEvent, MouseEvent, ChangeEvent, useEffect, useState, SetStateAction } from "react";
+import { MouseEvent, SetStateAction } from "react";
 import Button from "./Button";
 
 type ModalComponentProps = {

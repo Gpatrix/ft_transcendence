@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { SetStateAction } from "react"
 import { Dispatch } from "react"
-import PointsCounter from "./PointsCounter"
 
 type StartCounterProperties = {
     counter: string,

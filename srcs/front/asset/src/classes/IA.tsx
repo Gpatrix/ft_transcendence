@@ -133,15 +133,15 @@ class IA {
 			this.pressedKeys.add("BOT_UP");
 
 		await new Promise<void>(resolve => {
-			this.movingTimeout = setTimeout(() => {
+			this.movingTimeout = Number(setTimeout(() => {
 				this.pressedKeys.delete("BOT_UP");
 				this.pressedKeys.delete("BOT_DOWN");
 				resolve();
-			}, timeToGo);
+			}, timeToGo));
 		})
 	}
 
-	private async clearIntervals(): Promise<void>
+	async clearIntervals(): Promise<void>
 	{
 		if (this.fixingMoveInterval !== undefined) {
 			clearInterval(this.fixingMoveInterval);
@@ -172,7 +172,7 @@ class IA {
 
 
         // this.interceptBall(estimated, tryCount);
-		this.fixingMoveInterval = setInterval(async () =>
+		this.fixingMoveInterval = Number(setInterval(async () =>
 		{
 			if (ball.velocity.x >= 0)
 			{
@@ -202,7 +202,7 @@ class IA {
 				return ;
             this.interceptBall(estimated, tryCount);
             tryCount++;
-		}, ((Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL);
+		}, ((Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL));
 		return ;
 	}
 }

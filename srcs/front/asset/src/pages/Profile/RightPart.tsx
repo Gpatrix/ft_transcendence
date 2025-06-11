@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SwitchButton from "./SwitchButton";
 import EditParams from "./me/EditParams";
 import { ProfileDataType } from "./me/MyProfile";

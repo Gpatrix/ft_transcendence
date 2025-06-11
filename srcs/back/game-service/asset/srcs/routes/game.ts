@@ -49,12 +49,10 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
             if (activeGameConn.has(token.id)) {
                 const oldSocket = activeGameConn.get(token.id);
-                console.log("connected, test")
                 if (oldSocket && oldSocket.readyState === WebSocket.OPEN) {
-                    return socket.send(JSON.stringify({error: "4002"}))
-                } else {
-                    activeGameConn.delete(token.id);
+                    oldSocket.close(1000, 'New connection');
                 }
+                activeGameConn.delete(token.id);
             }
 
             const tournament = await prisma.tournament.findFirst({
@@ -123,6 +121,11 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     pongGame.onPlayerMove(caller.id, -10)
                 if (action == "down")
                     pongGame.onPlayerMove(caller.id, +10)
+                if (action == "gameState") {
+                    pongGame.sendBall()
+                    pongGame.sendPlayers("update")
+                    pongGame.sendResults()
+                }
             })
 
             socket.on('close', () => {
@@ -263,17 +266,13 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     credential: process.env.API_CREDENTIAL
                 });
 
-
                 if (res.status != 200) {
                     return reply.status(230).send({ error: `4001` });
-                //     (4001, 'User lookup failed') // ajouter 4001, 'User lookup failed' dans les erreurs
                 }
     
                 if (!res.data?.id) {
                     return reply.status(230).send({ error: `4004` });
-                    //     (4004, 'Invalid user data') //ajouter aux erreurs
                 }
-
     
                 matchUsers.push(new MatchMakingUser(userId, res.data.rank, null)); // pas de websocket ici
             } catch (err) {
@@ -288,7 +287,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 console.log('Game creation failed');
                 return reply.status(500).send({ error: 'Game creation failed' });
             }
-    
+
             return reply.status(200).send({ 
                 success: true, 
                 gameId: tournament.games[0].id, 
@@ -317,20 +316,20 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
             const gameId = request.params.gameId;
             if (!gameId) {
-                return socket.close(4001, 'Missing gameId');
+                return socket.send(`{"error" : 4001}`);
             }
             const idTournament = request.params.idTournament;
             if (!gameId) {
-                return socket.close(4001, 'Missing idTournament');
+                return socket.send(`{"error" : 4001}`);
             }
     
             if (activeGameConn.has(userId)) {
-                return socket.close(4002, 'Already in a game');
+                return socket.send(JSON.stringify({error: "4003"}))
             }
 
             const game = await GamesManager.getGameById(Number(gameId));
             if (!game || !game.hasPlayer(userId)) {
-                return socket.close(4003, 'Not allowed to join this game');
+                return socket.send(`{"error" : 4003}`);
             }
     
             activeGameConn.set(userId, socket);
@@ -353,10 +352,9 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
                     activeGameConn.delete(userId);
                 }
-            });
+            }); 
     
             socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
-
 
             if (game.allConnected(game.players.length)) {
 
@@ -385,28 +383,10 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             socket.close(4000, 'Error joining game');
         }
     });
-    
-
-    // server.get('/api/game/status', async (request, reply) => {
-    //     try {
-    //         const codedtoken = request.cookies['ft_transcendence_jw_token'];
-    //         const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
-            
-    //         // const usersFriends = game.players.length == 2 ? usersFriends1v1 : usersFriends2v2;
-    //         return {
-    //             userId: decoded.id,
-    //             inMatchmaking: activeMatchmakingConn.has(decoded.id),
-    //             inGame: activeGameConn.has(decoded.id),
-    //             queuePosition: usersFriends.findIndex(user => user.id === decoded.id),
-    //             totalInQueue: usersFriends.length
-    //         };
-    //     } catch (error) {
-    //         reply.code(230).send({ "error": 'Invalid token' });
-    //     }
-    // });
 
     server.get<{ Params: fetchGameParams }>('/api/game/getGameStatus/:gameId', async (request, reply) => {
         try {
+            console.log("TEST")
             const codedtoken = request.cookies['ft_transcendence_jw_token'];
             const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
 
