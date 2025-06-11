@@ -274,6 +274,11 @@
       "Joueurs",
       "Giocatoris"
     ],
+    "friends": [
+      "Friends",
+      "Amis",
+      "Amici"
+    ],
     "player": [
       "Player",
       "Joueur",
@@ -303,6 +308,11 @@
       "You lose!",
       "Tu as perdu !",
       "Hai perso!"
+    ],
+    "start_the_game": [
+      "Start the game",
+      "Lancer la partie",
+      "Inizia il gioco"
     ]
 
 

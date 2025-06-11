@@ -14,7 +14,7 @@ export default function ChatMessage({profileLink = "", profileIco, username, hou
     return (
         <span className='flex flex-col space-y-[8px]'>
             <span className='flex items-center h-[42px] space-x-[16px] text-white'>
-                <ProfilePic profileLink={profileLink} image={profileIco}/>
+                <ProfilePic profileLink={profileLink} image={profileIco} className='h-[42px] w-[42px] min-w-[42px]'/>
                 <span className='text-light-yellow'>{username}</span>
                 <span className='bg-light-yellow rounded-full w-[5px] h-[5px]' ></span>
                 <span className='text-white font-thin'>{hour}</span>

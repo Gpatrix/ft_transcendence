@@ -44,16 +44,17 @@ type UserContactProps = {
     onClick?: React.MouseEventHandler<HTMLDivElement>;
     onClickIcone?: React.MouseEventHandler<HTMLButtonElement>;
     iconeType?: "supp" | "add";
+    profileLink?: string;
 
   } & VariantProps<typeof statusVariants> & VariantProps<typeof typeVariants>;
 
-export default function UserContact({className, userName, status='online', notifs = 0, type, image, children, nb, onClick, onClickIcone, iconeType = "add"} : UserContactProps) {
+export default function UserContact({className, userName, status='online', notifs = 0, type, image, children, nb, onClick, onClickIcone, iconeType = "add", profileLink=''} : UserContactProps) {
     
     return (
         <div data-nb={nb} data-status={status} tabIndex={0}
             className={clsx('userContact h-[50px] p-[4px] pink-shadow bg-grey relative', statusVariants( {status} ), typeVariants( {type} ) , className)} onClick={onClick}>
             <span className='flex items-center h-1/1'>
-                <ProfilePic profileLink='test.jpg' image={image} status={status} className={'h-1/3 min-w-[42px]'}/>
+                <ProfilePic profileLink={profileLink} image={image} status={status} className={'h-[42px] w-[42px] min-w-[42px]'}/>
                 <p className={clsx('w-fit font-bold ml-[8px]', typeVariants( {type} ) )}>{userName}</p>
             </span>
             {notifs != 0 && <p className='ml-auto mr-[4px] bg-light-red text-white 

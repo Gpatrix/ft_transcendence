@@ -56,6 +56,14 @@ export default function LeftChat({ setShowFriendPopup, friends, setFriends } : L
         setListFriends(friends);
     }, [friends])
 
+    useEffect(() => {
+        const newFriend: Friend[] = [...friends];
+        const friend = newFriend.find(friend => friend.id == activFriend);
+        if (friend)
+            friend.nbNotifs = 0;
+        setFriends(newFriend);
+    }, [])
+
     return (
         <div className="w-[15%] bg-dark border-0 border-r-1 border-yellow relative z-120 chat-pink-shadow ">
             <Button style="add" className="mt-3 block m-auto" onClick={() => setShowFriendPopup(true)}>{gpt("add_friend")}</Button>
@@ -80,6 +88,7 @@ export default function LeftChat({ setShowFriendPopup, friends, setFriends } : L
                         image={friend.profPicture}
                         notifs={friend.nbNotifs}
                         onClick={handleClicChangeActivFriend}
+                        profileLink={"/profile/"+friend.id}
                     />;
                 })}
             </div>
