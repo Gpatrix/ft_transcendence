@@ -388,28 +388,10 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             socket.close(4000, 'Error joining game');
         }
     });
-    
-
-    // server.get('/api/game/status', async (request, reply) => {
-    //     try {
-    //         const codedtoken = request.cookies['ft_transcendence_jw_token'];
-    //         const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
-            
-    //         // const usersFriends = game.players.length == 2 ? usersFriends1v1 : usersFriends2v2;
-    //         return {
-    //             userId: decoded.id,
-    //             inMatchmaking: activeMatchmakingConn.has(decoded.id),
-    //             inGame: activeGameConn.has(decoded.id),
-    //             queuePosition: usersFriends.findIndex(user => user.id === decoded.id),
-    //             totalInQueue: usersFriends.length
-    //         };
-    //     } catch (error) {
-    //         reply.code(230).send({ "error": 'Invalid token' });
-    //     }
-    // });
 
     server.get<{ Params: fetchGameParams }>('/api/game/getGameStatus/:gameId', async (request, reply) => {
         try {
+            console.log("TEST")
             const codedtoken = request.cookies['ft_transcendence_jw_token'];
             const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
 

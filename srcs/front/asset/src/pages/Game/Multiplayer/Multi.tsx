@@ -45,20 +45,17 @@ export default function Multi() {
         isPausedRef.current = paused;
     };
 
-    // Fonction pour demander l'état actuel du jeu
     const requestGameState = () => {
         if (socket.current && socket.current.readyState === WebSocket.OPEN) {
             socket.current.send(JSON.stringify({ action: "getState" }));
         }
     };
 
-    // Fonction pour configurer les event listeners de la WebSocket
     const setupWebSocketListeners = (ws: WebSocket) => {
         ws.onopen = () => {
             console.log("WebSocket connected");
             setIsConnected(true);
             setDisconnect(false);
-            // Demander l'état actuel du jeu dès la connexion
             setTimeout(() => requestGameState(), 100);
         };
 
@@ -118,20 +115,17 @@ export default function Multi() {
         };
 
         ws.onclose = (event) => {
-            console.log("WebSocket disconnected:", event.code, event.reason);
             setIsConnected(false);
             
             if (!end && event.code !== 1000) {
                 setDisconnect(true);
                 reconnectTimeoutRef.current = setTimeout(() => {
-                    console.log("Attempting to reconnect...");
                     initializeWebSocket();
                 }, 3000);
             }
         };
 
         ws.onerror = (err: Event) => {
-            console.error("WebSocket error:", err);
             setIsConnected(false);
         };
     };
@@ -154,7 +148,6 @@ export default function Multi() {
             socket.current = ws;
             setupWebSocketListeners(ws);
         } catch (error) {
-            console.error("Failed to create WebSocket:", error);
             setError(get_server_translation("0500"));
         }
     };
@@ -173,12 +166,14 @@ export default function Multi() {
                 const response = await fetch(
                     `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/game/getGameStatus/${game}`
                 );
-
-                const data = await response.json();
+                
                 if (response.status === 200) {
                     initializeWebSocket();
                     return 0;
-                } else {
+                } 
+                else {
+                    const data = await response.json();
+                    console.log(data.error)
                     setError(get_server_translation(data.error));
                     return 1;
                 }
@@ -223,7 +218,7 @@ export default function Multi() {
         <div className="relative">
             {error && 
                 <span className='w-[80vw] md:w-[500px] gap-8 flex flex-col text-yellow items-center'>
-                    <h2>{get_server_translation(error)}</h2>
+                    <h2>{error}</h2>
                     <Link to={"/"} className="w-full">
                         <Button type="full" className="w-full z-1000">{gpt("back_to_home")}</Button>
                     </Link>
