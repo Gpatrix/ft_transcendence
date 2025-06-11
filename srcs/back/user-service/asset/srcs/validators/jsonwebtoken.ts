@@ -20,5 +20,4 @@ export default function isConnected(request: any, reply: any, done: any)
     catch (error) {
         return (reply.status(230).send({ error: "0403" }));
     }
-    done();
 }
