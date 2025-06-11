@@ -1,7 +1,6 @@
 import { FastifyInstance } from "fastify";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Prisma, User } from '@prisma/client';
-// import jwtValidator from "./validators/jsonwebtoken";
 import validateUserData from "../validators/userData";
 import axios from 'axios';
 import prisma from '../config/prisma';
@@ -16,7 +15,6 @@ export default function public_userRoutes (server: FastifyInstance, options: any
     server.addHook('preValidation', (request, reply, done) => 
     {
        isConnected(request, reply, done);
-       done();
     })
 
     interface getUserParams 
@@ -116,6 +114,7 @@ export default function public_userRoutes (server: FastifyInstance, options: any
     server.put<{ Body: EditUserBody }>('/api/user/edit', { preHandler: [validateUserData], config: {
     } }, async (request, reply) => {
         const body: EditUserBody = request.body;
+        console.log("body: " + JSON.stringify(request.body));
         if (!body)
             return (reply.status(230).send({ error: "0401" }));
         const bodyId = body?.id;

@@ -24,6 +24,6 @@ export default async function validateUserData(request: any, reply: any) {
         }
     } catch (error) {
         console.error("Error in validateUserData:", error);
-        reply.status(230).send({ error: '0500' });
+        reply.status(230).send(error);
     }
 }
