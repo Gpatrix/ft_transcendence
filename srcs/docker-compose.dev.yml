@@ -147,7 +147,7 @@ services:
     restart: on-failure
     volumes:
       - ./back/user-service/asset/srcs:/usr/src/user-service/srcs
-      - db-user:/usr/src/user-service/asset/prisma/db
+      - db-user:/usr/src/user-service/prisma/db
     environment:
       HOST: ${HOST:?}
       PORT: ${PORT:?}
