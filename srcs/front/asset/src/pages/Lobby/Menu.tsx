@@ -38,7 +38,7 @@ export function MenuLink({link, label} : MenuLinkProps) {
 export function MenuDropDown({ label, first, second, firstLink, secondLink, third, thirdLink }: MenuLinkProps) {
     const [state, setState] = useState<boolean>(false)
     const [fold, setFold] = useState<boolean>(false)
-  
+
     return (
 
       <span
@@ -109,6 +109,8 @@ export default function Menu() {
             <MenuDropDown label={gpt("multiplayer")} 
                           first={gpt("matchmaking")}
                           firstLink="/lobby/matchmaking" 
+                          second={gpt("play_with_friends")} 
+                          secondLink="/lobby/friendLoby"
                           />
 
             <MenuDropDown label={gpt("local_game")} 

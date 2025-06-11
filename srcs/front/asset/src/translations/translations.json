@@ -18,6 +18,7 @@
     
     "forgotten": ["Forgotten password ?", "Mot de passe oublié ?", "Password dimenticata?"],
     "connexion": ["Log in", "Connexion", "Accedi"],
+    "logout": ["Logout", "Déconnexion", "Esci"],
     "or": ["OR", "OU", "O"],
     "register": ["Sign up for free", "S'inscrire gratuitement", "Iscriviti gratuitamente"],
     "login": ["Already have an account?", "Se connecter", "Hai déjà un account?"],
@@ -314,11 +315,10 @@
       "Lancer la partie",
       "Inizia il gioco"
     ],
-    "invited_you" : [
+    "invited_you": [
       "invited you !",
       "vous a invité !",
       "ti ho invitato!"
     ]
-
   }    
 }

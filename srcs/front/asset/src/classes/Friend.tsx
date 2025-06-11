@@ -92,8 +92,14 @@ class Friend extends User {
 
                 if (typeof userRes == "string")
                     return (userRes)
-                else
-                    friends.push(new Friend(req.friendUserId, userRes.name, userRes.email, userRes.profPicture, userRes.bio, userRes.lang, userRes.isTwoFactorEnabled, userRes.rank));
+                else {
+                    const responseConnected = await fetch(`/api/chat/isconnected/${userRes.id}`, requestData);
+                    const dataReponseConnected = await responseConnected.json();
+                    let connected = false;
+                    if (dataReponseConnected.value)
+                        connected = dataReponseConnected.value;
+                    friends.push(new Friend(req.friendUserId, userRes.name, userRes.email, userRes.profPicture, userRes.bio, userRes.lang, userRes.isTwoFactorEnabled, userRes.rank, connected));
+                }
             }
             return (friends);
 

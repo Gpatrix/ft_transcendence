@@ -6,7 +6,7 @@ import WebSocketComponent from "./pages/Auth/WebSocketComponent";
 type AuthContextType = {
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
-    logout: () => void;
+    logout: (socket: WebSocket | null) => void;
     fetchWithAuth: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
     setLogged: ()=> void;
 };
@@ -57,8 +57,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         navigate("/");
     };
 
-    const logout = () => {
-        fetch("/api/auth/logout", { method: "DELETE" });
+    const logout = (socket: WebSocket | null) => {
+        fetch("/api/auth/logout", { method: "DELETE", credentials: "include" }).then(() => {
+          if (socket)
+              socket.close();
+        })
         setIsAuthenticated(false);
         navigate("/login");
     };

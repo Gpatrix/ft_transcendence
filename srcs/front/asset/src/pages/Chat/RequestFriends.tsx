@@ -37,14 +37,8 @@ export default function RequestFriends({ setFriends } : RequestFriendsProps) {
                 const response: Friend[] | string = await Friend.getFriends();
                 if (typeof response != "string")
                 {
-                    // IL FAUT MODIFIER CA !
-
-                    response.forEach(friend => {
-                        friend.toggleConnected();
-                    });
-                    
                     setFriends(response);
-                    setErrorCode("");   
+                    setErrorCode("");
                 } else {
                     setErrorCode(response);   
                 }
