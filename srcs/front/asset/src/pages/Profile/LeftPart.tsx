@@ -7,6 +7,7 @@ import { useAuth } from "../../AuthProvider"
 import LoginErrorMsg from "../../components/LoginErrorMsg"
 import { get_server_translation } from "../../translations/server_responses"
 import { useEffect } from "react"
+import FormData from 'form-data';
 
 interface LeftPartProps {
     data : ProfileDataType
@@ -31,7 +32,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     const [newProfPicture, setNewProfPicture] = useState("")
     const [isOnline, setIsOnline] = useState<boolean>(false)
 
-    const MAX_FILE_SIZE = 200000;
+    const MAX_FILE_SIZE = 2000000;
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const validImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
@@ -55,26 +56,29 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     };
 
     const handleSubmit = async () => {
+        console.log("handleSubmit called with file:", file);
         if (!file) {
             setError(gpt("no_file"));
             setFile(undefined)
+            console.error("No file selected");
             return;
         }
 
         if (file.size > MAX_FILE_SIZE) {
             setError(gpt("big_file"));
             setFile(undefined)
+            console.error("File size exceeds the limit");
             return;
         }
         const form = new FormData();
-        form.append("image", file);
+        form.append('file', file, file.name);
+        console.log(file)
 
         try {
-            const response = await fetchWithAuth("/api/user/edit", {
-                signal: AbortSignal.timeout(5000),
-                method: "PUT",
+            const response = await fetch ("https://localhost:3000/api/upload/", {
+                method: "POST",
                 body: form,
-            }); 
+            });
 
             if (response.status == 200) {
                 window.location.reload();
@@ -84,6 +88,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 setFile(undefined)
             }
         } catch (err: any) {
+            console.error("Error uploading file:", err);
             if (err.name === "AbortError") {
                 setError(gpt("abort_error"));
             } else {
