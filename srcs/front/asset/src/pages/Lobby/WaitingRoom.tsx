@@ -2,8 +2,9 @@ import { useEffect } from "react"
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-export default function WaitingRoom() {
-    const [setSocket] = useState<WebSocket | null>(null);
+export default function WaitingRoom()
+{
+    const [socket, setSocket] = useState<WebSocket | null>(null);
     const navigate = useNavigate()
 
     const { gameId, tournamentId } = useParams();
