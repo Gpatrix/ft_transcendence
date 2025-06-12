@@ -29,6 +29,7 @@ scrape_configs:
     static_configs:
       - targets: ['auth-service:3000']
 
+
   - job_name: 'game'
 
     scrape_interval: 10s
@@ -49,3 +50,10 @@ scrape_configs:
 
     static_configs:
       - targets: ['user-service:3000']
+
+  - job_name: 'node_export'
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ['auth-service:9100', 'chat-service:9100', 'user-service:9100', 'upload-service:9100', 'game-service:9100', front-service:9100]

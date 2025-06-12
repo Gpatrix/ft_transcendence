@@ -106,48 +106,56 @@
             {
               "matcher": {
                 "id": "byName",
-                "options": "Value #scrap"
+                "options": "CPU load"
               },
               "properties": [
                 {
+                  "id": "custom.minWidth",
+                  "value": 100
+                },
+                {
                   "id": "custom.cellOptions",
                   "value": {
-                    "mode": "lcd",
+                    "mode": "gradient",
                     "type": "gauge",
                     "valueDisplayMode": "color"
                   }
                 },
                 {
-                  "id": "thresholds",
-                  "value": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "#EAB839",
-                        "value": 0.25
-                      },
-                      {
-                        "color": "semi-dark-orange",
-                        "value": 0.5
-                      },
-                      {
-                        "color": "dark-red",
-                        "value": 1
-                      }
-                    ]
-                  }
+                  "id": "max",
+                  "value": 100
                 },
                 {
                   "id": "unit",
-                  "value": "s"
+                  "value": "percent"
+                },
+                {
+                  "id": "custom.width",
+                  "value": 403
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "memory"
+              },
+              "properties": [
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "mode": "basic",
+                    "type": "gauge",
+                    "valueDisplayMode": "color"
+                  }
                 },
                 {
                   "id": "max",
-                  "value": 0.75
+                  "value": 100
+                },
+                {
+                  "id": "unit",
+                  "value": "percent"
                 }
               ]
             },
@@ -159,7 +167,31 @@
               "properties": [
                 {
                   "id": "custom.width",
-                  "value": 197
+                  "value": 196
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Value #cpu load"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 307
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "status"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 83
                 }
               ]
             }
@@ -193,8 +225,8 @@
               "uid": "P1809F7CD0C75ACF3"
             },
             "disableTextWrap": false,
-            "editorMode": "code",
-            "expr": "service:status:now{job=~\"$job\", instance=~\"$instance\"}",
+            "editorMode": "builder",
+            "expr": "service:status:now{job=~\"node_export\"}",
             "format": "table",
             "fullMetaSearch": false,
             "hide": false,
@@ -213,16 +245,31 @@
             "disableTextWrap": false,
             "editorMode": "builder",
             "exemplar": false,
-            "expr": "scrape_duration_seconds{job=~\"$job\", instance=~\"$instance\"}",
+            "expr": "node_load1{job=~\"node_export\"}",
             "format": "table",
             "fullMetaSearch": false,
             "hide": false,
             "includeNullMetadata": true,
-            "instant": true,
+            "instant": false,
             "legendFormat": "",
-            "range": false,
-            "refId": "scrap",
+            "range": true,
+            "refId": "cpu load",
             "useBackend": false
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P1809F7CD0C75ACF3"
+            },
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "(1 - (node_memory_MemAvailable_bytes{job=~\"$job\", instance=~\"$instance\"} / node_memory_MemTotal_bytes{job=~\"$job\", instance=~\"$instance\"})) * 100",
+            "format": "table",
+            "hide": false,
+            "instant": false,
+            "legendFormat": "",
+            "range": true,
+            "refId": "memory"
           }
         ],
         "title": "Servce status",
@@ -306,6 +353,9 @@
                 "Value #H": "Probe IP",
                 "Value #auth": "status",
                 "Value #chat": "status",
+                "Value #cpu load": "CPU load",
+                "Value #load": "cpu load",
+                "Value #memory": "memory",
                 "Value #scrap": "scrap time",
                 "Value #service-status": "status",
                 "instance": "Instance",
@@ -410,7 +460,7 @@
             "disableTextWrap": false,
             "editorMode": "builder",
             "exemplar": false,
-            "expr": "rate(service_requests_total[1m])",
+            "expr": "rate(service_requests_total[$__rate_interval])",
             "fullMetaSearch": false,
             "includeNullMetadata": false,
             "instant": false,
@@ -420,7 +470,7 @@
             "useBackend": false
           }
         ],
-        "title": "Servie request rate (1 min)",
+        "title": "Servie request rate",
         "type": "timeseries"
       },
       {
@@ -498,7 +548,7 @@
       }
     ],
     "preload": false,
-    "refresh": "30s",
+    "refresh": "10s",
     "schemaVersion": 40,
     "tags": [
       "prometheus"
@@ -561,6 +611,6 @@
     "timezone": "",
     "title": "ft_transcendence",
     "uid": "NEzutqgErbMk",
-    "version": 2,
+    "version": 1,
     "weekStart": ""
   }
