@@ -72,7 +72,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
         console.log(file)
 
         try {
-            const response = await fetch ("https://localhost:3000/api/upload/", {
+            const response = await fetch (`https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/upload/`, {
                 method: "POST",
                 body: form,
             });

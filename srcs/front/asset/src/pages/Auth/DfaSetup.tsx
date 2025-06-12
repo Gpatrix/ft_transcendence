@@ -22,6 +22,7 @@ export default function DfaSetup() {
                     setError(json.message)
                     return ;
                 }
+                console.log(json)
                 setQr(json.data_url)
             }
             catch (error) {
