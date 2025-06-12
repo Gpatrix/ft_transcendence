@@ -23,7 +23,7 @@ const GoogleAuth: React.FC = () => {
     
 
     const params = new URLSearchParams({
-      client_id: '655477694884-0gpn1v45ufq5l1neu7na5a8vifl6rptf.apps.googleusercontent.com',
+      client_id: '655477694884-4k2r9k84cf4h3hpdf8060kem31irtv4l.apps.googleusercontent.com',
       redirect_uri: `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/auth/login/google/callback`,
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
