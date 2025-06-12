@@ -62,14 +62,16 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                 bio: true,
                 profPicture: true,
                 rank: true,
+                provider: true
             };
             let id : string | number = request.params.id;
             if (id.length == 0) {
                 id = callerId;
-                selectFields.id = true,
-                selectFields.email = true,
-                selectFields.lang = true,
-                selectFields.isTwoFactorEnabled = true
+                selectFields.id = true;
+                selectFields.email = true;
+                selectFields.lang = true;
+                selectFields.isTwoFactorEnabled = true;
+                selectFields.provider = true;
             }
             const data = await prisma.user.findUnique({
                 where: { id: Number(id) },
@@ -100,13 +102,14 @@ export default function public_userRoutes (server: FastifyInstance, options: any
     {
         id?: number,
         name?: string,
-        password?: string,
-        newPassword?: string,
+        actual_password?: string,
+        new_password?: string,
         bio?: string,
         lang?: string,
         profPicture?: string,
         isTwoFactorEnabled?: string
         image?: string
+        provider?: string
     }
 
     async function getEditUserBody(parts: any): Promise<Partial<EditUserBody>>
@@ -117,30 +120,32 @@ export default function public_userRoutes (server: FastifyInstance, options: any
         
             switch (part.fieldname)
             {
-              case "id":
-                body.id = Number(part.value);
-                break;
-              case "name":
-                body.name = part.value;
-                break;
-              case "bio":
-                body.bio = part.value;
-                break;
-              case "lang":
-                body.lang = part.value;
-                break;
-              case "password":
-                body.password = part.value;
-                break;
-              case "newPassword":
-                body.newPassword = part.value;
-                break;
-              case "profPicture":
-                body.profPicture = part.value;
-                break;
-              case "isTwoFactorEnabled":
-                body.isTwoFactorEnabled = part.value === "true";
-                break;
+                case "provider":
+                    body.provider = part.provider
+                case "id":
+                    body.id = Number(part.value);
+                    break;
+                case "name":
+                    body.name = part.value;
+                    break;
+                case "bio":
+                    body.bio = part.value;
+                    break;
+                case "lang":
+                    body.lang = part.value;
+                    break;
+                case "actual_password":
+                    body.actual_password = part.value;
+                    break;
+                case "new_password":
+                    body.new_password = part.value;
+                    break;
+                case "profPicture":
+                    body.profPicture = part.value;
+                    break;
+                case "isTwoFactorEnabled":
+                    body.isTwoFactorEnabled = part.value === "true";
+                    break;
             }
           }
         return (body);
@@ -150,7 +155,6 @@ export default function public_userRoutes (server: FastifyInstance, options: any
     } }, async (request, reply) => {
         
         const body: EditUserBody = await getEditUserBody( request.parts());
-        console.log("body: " + JSON.stringify(request.body));
         if (!body)
             return (reply.status(230).send({ error: "0401" }));
         const bodyId = body?.id;
@@ -161,6 +165,7 @@ export default function public_userRoutes (server: FastifyInstance, options: any
         if (tokenPayload.isAdmin && bodyId)
             tokenPayload.id = bodyId;
         try {
+            console.log('body', body)
             const updateData: UserData = {};
             if (body.name)
                 updateData.name = body.name;
@@ -168,9 +173,24 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                 updateData.bio = body.bio;
             if (body.lang)
                 updateData.lang = body.lang;
-            if (body.newPassword)
-                updateData.newPassword = body.newPassword;
-            if (body.isTwoFactorEnabled)
+            if (body.new_password && !(body.provider))
+            {
+                const requestData = {
+                    method :  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ new_password: body.new_password, token, actual_password: body.actual_password })
+                }
+                const response = await fetch('http://auth-service:3000/api/auth/passwordReset/submit', requestData);
+                console.log('response', response)
+                if (response.status != 200)
+                {
+                    const resJson = await response.json();
+                    const error = resJson.error || "0500";
+                    console.log('resJson', resJson);
+                    reply.status(230).send({ error });
+                }
+            }
+            if (body.isTwoFactorEnabled && !(body.provider))
                 updateData.isTwoFactorEnabled = JSON.parse(body.isTwoFactorEnabled);
             const foundUser = await prisma.user.findUnique({
                 where: {
