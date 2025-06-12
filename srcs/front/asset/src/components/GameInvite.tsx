@@ -19,8 +19,9 @@ export default function GameInvite({link, username}: GameInviteProps) {
     useEffect(()=> {
         const splitted = link.substr(7).replaceAll("*","").split("/")
         const id = splitted[splitted.length - 1]
+        // alert(`ID: ${id}`)
         setRoom(id)
-    }, [])
+    }, [link])
 
     return (
         room ? (

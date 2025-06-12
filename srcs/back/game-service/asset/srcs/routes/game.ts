@@ -109,8 +109,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 const action = object?.action;
                 const pongGame = GamesManager.findGame(gameId);
                 if (!action || !pongGame) return;
-            
-                console.log(object)
+
 
                 const caller = pongGame.players.find((player) => player.ws === socket);
                 if (!caller) return ;
@@ -185,7 +184,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             const mode = parseInt(request.query.mode || '2');
             const users = (mode === 4) ? users2v2 : users1v1;
             if (!mode) {
-                return socket(JSON.stringify({error: "4004"}))
+                return socket.send(JSON.stringify({error: "4004"}))
             }
 
             activeMatchmakingConn.set(userId, socket);
@@ -243,15 +242,11 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
         }
     });
 
-
-
-
     // create game friend :
     server.post('/api/game/friendMatch/create', async (request, reply) => {
         const body = request.body as { userIds: number[] };
         const userIds = body.userIds;
         
-    
         if (!Array.isArray(userIds) || (userIds.length != 2 && userIds.length != 4)) {
             return reply.status(230).send({ error: '4008' }); // format invalid // ajouter cette erreur au wiki
         }
@@ -297,10 +292,7 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
         }
     });
 
-
-
-
-    // // joindre la game :
+    // joindre la game - VERSION CORRIGÉE
     server.get('/api/game/join/:gameId/:idTournament', { websocket: true }, async (socket: WebSocket, request: any) => {
         let userId: number | null = null;
     
@@ -309,29 +301,28 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
             userId = decoded.id;
     
-            const url = new URL(request.url, `http://${request.headers.host}`);
-
             const gameId = request.params.gameId;
-            if (!gameId) {
-                return socket.send(`{"error" : 4001}`);
-            }
             const idTournament = request.params.idTournament;
-            if (!gameId) {
-                return socket.send(`{"error" : 4001}`);
+            
+            if (!gameId || !idTournament) {
+                return socket.send(JSON.stringify({error: "4001"}));
             }
-    
+
             if (activeGameConn.has(userId)) {
-                return socket.send(JSON.stringify({error: "4003"}))
+                const oldSocket = activeGameConn.get(userId);
+                if (oldSocket && oldSocket.readyState === WebSocket.OPEN) {
+                    oldSocket.close(1000, 'New connection');
+                }
+                activeGameConn.delete(userId);
             }
 
             const game = await GamesManager.getGameById(Number(gameId));
             if (!game || !game.hasPlayer(userId)) {
-                return socket.send(`{"error" : 4003}`);
+                return socket.send(JSON.stringify({error: "4003"}));
             }
     
             activeGameConn.set(userId, socket);
             game.addSocket(userId, socket);
-
             game.markPlayerConnected(userId);
     
             socket.on('close', () => {
@@ -349,30 +340,44 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     
             socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
 
+            // CORRECTION PRINCIPALE : Vérifier si TOUS les joueurs sont connectés avant de créer une room
             if (game.allConnected(game.players.length)) {
-
                 const usersFriends = game.players.length == 2 ? usersFriends1v1 : usersFriends2v2;
-                const roomId : string = usersFriends.createFriendRoom(game.players)
-                game.players.forEach(user => {
+                
+                // Créer UNE SEULE room pour TOUS les joueurs de cette game
+                const roomId : string = usersFriends.createFriendRoom(game.players);
+                
+                // Notifier TOUS les joueurs de la même game avec le même roomId
+                game.players.forEach(player => {
                     try {
-                        user.ws.send(JSON.stringify({ 
-                            message: 'gameLaunched', 
-                            gameId: game.id, 
-                            tournamentId: idTournament,
-                            roomId: roomId
-                        }));
-                        
-                        user.ws.close(1000, 'All players ready for the game');
+                        if (player.ws && player.ws.readyState === WebSocket.OPEN) {
+                            player.ws.send(JSON.stringify({ 
+                                message: 'gameLaunched', 
+                                gameId: game.id, 
+                                tournamentId: idTournament,
+                                roomId: roomId
+                            }));
+                            
+                            player.ws.close(1000, 'All players ready for the game');
+                        }
                     } catch (error) {
-                        console.log(`Error notifying user ${user.id}:`, error);
+                        console.log(`Error notifying user ${player.id}:`, error);
+                    }
+                });
+
+                // Nettoyer les connexions après avoir lancé la game
+                game.players.forEach(player => {
+                    if (activeGameConn.has(player.id)) {
+                        activeGameConn.delete(player.id);
                     }
                 });
             }
-
-            
     
         } catch (err) {
             console.log('Error during game join:', err);
+            if (userId && activeGameConn.has(userId)) {
+                activeGameConn.delete(userId);
+            }
             socket.close(4000, 'Error joining game');
         }
     });
@@ -399,7 +404,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             if (!isInvited)
                 return (reply.status(230).send({error: '4512'}));
 
-
             return (reply.status(200).send({OK : "OK"}));
         } catch (error) {
             console.log("ERROR:" , error)
@@ -410,5 +414,4 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
     done();
 }
 
-// export default gameRoutes;
 module.exports = gameRoutes;

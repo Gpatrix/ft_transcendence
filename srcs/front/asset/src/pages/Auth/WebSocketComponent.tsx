@@ -80,7 +80,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
             if (event.data) {
                 try {
                     const data = JSON.parse(event.data);
-                    
+                    console.log(data)
                     if (ws && ws.readyState === WebSocket.OPEN) {
                         
                         if (data.action)
