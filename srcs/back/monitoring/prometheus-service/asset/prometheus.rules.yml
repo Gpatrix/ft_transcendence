@@ -9,5 +9,5 @@ groups:
       - record: service_requests_total
         expr: |
           sum by (job) (
-            {__name__=~"(auth|chat|game|upload|user|blockchain)_requests_total"}
+            {__name__=~"(auth|chat|game|upload|user)_requests_total"}
           )

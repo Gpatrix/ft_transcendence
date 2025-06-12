@@ -49,10 +49,3 @@ scrape_configs:
 
     static_configs:
       - targets: ['user-service:3000']
-
-  - job_name: 'blockchain'
-
-    scrape_interval: 10s
-
-    static_configs:
-      - targets: ['blockchain-service:3000']
