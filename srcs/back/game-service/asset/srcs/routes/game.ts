@@ -284,6 +284,8 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             if (!tournament) {
                 return reply.status(500).send({ error: 'Game creation failed' });
             }
+            console.log(tournament);
+            
 
             return reply.status(200).send({ 
                 success: true, 
