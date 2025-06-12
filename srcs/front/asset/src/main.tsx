@@ -51,7 +51,6 @@ createRoot(document.getElementById('root')!).render(
             <Route element={<ProfileBackground/>}>
               <Route path="/profile" element={<MyProfile />}/>
               <Route path="/profile/:id" element={<OthersProfile />}/>
-              {/* <Route path="/profile/tournament" element={<LocalTournamentHistory />}/> */}
             </Route>
 
             <Route element={<LobbyLayout />}>

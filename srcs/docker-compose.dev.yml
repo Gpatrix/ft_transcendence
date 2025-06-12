@@ -115,33 +115,6 @@ services:
     networks:
       - router
 
-  blockchain-service:
-    container_name: blockchain-service
-    restart: on-failure
-    volumes:
-      - ./back/blockchain-service/asset/srcs:/usr/src/blockchain-service/srcs
-    environment:
-      HOST: ${HOST:?}
-      PORT: ${PORT:?}
-      API_CREDENTIAL: ${API_CREDENTIAL:?}
-      NODE_ENV: dev
-      SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
-      FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
-      FUJI_RPC_URL: ${FUJI_RPC_URL:?}
-      AVALANCHE_RPC_URL: ${AVALANCHE_RPC_URL:?}
-      AVALANCHE_CHAIN_ID: ${AVALANCHE_CHAIN_ID:?}
-    build:
-        context: ./back/blockchain-service
-        dockerfile: Dockerfile
-        args:
-          NODE_ENV: dev
-    expose:
-      - 3000
-    ports:
-      - 8545:8545
-    networks:
-      - router
-
   user-service:
     container_name: user-service
     restart: on-failure
@@ -199,23 +172,23 @@ services:
     expose:
       - 3000
 
-  # alertmanager-service:
-  #   container_name: alertmanager-service
-  #   restart: on-failure
-  #   build:
-  #       context: ./back/monitoring/alertmanager-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
-  #         ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
-  #         ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
-  #         ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
-  #         ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
-  #         ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
-  #   networks:
-  #     - router
-  #   expose:
-  #     - 9093
+  alertmanager-service:
+    container_name: alertmanager-service
+    restart: on-failure
+    build:
+        context: ./back/monitoring/alertmanager-service
+        dockerfile: Dockerfile
+        args:
+          GRAFANA_ADMIN_SECRET_KEY: ${GRAFANA_ADMIN_SECRET_KEY:?}
+          ALERTMANAGER_SMTP_SMARTHOST:  ${ALERTMANAGER_SMTP_SMARTHOST:?}
+          ALERTMANAGER_SMTP_FROM:  ${ALERTMANAGER_SMTP_FROM:?}
+          ALERTMANAGER_SMTP_AUTH_USERNAME:  ${ALERTMANAGER_SMTP_AUTH_USERNAME:?}
+          ALERTMANAGER_SMTP_AUTH_PASSWORD:  ${ALERTMANAGER_SMTP_AUTH_PASSWORD:?}
+          ALERTMANAGER_TARGET_MAIL:  ${ALERTMANAGER_TARGET_MAIL:?}
+    networks:
+      - router
+    expose:
+      - 9093
 
   front-service:
     container_name: front-service
@@ -242,7 +215,6 @@ volumes:
   db-user:
   db-game:
   db-upload:
-  db-blockchain:
   db-monitoring:
 
 networks:

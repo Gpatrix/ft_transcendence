@@ -7,7 +7,6 @@ interface GetPlayerHistoryReturnPlayer
     id: number;
     userId: number;
     score: number;
-    scoreFromBlockchain: number | undefined;  
 }
 
 interface GetPlayerHistoryReturn

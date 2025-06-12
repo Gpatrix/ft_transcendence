@@ -410,7 +410,7 @@
             "disableTextWrap": false,
             "editorMode": "builder",
             "exemplar": false,
-            "expr": "rate(service_requests_total[$__rate_interval])",
+            "expr": "rate(service_requests_total[1m])",
             "fullMetaSearch": false,
             "includeNullMetadata": false,
             "instant": false,
@@ -420,7 +420,7 @@
             "useBackend": false
           }
         ],
-        "title": "Servie request rate",
+        "title": "Servie request rate (1 min)",
         "type": "timeseries"
       },
       {
@@ -561,6 +561,6 @@
     "timezone": "",
     "title": "ft_transcendence",
     "uid": "NEzutqgErbMk",
-    "version": 5,
+    "version": 2,
     "weekStart": ""
   }
