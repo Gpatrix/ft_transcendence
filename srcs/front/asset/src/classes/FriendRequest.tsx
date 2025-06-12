@@ -74,8 +74,7 @@ class FriendRequest {
             return (dataReponse.error)
         } catch (error) {
             this.author = undefined;
-            console.log(error);
-            
+
             return ("0500")
         }
     }

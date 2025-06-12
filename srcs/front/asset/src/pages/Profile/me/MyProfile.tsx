@@ -46,8 +46,7 @@ export default function MyProfile() {
                     provider: data.provider || null
                 }));
             })
-            .catch((error) => {
-                console.error("Error :", error);
+            .catch(() => {
             });
     }
     useAuthChecker()

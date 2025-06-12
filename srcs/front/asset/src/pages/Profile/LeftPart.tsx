@@ -53,26 +53,22 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     };
 
     const handleSubmit = async () => {
-        console.log("handleSubmit called with file:", file);
         if (!file) {
             setError(gpt("no_file"));
             setFile(undefined)
-            console.error("No file selected");
             return;
         }
 
         if (file.size > MAX_FILE_SIZE) {
             setError(gpt("big_file"));
             setFile(undefined)
-            console.error("File size exceeds the limit");
             return;
         }
         const form: FormData = new FormData();
         form.append('file', file as File, file?.name ?? 'upload');
-        console.log(file)
 
         try {
-            const response = await fetch ("https://localhost:3000/api/upload/", {
+            const response = await fetch (`https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/upload/`, {
                 method: "POST",
                 body: form,
             });
@@ -85,7 +81,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 setFile(undefined)
             }
         } catch (err: any) {
-            console.error("Error uploading file:", err);
             if (err.name === "AbortError") {
                 setError(gpt("abort_error"));
             } else {
@@ -114,7 +109,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 const res = await fetchWithAuth(`/api/chat/isconnected/${params.id}`);
                 if (res.status == 200) {
                     const data = await res.json()
-                    console.log(data)
                     setIsOnline(data.value)
                 }
                 else {

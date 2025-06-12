@@ -17,14 +17,13 @@ const GoogleAuth: React.FC = () => {
     });
 
     if (!import.meta.env.VITE_HOST || !import.meta.env.VITE_PORT) {
-      console.error("Environment variables HOST and PORT are not set.");
       return;
     }
 
     
 
     const params = new URLSearchParams({
-      client_id: '126523871891-i2jnhvg2mgo847mbbkpmio7nj4ikepdp.apps.googleusercontent.com',
+      client_id: '655477694884-0gpn1v45ufq5l1neu7na5a8vifl6rptf.apps.googleusercontent.com',
       redirect_uri: `https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/auth/login/google/callback`,
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',

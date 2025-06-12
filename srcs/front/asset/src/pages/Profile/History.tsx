@@ -40,16 +40,14 @@ export default function History({ playerId }: { playerId: number }) {
           gameDate: new Date(match.gameDate)
         }));
         setMatches(parsedGames);
-      } catch (err) {
-        console.error("Erreur fetch:", err);
+      } catch {
         setMatches([]);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchHistory().catch((error) => {
-      console.error("Error fetching match history:", error);
+    fetchHistory().catch(() => {
     });
   }, [playerId]); 
 
