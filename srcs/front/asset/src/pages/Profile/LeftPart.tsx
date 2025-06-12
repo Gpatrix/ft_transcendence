@@ -162,7 +162,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 <h2 className="w-fit mr-auto ml-auto text-light-yellow text-4xl font-bold">{data.name}</h2>
                 { statsData &&
                 <span className="w-full mt-5 ml-auto mr-auto  flex flex-col p-7 rounded-3xl shadow-2xl">
-                    <span className="text-yellow text-xl ml-auto mr-auto"> {gpt("victory_rate")} : {statsData.winRate}%</span>
+                    <span className="text-yellow text-xl ml-auto mr-auto"> {gpt("victory_rate")} : {Math.round((statsData.wins / (statsData.wins + statsData.looses)) * 100)}%</span>
                     <div className="w-full h-[1px] bg-yellow/20 my-4"></div>
                     <span className="flex justify-evenly ">
                         <span className="text-yellow text-bold">{statsData.wins} {gpt("victory")} </span>
@@ -173,10 +173,10 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 }
             </span>
             { data.bio &&
-            <span className="flex-col mt-[32px] w-[350px]">
+            <span className="flex-col mt-[32px] w-[350px] ">
                 <span className="text-yellow w-full">{gpt("bio")}:</span>
 
-                <p className="p-2 px-4 mt-[10px] break-words min-h-[100px] w-1/1 whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow w-full">
+                <p className="p-2 px-4 mt-[10px] break-words min-h-[100px] h-[120px] overflow-y-scroll w-1/1 whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow w-full">
                     {data.bio}
                 </p>
             </span>}
