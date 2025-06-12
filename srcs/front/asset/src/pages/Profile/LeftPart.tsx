@@ -57,14 +57,12 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
         if (!file) {
             setError(gpt("no_file"));
             setFile(undefined)
-            console.error("No file selected");
             return;
         }
 
         if (file.size > MAX_FILE_SIZE) {
             setError(gpt("big_file"));
             setFile(undefined)
-            console.error("File size exceeds the limit");
             return;
         }
         const form: FormData = new FormData();
@@ -85,7 +83,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 setFile(undefined)
             }
         } catch (err: any) {
-            console.error("Error uploading file:", err);
             if (err.name === "AbortError") {
                 setError(gpt("abort_error"));
             } else {

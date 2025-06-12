@@ -155,8 +155,7 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
                                     });
                                 }
                                 
-                            } catch (error) {
-                                console.error(`Cannot fetch player ${player} (${tournament.players[player]}) in game ${j} from tournament ${tournament.id}: `, error);
+                            } catch () {
                             }
                             matchScore.players.push(matchPlayer);
                         }
@@ -230,13 +229,11 @@ export default function LocalTournamentHistory({ playerId }: { playerId: number 
     }, [tournamentsInfos, blockchainInfos]);
 
     useEffect(() => {
-        getBlockchainInfos().catch((error) => {
-        console.error("Cannot get blockchain infos:", error);
+        getBlockchainInfos().catch(() => {
         return ;
         }).then(() => {
             
-            getLocalHistory().catch((error) => {
-                console.error("Cannot get local history:", error);
+            getLocalHistory().catch(() => {
                 return ;
             }).then(() => {
                 // 

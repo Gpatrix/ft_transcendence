@@ -72,7 +72,6 @@ export default function Multi() {
                     setPlayers(json.players);     
                     break;
                 case "start":
-                    alert("START")
                     ball.current.unFreeze();
                     setPlayers(json.players);
                     setCounter("3");
@@ -181,8 +180,7 @@ export default function Multi() {
                     setError(get_server_translation(data.error));
                     return 1;
                 }
-            } catch (error) {
-                console.error("Failed to fetch game:", error);
+            } catch {
                 setError(get_server_translation("0500"));
                 return 1;
             }

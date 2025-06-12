@@ -17,7 +17,6 @@ const GoogleAuth: React.FC = () => {
     });
 
     if (!import.meta.env.VITE_HOST || !import.meta.env.VITE_PORT) {
-      console.error("Environment variables HOST and PORT are not set.");
       return;
     }
 
