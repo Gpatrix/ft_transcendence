@@ -57,5 +57,7 @@
   "4009": ["Already in lobby", "Déjà dans le lobby", "Già nella lobby"],
   "4510": ["Tournament not found", "Tournoi non trouvé", "Torneo non trovato"],
   "4511": ["Game not found in tournament", "Jeu non trouvé dans le tournoi", "Gioco non trovato nel torneo"],
-  "4512": ["Player not in game", "Joueur non dans le jeu", "Giocatore non nel gioco"]
+  "4512": ["Player not in game", "Joueur non dans le jeu", "Giocatore non nel gioco"],
+  "5000": ["You must be 2 or 4 to start a game", "Vous devez etre 2 ou 4 pour lancer une partie", "Devi avere 2 o 4 anni per iniziare una partita"
+  ]
 }

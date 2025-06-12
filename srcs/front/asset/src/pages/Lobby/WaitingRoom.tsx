@@ -12,12 +12,14 @@ export default function WaitingRoom() {
         let ws : WebSocket = new WebSocket(`wss://${window.location.host}/api/game/join/${gameId}/${tournamentId}`);
 
         ws.onopen = () => {
-            setSocket(ws);
+            // setSocket(ws);
         };
 
         ws.onmessage = (event) => {
             const json =JSON.parse(event.data)
             if (json.error) {
+                console.log("Error: ", json.error);
+                
                 ws.close()
                 navigate(`/404-error?gameNotFound`)
             }
