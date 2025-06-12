@@ -99,12 +99,13 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         } else {
                             const newMessage = new Message(data.senderId, -1, new Date(data.sentAt), data.content)
                             if (newMessage != undefined) {
-                                if (newMessage.idSender == activFriendRef.current && location.pathname=="/chat") {
+                                if (newMessage.idSender == activFriendRef.current) {
                                     
                                     const newArrayMessage = [...arrayMessageRef.current];
                                     newArrayMessage.splice(0, 0, newMessage);
                                     setArrayMessage(newArrayMessage);
-                                } else {
+                                }
+                                if (location.pathname!="/chat") {
                                     const newFriends = [...friendsRef.current];
                                     const friend = newFriends.find((friend) => friend.id == data.senderId);
                                     if (friend) {
