@@ -56,6 +56,6 @@
   "4003": ["Game is private", "Le jeu est privé", "Il gioco è privato"],
   "4009": ["Already in lobby", "Déjà dans le lobby", "Già nella lobby"],
   "4510": ["Tournament not found", "Tournoi non trouvé", "Torneo non trovato"],
-  "4511": ["Game not found in tournament", "Jeu non trouvé dans le tournoi", "Gioco non trovato nel torneo"],
+  "4511": ["Game is finished", "La partie est terminee", "Gioco non trovato nel torneo"],
   "4512": ["Player not in game", "Joueur non dans le jeu", "Giocatore non nel gioco"]
 }

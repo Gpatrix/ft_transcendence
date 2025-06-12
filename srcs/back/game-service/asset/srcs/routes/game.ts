@@ -109,6 +109,8 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                 const action = object?.action;
                 const pongGame = GamesManager.findGame(gameId);
                 if (!action || !pongGame) return;
+            
+                console.log(object)
 
                 const caller = pongGame.players.find((player) => player.ws === socket);
                 if (!caller) return ;

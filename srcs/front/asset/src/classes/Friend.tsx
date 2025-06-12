@@ -122,7 +122,10 @@ class Friend extends User {
             const response = await fetch(`/api/user/blockUser`, requestData);
             
             if (response.status == 200)
+            {
+                window.location.reload();
                 return "200"
+            }
             const dataReponse = await response.json();
             
             return (dataReponse.error);
