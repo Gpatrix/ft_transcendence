@@ -28,6 +28,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     const params = useParams()
     const [newProfPicture, setNewProfPicture] = useState("")
     const [isOnline, setIsOnline] = useState<boolean>(false)
+    const [winRate, setWinRate] = useState<number>(0)
 
     const MAX_FILE_SIZE = 2000000;
 
@@ -130,6 +131,13 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     }, [owner, params.id]);
 
 
+    useEffect(()=> {
+        if (!statsData) return
+        const nb = Math.round((statsData.wins / (statsData.wins + statsData.looses)) * 100)
+        if (!isNaN(nb))
+            setWinRate(nb)
+    }, [statsData])
+
 
     return (
         <div className="z-1 w-1/1 xl:w-2/3 lg:mr-[32px] flex flex-col 100vh md:h-fit">
@@ -162,7 +170,7 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 <h2 className="w-fit mr-auto ml-auto text-light-yellow text-4xl font-bold">{data.name}</h2>
                 { statsData &&
                 <span className="w-full mt-5 ml-auto mr-auto  flex flex-col p-7 rounded-3xl shadow-2xl">
-                    {<span className="text-yellow text-xl ml-auto mr-auto"> {gpt("victory_rate")} : {Math.round((statsData.wins / (statsData.wins + statsData.looses)) * 100)}%</span>}
+                    {<span className="text-yellow text-xl ml-auto mr-auto"> {gpt("victory_rate")} : {winRate}%</span>}
                     <div className="w-full h-[1px] bg-yellow/20 my-4"></div>
                     <span className="flex justify-evenly ">
                         <span className="text-yellow text-bold">{statsData.wins} {gpt("victory")} </span>

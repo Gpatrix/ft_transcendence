@@ -173,7 +173,6 @@ export default function PageFriendLoby() {
                 return ;
             }
             const message : string = `**game:/lobby/friendLoby/waiting-room/${String(data.gameId)}/${data.tournamentId}**`;
-            console.log(message);
             
             
             for (let index = 1; index < arrayPlayersRef.current.length; index++) {

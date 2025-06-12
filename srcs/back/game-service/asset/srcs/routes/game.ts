@@ -334,22 +334,20 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     if (game.areAllPlayersDisconnected()) {
                         console.log(`All players disconnected from game ${gameId}. Cleaning up.`);
                         GamesManager.deleteGame(gameId);
-                    }
 
-                    activeGameConn.delete(userId);
+                    }
+                    activeMatchmakingConn.delete(userId);
+                    usersFriends1v1.removeUserFromQueue(userId);
+                    usersFriends2v2.removeUserFromQueue(userId);
                 }
             }); 
     
             socket.send(JSON.stringify({ message: 'joinedGame', gameId }));
 
-            // CORRECTION PRINCIPALE : Vérifier si TOUS les joueurs sont connectés avant de créer une room
             if (game.allConnected(game.players.length)) {
                 const usersFriends = game.players.length == 2 ? usersFriends1v1 : usersFriends2v2;
-                
-                // Créer UNE SEULE room pour TOUS les joueurs de cette game
                 const roomId : string = usersFriends.createFriendRoom(game.players);
                 
-                // Notifier TOUS les joueurs de la même game avec le même roomId
                 game.players.forEach(player => {
                     try {
                         if (player.ws && player.ws.readyState === WebSocket.OPEN) {
@@ -367,7 +365,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
                     }
                 });
 
-                // Nettoyer les connexions après avoir lancé la game
                 game.players.forEach(player => {
                     if (activeGameConn.has(player.id)) {
                         activeGameConn.delete(player.id);
@@ -380,6 +377,8 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             if (userId && activeGameConn.has(userId)) {
                 activeGameConn.delete(userId);
             }
+            usersFriends1v1.removeUserFromQueue(userId ?? -1);
+            usersFriends2v2.removeUserFromQueue(userId ?? -1);
             socket.close(4000, 'Error joining game');
         }
     });
