@@ -2,7 +2,7 @@ FROM alpine:3.21.3
 WORKDIR /var/www/html
 
 RUN apk update --no-cache && \ 
- apk add nodejs pnpm curl --no-cache
+ apk add nodejs pnpm curl prometheus-node-exporter --no-cache
 
 ARG NODE_ENV
 COPY ./asset/package.json .
@@ -15,9 +15,9 @@ ARG VITE_HOST
 COPY ./conf/vite_config.sh .
 RUN chmod +x vite_config.sh && ./vite_config.sh
 
-COPY ./conf/vite.sh /tmp
-RUN chmod +x /tmp/vite.sh
+COPY ./conf/entrypoint.sh /tmp
+RUN chmod +x /tmp/entrypoint.sh
 
 EXPOSE 5173
 
-ENTRYPOINT ["sh", "/tmp/vite.sh"]
+ENTRYPOINT ["sh", "/tmp/entrypoint.sh"]
