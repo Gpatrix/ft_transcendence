@@ -112,7 +112,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
                 const caller = pongGame.players.find((player) => player.ws === socket);
                 if (!caller) return ;
-                console.log('action', action);
                 if (action == "pause")
                     pongGame.pause(caller.id);
                 if (action == "unPause")
@@ -165,7 +164,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             }
 
             if (activeGameConn.has(userId)) {
-                console.log(`User ${userId} is already in a game`);
                 return socket.send(JSON.stringify({error: "4003"}))
             }
 
@@ -199,7 +197,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             });
 
             socket.on('error', (error) => {
-                console.log('WebSocket error:', error);
                 if (userId) {
                     activeMatchmakingConn.delete(userId);
                     users1v1.removeUserFromQueue(userId);
@@ -235,7 +232,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             }
         }
         catch (error) {
-            console.log('Matchmaking error:', error);
             if (userId) {
                 activeMatchmakingConn.delete(userId);
                 users1v1.removeUserFromQueue(userId);
@@ -284,7 +280,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
         try {
             const tournament = await GamesManager.createGame(matchUsers, userIds.length);
             if (!tournament) {
-                console.log('Game creation failed');
                 return reply.status(500).send({ error: 'Game creation failed' });
             }
 
@@ -335,14 +330,10 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
             activeGameConn.set(userId, socket);
             game.addSocket(userId, socket);
 
-            console.log(`connecte : ${userId}, lenght : ${game.players.length}`);
-            
             game.markPlayerConnected(userId);
     
             socket.on('close', () => {
                 if (userId != null) {
-                    console.log(`Socket closed for user ${userId}`);
-
                     game.markPlayerDisconnected(userId);
 
                     if (game.areAllPlayersDisconnected()) {
@@ -386,7 +377,6 @@ function gameRoutes(server: FastifyInstance, options: any, done: any) {
 
     server.get<{ Params: fetchGameParams }>('/api/game/getGameStatus/:gameId', async (request, reply) => {
         try {
-            console.log("TEST")
             const codedtoken = request.cookies['ft_transcendence_jw_token'];
             const decoded: tokenStruct = jwt.verify(codedtoken, process.env.JWT_SECRET as string).data;
 

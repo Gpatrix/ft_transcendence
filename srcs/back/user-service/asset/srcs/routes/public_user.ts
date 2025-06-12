@@ -165,7 +165,6 @@ export default function public_userRoutes (server: FastifyInstance, options: any
         if (tokenPayload.isAdmin && bodyId)
             tokenPayload.id = bodyId;
         try {
-            console.log('body', body)
             const updateData: UserData = {};
             if (body.name)
                 updateData.name = body.name;
@@ -181,12 +180,10 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                     body: JSON.stringify({ new_password: body.new_password, token, actual_password: body.actual_password })
                 }
                 const response = await fetch('http://auth-service:3000/api/auth/passwordReset/submit', requestData);
-                console.log('response', response)
                 if (response.status != 200)
                 {
                     const resJson = await response.json();
                     const error = resJson.error || "0500";
-                    console.log('resJson', resJson);
                     reply.status(230).send({ error });
                 }
             }
