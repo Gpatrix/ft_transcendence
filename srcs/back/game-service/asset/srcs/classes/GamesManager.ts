@@ -11,7 +11,6 @@ export class GamesManager {
         await new Promise(resolve => setTimeout(resolve, 10 * 1000)); // Wait for other players to join
         try {
             game.start();
-            console.log("GamesManger: Game successfully launched");
         } catch (error) {
             throw (new Error('GamesManger: PongGame cannot be started'));
         }
@@ -91,10 +90,8 @@ export class GamesManager {
         }
     });
 
-    if (!dbGame) {
-        console.log(`GamesManager: No game found in DB with ID ${gameId}`);
+    if (!dbGame)
         return null;
-    }
 
     const playerIds = dbGame.players.map((p: any) => p.userId);
     const newGame = new PongGame(playerIds, dbGame.id);

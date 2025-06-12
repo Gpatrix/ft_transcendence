@@ -192,7 +192,6 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
             const userinfo = await server.googleOAuth2.userinfo(token.access_token); 
             if (!userinfo)
                 throw (Error("cannot_get_user_infos"));
-            console.log('User info from Google:', userinfo);
 
             const response = await fetch(`http://user-service:3000/api/user/lookup/${userinfo.email}`, {
                 method: 'POST',
@@ -232,7 +231,6 @@ export default function authRoutes (server: FastifyInstance, options: any, done:
                 }
                 
                 user = await createResponse.json();
-                console.log('New user created:', user);
             }
             const payloadBase = {
                 id: user.id,

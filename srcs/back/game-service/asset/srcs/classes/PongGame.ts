@@ -36,9 +36,6 @@ export class PauseManager {
     }
 
     public endPause(playerId?: number) {
-        console.log('this.isPausing', this.isPausing);
-        console.log('this.currentPlayerId', this.currentPlayerId);
-        console.log('playerId', playerId);
         if (!this.isPausing)
             return (false);
         if (playerId && playerId != this.currentPlayerId)
@@ -194,8 +191,6 @@ export class PongGame {
     }
 
     public pause(playerId: number) {
-        console.log('this.ball.isFreezed', this.ball.isFreezed);
-        console.log('this.isBall', this.ball.isFreezed);
         if (this.ball.isFreezed)
             return ;
         if (!(this.pauseManager.askForPause(playerId))) {
@@ -283,10 +278,6 @@ export class PongGame {
             },
         })
 
-        console.log("GAME: ", game)
-
-
-
         await Promise.all(this.players.map(async player => {
             const teamIndex = this.teams.teams.findIndex(t => t.playersIDs.includes(player.id));
             const score = this.teams.teams[teamIndex ^ 1].score;
@@ -335,8 +326,6 @@ export class PongGame {
             return ;
         const player = this.players.find(player => player.id == id) as Player;
         let newY : number = player.position.y + move
-
-        console.log(`${player.id}: ${move}`)
 
 
         if (move < 0) {  // up
@@ -415,7 +404,6 @@ export class PongGame {
     }
 
     onPlayerLeave(id: number) {
-        console.log("PLAYER LEAVED")
         this.markPlayerDisconnected(id)
         this.ball.freeze()
 
@@ -476,9 +464,6 @@ export class PongGame {
     }
 
     allConnected(expectedPlayerCount : number): boolean {
-        console.log(this.connectedPlayers.size);
-        console.log(this.disconnectedPlayers.size);
-        
         return (this.connectedPlayers.size === expectedPlayerCount)
     }
 

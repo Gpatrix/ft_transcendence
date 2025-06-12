@@ -77,7 +77,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 window.location.reload();
             } else {
                 const data = await response.json();
-                console.log('data', data)
                 setError(get_server_translation(data.error));
                 setFile(undefined)
             }

@@ -39,7 +39,6 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
             const link : string = `https://${process.env.HOST}:${process.env.PORT}/forgot-password/new-password?token=${passwordResetToken}`
             if (userLookupData)
                 await sendMail(email, 'Password reset', `You asked for a password reset, here is your link ${link}\nIt will expire at ${expireIn} minutes`);
-            // console.log(`Retrieve-link : ${link}`)
             res.status(200).send({ message: "mail sent" });
         } catch (error) {
             console.log(error)
@@ -103,7 +102,6 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
                 }),
             });
             const data = await response.json();
-            console.log('data', data)
             if (response.status != 200)
                 res.status(response.status).send({ error: data.error})
             const user = data;
@@ -112,7 +110,6 @@ export default function passwordResetRoutes(server: FastifyInstance, options: an
             if (!user.password)
                 return res.status(230).send({ error: "1014" });
             const isCorrect = await bcrypt.compare(actual_password as string, user.password);
-            console.log('isCorrect', isCorrect)
             if (!isCorrect)
                 return res.status(230).send({ error: "1006"});
             const newPassword = await bcrypt.hash(new_password, 12);

@@ -200,19 +200,16 @@ class IA {
 			{
 				lastPredictionType = 3
 				estimated = calculatedBallLanding[0];
-				console.log("VA sur LANDING")
 			}
 			else if (calculatedBallShooting != undefined && lastPredictionType < 2)
 			{
 				lastPredictionType = 2
 				estimated = calculatedBallShooting[0];
-				console.log("VA sur SHOOTING")
 			}
 			else if (oppositeBallLanding !== undefined && lastPredictionType < 1)
 			{
 				lastPredictionType = 1;
 				estimated = oppositeBallLanding[0];
-				console.log("VA sur OPPOSITE")
 			}
 			else
 				return ;
