@@ -3,7 +3,7 @@ FROM node:23-alpine
 WORKDIR  /usr/src/user-service
 
 RUN apk update --no-cache && \
-    apk add sqlite openssl pnpm --no-cache
+    apk add sqlite openssl pnpm pnpm prometheus-node-exporter --no-cache
 
 ARG DATABASE_URL
 ARG NODE_ENV

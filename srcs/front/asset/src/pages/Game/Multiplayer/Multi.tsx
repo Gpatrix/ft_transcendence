@@ -10,6 +10,7 @@ import { gpt } from "../../../translations/pages_reponses";
 import EndPopup from "./Popups/EndPopup";
 import { get_server_translation } from "../../../translations/server_responses";
 import Button from "../../../components/Button";
+import MultiKeyLayout from "./MultiKeyLayout";
 
 export type Player = {
     id: number
@@ -300,6 +301,7 @@ export default function Multi() {
                 <MultiPointsCounter points={points}/>
             </span>
             }
+            {!error && !end && <MultiKeyLayout/>}
         </div>
     );
 }

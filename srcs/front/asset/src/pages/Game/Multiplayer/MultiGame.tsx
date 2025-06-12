@@ -38,7 +38,6 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
         else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's')
             direction = 'down';
         else if (e.key === 'Escape' ) {
-          
           if (isPausedRef.current == true) {
             return socket.send(JSON.stringify({ action: "unPause" }));
           }
@@ -62,8 +61,6 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
 
 
       const loop = () => {
-
-
         setLocalY((prev) => {
             let newY = prev;
             const speed = 10;
@@ -89,7 +86,7 @@ export default function MultiGame({ players, socket, ball, isPaused, isPausedRef
 
         requestAnimationFrame(loop);
     };
-
+    requestAnimationFrame(loop);
 
       return () => {
           window.removeEventListener('keydown', handleKeyDown);
