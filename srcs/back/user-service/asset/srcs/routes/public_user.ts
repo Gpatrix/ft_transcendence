@@ -91,6 +91,7 @@ export default function public_userRoutes (server: FastifyInstance, options: any
     interface UserData 
     {
         name?: string,
+        email?: string,
         bio?: string,
         lang?: string,
         profPicture?: string,
@@ -103,6 +104,7 @@ export default function public_userRoutes (server: FastifyInstance, options: any
         id?: number,
         name?: string,
         actual_password?: string,
+        email?: string,
         new_password?: string,
         bio?: string,
         lang?: string,
@@ -133,6 +135,9 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                     break;
                 case "lang":
                     body.lang = part.value;
+                    break;
+                case "email":
+                    body.email = part.value;
                     break;
                 case "actual_password":
                     body.actual_password = part.value;
@@ -172,6 +177,8 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                 updateData.bio = body.bio;
             if (body.lang)
                 updateData.lang = body.lang;
+            if (body.email && body.email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
+                updateData.email = body.email;
             if (body.new_password && !(body.provider))
             {
                 const requestData = {
