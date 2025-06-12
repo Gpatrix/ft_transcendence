@@ -47,7 +47,7 @@ services:
     restart: on-failure
     volumes:
       - ./back/chat-service/asset/srcs:/usr/src/chat-service/srcs
-      - db-chat:/usr/src/chat-service/asset/prisma/db
+      - db-chat:/usr/src/chat-service/prisma/db
     environment:
       HOST: ${HOST:?}
       PORT: ${PORT:?}

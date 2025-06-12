@@ -16,6 +16,7 @@ export default function WaitingRoom() {
 
         ws.onmessage = (event) => {
             const json =JSON.parse(event.data)
+            console.log(json)
             if (json.error) {
                 console.log("Error: ", json.error);
                 

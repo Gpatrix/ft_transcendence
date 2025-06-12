@@ -97,6 +97,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:?}
       API_CREDENTIAL: ${API_CREDENTIAL:?}
       NODE_ENV: prod
+      JWT_SECRET: ${JWT_SECRET:?}
     build:
         context: ./back/upload-service
         dockerfile: Dockerfile
