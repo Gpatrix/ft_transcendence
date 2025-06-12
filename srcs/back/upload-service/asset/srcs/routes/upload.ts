@@ -47,6 +47,7 @@ export default function uploadRoutes (server: FastifyInstance, options: any, don
             if (response.status == 230) {
                 // const resJson = await response.json();
                 // const error = resJson?.error;
+                console.error('Error during file upload:', response);
                 return res.status(230).send({ error: '0500' });
             }
             res.status(200).send({ fileName: fileNameURL });
