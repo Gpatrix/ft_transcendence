@@ -46,9 +46,9 @@
       "La richiesta è scaduta. Riprova con un file più piccolo."
     ],
     "big_file": [
-      "The maximum size is 200KB. Please select another file.",
-      "La taille maximale est de 200Ko, veuillez sélectionner un autre fichier.",
-      "La dimensione massima è di 200KB. Seleziona un altro file."
+      "The maximum size is 2Mb. Please select another file.",
+      "La taille maximale est de 2Mo, veuillez sélectionner un autre fichier.",
+      "La dimensione massima è di 2MB. Seleziona un altro file."
     ],
     "no_file": [
       "Please select a file.",
