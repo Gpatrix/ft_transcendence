@@ -112,7 +112,6 @@ async function handle_game_msg(payload: payloadstruct, token: tokenStruct, socke
       return (sendError(new_msg, socket));
 
    const to_send: string = JSON.stringify(new_msg);
-   console.log(to_send);
    let target_socket: WebSocket | undefined;
    for (let p of participants)
    {
@@ -188,8 +187,6 @@ async function handle_managementFriend(payload: payloadstruct, token: tokenStruc
       target_socket = activeConn.get(payload.targetId)?.socket;
       if (target_socket !== undefined)
          target_socket.send(JSON.stringify(to_send));
-      else
-         console.log(`Socket ${payload.targetId} not fined or closed`);
    }
    catch (error)
    {
@@ -201,7 +198,6 @@ function data_handler(
    RawData: WebSocket.RawData, socket: WebSocket, token: tokenStruct): void
 {
    chat_requests_total.inc({method: "WSS"});
-   console.log('Received:\n', RawData.toString());
    const payload: payloadstruct = JSON.parse(RawData.toString('utf8'));
    if (payload.action === undefined || payload.targetId === undefined)
       return (socket.send('{error: 0400}'));
@@ -296,7 +292,6 @@ async function chat_api(fastify: FastifyInstance)
     {
         if (request.params.id === undefined)
             return reply.status(230).send({error: "0400"});
-        console.log(JSON.stringify(activeConn.size))
         return reply.status(200).send({value: activeConn.has(Number(request.params.id))});
     });
 

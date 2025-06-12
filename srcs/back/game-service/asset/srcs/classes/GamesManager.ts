@@ -15,7 +15,6 @@ export class GamesManager {
     
         try {
             game.start();
-            console.log("GamesManager: Game successfully launched");
         } catch (error) {
             console.error('GamesManager: PongGame cannot be started', error);
         }
@@ -95,10 +94,8 @@ export class GamesManager {
         }
     });
 
-    if (!dbGame) {
-        console.log(`GamesManager: No game found in DB with ID ${gameId}`);
+    if (!dbGame)
         return null;
-    }
 
     const playerIds = dbGame.players.map((p: any) => p.userId);
     const newGame = new PongGame(playerIds, dbGame.id);

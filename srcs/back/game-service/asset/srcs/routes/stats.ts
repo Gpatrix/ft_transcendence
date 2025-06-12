@@ -21,7 +21,7 @@ function getPlayersMainStats(players: Array<any>, userId: number): PlayerStats
     let looses = 0;
     let noContests = 0;
     if (!players || players.length == 0)
-        return (console.log('no players in func'), { wins, looses, noContests, games: 0 });
+        return ({ wins, looses, noContests, games: 0 });
     players.forEach(player => {
         const game = player.game;
         const result = isPlayerWinnerInGame(game, userId);
@@ -40,7 +40,7 @@ function getAveragePlayTime(players: Array<any>, userId: number): number
     let totalPlayTime = 0;
     let gamesCount = 0;
     if (!players || players.length == 0)
-        return (console.log('no players in func'), 0);
+        return (0);
     players.forEach(player => {
         const game = player.game;
         if (game.playTime)
