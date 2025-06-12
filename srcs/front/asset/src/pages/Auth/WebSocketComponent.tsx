@@ -179,6 +179,10 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                     new Friend(friend.id, friend.name, friend.email, friend.profPicture, friend.bio, friend.lang, friend.isTwoFactorEnabled, friend.rank, friend.connected));
                 
                 for (const friend of newFriends) {
+
+                    const friendCur =  friendsRef.current.find(friendCur => friend.id == friendCur.id);
+                    if (friendCur)
+                        friend.nbNotifs = friendCur.nbNotifs;
                     const response = await fetch(`/api/chat/isconnected/${friend.id}`, requestData);
                     const dataReponse = await response.json();
                     
