@@ -390,29 +390,31 @@ export class PongGame {
         });
     }
 
-    onPlayerJoin(id: number, ws: WebSocket) { // send user update to everyone, start if everyone is here
-        this.markPlayerConnected(id)
+    onPlayerJoin(id: number, ws: WebSocket) {
+        this.markPlayerConnected(id);
         console.log(`Player ${id} joined`);
+    
         const index = this.players.findIndex(player => player.id == id);
         if (index !== -1) {
             this.players[index].ws = ws;
         }
-        this.sendPlayers(`playerJoined`)
-        if (this.players.length == this.properties.nbPlayers) {
-            if (this.startedAt) {// on unfreeze, after a disconnect
+    
+        this.sendPlayers(`playerJoined`);
+    
+        // verifier si tous les joueurs sont connectes et lance le jeu si oui
+        if (this.isReady()) {
+            if (this.startedAt) { // Si le jeu a deja demarre, on "unfreeze"
                 this.players.forEach(player => {
-                    if (player.ws)
-                        player.ws.send(JSON.stringify({
-                            message: "unfreeze",
-                    }));
+                    if (player.ws) player.ws.send(JSON.stringify({ message: "unfreeze" }));
                 });
-                this.sendResults()
-                this.ball.unFreeze()
+                this.sendResults();
+                this.ball.unFreeze();
+            } else {
+                this.start();
             }
-            else
-                this.start()
         }
     }
+    
 
     onPlayerLeave(id: number) {
         console.log("PLAYER LEAVED")
@@ -434,8 +436,12 @@ export class PongGame {
         return this.players.some(player => player.id === userId);
     }
     
+    // isReady(): boolean {
+    //     return this.players.every(player => player.ws);
+    // }
+
     isReady(): boolean {
-        return this.players.every(player => player.ws);
+        return this.players.every(player => player.ws !== undefined);
     }
 
     addSocket(userId: number, ws: WebSocket): boolean {

@@ -7,13 +7,17 @@ import { prisma } from "../config/prisma";
 export class GamesManager {
     static games: Map<number, PongGame> = new Map<number, PongGame>();
 
+
     static async waitAndStart(game: PongGame) {
-        await new Promise(resolve => setTimeout(resolve, 10 * 1000)); // Wait for other players to join
+        while (!game.isReady()) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    
         try {
             game.start();
-            console.log("GamesManger: Game successfully launched");
+            console.log("GamesManager: Game successfully launched");
         } catch (error) {
-            throw (new Error('GamesManger: PongGame cannot be started'));
+            console.error('GamesManager: PongGame cannot be started', error);
         }
     }
 
