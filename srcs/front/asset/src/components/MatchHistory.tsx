@@ -182,7 +182,7 @@ export default function MatchResult({ match }: MatchResultProps) {
                   )
                 }
               </span>
-              <span className={clsx('h-8 ml-2 self-end mb-[15px]', styles.more)}>
+              <span className={clsx('h-8 min-h-[10px] ml-2 self-end mb-[15px]', styles.more)}>
                 <img className='w-8' onClick={toggleMatch} src={arrowDown} />
               </span>
             </span>
