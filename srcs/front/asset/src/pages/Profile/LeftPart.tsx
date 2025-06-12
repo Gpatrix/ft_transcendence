@@ -53,7 +53,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
     };
 
     const handleSubmit = async () => {
-        console.log("handleSubmit called with file:", file);
         if (!file) {
             setError(gpt("no_file"));
             setFile(undefined)
@@ -67,7 +66,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
         }
         const form: FormData = new FormData();
         form.append('file', file as File, file?.name ?? 'upload');
-        console.log(file)
 
         try {
             const response = await fetch (`https://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/api/upload/`, {
@@ -111,7 +109,6 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 const res = await fetchWithAuth(`/api/chat/isconnected/${params.id}`);
                 if (res.status == 200) {
                     const data = await res.json()
-                    console.log(data)
                     setIsOnline(data.value)
                 }
                 else {

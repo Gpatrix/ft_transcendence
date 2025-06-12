@@ -52,7 +52,6 @@ export default function Multi() {
 
     const setupWebSocketListeners = (ws: WebSocket) => {
         ws.onopen = () => {
-            console.log("WebSocket connected");
             setIsConnected(true);
             setDisconnect(false);
             setTimeout(() => requestGameState(), 100);
@@ -61,8 +60,7 @@ export default function Multi() {
         ws.onmessage = (event) => {
             const json = JSON.parse(event.data);
             if (!json) return;
-            
-            console.log("Received:", json);
+
             if (json.error)
                 setError(get_server_translation(json.error))
 
@@ -176,7 +174,6 @@ export default function Multi() {
                 } 
                 else {
                     const data = await response.json();
-                    console.log(data.error)
                     setError(get_server_translation(data.error));
                     return 1;
                 }
@@ -265,12 +262,9 @@ export default function Multi() {
 
     useEffect(() => {
         const handleVisibilityChange = () => {
-            if (document.hidden) {
-                console.log("Page hidden");
-            } else {
-                if (isConnected) {
-                    requestGameState();
-                }
+
+            if (isConnected) {
+                requestGameState();
             }
         };
 
