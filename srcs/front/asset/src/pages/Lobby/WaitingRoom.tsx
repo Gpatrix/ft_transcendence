@@ -17,6 +17,8 @@ export default function WaitingRoom() {
         ws.onmessage = (event) => {
             const json =JSON.parse(event.data)
             if (json.error) {
+                console.log("Error: ", json.error);
+                
                 ws.close()
                 navigate(`/404-error?gameNotFound`)
             }

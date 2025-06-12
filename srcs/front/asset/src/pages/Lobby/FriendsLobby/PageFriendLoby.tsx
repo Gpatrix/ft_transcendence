@@ -8,6 +8,7 @@ import Friend from "../../../classes/Friend";
 import Message from "../../../classes/Message";
 import Button from "../../../components/Button";
 import { gpt } from "../../../translations/pages_reponses";
+import { get_server_translation } from "../../../translations/server_responses";
 
 export default function PageFriendLoby() {
 
@@ -143,7 +144,8 @@ export default function PageFriendLoby() {
     const handlePlayGame = async () => {
         if (arrayPlayersRef.current.length != 2
             && arrayPlayersRef.current.length != 4) {
-            setErrorMessage("Vous devez etre 2 ou 4 pour lancer une partie"); // traduire cette merde !
+            gpt("start_the_game")
+            setErrorMessage("5000");
             return ;
         } else {
             setErrorMessage("");
@@ -288,7 +290,7 @@ export default function PageFriendLoby() {
             </div>
 
             <Button onClick={handlePlayGame} className="mt-auto w-fit" style={location.pathname=="/profil"?'selected':'header'}>{gpt("start_the_game")}</Button>
-            {errorMessage && <div className="text-light-red">{errorMessage}</div>}
+            {errorMessage && <div className="text-light-red">{get_server_translation(errorMessage)}</div>}
         </div>
     )
 }
