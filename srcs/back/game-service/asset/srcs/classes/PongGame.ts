@@ -1,7 +1,7 @@
 import { prisma } from '../config/prisma';
 import WebSocket from 'ws';
 import { Ball } from './Ball';
-import { activeGameConn, users1v1, users2v2 } from '../routes/game';
+import { activeGameConn, users1v1, users2v2, usersFriends1v1, usersFriends2v2 } from '../routes/game';
 
 export interface pos {
     x: number,
@@ -304,6 +304,8 @@ export class PongGame {
                 activeGameConn.delete(player.id)
                 users1v1.handleUserDisconnection(player.id)
                 users2v2.handleUserDisconnection(player.id)
+                usersFriends1v1.handleUserDisconnection(player.id)
+                usersFriends2v2.handleUserDisconnection(player.id)
             }
         })
     }
