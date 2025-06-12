@@ -63,10 +63,13 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
     const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const shouldReconnect = useRef(true);
 
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+
     const RECONNECT_INTERVAL = 500;
 
     const connectWebSocket = () => {
-        
+
         const ws = new WebSocket(`wss://${window.location.host}/api/chat/connect`);
 
         ws.onopen = () => {
@@ -85,15 +88,7 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
                         {
                             Friend.getFriends().then((newFriends) => {
                                 if (typeof newFriends != 'string')
-                                {
-                                    // IL FAUT MODIFIER CA !
-                                    newFriends.forEach(friend => {
-                                        friend.toggleConnected();
-                                    });
                                     setFriends(newFriends);
-                                } else {
-                                    
-                                }
                             })
                         } else if (data.messages) {
                             const newArrayMessage = [...arrayMessageRef.current];
@@ -129,9 +124,23 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
             }
         };
 
-        ws.onclose = () => {
+        ws.onclose = async () => {
             if (shouldReconnect.current) {
-                reconnectTimeout.current = setTimeout(connectWebSocket, RECONNECT_INTERVAL);
+                if (intervalRef.current != null)
+                    clearInterval(intervalRef.current);
+
+                const requestData : RequestInit = {
+                    method :  'GET',
+                    credentials: 'include'
+                }
+                reconnectTimeout.current = await setTimeout(async ()=>{
+                    const response = await fetch(`/api/auth/status`, requestData);
+                    if (response.status == 200) {
+                        checkConnectedFriends();
+                        connectWebSocket();
+                        
+                    }
+                }, RECONNECT_INTERVAL);
             }
         };
 
@@ -147,12 +156,6 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
             const tempFriends: Friend[] | string = await Friend.getFriends();
             if (typeof tempFriends != 'string')
             {
-                // IL FAUT MODIFIER CA !
-
-                tempFriends.forEach(friend => {
-                    friend.toggleConnected();
-                });
-
                 setFriends(tempFriends);
                 if (tempFriends[0])
                     setActivFriend(tempFriends[0].id);
@@ -165,8 +168,33 @@ const WebSocketComponent = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const checkConnectedFriends = () => {
+        const requestData : RequestInit = {
+            method :  'GET',
+            credentials: 'include'
+        }
+        if (intervalRef.current == null) {
+
+            intervalRef.current = setInterval(async function() {
+                const newFriends : Friend[] = friendsRef.current.map(friend =>
+                    new Friend(friend.id, friend.name, friend.email, friend.profPicture, friend.bio, friend.lang, friend.isTwoFactorEnabled, friend.rank, friend.connected));
+                
+                for (const friend of newFriends) {
+                    const response = await fetch(`/api/chat/isconnected/${friend.id}`, requestData);
+                    const dataReponse = await response.json();
+                    
+                    if (dataReponse.value != friend.connected)
+                        friend.toggleConnected();
+                }
+                if (JSON.stringify(newFriends) != JSON.stringify(friendsRef.current))
+                    setFriends(newFriends);
+            }, 3000);
+        }
+    }
+
     useEffect(() => {
         connectWebSocket();
+        checkConnectedFriends();
     }, []);
 
     useEffect(() => {

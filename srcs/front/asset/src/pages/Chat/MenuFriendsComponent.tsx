@@ -39,15 +39,7 @@ export default function MenuFriendsParamComponent({ onClose, friendId, setFriend
                 socket.send(JSON.stringify({ action: 'deleteFriend', targetId: idFriend}));
             const friends: Friend[] | string = await Friend.getFriends();
             if (typeof friends != 'string')
-            {
-                // IL FAUT MODIFIER CA !
-
-                friends.forEach(friend => {
-                    friend.toggleConnected();
-                });
-                
                 setFriends(friends);
-            }
         } catch (error) {
             
         }
