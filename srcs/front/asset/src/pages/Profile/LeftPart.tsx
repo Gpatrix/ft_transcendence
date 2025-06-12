@@ -173,10 +173,10 @@ export default function LeftPart({ data, owner }: LeftPartProps) {
                 }
             </span>
             { data.bio &&
-            <span className="flex-col mt-[32px] w-[350px]">
+            <span className="flex-col mt-[32px] w-[350px] ">
                 <span className="text-yellow w-full">{gpt("bio")}:</span>
 
-                <p className="p-2 px-4 mt-[10px] break-words min-h-[100px] w-1/1 whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow w-full">
+                <p className="p-2 px-4 mt-[10px] break-words min-h-[100px] h-[120px] overflow-y-scroll w-1/1 whitespace-pre-line rounded-xl text-ye bg-light-yellow border border-yellow w-full">
                     {data.bio}
                 </p>
             </span>}
