@@ -107,29 +107,6 @@ services:
     networks:
       - router
 
-  # blockchain-service:
-  #   container_name: blockchain-service
-  #   restart: on-failure
-  #   environment:
-  #     HOST: ${HOST:?}
-  #     PORT: ${PORT:?}
-  #     API_CREDENTIAL: ${API_CREDENTIAL:?}
-  #     NODE_ENV: prod
-  #     SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY:?}
-  #     FUJI_CHAIN_ID: ${FUJI_CHAIN_ID:?}
-  #     FUJI_RPC_URL: ${FUJI_RPC_URL:?}
-  #     AVALANCHE_RPC_URL: ${AVALANCHE_RPC_URL:?}
-  #     AVALANCHE_CHAIN_ID: ${AVALANCHE_CHAIN_ID:?}
-  #   build:
-  #       context: ./back/blockchain-service
-  #       dockerfile: Dockerfile
-  #       args:
-  #         NODE_ENV: prod
-  #   expose:
-  #     - 3000
-  #   networks:
-  #     - router
-
   user-service:
     container_name: user-service
     restart: on-failure
@@ -225,7 +202,6 @@ volumes:
   db-user:
   db-game:
   db-upload:
-  db-blockchain:
   db-monitoring:
 
 networks:

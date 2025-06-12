@@ -8,7 +8,6 @@ import gameRoutes from './routes/game';
 import tounramentRoutes from './routes/tournament';
 import statsRoutes from './routes/stats';
 import historyRoutes from './routes/history';
-import localGamesRoutes from './routes/localTournament';
 
 const server = fastify();
 
@@ -57,7 +56,6 @@ async function game_service(fastify: FastifyInstance)
     fastify.register(tounramentRoutes);
     fastify.register(statsRoutes);
     fastify.register(historyRoutes);
-    fastify.register(localGamesRoutes);
 }
 
 server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
