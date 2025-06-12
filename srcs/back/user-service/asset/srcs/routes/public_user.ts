@@ -291,6 +291,18 @@ export default function public_userRoutes (server: FastifyInstance, options: any
                   blockedUserId: body.targetId
                 }
             });
+            await prisma.friend.deleteMany({
+                where: {
+                    friendUserId: tokenPayload.id,
+                    userId: body.targetId
+                }
+            });
+            await prisma.friend.deleteMany({
+                where: {
+                    userId: tokenPayload.id,
+                    friendUserId: body.targetId
+                }
+            });
             reply.status(200).send({ message: "user_successfully_blocked" });
         } catch (error) {
             reply.status(230).send({ error: "0500"});

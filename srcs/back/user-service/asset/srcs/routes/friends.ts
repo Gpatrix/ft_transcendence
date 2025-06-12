@@ -42,6 +42,14 @@ export default function friendsRoute(server: FastifyInstance, options: any, done
             })
             if (!target)
                 return reply.status(230).send({ error: "2001" });
+            const existingBlockedUser = await prisma.blockedUser.findFirst({
+                where: {
+                    blockedUserId: id,
+                    userId: targetId
+                }
+            })
+            if (existingBlockedUser)
+                return reply.status(230).send({ error: "2001" });
             const isAlreadyFriend = await prisma.friend.findFirst({
                 where: {
                     userId: user.id,
