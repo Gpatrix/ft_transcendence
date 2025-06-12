@@ -9,10 +9,6 @@ import {metrics, chat_requests_total} from './metrics'
 import * as Utils from './utils'
 import { get } from 'http';
 
-const PING_INTERVAL = 30000; // 30s
-const PONG_TIMEOUT = 5000;  // 5s
-
-
 global.activeConn = new Map<number, i_user>();
 
 interface payloadstruct
@@ -48,7 +44,6 @@ server.register(cookiesPlugin);
 server.register(websocketPlugin);
 server.register(chat_api);
 server.register(metrics);
-setInterval(recurrentPing, PING_INTERVAL);
 
 server.addHook('onResponse', (req, res, done) =>
 {
@@ -280,7 +275,6 @@ async function chat_api(fastify: FastifyInstance)
 
          socket.on('close', () => closing_conn(socket, decodedToken));
 
-         socket.on('pong', () => pingTimeoutClear(user));
       }
       catch (error)
       {
@@ -316,24 +310,3 @@ server.listen({ host: '0.0.0.0', port: 3000 }, (err, address) =>
    }
    console.log(`ready`);
 })
-
-function pingTimeoutClear(user: i_user)
-{
-   if (user.timeout !== null)
-      clearTimeout(user.timeout);
-
-   user.timeout = null;
-}
-
-function recurrentPing(): void
-{
-   activeConn.forEach((user, userId) =>
-   {
-      user.socket.ping();
-      user.timeout = setTimeout(() => {
-         activeConn.delete(userId);
-         console.log(`No pong from user ${userId}. Connection closed.`);
-         user.socket.terminate();
-      }, PONG_TIMEOUT);
-   });
-}

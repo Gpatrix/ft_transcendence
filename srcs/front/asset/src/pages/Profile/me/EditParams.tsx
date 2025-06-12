@@ -20,7 +20,7 @@ interface EditParamsProps {
 export default function EditParams({placeholders} : EditParamsProps) {
     type FormType = {
         name: string | null
-        mail: string | null
+        email: string | null
         bio: string | null
         actual_password: string | null
         new_password: string | null
@@ -31,7 +31,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
 
     const initialFormValues = {
         name: null,
-        mail: null,
+        email: null,
         bio: null,
         actual_password: null,
         new_password: null,
@@ -102,8 +102,8 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         placeholder={placeholders.name}
                     />
                     <InputWithLabel 
-                        value={formValues.mail ?? ""}
-                        onChange={createNullSetter("mail")}
+                        value={formValues.email ?? ""}
+                        onChange={createNullSetter("email")}
                         label={gpt("email")}    
                         placeholder={placeholders.email ?? gpt("email_placeholder")}
                         disabled={placeholders.provider ? true : false}
@@ -154,7 +154,7 @@ export default function EditParams({placeholders} : EditParamsProps) {
                         : null
                     }
 
-                    { (formValues.name || formValues.mail || formValues.bio 
+                    { (formValues.name || formValues.email || formValues.bio 
                     || formValues.new_password || formValues.lang != null 
                     || formValues.isTwoFactorEnabled != null)
                     && <Button className="w-full ml-auto px-5 rounded-tl-2xl rounded-br-2xl mt-10 md:mt-auto" type="full">
