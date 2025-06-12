@@ -15,7 +15,7 @@ class IA {
 	private racket: Racket;
 
 	static readonly DEFAULT_ADJUST_INTERVAL = 100;
-	static readonly DEFAULT_ADJUST_INTERVAL_RANGE = 0.50;
+	static readonly DEFAULT_ADJUST_INTERVAL_RANGE = 0.05;
 	static readonly DEFAULT_ACCURACY = 0.001;      // default plage, it miss is wanted  dest (DEFAULT_ACCURACY - 1)% of the time
 	private opponentAverageHitY: number = 0.5;
 	// private opponentHits: number = 0;
@@ -122,6 +122,7 @@ class IA {
 
 	private async goToEstimated(whereToStopY: number): Promise<void>
 	{
+		clearTimeout(this.movingTimeout);
         const racketCenter: number = this.racket.pos.y + (this.racket.properties.height / 2);
 
         const distance =  Math.abs(whereToStopY - racketCenter);
@@ -164,11 +165,11 @@ class IA {
 	{
 		let tryCount = 0;
 		
-        this.clearIntervals();
-
 		let calculatedBallLanding: Array<number> | undefined = undefined;
+		let lastCalculatedBallLanding: Array<number> | undefined = undefined;
 		let calculatedBallShooting: Array<number> | undefined = undefined;
 		let oppositeBallLanding: Array<number> | undefined = undefined;
+		let lastPredictionType = 0;
 
 
         // this.interceptBall(estimated, tryCount);
@@ -178,8 +179,9 @@ class IA {
 			{
 				let temp: Array<number> | undefined = undefined;
 				temp = this.calculateBallLanding(ball, this.racket.pos);
+				calculatedBallLanding = temp;
 				if (temp != undefined)
-					calculatedBallLanding = temp;
+					lastCalculatedBallLanding = temp;
 				temp = undefined;
 			}
 			else
@@ -188,21 +190,35 @@ class IA {
 				temp = this.calculateBallShooting(ball, opponentRacket);
 				if (temp != undefined)
 					calculatedBallShooting = temp;
+				else if (lastCalculatedBallLanding != undefined)
+					calculatedBallShooting = lastCalculatedBallLanding;
 				else
 					oppositeBallLanding = [opponentRacket.pos.y + opponentRacket.properties.height / 2, 0];
 			}
 			let estimated: number | undefined = undefined;
-			if (calculatedBallLanding != undefined)
+			if (calculatedBallLanding != undefined && lastPredictionType < 3)
+			{
+				lastPredictionType = 3
 				estimated = calculatedBallLanding[0];
-			else if (calculatedBallShooting != undefined)
+				console.log("VA sur LANDING")
+			}
+			else if (calculatedBallShooting != undefined && lastPredictionType < 2)
+			{
+				lastPredictionType = 2
 				estimated = calculatedBallShooting[0];
-			else if (oppositeBallLanding !== undefined)
+				console.log("VA sur SHOOTING")
+			}
+			else if (oppositeBallLanding !== undefined && lastPredictionType < 1)
+			{
+				lastPredictionType = 1;
 				estimated = oppositeBallLanding[0];
+				console.log("VA sur OPPOSITE")
+			}
 			else
 				return ;
             this.interceptBall(estimated, tryCount);
             tryCount++;
-		}, ((Math.random() - 0.50) * IA.DEFAULT_ADJUST_INTERVAL_RANGE) + IA.DEFAULT_ADJUST_INTERVAL));
+		}, IA.DEFAULT_ADJUST_INTERVAL));
 		return ;
 	}
 }
